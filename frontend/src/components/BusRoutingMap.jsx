@@ -174,13 +174,19 @@ const BusRoutingMap = () => {
               }}
               onCloseClick={() => setSelectedCamper(null)}
             >
-              <div className="p-2" data-testid="camper-info-window">
-                <h3 className="font-bold text-base mb-2">
+              <div className="p-2 max-w-xs" data-testid="camper-info-window">
+                <h3 className="font-bold text-base md:text-lg mb-2">
                   {selectedCamper.first_name} {selectedCamper.last_name}
                 </h3>
-                <div className="space-y-1 text-sm">
-                  <div>
-                    <span className="font-semibold">Bus:</span> {selectedCamper.bus_number}
+                <div className="space-y-1 text-xs md:text-sm">
+                  <div className="flex flex-wrap items-center gap-1">
+                    <span className="font-semibold">Bus:</span> 
+                    <span 
+                      className="px-2 py-0.5 rounded text-white text-xs font-medium"
+                      style={{ backgroundColor: selectedCamper.bus_color }}
+                    >
+                      {selectedCamper.bus_number}
+                    </span>
                   </div>
                   <div>
                     <span className="font-semibold">Session:</span> {selectedCamper.session}
@@ -207,75 +213,156 @@ const BusRoutingMap = () => {
           )}
         </Map>
 
-        <Card className="absolute top-4 left-4 w-80 shadow-xl border-0" data-testid="control-panel">
-          <div className="p-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-t-lg">
-            <h2 className="text-xl font-bold">Camp Bus Routing</h2>
-            <p className="text-sm text-blue-100 mt-1">33 Bus Routes</p>
-          </div>
-          
-          <div className="p-4 space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="csv-upload" className="block">
+        {/* Control Panel - Responsive */}
+        <Card 
+          className={`
+            fixed md:absolute 
+            top-0 md:top-4 
+            left-0 md:left-4 
+            w-full md:w-96 
+            h-full md:h-auto md:max-h-[calc(100vh-2rem)]
+            shadow-2xl md:shadow-xl 
+            border-0 md:border
+            transition-transform duration-300 ease-in-out
+            z-40 md:z-10
+            ${isPanelOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          `}
+          data-testid="control-panel"
+        >
+          <div className="h-full md:h-auto flex flex-col">
+            {/* Header */}
+            <div className="p-4 md:p-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl md:text-2xl font-bold">Camp Bus Routing</h2>
+                  <p className="text-sm text-blue-100 mt-1">33 Bus Routes</p>
+                </div>
                 <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                  onClick={() => document.getElementById('csv-upload').click()}
-                  data-testid="upload-csv-btn"
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden text-white hover:bg-blue-700"
+                  onClick={() => setIsPanelOpen(false)}
                 >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload CSV Data
+                  <X className="w-5 h-5" />
                 </Button>
-              </label>
-              <input
-                id="csv-upload"
-                type="file"
-                accept=".csv"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-              
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={fetchCampers}
-                data-testid="refresh-btn"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh Data
-              </Button>
-            </div>
-            
-            <div className="border-t pt-4">
-              <h3 className="font-semibold mb-2 text-sm text-gray-700">Active Buses ({uniqueBuses.length})</h3>
-              <div className="max-h-96 overflow-y-auto space-y-1">
-                {uniqueBuses.map((bus) => {
-                  const busColor = campers.find(c => c.bus_number === bus)?.bus_color || '#000000';
-                  const busCount = campers.filter(c => c.bus_number === bus).length;
-                  return (
-                    <div
-                      key={bus}
-                      className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors"
-                      data-testid={`bus-list-item-${bus}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-4 h-4 rounded-full border-2 border-white shadow"
-                          style={{ backgroundColor: busColor }}
-                        />
-                        <span className="font-medium text-sm">{bus}</span>
-                      </div>
-                      <span className="text-xs text-gray-600">{busCount} stops</span>
-                    </div>
-                  );
-                })}
               </div>
             </div>
             
-            <div className="border-t pt-4 text-center text-sm text-gray-600">
-              <p>Total Campers: <span className="font-bold text-gray-800">{campers.length}</span></p>
-              <p className="text-xs text-gray-500 mt-1">Auto-refreshes daily at 6:00 AM</p>
+            {/* Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {/* Action Buttons */}
+              <div className="space-y-2">
+                <label htmlFor="csv-upload" className="block">
+                  <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-base"
+                    onClick={() => document.getElementById('csv-upload').click()}
+                    data-testid="upload-csv-btn"
+                  >
+                    <Upload className="w-5 h-5 mr-2" />
+                    Upload CSV Data
+                  </Button>
+                </label>
+                <input
+                  id="csv-upload"
+                  type="file"
+                  accept=".csv"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+                
+                <Button
+                  variant="outline"
+                  className="w-full h-12 text-base"
+                  onClick={fetchCampers}
+                  data-testid="refresh-btn"
+                >
+                  <RefreshCw className="w-5 h-5 mr-2" />
+                  Refresh Data
+                </Button>
+
+                {selectedBusFilter && (
+                  <Button
+                    variant="outline"
+                    className="w-full h-12 text-base border-blue-600 text-blue-600 hover:bg-blue-50"
+                    onClick={() => setSelectedBusFilter(null)}
+                  >
+                    <MapPin className="w-5 h-5 mr-2" />
+                    Show All Buses
+                  </Button>
+                )}
+              </div>
+              
+              {/* Bus List */}
+              <div className="border-t pt-4">
+                <h3 className="font-semibold mb-3 text-sm text-gray-700 flex items-center justify-between">
+                  <span>Active Buses ({uniqueBuses.length})</span>
+                  {selectedBusFilter && (
+                    <span className="text-xs text-blue-600">Filtered</span>
+                  )}
+                </h3>
+                <div className="space-y-2 max-h-96 md:max-h-[40vh] overflow-y-auto">
+                  {uniqueBuses.map((bus) => {
+                    const busColor = campers.find(c => c.bus_number === bus)?.bus_color || '#000000';
+                    const busCount = campers.filter(c => c.bus_number === bus).length;
+                    const isSelected = selectedBusFilter === bus;
+                    
+                    return (
+                      <button
+                        key={bus}
+                        onClick={() => handleBusFilter(bus)}
+                        className={`
+                          w-full flex items-center justify-between p-3 rounded-lg
+                          transition-all duration-200 active:scale-98
+                          ${isSelected 
+                            ? 'bg-blue-100 border-2 border-blue-600 shadow-md' 
+                            : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
+                          }
+                        `}
+                        data-testid={`bus-list-item-${bus}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-6 h-6 md:w-5 md:h-5 rounded-full border-2 border-white shadow flex-shrink-0"
+                            style={{ backgroundColor: busColor }}
+                          />
+                          <span className={`font-medium text-sm md:text-base ${isSelected ? 'text-blue-700 font-bold' : ''}`}>
+                            {bus}
+                          </span>
+                        </div>
+                        <span className={`text-xs md:text-sm px-2 py-1 rounded ${isSelected ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                          {busCount} stops
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Stats Footer */}
+              <div className="border-t pt-4 text-center space-y-2">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-gray-600 text-xs mb-1">Total Campers</p>
+                    <p className="font-bold text-blue-700 text-xl">{campers.length}</p>
+                  </div>
+                  <div className="bg-green-50 p-3 rounded-lg">
+                    <p className="text-gray-600 text-xs mb-1">Active Buses</p>
+                    <p className="font-bold text-green-700 text-xl">{uniqueBuses.length}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">Auto-refreshes daily at 6:00 AM</p>
+              </div>
             </div>
           </div>
         </Card>
+
+        {/* Overlay for mobile when panel is open */}
+        {isPanelOpen && (
+          <div 
+            className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={() => setIsPanelOpen(false)}
+          />
+        )}
       </div>
     </APIProvider>
   );
