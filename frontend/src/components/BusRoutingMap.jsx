@@ -93,7 +93,29 @@ const BusRoutingMap = () => {
 
   const handleMarkerClick = useCallback((camper) => {
     setSelectedCamper(camper);
+    if (window.innerWidth < 768) {
+      setIsPanelOpen(false);
+    }
   }, []);
+
+  const handleBusFilter = (busNumber) => {
+    if (selectedBusFilter === busNumber) {
+      setSelectedBusFilter(null);
+    } else {
+      setSelectedBusFilter(busNumber);
+      const busStop = campers.find(c => c.bus_number === busNumber);
+      if (busStop) {
+        setMapCenter({
+          lat: busStop.location.latitude,
+          lng: busStop.location.longitude
+        });
+      }
+    }
+  };
+
+  const filteredCampers = selectedBusFilter 
+    ? campers.filter(c => c.bus_number === selectedBusFilter)
+    : campers;
 
   if (loading) {
     return (
@@ -108,15 +130,24 @@ const BusRoutingMap = () => {
 
   return (
     <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-      <div className="relative w-full h-screen">
+      <div className="relative w-full h-screen overflow-hidden">
+        {/* Mobile Menu Button */}
+        <Button
+          className="md:hidden fixed top-4 left-4 z-50 bg-blue-600 hover:bg-blue-700 shadow-lg h-12 w-12 rounded-full p-0"
+          onClick={() => setIsPanelOpen(!isPanelOpen)}
+          data-testid="mobile-menu-btn"
+        >
+          {isPanelOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </Button>
+
         <Map
           style={{ width: "100%", height: "100%" }}
-          defaultCenter={mapCenter}
+          center={mapCenter}
           defaultZoom={11}
           mapId="bus-routing-map"
           gestureHandling="greedy"
         >
-          {campers.map((camper, index) => (
+          {filteredCampers.map((camper, index) => (
             <AdvancedMarker
               key={`${camper.first_name}-${camper.last_name}-${index}`}
               position={{
