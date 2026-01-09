@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,67 +6,171 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone
-
+import requests
+import googlemaps
+from io import StringIO
+import csv
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
-app = FastAPI()
+gmaps = googlemaps.Client(key=os.environ['GOOGLE_MAPS_API_KEY'])
 
-# Create a router with the /api prefix
+app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
+BUS_COLORS = [
+    "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4",
+    "#46f0f0", "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff",
+    "#9a6324", "#fffac8", "#800000", "#aaffc3", "#808000", "#ffd8b1",
+    "#000075", "#808080", "#FFB6C1", "#FF69B4", "#FF1493", "#FFD700",
+    "#FFA500", "#FF4500", "#DC143C", "#8B0000", "#006400", "#228B22",
+    "#20B2AA", "#00CED1", "#191970"
+]
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+class GeoLocation(BaseModel):
+    latitude: float
+    longitude: float
+    address: Optional[str] = None
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class CamperPin(BaseModel):
+    first_name: str
+    last_name: str
+    location: GeoLocation
+    bus_number: str
+    bus_color: str
+    session: str
+    pickup_type: str
+    town: Optional[str] = None
+    zip_code: Optional[str] = None
 
-# Add your routes to the router instead of directly to app
+def get_bus_color(bus_number: str) -> str:
+    try:
+        bus_num = int(''.join(filter(str.isdigit, bus_number)))
+        return BUS_COLORS[(bus_num - 1) % len(BUS_COLORS)]
+    except:
+        return BUS_COLORS[0]
+
+def geocode_address(address: str, town: str = "", zip_code: str = "") -> Optional[GeoLocation]:
+    try:
+        full_address = f"{address}, {town}, {zip_code}" if town else address
+        if not full_address.strip():
+            return None
+        
+        result = gmaps.geocode(full_address)
+        if result and len(result) > 0:
+            location = result[0]['geometry']['location']
+            return GeoLocation(
+                latitude=location['lat'],
+                longitude=location['lng'],
+                address=result[0]['formatted_address']
+            )
+        return None
+    except Exception as e:
+        logging.error(f"Geocoding error for {full_address}: {str(e)}")
+        return None
+
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Bus Routing API"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+@api_router.get("/campers", response_model=List[CamperPin])
+async def get_campers():
+    try:
+        campminder_url = os.environ.get('CAMPMINDER_API_URL')
+        api_key = os.environ.get('CAMPMINDER_API_KEY')
+        
+        existing_campers = await db.campers.find({}, {"_id": 0}).to_list(None)
+        
+        if existing_campers:
+            return existing_campers
+        
+        return []
+    except Exception as e:
+        logging.error(f"Error fetching campers: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
+@api_router.post("/sync-campers")
+async def sync_campers(csv_data: Dict[str, Any]):
+    try:
+        pins = []
+        csv_content = csv_data.get('csv_content', '')
+        
+        if not csv_content:
+            raise HTTPException(status_code=400, detail="No CSV content provided")
+        
+        csv_file = StringIO(csv_content)
+        reader = csv.DictReader(csv_file)
+        
+        for row in reader:
+            am_method = row.get('Trans-AMDropOffMethod', '')
+            
+            if 'AM Bus' not in am_method:
+                continue
+            
+            am_bus = row.get('2026Transportation M AM Bus', '')
+            pm_bus = row.get('2026Transportation M PM Bus', '')
+            
+            first_name = row.get('First Name', '')
+            last_name = row.get('Last Name', '')
+            session = row.get('Enrolled Child Sessions', '')
+            
+            am_address = row.get('Trans-PickUpAddress', '')
+            am_town = row.get('Trans-PickUpTown', '')
+            am_zip = row.get('Trans-PickUpZip', '')
+            
+            pm_address = row.get('Trans-DropOffAddress', '')
+            pm_town = row.get('Trans-DropOffTown', '')
+            pm_zip = row.get('Trans-DropOffZip', '')
+            
+            if am_bus and am_address.strip():
+                location = geocode_address(am_address, am_town, am_zip)
+                if location:
+                    pins.append(CamperPin(
+                        first_name=first_name,
+                        last_name=last_name,
+                        location=location,
+                        bus_number=am_bus,
+                        bus_color=get_bus_color(am_bus),
+                        session=session,
+                        pickup_type="AM Pickup",
+                        town=am_town,
+                        zip_code=am_zip
+                    ))
+            
+            if pm_bus and pm_address.strip() and pm_address != am_address:
+                location = geocode_address(pm_address, pm_town, pm_zip)
+                if location:
+                    pins.append(CamperPin(
+                        first_name=first_name,
+                        last_name=last_name,
+                        location=location,
+                        bus_number=pm_bus,
+                        bus_color=get_bus_color(pm_bus),
+                        session=session,
+                        pickup_type="PM Drop-off",
+                        town=pm_town,
+                        zip_code=pm_zip
+                    ))
+        
+        await db.campers.delete_many({})
+        
+        if pins:
+            pins_dict = [pin.model_dump() for pin in pins]
+            await db.campers.insert_many(pins_dict)
+        
+        return {"status": "success", "count": len(pins)}
+    except Exception as e:
+        logging.error(f"Error syncing campers: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-# Include the router in the main app
 app.include_router(api_router)
 
 app.add_middleware(
@@ -77,7 +181,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
