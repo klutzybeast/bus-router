@@ -3,7 +3,7 @@ import { APIProvider, Map, AdvancedMarker, InfoWindow } from "@vis.gl/react-goog
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Upload, RefreshCw } from "lucide-react";
+import { Upload, RefreshCw, Menu, X, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -16,6 +16,8 @@ const BusRoutingMap = () => {
   const [loading, setLoading] = useState(true);
   const [mapCenter, setMapCenter] = useState({ lat: 40.7128, lng: -73.7949 });
   const [uniqueBuses, setUniqueBuses] = useState([]);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [selectedBusFilter, setSelectedBusFilter] = useState(null);
 
   const fetchCampers = useCallback(async () => {
     try {
