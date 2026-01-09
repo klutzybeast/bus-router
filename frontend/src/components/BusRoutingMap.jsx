@@ -157,7 +157,7 @@ const BusRoutingMap = () => {
               onClick={() => handleMarkerClick(camper)}
             >
               <div 
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-lg border-2 border-white cursor-pointer hover:scale-110 transition-transform"
+                className="w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-lg border-2 border-white cursor-pointer hover:scale-110 active:scale-95 transition-transform"
                 style={{ backgroundColor: camper.bus_color }}
                 data-testid={`bus-marker-${camper.bus_number}`}
               >
