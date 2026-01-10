@@ -1,7 +1,7 @@
 import httpx
 import logging
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 import asyncio
 
 logger = logging.getLogger(__name__)
@@ -11,14 +11,52 @@ class CampMinderAPI:
         self.api_key = api_key
         self.subscription_key = subscription_key
         self.api_url = api_url.rstrip('/')
-        self.token = None
+        self.jwt_token = None
         self.token_expiry = None
     
+    async def get_jwt_token(self) -> str:
+        """Get JWT token from CampMinder using API key and subscription key"""
+        # If token exists and not expiring soon, return it
+        if self.jwt_token and self.token_expiry and datetime.now() < self.token_expiry - timedelta(minutes=5):
+            return self.jwt_token
+        
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"{self.api_url}/api/Auth/GetJwtWithApiKey",
+                    headers={
+                        "Ocp-Apim-Subscription-Key": self.subscription_key,
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "apiKey": self.api_key
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    self.jwt_token = data.get('token') or data.get('jwt') or data.get('access_token')
+                    # JWT expires in 1 hour
+                    self.token_expiry = datetime.now() + timedelta(hours=1)
+                    logger.info("✓ Successfully obtained JWT token from CampMinder")
+                    return self.jwt_token
+                else:
+                    logger.error(f"Failed to get JWT token: {response.status_code} - {response.text}")
+                    return None
+        except Exception as e:
+            logger.error(f"Error getting JWT token: {str(e)}")
+            return None
+    
     async def get_auth_headers(self) -> Dict[str, str]:
-        """Get authentication headers with subscription key"""
+        """Get authentication headers with JWT token"""
+        token = await self.get_jwt_token()
+        
+        if not token:
+            raise Exception("Failed to obtain JWT token from CampMinder")
+        
         return {
             "Ocp-Apim-Subscription-Key": self.subscription_key,
-            "Authorization": f"Bearer {self.api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
         }
     
