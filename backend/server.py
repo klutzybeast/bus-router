@@ -305,7 +305,7 @@ async def auto_assign_new_camper(camper_id: str):
             "synced_to_campminder": success
         }
     except Exception as e:
-        logging.error(f\"Error auto-assigning camper: {str(e)}\")
+        logging.error(f"Error auto-assigning camper: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/sync-assignments-to-campminder")
