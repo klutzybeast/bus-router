@@ -196,6 +196,143 @@ async def refresh_colors():
         logging.error(f"Error refreshing colors: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/optimize-routes")
+async def optimize_routes():
+    \"\"\"Automatically optimize bus routes for all campers\"\"\"
+    try:
+        # Get all campers without bus assignments
+        campers = await db.campers.find({}).to_list(None)
+        
+        if not campers:
+            return {"status": "success", "message": "No campers to optimize"}
+        
+        # Run route optimization
+        optimized_routes = route_optimizer.optimize_routes(campers)
+        
+        # Rebalance for efficiency
+        balanced_routes = route_optimizer.rebalance_routes(optimized_routes)
+        
+        # Update database with assignments
+        updates = []
+        for bus_num, route in balanced_routes.items():
+            for camper_data in route:
+                camper_id = camper_data['camper_id']
+                bus_number_str = f\"Bus #{bus_num:02d}\"
+                
+                await db.campers.update_one(
+                    {"_id": camper_id},
+                    {"$set": {
+                        "bus_number": bus_number_str,
+                        "bus_color": get_bus_color(bus_number_str)
+                    }}
+                )
+                
+                updates.append({
+                    "camper_id": camper_id,
+                    "bus_number": bus_num
+                })
+        
+        return {
+            "status": "success",
+            "optimized_buses": len(balanced_routes),
+            "assigned_campers": len(updates),
+            "routes": {f\"Bus #{k:02d}\": len(v) for k, v in balanced_routes.items()}
+        }
+    except Exception as e:
+        logging.error(f\"Error optimizing routes: {str(e)}\")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post(\"/auto-assign-new-camper\")
+async def auto_assign_new_camper(camper_id: str):
+    \"\"\"Automatically assign optimal bus to a new camper\"\"\"
+    try:
+        # Get the new camper
+        new_camper = await db.campers.find_one({\"_id\": camper_id})
+        if not new_camper:
+            raise HTTPException(status_code=404, detail=\"Camper not found\")
+        
+        # Get existing bus routes
+        all_campers = await db.campers.find({\"bus_number\": {\"$exists\": True}}).to_list(None)
+        existing_routes = {}
+        
+        for camper in all_campers:
+            bus_num_str = camper.get('bus_number', '')
+            if bus_num_str:
+                # Extract bus number
+                bus_num = int(''.join(filter(str.isdigit, bus_num_str)))
+                if bus_num not in existing_routes:
+                    existing_routes[bus_num] = []
+                
+                if camper.get('location'):
+                    existing_routes[bus_num].append({
+                        'lat': camper['location']['latitude'],
+                        'lng': camper['location']['longitude']
+                    })
+        
+        # Find optimal bus
+        camper_address = {
+            'lat': new_camper['location']['latitude'],
+            'lng': new_camper['location']['longitude']
+        }
+        
+        optimal_bus = route_optimizer.find_optimal_bus(camper_address, existing_routes)
+        bus_number_str = f\"Bus #{optimal_bus:02d}\"
+        
+        # Update in database
+        await db.campers.update_one(
+            {\"_id\": camper_id},
+            {\"$set\": {
+                \"bus_number\": bus_number_str,
+                \"bus_color\": get_bus_color(bus_number_str)
+            }}
+        )
+        
+        # Update in CampMinder
+        success = await campminder_api.update_camper_bus_assignment(camper_id, optimal_bus)
+        
+        return {
+            \"status\": \"success\",
+            \"camper_id\": camper_id,
+            \"assigned_bus\": bus_number_str,
+            \"synced_to_campminder\": success
+        }
+    except Exception as e:
+        logging.error(f\"Error auto-assigning camper: {str(e)}\")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post(\"/sync-assignments-to-campminder\")
+async def sync_assignments_to_campminder():
+    \"\"\"Sync all bus assignments back to CampMinder\"\"\"
+    try:
+        # Get all campers with bus assignments
+        campers = await db.campers.find({\"bus_number\": {\"$exists\": True}}).to_list(None)
+        
+        assignments = []
+        for camper in campers:
+            bus_num_str = camper.get('bus_number', '')
+            if bus_num_str:
+                bus_num = int(''.join(filter(str.isdigit, bus_num_str)))
+                assignments.append({
+                    \"camper_id\": camper['_id'],
+                    \"bus_number\": bus_num
+                })
+        
+        # Bulk update in CampMinder
+        results = await campminder_api.bulk_update_bus_assignments(assignments)
+        
+        successful = sum(1 for v in results.values() if v)
+        failed = sum(1 for v in results.values() if not v)
+        
+        return {
+            \"status\": \"success\",
+            \"total\": len(assignments),
+            \"successful\": successful,
+            \"failed\": failed
+        }
+    except Exception as e:
+        logging.error(f\"Error syncing to CampMinder: {str(e)}\")
+        raise HTTPException(status_code=500, detail=str(e))
+
 app.include_router(api_router)
 
 app.add_middleware(
