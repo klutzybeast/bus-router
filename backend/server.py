@@ -127,6 +127,11 @@ async def sync_campers(csv_data: Dict[str, Any]):
             raise HTTPException(status_code=400, detail="No CSV content provided")
         
         csv_file = StringIO(csv_content)
+        # Remove BOM if present
+        if csv_content.startswith('\ufeff'):
+            csv_content = csv_content[1:]
+            csv_file = StringIO(csv_content)
+        
         reader = csv.DictReader(csv_file)
         
         for row in reader:
