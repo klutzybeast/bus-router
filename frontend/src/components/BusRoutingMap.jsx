@@ -313,12 +313,22 @@ const BusRoutingMap = () => {
                 
                 <Button
                   variant="outline"
+                  className="w-full h-12 text-base bg-green-50 hover:bg-green-100 border-green-600 text-green-700"
+                  onClick={handleSyncCampMinder}
+                  data-testid="sync-campminder-btn"
+                >
+                  <RefreshCw className="w-5 h-5 mr-2" />
+                  Sync CampMinder Now
+                </Button>
+                
+                <Button
+                  variant="outline"
                   className="w-full h-12 text-base"
                   onClick={fetchCampers}
                   data-testid="refresh-btn"
                 >
                   <RefreshCw className="w-5 h-5 mr-2" />
-                  Refresh Data
+                  Refresh Map Data
                 </Button>
 
                 {selectedBusFilter && (
