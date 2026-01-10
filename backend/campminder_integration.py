@@ -94,16 +94,17 @@ class CampMinderAPI:
             
             params = {}
             if since:
-                params['since'] = since.isoformat()
+                params['modifiedSince'] = since.isoformat()
             
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.get(
-                    f"{self.api_url}/api/entity/person/camper/GetCampers",
+                    f"{self.api_url}/persons",
                     headers=headers,
                     params=params
                 )
                 
                 if response.status_code == 200:
+                    logger.info(f"✓ Fetched campers from CampMinder")
                     return response.json()
                 else:
                     logger.error(f"Failed to fetch campers: {response.status_code}")
