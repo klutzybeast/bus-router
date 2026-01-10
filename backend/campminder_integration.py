@@ -22,20 +22,18 @@ class CampMinderAPI:
         
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(
-                    f"{self.api_url}/api/Auth/GetJwtWithApiKey",
+                response = await client.get(
+                    f"{self.api_url}/auth/apikey",
                     headers={
                         "Ocp-Apim-Subscription-Key": self.subscription_key,
-                        "Content-Type": "application/json"
-                    },
-                    json={
-                        "apiKey": self.api_key
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Accept": "application/json"
                     }
                 )
                 
                 if response.status_code == 200:
                     data = response.json()
-                    self.jwt_token = data.get('token') or data.get('jwt') or data.get('access_token')
+                    self.jwt_token = data.get('Token')
                     # JWT expires in 1 hour
                     self.token_expiry = datetime.now() + timedelta(hours=1)
                     logger.info("✓ Successfully obtained JWT token from CampMinder")
