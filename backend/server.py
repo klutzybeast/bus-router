@@ -171,6 +171,23 @@ async def sync_campers(csv_data: Dict[str, Any]):
         logging.error(f"Error syncing campers: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/refresh-colors")
+async def refresh_colors():
+    try:
+        campers = await db.campers.find({}).to_list(None)
+        
+        for camper in campers:
+            new_color = get_bus_color(camper['bus_number'])
+            await db.campers.update_one(
+                {"_id": camper["_id"]},
+                {"$set": {"bus_color": new_color}}
+            )
+        
+        return {"status": "success", "updated": len(campers)}
+    except Exception as e:
+        logging.error(f"Error refreshing colors: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 app.include_router(api_router)
 
 app.add_middleware(
