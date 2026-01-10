@@ -359,4 +359,174 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    global sync_task
+    if sync_task:
+        sync_task.cancel()
     client.close()
+
+# Auto-sync functions
+async def auto_sync_campminder():
+    """Background task to automatically sync with CampMinder"""
+    global last_sync_time
+    
+    logger.info("Starting auto-sync with CampMinder...")
+    
+    try:
+        # Fetch new campers from CampMinder
+        new_campers_data = await campminder_api.get_new_campers(since=last_sync_time)
+        
+        if not new_campers_data:
+            logger.info("No new campers found")
+            last_sync_time = datetime.now(timezone.utc)
+            return
+        
+        logger.info(f"Found {len(new_campers_data)} new/updated campers")
+        
+        new_campers_count = 0
+        
+        for camper_data in new_campers_data:
+            # Check if camper requires bus transportation
+            trans_type = camper_data.get('Trans-AMDropOffMethod', '')
+            if 'AM Bus' not in trans_type:
+                continue
+            
+            # Get address information
+            address = camper_data.get('Trans-PickUpAddress', '')
+            town = camper_data.get('Trans-PickUpTown', '')
+            zip_code = camper_data.get('Trans-PickUpZip', '')
+            
+            if not address.strip():
+                logger.warning(f"Skipping camper {camper_data.get('First Name')} {camper_data.get('Last Name')}: No address")
+                continue
+            
+            # Geocode address
+            location = geocode_address(address, town, zip_code)
+            if not location:
+                logger.warning(f"Could not geocode address for {camper_data.get('First Name')} {camper_data.get('Last Name')}")
+                continue
+            
+            # Check if camper already exists
+            camper_id = f"{camper_data.get('Last Name', '')}_{camper_data.get('First Name', '')}_{zip_code}".replace(' ', '_')
+            existing = await db.campers.find_one({"_id": camper_id})
+            
+            if existing:
+                logger.info(f"Camper {camper_id} already exists, skipping")
+                continue
+            
+            # Create camper record
+            camper = {
+                "_id": camper_id,
+                "first_name": camper_data.get('First Name', ''),
+                "last_name": camper_data.get('Last Name', ''),
+                "session": camper_data.get('Enrolled Child Sessions', ''),
+                "location": {
+                    "latitude": location.latitude,
+                    "longitude": location.longitude,
+                    "address": location.address
+                },
+                "town": town,
+                "zip_code": zip_code,
+                "pickup_type": "AM Pickup",
+                "created_at": datetime.now(timezone.utc)
+            }
+            
+            # Get existing routes
+            all_campers = await db.campers.find({"bus_number": {"$exists": True}}).to_list(None)
+            existing_routes = {}
+            
+            for existing_camper in all_campers:
+                bus_num_str = existing_camper.get('bus_number', '')
+                if bus_num_str:
+                    bus_num = int(''.join(filter(str.isdigit, bus_num_str)))
+                    if bus_num not in existing_routes:
+                        existing_routes[bus_num] = []
+                    
+                    if existing_camper.get('location'):
+                        existing_routes[bus_num].append({
+                            'lat': existing_camper['location']['latitude'],
+                            'lng': existing_camper['location']['longitude']
+                        })
+            
+            # Find optimal bus
+            camper_address = {
+                'lat': location.latitude,
+                'lng': location.longitude
+            }
+            
+            optimal_bus = route_optimizer.find_optimal_bus(camper_address, existing_routes)
+            bus_number_str = f"Bus #{optimal_bus:02d}"
+            
+            # Add bus assignment
+            camper['bus_number'] = bus_number_str
+            camper['bus_color'] = get_bus_color(bus_number_str)
+            
+            # Insert into database
+            await db.campers.insert_one(camper)
+            
+            # Update CampMinder with assignment
+            success = await campminder_api.update_camper_bus_assignment(camper_id, optimal_bus)
+            
+            logger.info(f"✓ Auto-assigned {camper['first_name']} {camper['last_name']} to {bus_number_str} (CampMinder sync: {success})")
+            new_campers_count += 1
+        
+        last_sync_time = datetime.now(timezone.utc)
+        logger.info(f"Auto-sync complete: {new_campers_count} new campers processed")
+        
+        # Store sync status in database
+        await db.sync_status.update_one(
+            {"_id": "auto_sync"},
+            {"$set": {
+                "last_sync": last_sync_time,
+                "new_campers": new_campers_count,
+                "status": "success"
+            }},
+            upsert=True
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in auto-sync: {str(e)}")
+        await db.sync_status.update_one(
+            {"_id": "auto_sync"},
+            {"$set": {
+                "last_sync": datetime.now(timezone.utc),
+                "status": "error",
+                "error": str(e)
+            }},
+            upsert=True
+        )
+
+async def sync_loop():
+    """Continuous sync loop"""
+    global last_sync_time
+    
+    while True:
+        try:
+            await auto_sync_campminder()
+        except Exception as e:
+            logger.error(f"Error in sync loop: {str(e)}")
+        
+        # Wait for next sync interval
+        await asyncio.sleep(SYNC_INTERVAL_MINUTES * 60)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global sync_task
+    
+    # Startup
+    logger.info(f"Auto-sync enabled: {AUTO_SYNC_ENABLED}")
+    if AUTO_SYNC_ENABLED:
+        logger.info(f"Starting auto-sync task (interval: {SYNC_INTERVAL_MINUTES} minutes)")
+        sync_task = asyncio.create_task(sync_loop())
+    
+    yield
+    
+    # Shutdown
+    if sync_task:
+        sync_task.cancel()
+        try:
+            await sync_task
+        except asyncio.CancelledError:
+            pass
+
+# Update app with lifespan
+app = FastAPI(lifespan=lifespan)
