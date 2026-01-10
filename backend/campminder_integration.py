@@ -26,7 +26,7 @@ class CampMinderAPI:
                     f"{self.api_url}/auth/apikey",
                     headers={
                         "Ocp-Apim-Subscription-Key": self.subscription_key,
-                        "Authorization": f"Bearer {self.api_key}",
+                        "Authorization": self.api_key,  # No "Bearer " prefix for this endpoint
                         "Accept": "application/json"
                     }
                 )
@@ -34,15 +34,16 @@ class CampMinderAPI:
                 if response.status_code == 200:
                     data = response.json()
                     self.jwt_token = data.get('Token')
+                    self.client_ids = data.get('ClientIDs', '')
                     # JWT expires in 1 hour
                     self.token_expiry = datetime.now() + timedelta(hours=1)
-                    logger.info("✓ Successfully obtained JWT token from CampMinder")
+                    logger.info(f"✓ JWT token obtained. ClientIDs: {self.client_ids}")
                     return self.jwt_token
                 else:
-                    logger.error(f"Failed to get JWT token: {response.status_code} - {response.text}")
+                    logger.error(f"Failed to get JWT: {response.status_code} - {response.text}")
                     return None
         except Exception as e:
-            logger.error(f"Error getting JWT token: {str(e)}")
+            logger.error(f"Error getting JWT: {str(e)}")
             return None
     
     async def get_auth_headers(self) -> Dict[str, str]:
