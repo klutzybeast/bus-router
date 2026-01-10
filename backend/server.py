@@ -419,7 +419,7 @@ async def get_compact_availability():
     """Get compact seat availability summary for Google Sheets"""
     try:
         campers = await db.campers.find({
-            "bus_number": {"$exists": True, "$ne": "NONE", "$ne": ""}
+            "bus_number": {"$exists": True, "$nin": ["NONE", ""]}
         }).to_list(None)
         compact_data = sheets_generator.generate_compact_availability(campers)
         
