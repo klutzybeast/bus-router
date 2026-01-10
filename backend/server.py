@@ -388,7 +388,9 @@ async def get_seat_availability_for_sheets():
 async def get_compact_availability():
     """Get compact seat availability summary for Google Sheets"""
     try:
-        campers = await db.campers.find({}).to_list(None)
+        campers = await db.campers.find({
+            "bus_number": {"$exists": True, "$ne": "NONE", "$ne": ""}
+        }).to_list(None)
         compact_data = sheets_generator.generate_compact_availability(campers)
         
         return {
@@ -398,6 +400,79 @@ async def get_compact_availability():
         }
     except Exception as e:
         logging.error(f"Error generating compact data: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/route-sheet/{bus_number}")
+async def get_route_sheet(bus_number: str):
+    """Get printable route sheet with turn-by-turn directions for a specific bus"""
+    try:
+        # Get campers for this bus
+        campers = await db.campers.find({
+            "bus_number": bus_number
+        }).to_list(None)
+        
+        if not campers:
+            raise HTTPException(status_code=404, detail=f"No campers found for {bus_number}")
+        
+        # Generate route sheet with directions
+        route_sheet = route_printer.generate_route_sheet(bus_number, campers)
+        
+        return route_sheet
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error generating route sheet: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/route-sheet/{bus_number}/print")
+async def get_printable_route_sheet(bus_number: str):
+    """Get printable HTML route sheet"""
+    try:
+        from fastapi.responses import HTMLResponse
+        
+        # Get campers for this bus
+        campers = await db.campers.find({
+            "bus_number": bus_number
+        }).to_list(None)
+        
+        if not campers:
+            return HTMLResponse(content=f"<h1>No campers found for {bus_number}</h1>", status_code=404)
+        
+        # Generate route sheet
+        route_sheet = route_printer.generate_route_sheet(bus_number, campers)
+        
+        # Generate HTML
+        html = route_printer.generate_printable_html(route_sheet)
+        
+        return HTMLResponse(content=html)
+    except Exception as e:
+        logging.error(f"Error generating printable route: {str(e)}")
+        return HTMLResponse(content=f"<h1>Error: {str(e)}</h1>", status_code=500)
+
+@api_router.get("/campers/filter")
+async def filter_campers(bus_number: str = None, session: str = None, pickup_type: str = None):
+    """Filter campers by bus, session, or pickup type"""
+    try:
+        query = {"bus_number": {"$exists": True, "$ne": "NONE", "$ne": ""}}
+        
+        if bus_number:
+            query["bus_number"] = bus_number
+        
+        if session:
+            query["session"] = {"$regex": session, "$options": "i"}
+        
+        if pickup_type:
+            query["pickup_type"] = pickup_type
+        
+        campers = await db.campers.find(query, {"_id": 0}).to_list(None)
+        
+        return {
+            "status": "success",
+            "count": len(campers),
+            "campers": campers
+        }
+    except Exception as e:
+        logging.error(f"Error filtering campers: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 logging.basicConfig(
