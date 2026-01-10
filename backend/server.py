@@ -149,7 +149,7 @@ async def sync_campers(csv_data: Dict[str, Any]):
             pm_town = row.get('Trans-DropOffTown', '')
             pm_zip = row.get('Trans-DropOffZip', '')
             
-            if am_bus and am_address.strip():
+            if am_bus and am_address.strip() and 'NONE' not in am_bus.upper():
                 location = geocode_address(am_address, am_town, am_zip)
                 if location:
                     pins.append(CamperPin(
