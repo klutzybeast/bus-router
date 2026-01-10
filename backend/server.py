@@ -680,7 +680,7 @@ async def auto_sync_campminder():
                         updated_campers_count += 1
             
             # Process PM drop-off (if different from AM address)
-            if pm_address.strip() and pm_address != am_address:
+            if pm_bus and 'NONE' not in pm_bus.upper() and pm_address.strip() and pm_address != am_address:
                 campminder_camper_ids.add(camper_id_pm)
                 
                 location = geocode_address(pm_address, pm_town, pm_zip)
