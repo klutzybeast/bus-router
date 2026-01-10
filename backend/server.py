@@ -389,11 +389,12 @@ async def trigger_manual_sync():
 async def get_seat_availability_for_sheets():
     """Get formatted seat availability data for Google Sheets - COVER SHEET FORMAT"""
     try:
+        # Include ALL campers with bus assignments (even without valid locations)
         campers = await db.campers.find({
             "bus_number": {"$exists": True, "$ne": "NONE", "$ne": ""}
         }).to_list(None)
         
-        # Use compact Cover Sheet format instead of detailed format
+        # Use compact Cover Sheet format
         sheet_data = cover_sheet_generator.generate_cover_sheet(campers)
         
         return {
