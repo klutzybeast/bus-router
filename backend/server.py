@@ -106,9 +106,10 @@ async def root():
 @api_router.get("/campers", response_model=List[CamperPin])
 async def get_campers():
     try:
-        # Only return campers with valid bus assignments (exclude NONE)
+        # Return campers with valid bus assignments AND valid locations (exclude lat/lng = 0)
         existing_campers = await db.campers.find({
-            "bus_number": {"$exists": True, "$ne": "NONE", "$ne": ""}
+            "bus_number": {"$exists": True, "$ne": "NONE", "$ne": ""},
+            "location.latitude": {"$ne": 0.0}
         }, {"_id": 0}).to_list(None)
         
         return existing_campers
