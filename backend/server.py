@@ -483,7 +483,7 @@ async def get_printable_route_sheet(bus_number: str):
 async def filter_campers(bus_number: str = None, session: str = None, pickup_type: str = None):
     """Filter campers by bus, session, or pickup type"""
     try:
-        query = {"bus_number": {"$exists": True, "$ne": "NONE", "$ne": ""}}
+        query = {"bus_number": {"$exists": True, "$nin": ["NONE", ""]}}
         
         if bus_number:
             query["bus_number"] = bus_number
