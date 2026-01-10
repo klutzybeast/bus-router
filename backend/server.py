@@ -247,7 +247,7 @@ async def optimize_routes():
             "routes": {f"Bus #{k:02d}": len(v) for k, v in balanced_routes.items()}
         }
     except Exception as e:
-        logging.error(f\"Error optimizing routes: {str(e)}\")
+        logging.error(f"Error optimizing routes: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/auto-assign-new-camper")
