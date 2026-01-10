@@ -315,6 +315,30 @@ const BusRoutingMap = () => {
                 )}
               </div>
               
+              {/* Filters */}
+              <div className="border-t pt-4 space-y-3">
+                <h3 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
+                  <Filter className="w-4 h-4" />
+                  Filters
+                </h3>
+                
+                <div>
+                  <label className="text-xs text-gray-600 mb-1 block">Session Type</label>
+                  <Select value={sessionFilter} onValueChange={setSessionFilter}>
+                    <SelectTrigger className="w-full" data-testid="session-filter">
+                      <SelectValue placeholder="All Sessions" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Sessions</SelectItem>
+                      <SelectItem value="full">Full Season</SelectItem>
+                      <SelectItem value="half1">Half Season 1</SelectItem>
+                      <SelectItem value="half2">Half Season 2</SelectItem>
+                      <SelectItem value="flex">Flex Days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
               {/* Bus List */}
               <div className="border-t pt-4">
                 <h3 className="font-semibold mb-3 text-sm text-gray-700 flex items-center justify-between">
