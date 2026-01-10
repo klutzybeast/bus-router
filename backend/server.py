@@ -23,7 +23,13 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# Initialize services
 gmaps = googlemaps.Client(key=os.environ['GOOGLE_MAPS_API_KEY'])
+route_optimizer = RouteOptimizer(num_buses=33, max_capacity_per_bus=50)
+campminder_api = CampMinderAPI(
+    api_key=os.environ.get('CAMPMINDER_API_KEY', ''),
+    api_url=os.environ.get('CAMPMINDER_API_URL', 'https://webapi.campminder.com')
+)
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
