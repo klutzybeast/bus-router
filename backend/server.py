@@ -28,8 +28,8 @@ db = client[os.environ['DB_NAME']]
 
 # Initialize services
 gmaps = googlemaps.Client(key=os.environ['GOOGLE_MAPS_API_KEY'])
-route_optimizer = RouteOptimizer(num_buses=33, max_capacity_per_bus=50)
-sheets_generator = SheetsDataGenerator(max_capacity_per_bus=50)
+route_optimizer = RouteOptimizer(num_buses=34)  # Updated to 34 buses
+sheets_generator = SheetsDataGenerator()
 campminder_api = CampMinderAPI(
     api_key=os.environ.get('CAMPMINDER_API_KEY', ''),
     api_url=os.environ.get('CAMPMINDER_API_URL', 'https://webapi.campminder.com')
