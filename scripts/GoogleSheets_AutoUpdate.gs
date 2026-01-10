@@ -40,55 +40,81 @@ function updateSeatAvailability() {
     // Clear existing data
     sheet.clear();
     
-    // Add title
-    sheet.getRange(1, 1).setValue('🚌 Camp Bus Seat Availability - 2026')
-      .setFontSize(16)
+    // Add title with styling
+    sheet.getRange(1, 1, 1, 7).merge()
+      .setValue(data[0][0])
+      .setFontSize(18)
       .setFontWeight('bold')
       .setBackground('#1e40af')
-      .setFontColor('#ffffff');
-    
-    sheet.getRange(2, 1).setValue('Last Updated: ' + Utilities.formatDate(lastUpdated, Session.getScriptTimeZone(), 'MM/dd/yyyy HH:mm:ss'))
-      .setFontSize(10)
-      .setFontColor('#666666');
-    
-    // Write data starting from row 4
-    const startRow = 4;
-    const numRows = data.length;
-    const numCols = data[0].length;
-    
-    // Write all data at once for better performance
-    sheet.getRange(startRow, 1, numRows, numCols).setValues(data);
-    
-    // Format header row
-    sheet.getRange(startRow, 1, 1, numCols)
-      .setBackground('#2563eb')
       .setFontColor('#ffffff')
-      .setFontWeight('bold')
       .setHorizontalAlignment('center');
     
-    // Format data rows
-    for (let i = 1; i < numRows; i++) {
-      const row = startRow + i;
-      const available = sheet.getRange(row, 4).getValue();
+    sheet.getRange(2, 1, 1, 7).merge()
+      .setValue(data[1][0])
+      .setFontSize(12)
+      .setBackground('#3b82f6')
+      .setFontColor('#ffffff')
+      .setHorizontalAlignment('center');
+    
+    // Write all data starting from row 3
+    const dataRows = data.slice(2);  // Skip title rows
+    sheet.getRange(3, 1, dataRows.length, 7).setValues(
+      dataRows.map(row => {
+        // Pad rows to 7 columns
+        while (row.length < 7) row.push('');
+        return row.slice(0, 7);
+      })
+    );
+    
+    // Format bus headers (lines starting with "Rolling River Bus Number:")
+    let currentRow = 3;
+    for (let i = 0; i < dataRows.length; i++) {
+      const row = dataRows[i];
+      const cellValue = row[0] ? row[0].toString() : '';
       
-      // Color code based on availability
-      if (available <= 0) {
-        sheet.getRange(row, 1, 1, numCols).setBackground('#fee2e2'); // Red - Full
-      } else if (available <= 5) {
-        sheet.getRange(row, 1, 1, numCols).setBackground('#fef3c7'); // Yellow - Low
-      } else {
-        sheet.getRange(row, 1, 1, numCols).setBackground('#d1fae5'); // Green - Open
+      if (cellValue.startsWith('Rolling River Bus Number:')) {
+        // Bus number header - blue background
+        sheet.getRange(currentRow, 1, 1, 7).merge()
+          .setBackground('#2563eb')
+          .setFontColor('#ffffff')
+          .setFontWeight('bold')
+          .setFontSize(12);
+      } else if (cellValue.startsWith('Location:') || cellValue.startsWith('Bus Driver') || cellValue.startsWith('Bus Counselor') || cellValue.startsWith('Seats:')) {
+        // Info rows - light blue background
+        sheet.getRange(currentRow, 1, 1, 7).merge()
+          .setBackground('#dbeafe')
+          .setFontWeight('bold');
+      } else if (cellValue === 'Last Name' || (row.length > 1 && row[1] === 'First Name')) {
+        // Camper table header - dark gray
+        sheet.getRange(currentRow, 1, 1, 7)
+          .setBackground('#374151')
+          .setFontColor('#ffffff')
+          .setFontWeight('bold')
+          .setHorizontalAlignment('center');
+      } else if (cellValue.startsWith('Seat Totals')) {
+        // Totals section - yellow if warning, green otherwise
+        const hasWarning = cellValue.includes('⚠️');
+        sheet.getRange(currentRow, 1, 1, 7).merge()
+          .setBackground(hasWarning ? '#fef3c7' : '#d1fae5')
+          .setFontWeight('bold');
+      } else if (cellValue.startsWith('Available Seats:') || cellValue.startsWith('Total Campers')) {
+        // Stats rows
+        sheet.getRange(currentRow, 1, 1, 7).merge()
+          .setBackground('#f3f4f6')
+          .setFontWeight('bold');
+      } else if (cellValue.startsWith('Half 1') || cellValue.startsWith('Half 2')) {
+        // Half counts - merge and style
+        sheet.getRange(currentRow, 1, 1, 7).merge()
+          .setBackground('#e0e7ff');
       }
+      
+      currentRow++;
     }
     
     // Auto-resize columns
-    sheet.autoResizeColumns(1, numCols);
-    
-    // Add borders
-    sheet.getRange(startRow, 1, numRows, numCols).setBorder(
-      true, true, true, true, true, true,
-      '#000000', SpreadsheetApp.BorderStyle.SOLID
-    );
+    for (let col = 1; col <= 7; col++) {
+      sheet.autoResizeColumn(col);
+    }
     
     Logger.log('✓ Sheet updated successfully!');
     
