@@ -244,7 +244,7 @@ async def optimize_routes():
             "status": "success",
             "optimized_buses": len(balanced_routes),
             "assigned_campers": len(updates),
-            "routes": {f\"Bus #{k:02d}\": len(v) for k, v in balanced_routes.items()}
+            "routes": {f"Bus #{k:02d}": len(v) for k, v in balanced_routes.items()}
         }
     except Exception as e:
         logging.error(f\"Error optimizing routes: {str(e)}\")
