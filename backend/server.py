@@ -667,6 +667,8 @@ async def auto_sync_campminder():
             {"$set": {
                 "last_sync": last_sync_time,
                 "new_campers": new_campers_count,
+                "updated_campers": updated_campers_count,
+                "deleted_campers": deleted_count,
                 "status": "success"
             }},
             upsert=True
