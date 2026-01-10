@@ -230,6 +230,7 @@ const BusRoutingMap = () => {
             z-40 md:z-10
             ${isPanelOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           `}
+          style={{ pointerEvents: 'auto' }}
           data-testid="control-panel"
         >
           <div className="h-full md:h-auto flex flex-col">
