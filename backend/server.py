@@ -198,7 +198,7 @@ async def refresh_colors():
 
 @api_router.post("/optimize-routes")
 async def optimize_routes():
-    \"\"\"Automatically optimize bus routes for all campers\"\"\"
+    """Automatically optimize bus routes for all campers"""
     try:
         # Get all campers without bus assignments
         campers = await db.campers.find({}).to_list(None)
