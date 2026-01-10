@@ -284,7 +284,7 @@ async def auto_assign_new_camper(camper_id: str):
         }
         
         optimal_bus = route_optimizer.find_optimal_bus(camper_address, existing_routes)
-        bus_number_str = f\"Bus #{optimal_bus:02d}\"
+        bus_number_str = f"Bus #{optimal_bus:02d}"
         
         # Update in database
         await db.campers.update_one(
