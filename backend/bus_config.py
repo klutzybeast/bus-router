@@ -1,11 +1,11 @@
-# Bus Configuration - Exact capacities (All buses are either 19 or 30 seats)
+# Bus Configuration - CORRECTED: Only 19 or 30 seat buses
 
 BUS_CAPACITIES = {
     'Bus #01': 30,
     'Bus #02': 30,
     'Bus #03': 30,
     'Bus #04': 30,
-    'Bus #05': 30,  # Corrected from 10
+    'Bus #05': 30,
     'Bus #06': 19,
     'Bus #07': 30,
     'Bus #08': 30,
