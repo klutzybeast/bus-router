@@ -49,11 +49,11 @@ class SheetsDataGenerator:
     def generate_seat_availability_data(self, campers: List[Dict]) -> List[List[Any]]:
         """Generate exact format matching the Excel cover sheet"""
         
-        # Group campers by bus
+        # Group campers by bus, excluding NONE
         bus_groups = defaultdict(list)
         for camper in campers:
             bus_number = camper.get('bus_number', '')
-            if bus_number and bus_number != 'NONE':
+            if bus_number and bus_number != 'NONE' and 'NONE' not in bus_number.upper():
                 bus_groups[bus_number].append(camper)
         
         # Sort buses numerically
