@@ -564,7 +564,7 @@ async def auto_sync_campminder():
         
         csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
         
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
             response = await client.get(csv_url)
             
             if response.status_code != 200:
