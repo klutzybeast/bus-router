@@ -10,6 +10,7 @@ from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone
 import requests
+import httpx
 import googlemaps
 from io import StringIO
 import csv
