@@ -402,47 +402,21 @@ async def auto_sync_campminder():
             if 'AM Bus' not in trans_type:
                 continue
             
-            # Get address information
-            address = camper_data.get('Trans-PickUpAddress', '')
-            town = camper_data.get('Trans-PickUpTown', '')
-            zip_code = camper_data.get('Trans-PickUpZip', '')
+            # Get AM pickup information
+            am_address = camper_data.get('Trans-PickUpAddress', '')
+            am_town = camper_data.get('Trans-PickUpTown', '')
+            am_zip = camper_data.get('Trans-PickUpZip', '')
             
-            if not address.strip():
-                logger.warning(f"Skipping camper {camper_data.get('First Name')} {camper_data.get('Last Name')}: No address")
-                continue
+            # Get PM drop-off information
+            pm_address = camper_data.get('Trans-DropOffAddress', '')
+            pm_town = camper_data.get('Trans-DropOffTown', '')
+            pm_zip = camper_data.get('Trans-DropOffZip', '')
             
-            # Geocode address
-            location = geocode_address(address, town, zip_code)
-            if not location:
-                logger.warning(f"Could not geocode address for {camper_data.get('First Name')} {camper_data.get('Last Name')}")
-                continue
+            first_name = camper_data.get('First Name', '')
+            last_name = camper_data.get('Last Name', '')
+            session = camper_data.get('Enrolled Child Sessions', '')
             
-            # Check if camper already exists
-            camper_id = f"{camper_data.get('Last Name', '')}_{camper_data.get('First Name', '')}_{zip_code}".replace(' ', '_')
-            existing = await db.campers.find_one({"_id": camper_id})
-            
-            if existing:
-                logger.info(f"Camper {camper_id} already exists, skipping")
-                continue
-            
-            # Create camper record
-            camper = {
-                "_id": camper_id,
-                "first_name": camper_data.get('First Name', ''),
-                "last_name": camper_data.get('Last Name', ''),
-                "session": camper_data.get('Enrolled Child Sessions', ''),
-                "location": {
-                    "latitude": location.latitude,
-                    "longitude": location.longitude,
-                    "address": location.address
-                },
-                "town": town,
-                "zip_code": zip_code,
-                "pickup_type": "AM Pickup",
-                "created_at": datetime.now(timezone.utc)
-            }
-            
-            # Get existing routes
+            # Get existing routes for optimization
             all_campers = await db.campers.find({"bus_number": {"$exists": True}}).to_list(None)
             existing_routes = {}
             
@@ -459,27 +433,75 @@ async def auto_sync_campminder():
                             'lng': existing_camper['location']['longitude']
                         })
             
-            # Find optimal bus
-            camper_address = {
-                'lat': location.latitude,
-                'lng': location.longitude
-            }
+            # Process AM pickup
+            if am_address.strip():
+                location = geocode_address(am_address, am_town, am_zip)
+                if location:
+                    camper_id = f"{last_name}_{first_name}_{am_zip}_AM".replace(' ', '_')
+                    existing = await db.campers.find_one({"_id": camper_id})
+                    
+                    if not existing:
+                        camper_address = {'lat': location.latitude, 'lng': location.longitude}
+                        optimal_bus = route_optimizer.find_optimal_bus(camper_address, existing_routes)
+                        bus_number_str = f"Bus #{optimal_bus:02d}"
+                        
+                        camper = {
+                            "_id": camper_id,
+                            "first_name": first_name,
+                            "last_name": last_name,
+                            "session": session,
+                            "location": {
+                                "latitude": location.latitude,
+                                "longitude": location.longitude,
+                                "address": location.address
+                            },
+                            "town": am_town,
+                            "zip_code": am_zip,
+                            "pickup_type": "AM Pickup",
+                            "bus_number": bus_number_str,
+                            "bus_color": get_bus_color(bus_number_str),
+                            "created_at": datetime.now(timezone.utc)
+                        }
+                        
+                        await db.campers.insert_one(camper)
+                        await campminder_api.update_camper_bus_assignment(camper_id, optimal_bus)
+                        logger.info(f"✓ Auto-assigned {first_name} {last_name} AM pickup to {bus_number_str}")
+                        new_campers_count += 1
             
-            optimal_bus = route_optimizer.find_optimal_bus(camper_address, existing_routes)
-            bus_number_str = f"Bus #{optimal_bus:02d}"
-            
-            # Add bus assignment
-            camper['bus_number'] = bus_number_str
-            camper['bus_color'] = get_bus_color(bus_number_str)
-            
-            # Insert into database
-            await db.campers.insert_one(camper)
-            
-            # Update CampMinder with assignment
-            success = await campminder_api.update_camper_bus_assignment(camper_id, optimal_bus)
-            
-            logger.info(f"✓ Auto-assigned {camper['first_name']} {camper['last_name']} to {bus_number_str} (CampMinder sync: {success})")
-            new_campers_count += 1
+            # Process PM drop-off (if different from AM address)
+            if pm_address.strip() and pm_address != am_address:
+                location = geocode_address(pm_address, pm_town, pm_zip)
+                if location:
+                    camper_id = f"{last_name}_{first_name}_{pm_zip}_PM".replace(' ', '_')
+                    existing = await db.campers.find_one({"_id": camper_id})
+                    
+                    if not existing:
+                        camper_address = {'lat': location.latitude, 'lng': location.longitude}
+                        optimal_bus = route_optimizer.find_optimal_bus(camper_address, existing_routes)
+                        bus_number_str = f"Bus #{optimal_bus:02d}"
+                        
+                        camper = {
+                            "_id": camper_id,
+                            "first_name": first_name,
+                            "last_name": last_name,
+                            "session": session,
+                            "location": {
+                                "latitude": location.latitude,
+                                "longitude": location.longitude,
+                                "address": location.address
+                            },
+                            "town": pm_town,
+                            "zip_code": pm_zip,
+                            "pickup_type": "PM Drop-off",
+                            "bus_number": bus_number_str,
+                            "bus_color": get_bus_color(bus_number_str),
+                            "created_at": datetime.now(timezone.utc)
+                        }
+                        
+                        await db.campers.insert_one(camper)
+                        await campminder_api.update_camper_bus_assignment(camper_id, optimal_bus)
+                        logger.info(f"✓ Auto-assigned {first_name} {last_name} PM drop-off to {bus_number_str}")
+                        new_campers_count += 1
         
         last_sync_time = datetime.now(timezone.utc)
         logger.info(f"Auto-sync complete: {new_campers_count} new campers processed")
