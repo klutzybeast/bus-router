@@ -354,12 +354,11 @@ const BusRoutingMap = () => {
                     const isSelected = selectedBusFilter === bus;
                     
                     return (
-                      <button
+                      <div
                         key={bus}
-                        onClick={() => handleBusFilter(bus)}
                         className={`
                           w-full flex items-center justify-between p-3 rounded-lg
-                          transition-all duration-200 active:scale-98
+                          transition-all duration-200
                           ${isSelected 
                             ? 'bg-blue-100 border-2 border-blue-600 shadow-md' 
                             : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
@@ -367,22 +366,25 @@ const BusRoutingMap = () => {
                         `}
                         data-testid={`bus-list-item-${bus}`}
                       >
-                        <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleBusFilter(bus)}
+                          className="flex items-center gap-3 flex-1 text-left"
+                        >
                           <div
                             className="w-6 h-6 md:w-5 md:h-5 rounded-full border-2 border-white shadow flex-shrink-0"
                             style={{ backgroundColor: busColor }}
                           />
-                          <div className="text-left">
+                          <div>
                             <div className={`font-medium text-sm md:text-base ${isSelected ? 'text-blue-700 font-bold' : ''}`}>
                               {bus}
                             </div>
                             <div className="text-xs text-gray-500">{busCount} stops</div>
                           </div>
-                        </div>
+                        </button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8 p-0 flex-shrink-0"
                           onClick={(e) => {
                             e.stopPropagation();
                             handlePrintRoute(bus);
@@ -391,7 +393,7 @@ const BusRoutingMap = () => {
                         >
                           <Printer className="w-4 h-4" />
                         </Button>
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
