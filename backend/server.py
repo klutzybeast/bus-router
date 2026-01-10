@@ -729,3 +729,46 @@ async def auto_sync_campminder():
             }},
             upsert=True
         )
+
+async def sync_loop():
+    """Continuous sync loop"""
+    global last_sync_time
+    
+    while True:
+        try:
+            await auto_sync_campminder()
+        except Exception as e:
+            logger.error(f"Error in sync loop: {str(e)}")
+        
+        await asyncio.sleep(SYNC_INTERVAL_MINUTES * 60)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global sync_task
+    
+    logger.info(f"Auto-sync enabled: {AUTO_SYNC_ENABLED}")
+    if AUTO_SYNC_ENABLED:
+        logger.info(f"Starting auto-sync from Google Sheets (interval: {SYNC_INTERVAL_MINUTES} min)")
+        sync_task = asyncio.create_task(sync_loop())
+    
+    yield
+    
+    if sync_task:
+        sync_task.cancel()
+        try:
+            await sync_task
+        except asyncio.CancelledError:
+            pass
+
+# Recreate app with lifespan
+app = FastAPI(lifespan=lifespan)
+app.include_router(api_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
