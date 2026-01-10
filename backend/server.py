@@ -542,3 +542,14 @@ async def lifespan(app: FastAPI):
 
 # Update app with lifespan
 app = FastAPI(lifespan=lifespan)
+
+# Register router and middleware
+app.include_router(api_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
