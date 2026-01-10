@@ -121,6 +121,21 @@ const BusRoutingMap = () => {
     ? campers.filter(c => c.bus_number === selectedBusFilter)
     : campers;
 
+  const sessionFilteredCampers = sessionFilter === "all" 
+    ? filteredCampers
+    : filteredCampers.filter(c => {
+        const session = c.session.toLowerCase();
+        if (sessionFilter === "full") return session.includes("full season");
+        if (sessionFilter === "half1") return session.includes("half season 1") || session.includes("half 1");
+        if (sessionFilter === "half2") return session.includes("half season 2") || session.includes("half 2");
+        if (sessionFilter === "flex") return session.includes("flex");
+        return true;
+      });
+
+  const handlePrintRoute = (busNumber) => {
+    window.open(`${API}/route-sheet/${busNumber}/print`, '_blank');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-50">
