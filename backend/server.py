@@ -553,6 +553,10 @@ async def auto_sync_campminder():
             last_name = camper_data.get('Last Name', '')
             session = camper_data.get('Enrolled Child Sessions', '')
             
+            # Create unique ID
+            camper_id_am = f"{last_name}_{first_name}_{am_zip}_AM".replace(' ', '_')
+            camper_id_pm = f"{last_name}_{first_name}_{pm_zip}_PM".replace(' ', '_')
+            
             # Get existing routes for optimization
             all_campers = await db.campers.find({"bus_number": {"$exists": True}}).to_list(None)
             existing_routes = {}
