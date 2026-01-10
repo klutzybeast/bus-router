@@ -589,6 +589,10 @@ async def auto_sync_campminder():
             last_name = camper_data.get('Last Name', '')
             session = camper_data.get('Enrolled Child Sessions', '')
             
+            # Get bus assignments
+            am_bus = camper_data.get('2026Transportation M AM Bus', '')
+            pm_bus = camper_data.get('2026Transportation M PM Bus', '')
+            
             # Create unique ID
             camper_id_am = f"{last_name}_{first_name}_{am_zip}_AM".replace(' ', '_')
             camper_id_pm = f"{last_name}_{first_name}_{pm_zip}_PM".replace(' ', '_')
