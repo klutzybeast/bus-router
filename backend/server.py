@@ -80,7 +80,7 @@ def get_bus_color(bus_number: str) -> str:
     try:
         bus_num = int(''.join(filter(str.isdigit, bus_number)))
         return BUS_COLORS[(bus_num - 1) % len(BUS_COLORS)]
-    except:
+    except (ValueError, IndexError):
         return BUS_COLORS[0]
 
 def geocode_address(address: str, town: str = "", zip_code: str = "") -> Optional[GeoLocation]:
