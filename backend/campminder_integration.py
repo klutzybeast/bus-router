@@ -13,6 +13,7 @@ class CampMinderAPI:
         self.api_url = api_url.rstrip('/')
         self.jwt_token = None
         self.token_expiry = None
+        self.client_ids = None
     
     async def get_jwt_token(self) -> str:
         """Get JWT token from CampMinder using API key and subscription key"""
