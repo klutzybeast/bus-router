@@ -280,10 +280,10 @@ async def auto_assign_new_camper(camper_id: str):
         
         # Update in database
         await db.campers.update_one(
-            {\"_id\": camper_id},
-            {\"$set\": {
-                \"bus_number\": bus_number_str,
-                \"bus_color\": get_bus_color(bus_number_str)
+            {"_id": camper_id},
+            {"$set": {
+                "bus_number": bus_number_str,
+                "bus_color": get_bus_color(bus_number_str)
             }}
         )
         
@@ -291,10 +291,10 @@ async def auto_assign_new_camper(camper_id: str):
         success = await campminder_api.update_camper_bus_assignment(camper_id, optimal_bus)
         
         return {
-            \"status\": \"success\",
-            \"camper_id\": camper_id,
-            \"assigned_bus\": bus_number_str,
-            \"synced_to_campminder\": success
+            "status": "success",
+            "camper_id": camper_id,
+            "assigned_bus": bus_number_str,
+            "synced_to_campminder": success
         }
     except Exception as e:
         logging.error(f\"Error auto-assigning camper: {str(e)}\")
