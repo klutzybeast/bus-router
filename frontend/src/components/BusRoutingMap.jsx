@@ -144,12 +144,13 @@ const BusRoutingMap = () => {
 
         <Map
           style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }}
-          center={mapCenter}
-          zoom={11}
+          defaultCenter={mapCenter}
+          defaultZoom={11}
           mapId="bus-routing-map"
           gestureHandling="greedy"
           disableDefaultUI={false}
           clickableIcons={true}
+          onLoad={(map) => setMapInstance(map)}
         >
           {filteredCampers.map((camper, index) => (
             <AdvancedMarker
