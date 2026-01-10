@@ -213,8 +213,7 @@ const BusRoutingMap = () => {
               </div>
             </InfoWindow>
           )}
-          </Map>
-        </div>
+        </Map>
 
         {/* Control Panel - Responsive */}
         <Card 
