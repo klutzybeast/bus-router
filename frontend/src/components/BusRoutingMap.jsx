@@ -96,18 +96,18 @@ const BusRoutingMap = () => {
 
   const handleSyncCampMinder = async () => {
     try {
-      toast.loading("Syncing with CampMinder...");
+      toast.loading("Refreshing from Google Sheet CSV...");
       
       const response = await axios.post(`${API}/trigger-sync`);
       
       toast.dismiss();
-      toast.success(response.data.message || "CampMinder sync completed");
+      toast.success("Data refreshed! Map updated with latest campers");
       
       await fetchCampers();
     } catch (error) {
       toast.dismiss();
-      console.error("Error syncing CampMinder:", error);
-      toast.error("Failed to sync with CampMinder");
+      console.error("Error syncing:", error);
+      toast.error("Failed to refresh data");
     }
   };
 
