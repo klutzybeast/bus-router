@@ -146,6 +146,10 @@ async def sync_campers(csv_data: Dict[str, Any]):
             last_name = row.get('Last Name', '')
             session = row.get('Enrolled Child Sessions', '')
             
+            # Debug log for campers without addresses
+            if not am_address.strip() and am_bus and 'NONE' not in am_bus.upper():
+                logging.info(f"No address for: {first_name} {last_name} ({am_bus})")
+            
             am_address = row.get('Trans-PickUpAddress', '')
             am_town = row.get('Trans-PickUpTown', '')
             am_zip = row.get('Trans-PickUpZip', '')
