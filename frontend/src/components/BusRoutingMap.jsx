@@ -140,13 +140,16 @@ const BusRoutingMap = () => {
           {isPanelOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </Button>
 
-        <Map
-          style={{ width: "100%", height: "100%" }}
-          center={mapCenter}
-          defaultZoom={11}
-          mapId="bus-routing-map"
-          gestureHandling="greedy"
-        >
+        <div className="absolute inset-0 w-full h-full">
+          <Map
+            style={{ width: "100%", height: "100%" }}
+            center={mapCenter}
+            zoom={11}
+            mapId="bus-routing-map"
+            gestureHandling="greedy"
+            disableDefaultUI={false}
+            clickableIcons={true}
+          >
           {filteredCampers.map((camper, index) => (
             <AdvancedMarker
               key={`${camper.first_name}-${camper.last_name}-${index}`}
