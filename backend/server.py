@@ -111,7 +111,7 @@ async def get_campers():
     try:
         # Return campers with valid bus assignments AND valid locations (exclude lat/lng = 0)
         existing_campers = await db.campers.find({
-            "bus_number": {"$exists": True, "$ne": "NONE", "$ne": ""},
+            "bus_number": {"$exists": True, "$nin": ["NONE", ""]},
             "location.latitude": {"$ne": 0.0}
         }, {"_id": 0}).to_list(None)
         
