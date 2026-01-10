@@ -575,42 +575,69 @@ async def auto_sync_campminder():
                         })
             
             # Process AM pickup
-            if am_address.strip():
+            if am_bus and 'NONE' not in am_bus.upper():
+                camper_id_am = f"{last_name}_{first_name}_{am_zip}_AM".replace(' ', '_')
                 campminder_camper_ids.add(camper_id_am)
                 
-                location = geocode_address(am_address, am_town, am_zip)
-                if location:
-                    camper_address = {'lat': location.latitude, 'lng': location.longitude}
-                    optimal_bus = route_optimizer.find_optimal_bus(camper_address, existing_routes)
-                    bus_number_str = f"Bus #{optimal_bus:02d}"
-                    
+                if am_address.strip():
+                    location = geocode_address(am_address, am_town, am_zip)
+                    if location:
+                        camper_address = {'lat': location.latitude, 'lng': location.longitude}
+                        optimal_bus = route_optimizer.find_optimal_bus(camper_address, existing_routes)
+                        bus_number_str = f"Bus #{optimal_bus:02d}"
+                        
+                        camper = {
+                            "_id": camper_id_am,
+                            "first_name": first_name,
+                            "last_name": last_name,
+                            "session": session,
+                            "location": {
+                                "latitude": location.latitude,
+                                "longitude": location.longitude,
+                                "address": location.address
+                            },
+                            "town": am_town,
+                            "zip_code": am_zip,
+                            "pickup_type": "AM Pickup",
+                            "bus_number": bus_number_str,
+                            "bus_color": get_bus_color(bus_number_str),
+                            "created_at": datetime.now(timezone.utc)
+                        }
+                        
+                        result = await db.campers.replace_one({"_id": camper_id_am}, camper, upsert=True)
+                        if result.upserted_id:
+                            new_campers_count += 1
+                            await campminder_api.update_camper_bus_assignment(camper_id_am, optimal_bus)
+                            logger.info(f"✓ NEW: {first_name} {last_name} AM → {bus_number_str}")
+                        elif result.modified_count > 0:
+                            updated_campers_count += 1
+                            logger.info(f"✓ UPDATED: {first_name} {last_name} AM → {bus_number_str}")
+                else:
+                    # No address - add to database for sheet tracking only
                     camper = {
                         "_id": camper_id_am,
                         "first_name": first_name,
                         "last_name": last_name,
                         "session": session,
                         "location": {
-                            "latitude": location.latitude,
-                            "longitude": location.longitude,
-                            "address": location.address
+                            "latitude": 0.0,
+                            "longitude": 0.0,
+                            "address": "⚠️ ADDRESS NEEDED"
                         },
-                        "town": am_town,
-                        "zip_code": am_zip,
-                        "pickup_type": "AM Pickup",
-                        "bus_number": bus_number_str,
-                        "bus_color": get_bus_color(bus_number_str),
+                        "town": am_town or "UNKNOWN",
+                        "zip_code": am_zip or "UNKNOWN",
+                        "pickup_type": "AM Pickup - NO ADDRESS",
+                        "bus_number": am_bus,
+                        "bus_color": get_bus_color(am_bus),
                         "created_at": datetime.now(timezone.utc)
                     }
                     
-                    # Upsert (insert or update)
                     result = await db.campers.replace_one({"_id": camper_id_am}, camper, upsert=True)
                     if result.upserted_id:
                         new_campers_count += 1
-                        await campminder_api.update_camper_bus_assignment(camper_id_am, optimal_bus)
-                        logger.info(f"✓ NEW: {first_name} {last_name} AM → {bus_number_str}")
+                        logger.warning(f"⚠️ NEW (NO ADDRESS): {first_name} {last_name} → {am_bus}")
                     elif result.modified_count > 0:
                         updated_campers_count += 1
-                        logger.info(f"✓ UPDATED: {first_name} {last_name} AM → {bus_number_str}")
             
             # Process PM drop-off (if different from AM address)
             if pm_address.strip() and pm_address != am_address:
