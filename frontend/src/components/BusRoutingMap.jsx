@@ -169,7 +169,7 @@ const BusRoutingMap = () => {
           clickableIcons={true}
           onLoad={(map) => setMapInstance(map)}
         >
-          {filteredCampers.map((camper, index) => (
+          {sessionFilteredCampers.map((camper, index) => (
             <AdvancedMarker
               key={`${camper.first_name}-${camper.last_name}-${index}`}
               position={{
