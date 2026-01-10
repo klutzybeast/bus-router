@@ -94,6 +94,23 @@ const BusRoutingMap = () => {
     }
   };
 
+  const handleSyncCampMinder = async () => {
+    try {
+      toast.loading("Syncing with CampMinder...");
+      
+      const response = await axios.post(`${API}/trigger-sync`);
+      
+      toast.dismiss();
+      toast.success(response.data.message || "CampMinder sync completed");
+      
+      await fetchCampers();
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error syncing CampMinder:", error);
+      toast.error("Failed to sync with CampMinder");
+    }
+  };
+
   const handleMarkerClick = useCallback((camper) => {
     setSelectedCamper(camper);
     if (window.innerWidth < 768) {
