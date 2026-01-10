@@ -365,6 +365,38 @@ async def trigger_manual_sync():
         logging.error(f"Error in manual sync: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/sheets/seat-availability")
+async def get_seat_availability_for_sheets():
+    """Get formatted seat availability data for Google Sheets"""
+    try:
+        campers = await db.campers.find({}).to_list(None)
+        sheet_data = sheets_generator.generate_seat_availability_data(campers)
+        
+        return {
+            "status": "success",
+            "data": sheet_data,
+            "last_updated": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        logging.error(f"Error generating sheets data: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/sheets/compact-availability")
+async def get_compact_availability():
+    """Get compact seat availability summary for Google Sheets"""
+    try:
+        campers = await db.campers.find({}).to_list(None)
+        compact_data = sheets_generator.generate_compact_availability(campers)
+        
+        return {
+            "status": "success",
+            "data": compact_data,
+            "last_updated": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        logging.error(f"Error generating compact data: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
