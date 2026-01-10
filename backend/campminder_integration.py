@@ -7,15 +7,17 @@ import asyncio
 logger = logging.getLogger(__name__)
 
 class CampMinderAPI:
-    def __init__(self, api_key: str, api_url: str):
+    def __init__(self, api_key: str, subscription_key: str, api_url: str):
         self.api_key = api_key
-        self.api_url = api_url
+        self.subscription_key = subscription_key
+        self.api_url = api_url.rstrip('/')
         self.token = None
         self.token_expiry = None
     
     async def get_auth_headers(self) -> Dict[str, str]:
-        """Get authentication headers with API key"""
+        """Get authentication headers with subscription key"""
         return {
+            "Ocp-Apim-Subscription-Key": self.subscription_key,
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
