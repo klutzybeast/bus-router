@@ -133,6 +133,10 @@ async def sync_campers(csv_data: Dict[str, Any]):
             am_bus = row.get('2026Transportation M AM Bus', '')
             pm_bus = row.get('2026Transportation M PM Bus', '')
             
+            # Skip if no valid bus assignment
+            if not am_bus or 'NONE' in am_bus.upper():
+                continue
+            
             first_name = row.get('First Name', '')
             last_name = row.get('Last Name', '')
             session = row.get('Enrolled Child Sessions', '')
