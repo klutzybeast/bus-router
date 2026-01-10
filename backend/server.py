@@ -300,12 +300,12 @@ async def auto_assign_new_camper(camper_id: str):
         logging.error(f\"Error auto-assigning camper: {str(e)}\")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.post(\"/sync-assignments-to-campminder\")
+@api_router.post("/sync-assignments-to-campminder")
 async def sync_assignments_to_campminder():
-    \"\"\"Sync all bus assignments back to CampMinder\"\"\"
+    """Sync all bus assignments back to CampMinder"""
     try:
         # Get all campers with bus assignments
-        campers = await db.campers.find({\"bus_number\": {\"$exists\": True}}).to_list(None)
+        campers = await db.campers.find({"bus_number": {"$exists": True}}).to_list(None)
         
         assignments = []
         for camper in campers:
@@ -313,8 +313,8 @@ async def sync_assignments_to_campminder():
             if bus_num_str:
                 bus_num = int(''.join(filter(str.isdigit, bus_num_str)))
                 assignments.append({
-                    \"camper_id\": camper['_id'],
-                    \"bus_number\": bus_num
+                    "camper_id": camper['_id'],
+                    "bus_number": bus_num
                 })
         
         # Bulk update in CampMinder
@@ -324,10 +324,10 @@ async def sync_assignments_to_campminder():
         failed = sum(1 for v in results.values() if not v)
         
         return {
-            \"status\": \"success\",
-            \"total\": len(assignments),
-            \"successful\": successful,
-            \"failed\": failed
+            "status": "success",
+            "total": len(assignments),
+            "successful": successful,
+            "failed": failed
         }
     except Exception as e:
         logging.error(f\"Error syncing to CampMinder: {str(e)}\")
