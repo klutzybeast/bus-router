@@ -44,7 +44,7 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 # Auto-sync configuration
-AUTO_SYNC_ENABLED = os.environ.get('AUTO_SYNC_ENABLED', 'true').lower() == 'true'
+AUTO_SYNC_ENABLED = os.environ.get('AUTO_SYNC_ENABLED', 'false').lower() == 'true'  # Disabled for testing
 SYNC_INTERVAL_MINUTES = int(os.environ.get('SYNC_INTERVAL_MINUTES', '15'))
 sync_task = None
 last_sync_time = None
