@@ -153,19 +153,33 @@ async def sync_campers(csv_data: Dict[str, Any]):
             pm_town = row.get('Trans-DropOffTown', '')
             pm_zip = row.get('Trans-DropOffZip', '')
             
-            if am_bus and am_address.strip() and 'NONE' not in am_bus.upper():
-                location = geocode_address(am_address, am_town, am_zip)
-                if location:
+            if am_bus and 'NONE' not in am_bus.upper():
+                if am_address.strip():
+                    location = geocode_address(am_address, am_town, am_zip)
+                    if location:
+                        pins.append(CamperPin(
+                            first_name=first_name,
+                            last_name=last_name,
+                            location=location,
+                            bus_number=am_bus,
+                            bus_color=get_bus_color(am_bus),
+                            session=session,
+                            pickup_type="AM Pickup",
+                            town=am_town,
+                            zip_code=am_zip
+                        ))
+                else:
+                    # Add camper without location for sheet tracking
                     pins.append(CamperPin(
                         first_name=first_name,
                         last_name=last_name,
-                        location=location,
+                        location=GeoLocation(latitude=0.0, longitude=0.0, address="ADDRESS NEEDED"),
                         bus_number=am_bus,
                         bus_color=get_bus_color(am_bus),
                         session=session,
-                        pickup_type="AM Pickup",
-                        town=am_town,
-                        zip_code=am_zip
+                        pickup_type="AM Pickup - NO ADDRESS",
+                        town=am_town or "UNKNOWN",
+                        zip_code=am_zip or "UNKNOWN"
                     ))
             
             if pm_bus and pm_address.strip() and pm_address != am_address and 'NONE' not in pm_bus.upper():
