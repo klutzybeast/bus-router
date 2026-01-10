@@ -13,7 +13,8 @@
  */
 
 // ⚙️ CONFIGURATION - Update this with your backend URL
-const API_URL = 'https://camp-busmap.preview.emergentagent.com/api/sheets/compact-availability';
+const API_URL = 'https://camp-busmap.preview.emergentagent.com/api/sheets/seat-availability';  // Full detailed format
+// const API_URL = 'https://camp-busmap.preview.emergentagent.com/api/sheets/compact-availability';  // Compact summary
 
 /**
  * Main function to update the sheet with seat availability
