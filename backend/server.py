@@ -102,15 +102,12 @@ async def root():
 @api_router.get("/campers", response_model=List[CamperPin])
 async def get_campers():
     try:
-        campminder_url = os.environ.get('CAMPMINDER_API_URL')
-        api_key = os.environ.get('CAMPMINDER_API_KEY')
+        # Only return campers with valid bus assignments (exclude NONE)
+        existing_campers = await db.campers.find({
+            "bus_number": {"$exists": True, "$ne": "NONE", "$ne": ""}
+        }, {"_id": 0}).to_list(None)
         
-        existing_campers = await db.campers.find({}, {"_id": 0}).to_list(None)
-        
-        if existing_campers:
-            return existing_campers
-        
-        return []
+        return existing_campers
     except Exception as e:
         logging.error(f"Error fetching campers: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
