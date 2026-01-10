@@ -549,21 +549,185 @@ async def shutdown_db_client():
 
 # Auto-sync functions
 async def auto_sync_campminder():
-    """Background task to automatically sync with CampMinder - handles ADD, UPDATE, DELETE"""
+    """Background task to automatically sync from Google Sheets - handles ADD, UPDATE, DELETE"""
     global last_sync_time
     
-    logger.info("Starting auto-sync with CampMinder...")
+    logger.info("Starting auto-sync from CampMinder Google Sheet...")
     
     try:
-        # Fetch ALL current campers from CampMinder
-        new_campers_data = await campminder_api.get_new_campers(since=None)  # Get all, not just since last sync
-        
-        if not new_campers_data:
-            logger.info("No data from CampMinder")
-            last_sync_time = datetime.now(timezone.utc)
+        # Download CSV from Google Sheets
+        sheet_id = CAMPMINDER_SHEET_ID
+        if not sheet_id:
+            logger.error("No CAMPMINDER_SHEET_ID configured")
             return
         
-        logger.info(f"Processing {len(new_campers_data)} campers from CampMinder")
+        csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.get(csv_url)
+            
+            if response.status_code != 200:
+                logger.error(f"Failed to download Google Sheet: {response.status_code}")
+                return
+            
+            csv_content = response.text
+            logger.info(f"Downloaded CSV from Google Sheets ({len(csv_content)} chars)")
+        
+        # Process CSV same as manual upload
+        from io import StringIO
+        import csv
+        
+        # Remove BOM if present
+        if csv_content.startswith('\ufeff'):
+            csv_content = csv_content[1:]
+        
+        csv_file = StringIO(csv_content)
+        reader = csv.DictReader(csv_file)
+        
+        # Track camper IDs from sheet
+        sheet_camper_ids = set()
+        new_count = 0
+        updated_count = 0
+        
+        for row in reader:
+            am_method = row.get('Trans-AMDropOffMethod', '')
+            if 'AM Bus' not in am_method:
+                continue
+            
+            am_bus = row.get('2026Transportation M AM Bus', '')
+            pm_bus = row.get('2026Transportation M PM Bus', '')
+            
+            if not am_bus or 'NONE' in am_bus.upper():
+                continue
+            
+            first_name = row.get('First Name', '')
+            last_name = row.get('Last Name', '')
+            session = row.get('Enrolled Child Sessions', '')
+            
+            am_address = row.get('Trans-PickUpAddress', '')
+            am_town = row.get('Trans-PickUpTown', '')
+            am_zip = row.get('Trans-PickUpZip', '')
+            
+            pm_address = row.get('Trans-DropOffAddress', '')
+            pm_town = row.get('Trans-DropOffTown', '')
+            pm_zip = row.get('Trans-DropOffZip', '')
+            
+            # Process AM
+            if am_bus and 'NONE' not in am_bus.upper():
+                camper_id_am = f"{last_name}_{first_name}_{am_zip}_AM".replace(' ', '_')
+                sheet_camper_ids.add(camper_id_am)
+                
+                if am_address.strip():
+                    location = geocode_address(am_address, am_town, am_zip)
+                    if location:
+                        camper_doc = {
+                            "_id": camper_id_am,
+                            "first_name": first_name,
+                            "last_name": last_name,
+                            "session": session,
+                            "location": {
+                                "latitude": location.latitude,
+                                "longitude": location.longitude,
+                                "address": location.address
+                            },
+                            "town": am_town,
+                            "zip_code": am_zip,
+                            "pickup_type": "AM Pickup",
+                            "bus_number": am_bus.strip(),
+                            "bus_color": get_bus_color(am_bus.strip()),
+                            "created_at": datetime.now(timezone.utc)
+                        }
+                        
+                        result = await db.campers.replace_one({"_id": camper_id_am}, camper_doc, upsert=True)
+                        if result.upserted_id:
+                            new_count += 1
+                        elif result.modified_count > 0:
+                            updated_count += 1
+                else:
+                    # No address
+                    camper_doc = {
+                        "_id": camper_id_am,
+                        "first_name": first_name,
+                        "last_name": last_name,
+                        "session": session,
+                        "location": {"latitude": 0.0, "longitude": 0.0, "address": "ADDRESS NEEDED"},
+                        "town": am_town or "UNKNOWN",
+                        "zip_code": am_zip or "UNKNOWN",
+                        "pickup_type": "AM Pickup - NO ADDRESS",
+                        "bus_number": am_bus.strip(),
+                        "bus_color": get_bus_color(am_bus.strip()),
+                        "created_at": datetime.now(timezone.utc)
+                    }
+                    result = await db.campers.replace_one({"_id": camper_id_am}, camper_doc, upsert=True)
+                    if result.upserted_id:
+                        new_count += 1
+            
+            # Process PM
+            if pm_bus and 'NONE' not in pm_bus.upper() and pm_address.strip() and pm_address != am_address:
+                camper_id_pm = f"{last_name}_{first_name}_{pm_zip}_PM".replace(' ', '_')
+                sheet_camper_ids.add(camper_id_pm)
+                
+                location = geocode_address(pm_address, pm_town, pm_zip)
+                if location:
+                    camper_doc = {
+                        "_id": camper_id_pm,
+                        "first_name": first_name,
+                        "last_name": last_name,
+                        "session": session,
+                        "location": {
+                            "latitude": location.latitude,
+                            "longitude": location.longitude,
+                            "address": location.address
+                        },
+                        "town": pm_town,
+                        "zip_code": pm_zip,
+                        "pickup_type": "PM Drop-off",
+                        "bus_number": pm_bus.strip(),
+                        "bus_color": get_bus_color(pm_bus.strip()),
+                        "created_at": datetime.now(timezone.utc)
+                    }
+                    result = await db.campers.replace_one({"_id": camper_id_pm}, camper_doc, upsert=True)
+                    if result.upserted_id:
+                        new_count += 1
+                    elif result.modified_count > 0:
+                        updated_count += 1
+        
+        # Delete campers no longer in sheet
+        all_db_campers = await db.campers.find({}).to_list(None)
+        deleted_count = 0
+        for db_camper in all_db_campers:
+            if db_camper['_id'] not in sheet_camper_ids:
+                await db.campers.delete_one({"_id": db_camper['_id']})
+                deleted_count += 1
+                logger.info(f"Deleted: {db_camper.get('first_name')} {db_camper.get('last_name')}")
+        
+        last_sync_time = datetime.now(timezone.utc)
+        logger.info(f"Auto-sync complete: {new_count} new, {updated_count} updated, {deleted_count} deleted")
+        
+        await db.sync_status.update_one(
+            {"_id": "auto_sync"},
+            {"$set": {
+                "last_sync": last_sync_time,
+                "new_campers": new_count,
+                "updated_campers": updated_count,
+                "deleted_campers": deleted_count,
+                "status": "success",
+                "source": "Google Sheets"
+            }},
+            upsert=True
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in auto-sync: {str(e)}")
+        await db.sync_status.update_one(
+            {"_id": "auto_sync"},
+            {"$set": {
+                "last_sync": datetime.now(timezone.utc),
+                "status": "error",
+                "error": str(e)
+            }},
+            upsert=True
+        )
         
         # Track which campers are in CampMinder
         campminder_camper_ids = set()
