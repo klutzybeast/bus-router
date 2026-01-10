@@ -36,6 +36,12 @@ campminder_api = CampMinderAPI(
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
+# Auto-sync configuration
+AUTO_SYNC_ENABLED = os.environ.get('AUTO_SYNC_ENABLED', 'true').lower() == 'true'
+SYNC_INTERVAL_MINUTES = int(os.environ.get('SYNC_INTERVAL_MINUTES', '15'))
+sync_task = None
+last_sync_time = None
+
 BUS_COLORS = [
     "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4",
     "#46f0f0", "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff",
