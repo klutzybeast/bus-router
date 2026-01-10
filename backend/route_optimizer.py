@@ -4,15 +4,14 @@ from sklearn.cluster import DBSCAN
 from geopy.distance import geodesic
 from collections import defaultdict
 import logging
+from bus_config import get_bus_capacity
 
 logger = logging.getLogger(__name__)
 
 class RouteOptimizer:
-    def __init__(self, num_buses: int = 33, max_capacity_per_bus: int = 50):
+    def __init__(self, num_buses: int = 33):
         self.num_buses = num_buses
-        self.max_capacity_per_bus = max_capacity_per_bus
-        self.bus_routes = defaultdict(list)
-        self.bus_capacities = {i: 0 for i in range(1, num_buses + 1)}
+        self.bus_capacities = {}
     
     def calculate_distance(self, point1: Tuple[float, float], point2: Tuple[float, float]) -> float:
         """Calculate distance in miles between two lat/lng points"""
@@ -41,8 +40,11 @@ class RouteOptimizer:
         min_avg_distance = float('inf')
         
         for bus_num, route in existing_routes.items():
+            bus_number_str = f"Bus #{bus_num:02d}"
+            max_capacity = get_bus_capacity(bus_number_str)
+            
             # Check capacity
-            if len(route) >= self.max_capacity_per_bus:
+            if len(route) >= max_capacity:
                 continue
             
             # Calculate average distance to all stops on this route
@@ -61,7 +63,9 @@ class RouteOptimizer:
         # If no suitable bus found, assign to first available bus
         if best_bus is None:
             for bus_num in range(1, self.num_buses + 1):
-                if len(existing_routes.get(bus_num, [])) < self.max_capacity_per_bus:
+                bus_number_str = f"Bus #{bus_num:02d}"
+                max_capacity = get_bus_capacity(bus_number_str)
+                if len(existing_routes.get(bus_num, [])) < max_capacity:
                     best_bus = bus_num
                     break
         
