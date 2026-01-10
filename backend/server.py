@@ -252,7 +252,7 @@ async def auto_assign_new_camper(camper_id: str):
             raise HTTPException(status_code=404, detail="Camper not found")
         
         # Get existing bus routes
-        all_campers = await db.campers.find({\"bus_number\": {\"$exists\": True}}).to_list(None)
+        all_campers = await db.campers.find({"bus_number": {"$exists": True}}).to_list(None)
         existing_routes = {}
         
         for camper in all_campers:
