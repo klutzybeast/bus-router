@@ -88,15 +88,25 @@ class CampMinderAPI:
             return False
     
     async def get_new_campers(self, since: Optional[datetime] = None) -> List[Dict]:
-        """Fetch new campers from CampMinder"""
+        """Fetch campers from CampMinder"""
         try:
             headers = await self.get_auth_headers()
             
-            params = {}
-            if since:
-                params['modifiedSince'] = since.isoformat()
+            # Required parameters
+            params = {
+                'clientid': self.client_ids or '241',  # Use ClientID from JWT response
+                'pagenumber': 1,
+                'pagesize': 1000,
+                'includecamperdetails': 'true',
+                'includecontactdetails': 'true',
+                'includehouseholddetails': 'true'
+            }
             
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            # Optional - for incremental sync
+            if since:
+                params['lastupdated'] = since.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.get(
                     f"{self.api_url}/persons",
                     headers=headers,
@@ -104,14 +114,16 @@ class CampMinderAPI:
                 )
                 
                 if response.status_code == 200:
-                    logger.info(f"✓ Fetched campers from CampMinder")
-                    return response.json()
+                    data = response.json()
+                    results = data.get('Results', [])
+                    logger.info(f"✓ Fetched {len(results)} persons from CampMinder")
+                    return results
                 else:
-                    logger.error(f"Failed to fetch campers: {response.status_code}")
+                    logger.error(f"Failed to fetch persons: {response.status_code} - {response.text}")
                     return []
         
         except Exception as e:
-            logger.error(f"Error fetching campers from CampMinder: {str(e)}")
+            logger.error(f"Error fetching from CampMinder: {str(e)}")
             return []
     
     async def bulk_update_bus_assignments(self, assignments: List[Dict[str, int]]) -> Dict[str, bool]:
