@@ -341,6 +341,28 @@ async def sync_assignments_to_campminder():
         logging.error(f\"Error syncing to CampMinder: {str(e)}\")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/auto-sync-status")
+async def get_auto_sync_status():
+    """Get current auto-sync status"""
+    sync_status = await db.sync_status.find_one({"_id": "auto_sync"})
+    
+    return {
+        "enabled": AUTO_SYNC_ENABLED,
+        "interval_minutes": SYNC_INTERVAL_MINUTES,
+        "last_sync": last_sync_time.isoformat() if last_sync_time else None,
+        "sync_info": sync_status if sync_status else {}
+    }
+
+@api_router.post("/trigger-sync")
+async def trigger_manual_sync():
+    """Manually trigger a sync with CampMinder"""
+    try:
+        await auto_sync_campminder()
+        return {"status": "success", "message": "Sync completed"}
+    except Exception as e:
+        logging.error(f\"Error in manual sync: {str(e)}\")
+        raise HTTPException(status_code=500, detail=str(e))
+
 app.include_router(api_router)
 
 app.add_middleware(
