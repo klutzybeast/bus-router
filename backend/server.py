@@ -338,7 +338,7 @@ async def sync_assignments_to_campminder():
             "failed": failed
         }
     except Exception as e:
-        logging.error(f\"Error syncing to CampMinder: {str(e)}\")
+        logging.error(f"Error syncing to CampMinder: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/auto-sync-status")
