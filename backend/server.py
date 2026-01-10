@@ -16,6 +16,7 @@ import csv
 from route_optimizer import RouteOptimizer
 from campminder_integration import CampMinderAPI
 from sheets_generator import SheetsDataGenerator
+from cover_sheet_generator import CoverSheetGenerator
 from route_printer import RoutePrinter
 from contextlib import asynccontextmanager
 import asyncio
