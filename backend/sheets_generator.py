@@ -144,7 +144,7 @@ class SheetsDataGenerator:
         bus_groups = defaultdict(list)
         for camper in campers:
             bus_number = camper.get('bus_number', '')
-            if bus_number and bus_number != 'NONE':
+            if bus_number and bus_number != 'NONE' and 'NONE' not in bus_number.upper():
                 bus_groups[bus_number].append(camper)
         
         sorted_buses = sorted(bus_groups.keys(), key=lambda x: int(''.join(filter(str.isdigit, x)) or '0'))
