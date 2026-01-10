@@ -497,6 +497,36 @@ async def filter_campers(bus_number: str = None, session: str = None, pickup_typ
         logging.error(f"Error filtering campers: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/reports/missing-addresses")
+async def get_missing_addresses_report():
+    """Get report of campers with bus assignments but no addresses"""
+    try:
+        missing = await db.campers.find({
+            "location.latitude": 0.0,
+            "bus_number": {"$exists": True, "$ne": "NONE"}
+        }).to_list(None)
+        
+        report = []
+        for camper in missing:
+            report.append({
+                "first_name": camper.get('first_name'),
+                "last_name": camper.get('last_name'),
+                "bus_number": camper.get('bus_number'),
+                "session": camper.get('session'),
+                "town": camper.get('town'),
+                "zip_code": camper.get('zip_code')
+            })
+        
+        return {
+            "status": "warning",
+            "count": len(report),
+            "message": f"{len(report)} campers need addresses to appear on map",
+            "campers": report
+        }
+    except Exception as e:
+        logging.error(f"Error generating report: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
