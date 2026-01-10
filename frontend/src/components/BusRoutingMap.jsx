@@ -318,7 +318,7 @@ const BusRoutingMap = () => {
                   data-testid="sync-campminder-btn"
                 >
                   <RefreshCw className="w-5 h-5 mr-2" />
-                  Sync CampMinder Now
+                  Refresh from CSV Now
                 </Button>
                 
                 <Button
