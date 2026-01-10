@@ -133,7 +133,8 @@ const BusRoutingMap = () => {
       });
 
   const handlePrintRoute = (busNumber) => {
-    window.open(`${API}/route-sheet/${busNumber}/print`, '_blank');
+    const encodedBusNumber = encodeURIComponent(busNumber);
+    window.open(`${API}/route-sheet/${encodedBusNumber}/print`, '_blank');
   };
 
   if (loading) {
