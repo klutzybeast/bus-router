@@ -402,7 +402,10 @@ const BusRoutingMap = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <p className="text-gray-600 text-xs mb-1">Total Campers</p>
-                    <p className="font-bold text-blue-700 text-xl">{campers.length}</p>
+                    <p className="font-bold text-blue-700 text-xl">{sessionFilteredCampers.length}</p>
+                    {sessionFilter !== "all" && (
+                      <p className="text-xs text-gray-500">({campers.length} total)</p>
+                    )}
                   </div>
                   <div className="bg-green-50 p-3 rounded-lg">
                     <p className="text-gray-600 text-xs mb-1">Active Buses</p>
@@ -410,6 +413,7 @@ const BusRoutingMap = () => {
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">Auto-refreshes daily at 6:00 AM</p>
+                <p className="text-xs text-gray-500">CampMinder sync: Every 15 min</p>
               </div>
             </div>
           </div>
