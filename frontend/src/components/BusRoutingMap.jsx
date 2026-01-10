@@ -18,6 +18,7 @@ const BusRoutingMap = () => {
   const [uniqueBuses, setUniqueBuses] = useState([]);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedBusFilter, setSelectedBusFilter] = useState(null);
+  const [mapInstance, setMapInstance] = useState(null);
 
   const fetchCampers = useCallback(async () => {
     try {
