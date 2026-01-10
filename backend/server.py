@@ -242,14 +242,14 @@ async def optimize_routes():
         logging.error(f\"Error optimizing routes: {str(e)}\")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.post(\"/auto-assign-new-camper\")
+@api_router.post("/auto-assign-new-camper")
 async def auto_assign_new_camper(camper_id: str):
-    \"\"\"Automatically assign optimal bus to a new camper\"\"\"
+    """Automatically assign optimal bus to a new camper"""
     try:
         # Get the new camper
-        new_camper = await db.campers.find_one({\"_id\": camper_id})
+        new_camper = await db.campers.find_one({"_id": camper_id})
         if not new_camper:
-            raise HTTPException(status_code=404, detail=\"Camper not found\")
+            raise HTTPException(status_code=404, detail="Camper not found")
         
         # Get existing bus routes
         all_campers = await db.campers.find({\"bus_number\": {\"$exists\": True}}).to_list(None)
