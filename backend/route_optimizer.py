@@ -81,7 +81,7 @@ class RouteOptimizer:
         for camper in campers:
             if camper.get('location', {}).get('latitude') and camper.get('location', {}).get('longitude'):
                 addresses.append({
-                    'camper_id': camper['_id'],
+                    'camper_id': camper.get('_id', ''),
                     'lat': camper['location']['latitude'],
                     'lng': camper['location']['longitude'],
                     'address': camper['location'].get('address', ''),
@@ -105,6 +105,12 @@ class RouteOptimizer:
         current_bus = 1
         
         for cluster_id, cluster_addresses in sorted(clusters.items()):
+            if current_bus > self.num_buses:
+                break
+                
+            bus_number_str = f"Bus #{current_bus:02d}"
+            max_capacity = get_bus_capacity(bus_number_str)
+            
             # Skip noise points (label = -1)
             if cluster_id == -1:
                 # Assign noise points individually
@@ -113,7 +119,10 @@ class RouteOptimizer:
                         if current_bus not in bus_routes:
                             bus_routes[current_bus] = []
                         
-                        if len(bus_routes[current_bus]) < self.max_capacity_per_bus:
+                        bus_number_str = f"Bus #{current_bus:02d}"
+                        max_capacity = get_bus_capacity(bus_number_str)
+                        
+                        if len(bus_routes[current_bus]) < max_capacity:
                             bus_routes[current_bus].append(addr)
                         else:
                             current_bus += 1
@@ -123,15 +132,19 @@ class RouteOptimizer:
             
             # Assign cluster to bus
             if current_bus <= self.num_buses:
-                bus_routes[current_bus] = cluster_addresses[:self.max_capacity_per_bus]
+                bus_number_str = f"Bus #{current_bus:02d}"
+                max_capacity = get_bus_capacity(bus_number_str)
+                bus_routes[current_bus] = cluster_addresses[:max_capacity]
                 
                 # If cluster is larger than capacity, split across multiple buses
-                remaining = cluster_addresses[self.max_capacity_per_bus:]
+                remaining = cluster_addresses[max_capacity:]
                 while remaining and current_bus < self.num_buses:
                     current_bus += 1
-                    chunk = remaining[:self.max_capacity_per_bus]
+                    bus_number_str = f"Bus #{current_bus:02d}"
+                    max_capacity = get_bus_capacity(bus_number_str)
+                    chunk = remaining[:max_capacity]
                     bus_routes[current_bus] = chunk
-                    remaining = remaining[self.max_capacity_per_bus:]
+                    remaining = remaining[max_capacity:]
                 
                 current_bus += 1
         
