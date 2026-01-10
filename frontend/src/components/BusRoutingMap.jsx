@@ -105,11 +105,12 @@ const BusRoutingMap = () => {
     } else {
       setSelectedBusFilter(busNumber);
       const busStop = campers.find(c => c.bus_number === busNumber);
-      if (busStop) {
-        setMapCenter({
+      if (busStop && mapInstance) {
+        mapInstance.panTo({
           lat: busStop.location.latitude,
           lng: busStop.location.longitude
         });
+        mapInstance.setZoom(13);
       }
     }
   };
