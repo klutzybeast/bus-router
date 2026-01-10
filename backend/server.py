@@ -512,23 +512,26 @@ async def shutdown_db_client():
 
 # Auto-sync functions
 async def auto_sync_campminder():
-    """Background task to automatically sync with CampMinder"""
+    """Background task to automatically sync with CampMinder - handles ADD, UPDATE, DELETE"""
     global last_sync_time
     
     logger.info("Starting auto-sync with CampMinder...")
     
     try:
-        # Fetch new campers from CampMinder
-        new_campers_data = await campminder_api.get_new_campers(since=last_sync_time)
+        # Fetch ALL current campers from CampMinder
+        new_campers_data = await campminder_api.get_new_campers(since=None)  # Get all, not just since last sync
         
         if not new_campers_data:
-            logger.info("No new campers found")
+            logger.info("No data from CampMinder")
             last_sync_time = datetime.now(timezone.utc)
             return
         
-        logger.info(f"Found {len(new_campers_data)} new/updated campers")
+        logger.info(f"Processing {len(new_campers_data)} campers from CampMinder")
         
+        # Track which campers are in CampMinder
+        campminder_camper_ids = set()
         new_campers_count = 0
+        updated_campers_count = 0
         
         for camper_data in new_campers_data:
             # Check if camper requires bus transportation
