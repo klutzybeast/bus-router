@@ -360,7 +360,7 @@ async def trigger_manual_sync():
         await auto_sync_campminder()
         return {"status": "success", "message": "Sync completed"}
     except Exception as e:
-        logging.error(f\"Error in manual sync: {str(e)}\")
+        logging.error(f"Error in manual sync: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 app.include_router(api_router)
