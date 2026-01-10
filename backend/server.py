@@ -363,16 +363,6 @@ async def trigger_manual_sync():
         logging.error(f"Error in manual sync: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-app.include_router(api_router)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
