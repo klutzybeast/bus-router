@@ -372,13 +372,25 @@ const BusRoutingMap = () => {
                             className="w-6 h-6 md:w-5 md:h-5 rounded-full border-2 border-white shadow flex-shrink-0"
                             style={{ backgroundColor: busColor }}
                           />
-                          <span className={`font-medium text-sm md:text-base ${isSelected ? 'text-blue-700 font-bold' : ''}`}>
-                            {bus}
-                          </span>
+                          <div className="text-left">
+                            <div className={`font-medium text-sm md:text-base ${isSelected ? 'text-blue-700 font-bold' : ''}`}>
+                              {bus}
+                            </div>
+                            <div className="text-xs text-gray-500">{busCount} stops</div>
+                          </div>
                         </div>
-                        <span className={`text-xs md:text-sm px-2 py-1 rounded ${isSelected ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
-                          {busCount} stops
-                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrintRoute(bus);
+                          }}
+                          title="Print Route Sheet"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </Button>
                       </button>
                     );
                   })}
