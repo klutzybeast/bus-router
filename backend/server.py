@@ -728,13 +728,8 @@ async def auto_sync_campminder():
             }},
             upsert=True
         )
-        
-        # Track which campers are in CampMinder
-        campminder_camper_ids = set()
-        new_campers_count = 0
-        updated_campers_count = 0
-        
-        for camper_data in new_campers_data:
+
+async def sync_loop():
             # Check if camper requires bus transportation
             trans_type = camper_data.get('Trans-AMDropOffMethod', '')
             if 'AM Bus' not in trans_type:
