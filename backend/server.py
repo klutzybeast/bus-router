@@ -225,7 +225,7 @@ async def optimize_routes():
         for bus_num, route in balanced_routes.items():
             for camper_data in route:
                 camper_id = camper_data['camper_id']
-                bus_number_str = f\"Bus #{bus_num:02d}\"
+                bus_number_str = f"Bus #{bus_num:02d}"
                 
                 await db.campers.update_one(
                     {"_id": camper_id},
