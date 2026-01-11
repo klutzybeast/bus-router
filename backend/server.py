@@ -575,7 +575,7 @@ async def download_bus_assignments():
     
     try:
         campers = await db.campers.find({
-            "bus_number": {"$exists": True, "$nin": ["NONE", ""]}
+            "am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}
         }).to_list(None)
         
         # Create CSV
