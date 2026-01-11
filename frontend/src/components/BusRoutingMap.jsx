@@ -560,6 +560,118 @@ const BusRoutingMap = () => {
                   <RefreshCw className="w-5 h-5 mr-2" />
                   Refresh from CSV Now
                 </Button>
+
+                <Dialog open={showAddCamper} onOpenChange={setShowAddCamper}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full h-12 text-base bg-orange-50 hover:bg-orange-100 border-orange-600 text-orange-700"
+                      data-testid="add-camper-btn"
+                    >
+                      <UserPlus className="w-5 h-5 mr-2" />
+                      Add Camper Manually
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Add Camper</DialogTitle>
+                      <DialogDescription>
+                        Manually add a camper to the map. They will appear as a pin once added.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="first_name">First Name *</Label>
+                          <Input
+                            id="first_name"
+                            value={newCamper.first_name}
+                            onChange={(e) => setNewCamper({...newCamper, first_name: e.target.value})}
+                            placeholder="John"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="last_name">Last Name *</Label>
+                          <Input
+                            id="last_name"
+                            value={newCamper.last_name}
+                            onChange={(e) => setNewCamper({...newCamper, last_name: e.target.value})}
+                            placeholder="Doe"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address">Address *</Label>
+                        <Input
+                          id="address"
+                          value={newCamper.address}
+                          onChange={(e) => setNewCamper({...newCamper, address: e.target.value})}
+                          placeholder="123 Main St"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="town">Town *</Label>
+                          <Input
+                            id="town"
+                            value={newCamper.town}
+                            onChange={(e) => setNewCamper({...newCamper, town: e.target.value})}
+                            placeholder="Rockville Centre"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="zip_code">Zip Code *</Label>
+                          <Input
+                            id="zip_code"
+                            value={newCamper.zip_code}
+                            onChange={(e) => setNewCamper({...newCamper, zip_code: e.target.value})}
+                            placeholder="11570"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="am_bus">AM Bus</Label>
+                          <Select
+                            value={newCamper.am_bus_number}
+                            onValueChange={(value) => setNewCamper({...newCamper, am_bus_number: value})}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select bus" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="NONE">NONE (Assign Later)</SelectItem>
+                              {Array.from({length: 34}, (_, i) => `Bus #${String(i + 1).padStart(2, '0')}`).map(bus => (
+                                <SelectItem key={bus} value={bus}>{bus}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="pm_bus">PM Bus</Label>
+                          <Select
+                            value={newCamper.pm_bus_number || newCamper.am_bus_number}
+                            onValueChange={(value) => setNewCamper({...newCamper, pm_bus_number: value})}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Same as AM" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="NONE">NONE</SelectItem>
+                              {Array.from({length: 34}, (_, i) => `Bus #${String(i + 1).padStart(2, '0')}`).map(bus => (
+                                <SelectItem key={bus} value={bus}>{bus}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setShowAddCamper(false)}>Cancel</Button>
+                      <Button onClick={handleAddCamper}>Add Camper</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
                 
                 <Button
                   variant="outline"
