@@ -785,14 +785,13 @@ async def auto_sync_campminder():
             # Create ONE entry if same address, TWO entries if different addresses
             
             camper_id = f"{last_name}_{first_name}_{am_zip}".replace(' ', '_')
-            sheet_camper_ids.add(camper_id)  # Add BEFORE geocoding so it doesn't get deleted
+            sheet_camper_ids.add(camper_id)
             
             if am_address.strip():
-                location = geocode_address(am_address, am_town, am_zip)
-                if not location:
-                    # Geocoding failed - use placeholder
-                    location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
-                    logger.warning(f"Geocoding failed: {first_name} {last_name} - {am_address}")
+                am_location = geocode_address(am_address, am_town, am_zip)  # Use am_location
+                if not am_location:
+                    am_location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
+                    logger.warning(f"AM geocoding failed: {first_name} {last_name} - {am_address}")
                 
                 camper_doc = {
                     "_id": camper_id,
@@ -800,13 +799,13 @@ async def auto_sync_campminder():
                     "last_name": last_name,
                     "session": session,
                     "location": {
-                        "latitude": location.latitude,
-                        "longitude": location.longitude,
-                        "address": location.address
+                        "latitude": am_location.latitude,
+                        "longitude": am_location.longitude,
+                        "address": am_location.address
                     },
                     "town": am_town,
                     "zip_code": am_zip,
-                    "pickup_type": "AM & PM" if pm_final_address == am_address or not pm_final_address.strip() else "AM Pickup",
+                    "pickup_type": "AM Pickup" if (pm_final_address.strip() and pm_final_address != am_address) else "AM & PM",
                     "am_bus_number": final_am_bus,
                     "pm_bus_number": final_pm_bus,
                     "bus_color": get_bus_color(final_am_bus),
