@@ -18,7 +18,20 @@ class RoutePrinter:
         # AM campers: those whose AM bus matches this bus number
         am_campers = [c for c in campers if c.get('am_bus_number') == bus_number]
         # PM campers: those whose PM bus matches this bus number
-        pm_campers = [c for c in campers if c.get('pm_bus_number') == bus_number]
+        # For campers with different AM/PM addresses, only include the PM entry (ends with _PM)
+        pm_campers = []
+        for c in campers:
+            if c.get('pm_bus_number') == bus_number:
+                camper_id = c.get('_id', '')
+                # If this is an AM entry (doesn't end with _PM), check if there's a corresponding PM entry
+                if not camper_id.endswith('_PM'):
+                    # Check if there's a PM-specific entry for this camper
+                    pm_entry_id = camper_id + '_PM'
+                    has_pm_entry = any(x.get('_id') == pm_entry_id for x in campers)
+                    if has_pm_entry:
+                        # Skip this AM entry, the PM entry will be used instead
+                        continue
+                pm_campers.append(c)
         
         # Sort AM campers by proximity for efficient route (morning pickups)
         sorted_am = self.optimize_stop_order(am_campers, camp_address) if am_campers else []
