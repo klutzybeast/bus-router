@@ -861,8 +861,8 @@ async def auto_sync_campminder():
                     "last_name": last_name,
                     "session": session,
                     "location": {
-                        "latitude": am_location.latitude,
-                        "longitude": am_location.longitude,
+                        "latitude": am_location.latitude + offset,
+                        "longitude": am_location.longitude + offset,
                         "address": am_location.address
                     },
                     "town": am_town,
