@@ -182,31 +182,37 @@ const BusRoutingMap = () => {
     window.open(`${API}/route-sheet/${encodedBusNumber}/print`, '_blank');
   };
 
-  const handleChangeBus = async (camperId, currentBus) => {
-    if (!newAmBus && !newPmBus) {
-      toast.error("Please select a bus number");
+  const handleChangeBus = async (camperId, type) => {
+    const busToUpdate = type === 'am' ? newAmBus : newPmBus;
+    
+    if (!busToUpdate) {
+      toast.error("Please select a bus");
       return;
     }
     
     try {
-      toast.loading("Updating bus assignment...");
+      toast.loading(`Updating ${type.toUpperCase()} bus...`);
       
-      const updates = {};
-      if (newAmBus) updates.am_bus_number = newAmBus;
-      if (newPmBus) updates.pm_bus_number = newPmBus;
+      const params = new URLSearchParams();
+      if (type === 'am') {
+        params.append('am_bus_number', newAmBus);
+      } else {
+        params.append('pm_bus_number', newPmBus);
+      }
       
-      await axios.post(`${API}/campers/${camperId}/change-bus`, updates);
+      await axios.post(`${API}/campers/${camperId}/change-bus?${params.toString()}`);
       
       toast.dismiss();
-      toast.success(`Updated successfully`);
+      toast.success(`${type.toUpperCase()} bus updated to ${busToUpdate}`);
       
       setNewAmBus("");
       setNewPmBus("");
-      await fetchCampers();
       setSelectedCamper(null);
+      await fetchCampers();
     } catch (error) {
       toast.dismiss();
-      toast.error("Failed to update bus");
+      console.error("Error updating bus:", error);
+      toast.error("Failed to update");
     }
   };
 
