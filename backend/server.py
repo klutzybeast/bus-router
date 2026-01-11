@@ -506,7 +506,10 @@ async def get_printable_route_sheet(bus_number: str):
         
         # Get campers for this bus
         campers = await db.campers.find({
-            "bus_number": bus_number
+            "$or": [
+                {"am_bus_number": bus_number},
+                {"pm_bus_number": bus_number}
+            ]
         }).to_list(None)
         
         if not campers:
