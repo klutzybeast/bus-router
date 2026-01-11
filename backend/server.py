@@ -824,7 +824,12 @@ async def auto_sync_campminder():
         
         for row in reader:
             am_method = row.get('Trans-AMDropOffMethod', '')
-            if 'AM Bus' not in am_method:
+            pm_bus_raw = row.get('2026Transportation M PM Bus', '').strip()
+            
+            # Include if: AM Bus method OR has valid PM bus (for car drop-off AM cases)
+            has_pm_bus = pm_bus_raw and 'NONE' not in pm_bus_raw.upper() and not any(x in pm_bus_raw.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM'])
+            
+            if 'AM Bus' not in am_method and not has_pm_bus:
                 continue
             
             # Get all required fields first
