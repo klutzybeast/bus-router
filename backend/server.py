@@ -708,6 +708,11 @@ async def auto_sync_campminder():
             pm_town = row.get('Trans-DropOffTown', '')
             pm_zip = row.get('Trans-DropOffZip', '')
             
+            # Calculate final PM values
+            pm_final_address = pm_address if pm_address.strip() else am_address
+            pm_final_town = pm_town if pm_town.strip() else am_town
+            pm_final_zip = pm_zip if pm_zip.strip() else am_zip
+            
             # Process camper with BOTH AM and PM info
             # Create ONE entry if same address, TWO entries if different addresses
             
