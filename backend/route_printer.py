@@ -23,8 +23,10 @@ class RoutePrinter:
         # Sort AM campers by proximity for efficient route (morning pickups)
         sorted_am = self.optimize_stop_order(am_campers, camp_address) if am_campers else []
         
-        # REVERSE for PM route (afternoon drop-offs)
-        sorted_pm = list(reversed(sorted_am)) if sorted_am else []
+        # Sort PM campers separately (they may be different from AM campers)
+        # Then reverse for drop-off order (last pickup = first drop-off)
+        sorted_pm_optimized = self.optimize_stop_order(pm_campers, camp_address) if pm_campers else []
+        sorted_pm = list(reversed(sorted_pm_optimized)) if sorted_pm_optimized else []
         
         # Get turn-by-turn directions for AM route (morning)
         waypoints_am = [
@@ -45,7 +47,7 @@ class RoutePrinter:
             except Exception as e:
                 print(f"Error getting AM directions: {e}")
         
-        # Get turn-by-turn directions for PM route (afternoon - REVERSE)
+        # Get turn-by-turn directions for PM route (may have different campers than AM)
         waypoints_pm = [
             f"{c['location']['latitude']},{c['location']['longitude']}"
             for c in sorted_pm if c.get('location', {}).get('latitude')
