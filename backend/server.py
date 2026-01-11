@@ -608,7 +608,7 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
             webhook_url = os.environ.get('GOOGLE_SHEETS_WEBHOOK_URL', '')
             if webhook_url:
                 try:
-                    async with httpx.AsyncClient(timeout=10.0) as client:
+                    async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
                         webhook_data = {
                             "first_name": camper.get('first_name'),
                             "last_name": camper.get('last_name'),
@@ -616,12 +616,16 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
                             "pm_bus_number": updates.get('pm_bus_number') or camper.get('pm_bus_number')
                         }
                         
-                        response = await client.post(webhook_url, json=webhook_data)
+                        response = await client.post(
+                            webhook_url,
+                            json=webhook_data,
+                            headers={"Content-Type": "application/json"}
+                        )
                         
                         if response.status_code == 200:
                             logger.info(f"✓ Google Sheet updated instantly for {camper.get('first_name')} {camper.get('last_name')}")
                         else:
-                            logger.warning(f"Webhook failed: {response.status_code}")
+                            logger.warning(f"Webhook response: {response.status_code} - {response.text[:100]}")
                 except Exception as e:
                     logger.error(f"Webhook error: {str(e)}")
             
