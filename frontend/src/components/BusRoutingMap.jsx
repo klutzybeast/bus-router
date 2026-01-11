@@ -329,7 +329,7 @@ const BusRoutingMap = () => {
                     <div className="space-y-2">
                       <div className="flex gap-2 items-center">
                         <span className="text-xs w-12">AM:</span>
-                        <Select value={newBusNumber} onValueChange={setNewBusNumber}>
+                        <Select value={newAmBus} onValueChange={setNewAmBus}>
                           <SelectTrigger className="w-28 h-8 text-xs">
                             <SelectValue placeholder="AM Bus" />
                           </SelectTrigger>
@@ -342,18 +342,15 @@ const BusRoutingMap = () => {
                         <Button
                           size="sm"
                           className="h-8 text-xs"
-                          onClick={() => {
-                            // Update AM bus
-                            console.log("Update AM bus to:", newBusNumber);
-                          }}
-                          disabled={!newBusNumber}
+                          onClick={() => handleChangeBus(selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}`.replace(' ', '_'), 'am')}
+                          disabled={!newAmBus}
                         >
                           Update AM
                         </Button>
                       </div>
                       <div className="flex gap-2 items-center">
                         <span className="text-xs w-12">PM:</span>
-                        <Select value={newBusNumber} onValueChange={setNewBusNumber}>
+                        <Select value={newPmBus} onValueChange={setNewPmBus}>
                           <SelectTrigger className="w-28 h-8 text-xs">
                             <SelectValue placeholder="PM Bus" />
                           </SelectTrigger>
@@ -366,11 +363,8 @@ const BusRoutingMap = () => {
                         <Button
                           size="sm"
                           className="h-8 text-xs"
-                          onClick={() => {
-                            // Update PM bus  
-                            console.log("Update PM bus to:", newBusNumber);
-                          }}
-                          disabled={!newBusNumber}
+                          onClick={() => handleChangeBus(selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}`.replace(' ', '_'), 'pm')}
+                          disabled={!newPmBus}
                         >
                           Update PM
                         </Button>
