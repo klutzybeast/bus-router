@@ -404,7 +404,7 @@ async def get_seat_availability_for_sheets():
     try:
         # Include ALL campers with bus assignments (even without valid locations)
         campers = await db.campers.find({
-            "bus_number": {"$exists": True, "$nin": ["NONE", ""]}
+            "am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}
         }).to_list(None)
         
         # Use compact Cover Sheet format
