@@ -1014,6 +1014,9 @@ async def auto_sync_campminder():
         last_sync_time = datetime.now(timezone.utc)
         logger.info(f"Auto-sync complete: {new_count} new, {updated_count} updated, {deleted_count} deleted")
         
+        # AUTOMATICALLY apply sibling offset after sync
+        await apply_sibling_offset(db)
+        
         await db.sync_status.update_one(
             {"_id": "auto_sync"},
             {"$set": {
