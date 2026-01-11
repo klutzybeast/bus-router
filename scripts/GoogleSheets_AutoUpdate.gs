@@ -11,7 +11,7 @@
  */
 
 // ⚙️ CONFIGURATION
-const API_URL = 'https://camp-busmap.preview.emergentagent.com/api/sheets/seat-availability';
+const API_URL = 'https://camper-routes-1.preview.emergentagent.com/api/sheets/seat-availability';
 
 /**
  * Main function to update the sheet with seat availability
