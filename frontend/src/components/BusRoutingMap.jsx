@@ -450,6 +450,32 @@ const BusRoutingMap = () => {
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {/* Action Buttons */}
               <div className="space-y-2">
+                {/* Search Input */}
+                <div className="relative">
+                  <Input
+                    type="text"
+                    placeholder="Search camper, address, town..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearchCamper(e.target.value)}
+                    className="w-full h-12 pl-10"
+                    data-testid="search-camper"
+                  />
+                  <Search className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  {searchQuery && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-2 top-2 h-8 w-8 p-0"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSelectedCamper(null);
+                      }}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+                
                 <label htmlFor="csv-upload" className="block">
                   <Button
                     className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-base"
