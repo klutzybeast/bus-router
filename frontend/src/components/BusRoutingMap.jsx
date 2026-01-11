@@ -54,9 +54,6 @@ const BusRoutingMap = () => {
       const buses = Array.from(busSet).sort();
       setUniqueBuses(buses);
       
-      const buses = [...new Set(response.data.map(c => c.bus_number))].sort();
-      setUniqueBuses(buses);
-      
       if (response.data.length > 0) {
         setMapCenter({
           lat: response.data[0].location.latitude,
