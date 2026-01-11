@@ -164,12 +164,12 @@ async def sync_campers(csv_data: Dict[str, Any]):
             if 'AM Bus' not in am_method:
                 continue
             
-            am_bus = row.get('2026Transportation M AM Bus', '')
-            pm_bus = row.get('2026Transportation M PM Bus', '')
+            am_bus = row.get('2026Transportation M AM Bus', '').strip()
+            pm_bus = row.get('2026Transportation M PM Bus', '').strip()
             
-            # Skip if no valid bus assignment
+            # If no bus assigned, set to NONE (but still import the camper)
             if not am_bus or 'NONE' in am_bus.upper():
-                continue
+                am_bus = 'NONE'
             
             first_name = row.get('First Name', '')
             last_name = row.get('Last Name', '')
