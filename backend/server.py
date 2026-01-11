@@ -835,7 +835,7 @@ async def auto_sync_campminder():
             am_bus = row.get('2026Transportation M AM Bus', '')
             pm_bus = row.get('2026Transportation M PM Bus', '')
             
-            # PRESERVE existing bus assignments, AUTO-ASSIGN if empty
+            # PRESERVE existing bus assignments, AUTO-ASSIGN if empty/NONE
             final_am_bus = None
             final_pm_bus = None
             
@@ -843,7 +843,7 @@ async def auto_sync_campminder():
                 # Has valid AM bus in sheet - KEEP IT (don't override)
                 final_am_bus = am_bus.strip()
             elif am_address.strip():
-                # No bus but has address - AUTO-ASSIGN
+                # Bus is empty/NONE but has address - AUTO-ASSIGN
                 if 'existing_routes' not in locals():
                     all_db_campers = await db.campers.find({"am_bus_number": {"$exists": True}}).to_list(None)
                     existing_routes = {}
