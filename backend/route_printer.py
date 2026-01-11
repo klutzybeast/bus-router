@@ -14,9 +14,11 @@ class RoutePrinter:
         if not campers:
             return {"error": "No campers assigned to this bus"}
         
-        # Separate AM and PM campers
-        am_campers = [c for c in campers if 'AM' in c.get('pickup_type', '')]
-        pm_campers = [c for c in campers if 'PM' in c.get('pickup_type', '') or c.get('pickup_type') == 'AM & PM']
+        # Separate AM and PM campers based on their ACTUAL bus assignment for this route
+        # AM campers: those whose AM bus matches this bus number
+        am_campers = [c for c in campers if c.get('am_bus_number') == bus_number]
+        # PM campers: those whose PM bus matches this bus number
+        pm_campers = [c for c in campers if c.get('pm_bus_number') == bus_number]
         
         # Sort AM campers by proximity for efficient route (morning pickups)
         sorted_am = self.optimize_stop_order(am_campers, camp_address) if am_campers else []
