@@ -834,30 +834,33 @@ async def auto_sync_campminder():
                 sheet_camper_ids.add(camper_id_pm)
                 
                 location = geocode_address(pm_final_address, pm_final_town, pm_final_zip)
-                if location:
-                    camper_doc = {
-                        "_id": camper_id_pm,
-                        "first_name": first_name,
-                        "last_name": last_name,
-                        "session": session,
-                        "location": {
-                            "latitude": location.latitude,
-                            "longitude": location.longitude,
-                            "address": location.address
-                        },
-                        "town": pm_final_town,
-                        "zip_code": pm_final_zip,
-                        "pickup_type": "PM Drop-off Only",
-                        "am_bus_number": final_am_bus,
-                        "pm_bus_number": final_pm_bus,
-                        "bus_color": get_bus_color(final_pm_bus),
-                        "created_at": datetime.now(timezone.utc)
-                    }
-                    result = await db.campers.replace_one({"_id": camper_id_pm}, camper_doc, upsert=True)
-                    if result.upserted_id:
-                        new_count += 1
-                    elif result.modified_count > 0:
-                        updated_count += 1
+                if not location:
+                    location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {pm_final_address}")
+                    logger.warning(f"PM geocoding failed: {first_name} {last_name} - {pm_final_address}")
+                
+                camper_doc = {
+                    "_id": camper_id_pm,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "session": session,
+                    "location": {
+                        "latitude": location.latitude,
+                        "longitude": location.longitude,
+                        "address": location.address
+                    },
+                    "town": pm_final_town,
+                    "zip_code": pm_final_zip,
+                    "pickup_type": "PM Drop-off Only",
+                    "am_bus_number": final_am_bus,
+                    "pm_bus_number": final_pm_bus,
+                    "bus_color": get_bus_color(final_pm_bus),
+                    "created_at": datetime.now(timezone.utc)
+                }
+                result = await db.campers.replace_one({"_id": camper_id_pm}, camper_doc, upsert=True)
+                if result.upserted_id:
+                    new_count += 1
+                elif result.modified_count > 0:
+                    updated_count += 1
         
         # Delete campers no longer in sheet
         all_db_campers = await db.campers.find({}).to_list(None)
