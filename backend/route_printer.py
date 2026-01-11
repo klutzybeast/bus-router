@@ -24,28 +24,43 @@ class RoutePrinter:
         # REVERSE for PM route (afternoon drop-offs)
         sorted_pm = list(reversed(sorted_am)) if sorted_am else []
         
-        # Get turn-by-turn directions
-        waypoints = [
+        # Get turn-by-turn directions for AM route (morning)
+        waypoints_am = [
             f"{c['location']['latitude']},{c['location']['longitude']}"
-            for c in sorted_campers
+            for c in sorted_am if c.get('location', {}).get('latitude')
         ]
         
-        directions = None
-        if len(waypoints) > 0:
+        directions_am = None
+        if len(waypoints_am) > 0 and len(waypoints_am) <= 23:
             try:
-                # Google Directions API supports max 25 waypoints
-                if len(waypoints) > 23:
-                    waypoints = waypoints[:23]
-                
-                directions = self.gmaps.directions(
+                directions_am = self.gmaps.directions(
                     origin=camp_address,
                     destination=camp_address,
-                    waypoints=waypoints,
-                    optimize_waypoints=True,
+                    waypoints=waypoints_am,
+                    optimize_waypoints=False,  # Already optimized
                     mode="driving"
                 )
             except Exception as e:
-                print(f"Error getting directions: {e}")
+                print(f"Error getting AM directions: {e}")
+        
+        # Get turn-by-turn directions for PM route (afternoon - REVERSE)
+        waypoints_pm = [
+            f"{c['location']['latitude']},{c['location']['longitude']}"
+            for c in sorted_pm if c.get('location', {}).get('latitude')
+        ]
+        
+        directions_pm = None
+        if len(waypoints_pm) > 0 and len(waypoints_pm) <= 23:
+            try:
+                directions_pm = self.gmaps.directions(
+                    origin=camp_address,
+                    destination=camp_address,
+                    waypoints=waypoints_pm,
+                    optimize_waypoints=False,  # Already optimized & reversed
+                    mode="driving"
+                )
+            except Exception as e:
+                print(f"Error getting PM directions: {e}")
         
         route_sheet = {
             "bus_number": bus_number,
