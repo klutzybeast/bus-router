@@ -37,6 +37,7 @@ const BusRoutingMap = () => {
   const [sessionFilter, setSessionFilter] = useState("all");
   const [newAmBus, setNewAmBus] = useState("");
   const [newPmBus, setNewPmBus] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [mapInstance, setMapInstance] = useState(null);
 
   const fetchCampers = useCallback(async () => {
