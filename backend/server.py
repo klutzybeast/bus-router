@@ -192,53 +192,57 @@ async def sync_campers(csv_data: Dict[str, Any]):
             pm_final_town = pm_town if pm_town.strip() else am_town
             pm_final_zip = pm_zip if pm_zip.strip() else am_zip
             
-            if am_bus and 'NONE' not in am_bus.upper():
-                if am_address.strip():
-                    location = geocode_address(am_address, am_town, am_zip)
-                    if not location:
-                        location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
-                        logger.warning(f"Geocoding failed for {first_name} {last_name}: {am_address}")
-                    
-                    # Count existing in CURRENT batch (pins list) for offset
-                    existing_count = len([p for p in pins if 
-                        abs(p.location.latitude - location.latitude) < 0.0001 and
-                        abs(p.location.longitude - location.longitude) < 0.0001
-                    ])
-                    offset = existing_count * 0.00002  # Reduced to ~6 feet per sibling
-                    
-                    pins.append(CamperPin(
-                        first_name=first_name,
-                        last_name=last_name,
-                        location=GeoLocation(
-                            latitude=location.latitude + offset,
-                            longitude=location.longitude + offset,
-                            address=location.address
-                        ),
-                        am_bus_number=am_bus,
-                        pm_bus_number=final_pm_bus,
-                        bus_color=get_bus_color(am_bus),
-                        session=session,
-                        pickup_type="AM & PM",
-                        town=am_town,
-                        zip_code=am_zip
-                    ))
-                else:
-                    # No address - still add for sheet tracking
-                    pins.append(CamperPin(
-                        first_name=first_name,
-                        last_name=last_name,
-                        location=GeoLocation(latitude=0.0, longitude=0.0, address="ADDRESS NEEDED"),
-                        am_bus_number=am_bus,
-                        pm_bus_number=final_pm_bus,
-                        bus_color=get_bus_color(am_bus),
-                        session=session,
-                        pickup_type="NO ADDRESS",
-                        town=am_town or "UNKNOWN",
-                        zip_code=am_zip or "UNKNOWN"
-                    ))
+            # Process ALL campers (including those with NONE bus)
+            if am_address.strip():
+                location = geocode_address(am_address, am_town, am_zip)
+                if not location:
+                    location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
+                    logger.warning(f"Geocoding failed for {first_name} {last_name}: {am_address}")
                 
-                # Add separate PM pin only if address is different
-                if pm_final_address != am_address and pm_final_address.strip():
+                # Count existing in CURRENT batch (pins list) for offset
+                existing_count = len([p for p in pins if 
+                    abs(p.location.latitude - location.latitude) < 0.0001 and
+                    abs(p.location.longitude - location.longitude) < 0.0001
+                ])
+                offset = existing_count * 0.00002  # Reduced to ~6 feet per sibling
+                
+                # Set bus color - gray for NONE, otherwise use bus color
+                bus_color = "#808080" if am_bus == "NONE" else get_bus_color(am_bus)
+                
+                pins.append(CamperPin(
+                    first_name=first_name,
+                    last_name=last_name,
+                    location=GeoLocation(
+                        latitude=location.latitude + offset,
+                        longitude=location.longitude + offset,
+                        address=location.address
+                    ),
+                    am_bus_number=am_bus,
+                    pm_bus_number=final_pm_bus,
+                    bus_color=bus_color,
+                    session=session,
+                    pickup_type="AM & PM" if am_bus != "NONE" else "NEEDS BUS",
+                    town=am_town,
+                    zip_code=am_zip
+                ))
+            else:
+                # No address - still add for tracking
+                bus_color = "#808080" if am_bus == "NONE" else get_bus_color(am_bus)
+                pins.append(CamperPin(
+                    first_name=first_name,
+                    last_name=last_name,
+                    location=GeoLocation(latitude=0.0, longitude=0.0, address="ADDRESS NEEDED"),
+                    am_bus_number=am_bus,
+                    pm_bus_number=final_pm_bus,
+                    bus_color=bus_color,
+                    session=session,
+                    pickup_type="NO ADDRESS",
+                    town=am_town or "UNKNOWN",
+                    zip_code=am_zip or "UNKNOWN"
+                ))
+            
+            # Add separate PM pin only if has assigned bus and address is different
+            if am_bus != "NONE" and pm_final_address != am_address and pm_final_address.strip():
                     location_pm = geocode_address(pm_final_address, pm_final_town, pm_final_zip)
                     if not location_pm:
                         # Geocoding failed - use placeholder
