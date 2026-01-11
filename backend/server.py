@@ -883,15 +883,21 @@ async def auto_sync_campminder():
                 # Has valid PM bus - KEEP IT
                 final_pm_bus = pm_bus.strip()
             else:
-                # Use AM bus for PM
-                final_pm_bus = final_am_bus
+                # Use AM bus for PM (or NONE if AM is also NONE)
+                final_pm_bus = final_am_bus if final_am_bus else "NONE"
             
             # Filter out non-bus PM values
             if final_pm_bus and any(x in final_pm_bus.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM']):
-                final_pm_bus = final_am_bus
+                final_pm_bus = final_am_bus if final_am_bus else "NONE"
             
-            # Skip only if no bus AND no address
-            if not final_am_bus or not am_address.strip():
+            # If no bus was assigned, set to NONE (so we can track and display these campers)
+            if not final_am_bus:
+                final_am_bus = "NONE"
+            if not final_pm_bus:
+                final_pm_bus = "NONE"
+            
+            # Skip only if no address at all
+            if not am_address.strip():
                 continue
             
             # Calculate final PM values
