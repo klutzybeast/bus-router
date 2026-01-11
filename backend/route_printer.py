@@ -26,20 +26,30 @@ class RoutePrinter:
                     continue
                 am_campers.append(c)
         # PM campers: those whose PM bus matches this bus number
-        # For campers with different AM/PM addresses, only include the PM entry (ends with _PM)
+        # For campers with different AM/PM addresses, only include the PM entry (ends with _PM or has PM-only type)
         pm_campers = []
+        seen_names = set()
+        
+        # First pass: collect PM-specific entries
         for c in campers:
             if c.get('pm_bus_number') == bus_number:
                 camper_id = c.get('_id', '')
-                # If this is an AM entry (doesn't end with _PM), check if there's a corresponding PM entry
-                if not camper_id.endswith('_PM'):
-                    # Check if there's a PM-specific entry for this camper
-                    pm_entry_id = camper_id + '_PM'
-                    has_pm_entry = any(x.get('_id') == pm_entry_id for x in campers)
-                    if has_pm_entry:
-                        # Skip this AM entry, the PM entry will be used instead
-                        continue
-                pm_campers.append(c)
+                name = f"{c.get('first_name', '')}_{c.get('last_name', '')}"
+                
+                if camper_id.endswith('_PM') or c.get('pickup_type') == 'PM Drop-off Only':
+                    pm_campers.append(c)
+                    seen_names.add(name)
+        
+        # Second pass: add campers without PM-specific entries
+        for c in campers:
+            if c.get('pm_bus_number') == bus_number:
+                camper_id = c.get('_id', '')
+                name = f"{c.get('first_name', '')}_{c.get('last_name', '')}"
+                
+                if not camper_id.endswith('_PM') and c.get('pickup_type') != 'PM Drop-off Only':
+                    if name not in seen_names:
+                        pm_campers.append(c)
+                        seen_names.add(name)
         
         # Sort AM campers by proximity for efficient route (morning pickups)
         sorted_am = self.optimize_stop_order(am_campers, camp_address) if am_campers else []
