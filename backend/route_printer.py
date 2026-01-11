@@ -72,6 +72,8 @@ class RoutePrinter:
             "driver": get_bus_driver(bus_number),
             "counselor": get_bus_counselor(bus_number),
             "total_stops": len(sorted_am),
+            "total_am_stops": len(sorted_am),
+            "total_pm_stops": len(sorted_pm),
             "date": datetime.now().strftime("%Y-%m-%d"),
             "am_stops": [],
             "pm_stops": [],
