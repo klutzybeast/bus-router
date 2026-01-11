@@ -16,7 +16,15 @@ class RoutePrinter:
         
         # Separate AM and PM campers based on their ACTUAL bus assignment for this route
         # AM campers: those whose AM bus matches this bus number
-        am_campers = [c for c in campers if c.get('am_bus_number') == bus_number]
+        # For campers with different AM/PM addresses, only include the non-PM entry
+        am_campers = []
+        for c in campers:
+            if c.get('am_bus_number') == bus_number:
+                camper_id = c.get('_id', '')
+                # Skip PM-specific entries for AM route
+                if camper_id.endswith('_PM'):
+                    continue
+                am_campers.append(c)
         # PM campers: those whose PM bus matches this bus number
         # For campers with different AM/PM addresses, only include the PM entry (ends with _PM)
         pm_campers = []
