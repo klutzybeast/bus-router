@@ -677,67 +677,95 @@ async def auto_sync_campminder():
             pm_town = row.get('Trans-DropOffTown', '')
             pm_zip = row.get('Trans-DropOffZip', '')
             
-            # Process AM pickup
-            if am_bus and 'NONE' not in am_bus.upper():
-                camper_id_am = f"{last_name}_{first_name}_{am_zip}_AM".replace(' ', '_')
-                sheet_camper_ids.add(camper_id_am)
-                
-                if am_address.strip():
-                    location = geocode_address(am_address, am_town, am_zip)
-                    if location:
-                        camper_doc = {
-                            "_id": camper_id_am,
-                            "first_name": first_name,
-                            "last_name": last_name,
-                            "session": session,
-                            "location": {
-                                "latitude": location.latitude,
-                                "longitude": location.longitude,
-                                "address": location.address
-                            },
-                            "town": am_town,
-                            "zip_code": am_zip,
-                            "pickup_type": "AM Pickup",
-                            "bus_number": am_bus.strip(),
-                            "bus_color": get_bus_color(am_bus.strip()),
-                            "created_at": datetime.now(timezone.utc)
-                        }
-                        
-                        result = await db.campers.replace_one({"_id": camper_id_am}, camper_doc, upsert=True)
-                        if result.upserted_id:
-                            new_count += 1
-                        elif result.modified_count > 0:
-                            updated_count += 1
-                else:
-                    # No address
+            # Process AM pickup - ALWAYS create entry
+            camper_id_am = f"{last_name}_{first_name}_{am_zip}_AM".replace(' ', '_')
+            sheet_camper_ids.add(camper_id_am)
+            
+            if am_address.strip():
+                location = geocode_address(am_address, am_town, am_zip)
+                if location:
                     camper_doc = {
                         "_id": camper_id_am,
                         "first_name": first_name,
                         "last_name": last_name,
                         "session": session,
-                        "location": {"latitude": 0.0, "longitude": 0.0, "address": "ADDRESS NEEDED"},
-                        "town": am_town or "UNKNOWN",
-                        "zip_code": am_zip or "UNKNOWN",
-                        "pickup_type": "AM Pickup - NO ADDRESS",
-                        "bus_number": am_bus.strip(),
-                        "bus_color": get_bus_color(am_bus.strip()),
+                        "location": {
+                            "latitude": location.latitude,
+                            "longitude": location.longitude,
+                            "address": location.address
+                        },
+                        "town": am_town,
+                        "zip_code": am_zip,
+                        "pickup_type": "AM Pickup",
+                        "bus_number": final_am_bus,
+                        "bus_color": get_bus_color(final_am_bus),
                         "created_at": datetime.now(timezone.utc)
                     }
+                    
                     result = await db.campers.replace_one({"_id": camper_id_am}, camper_doc, upsert=True)
                     if result.upserted_id:
                         new_count += 1
+                    elif result.modified_count > 0:
+                        updated_count += 1
+            else:
+                # No address
+                camper_doc = {
+                    "_id": camper_id_am,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "session": session,
+                    "location": {"latitude": 0.0, "longitude": 0.0, "address": "ADDRESS NEEDED"},
+                    "town": am_town or "UNKNOWN",
+                    "zip_code": am_zip or "UNKNOWN",
+                    "pickup_type": "AM Pickup - NO ADDRESS",
+                    "bus_number": final_am_bus,
+                    "bus_color": get_bus_color(final_am_bus),
+                    "created_at": datetime.now(timezone.utc)
+                }
+                result = await db.campers.replace_one({"_id": camper_id_am}, camper_doc, upsert=True)
+                if result.upserted_id:
+                    new_count += 1
             
-            # Process PM drop-off - CREATE ENTRY FOR EVERYONE, even if same address
-            if pm_bus and 'NONE' not in pm_bus.upper():
-                camper_id_pm = f"{last_name}_{first_name}_{pm_zip if pm_zip else am_zip}_PM".replace(' ', '_')
-                sheet_camper_ids.add(camper_id_pm)
-                
-                # Use PM address if different, otherwise use AM address
-                pm_final_address = pm_address if pm_address.strip() else am_address
-                pm_final_town = pm_town if pm_town.strip() else am_town
-                pm_final_zip = pm_zip if pm_zip.strip() else am_zip
-                
-                if pm_final_address.strip():
+            # Process PM drop-off - ALWAYS create entry (use same or different address)
+            camper_id_pm = f"{last_name}_{first_name}_{pm_zip if pm_zip else am_zip}_PM".replace(' ', '_')
+            sheet_camper_ids.add(camper_id_pm)
+            
+            # Use PM address if different, otherwise use AM address
+            pm_final_address = pm_address if pm_address.strip() else am_address
+            pm_final_town = pm_town if pm_town.strip() else am_town
+            pm_final_zip = pm_zip if pm_zip.strip() else am_zip
+            
+            if pm_final_address.strip():
+                # Check if it's same as AM or different
+                if pm_final_address == am_address:
+                    # Same address - reuse AM location
+                    if am_address.strip():
+                        location = geocode_address(am_address, am_town, am_zip)
+                        if location:
+                            camper_doc = {
+                                "_id": camper_id_pm,
+                                "first_name": first_name,
+                                "last_name": last_name,
+                                "session": session,
+                                "location": {
+                                    "latitude": location.latitude,
+                                    "longitude": location.longitude,
+                                    "address": location.address
+                                },
+                                "town": pm_final_town,
+                                "zip_code": pm_final_zip,
+                                "pickup_type": "PM Drop-off",
+                                "bus_number": final_pm_bus,
+                                "bus_color": get_bus_color(final_pm_bus),
+                                "created_at": datetime.now(timezone.utc)
+                            }
+                            result = await db.campers.replace_one({"_id": camper_id_pm}, camper_doc, upsert=True)
+                            if result.upserted_id:
+                                new_count += 1
+                            elif result.modified_count > 0:
+                                updated_count += 1
+                else:
+                    # Different PM address - geocode it
                     location = geocode_address(pm_final_address, pm_final_town, pm_final_zip)
                     if location:
                         camper_doc = {
@@ -753,8 +781,8 @@ async def auto_sync_campminder():
                             "town": pm_final_town,
                             "zip_code": pm_final_zip,
                             "pickup_type": "PM Drop-off",
-                            "bus_number": pm_bus.strip(),
-                            "bus_color": get_bus_color(pm_bus.strip()),
+                            "bus_number": final_pm_bus,
+                            "bus_color": get_bus_color(final_pm_bus),
                             "created_at": datetime.now(timezone.utc)
                         }
                         result = await db.campers.replace_one({"_id": camper_id_pm}, camper_doc, upsert=True)
