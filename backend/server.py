@@ -761,6 +761,19 @@ async def auto_sync_campminder():
             if 'AM Bus' not in am_method:
                 continue
             
+            # Get all required fields first
+            first_name = row.get('First Name', '')
+            last_name = row.get('Last Name', '')
+            session = row.get('Enrolled Child Sessions', '')
+            
+            am_address = row.get('Trans-PickUpAddress', '')
+            am_town = row.get('Trans-PickUpTown', '')
+            am_zip = row.get('Trans-PickUpZip', '')
+            
+            pm_address = row.get('Trans-DropOffAddress', '')
+            pm_town = row.get('Trans-DropOffTown', '')
+            pm_zip = row.get('Trans-DropOffZip', '')
+            
             am_bus = row.get('2026Transportation M AM Bus', '')
             pm_bus = row.get('2026Transportation M PM Bus', '')
             
