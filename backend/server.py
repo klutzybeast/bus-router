@@ -940,17 +940,18 @@ async def auto_sync_campminder():
                 camper_id_pm = f"{last_name}_{first_name}_{pm_zip}_PM".replace(' ', '_')
                 sheet_camper_ids.add(camper_id_pm)
                 
-                pm_location = geocode_address(pm_final_address, pm_final_town, pm_final_zip)  # Use pm_location
+                pm_location = geocode_address(pm_final_address, pm_final_town, pm_final_zip)
                 if not pm_location:
                     pm_location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {pm_final_address}")
                     logger.warning(f"PM geocoding failed: {first_name} {last_name} - {pm_final_address}")
                 
-                # Apply offset for siblings at same PM address
-                pm_address_key = f"{pm_final_address}_{pm_final_zip}"
-                pm_offset_count = address_offset_counter.get(pm_address_key, 0)
-                address_offset_counter[pm_address_key] = pm_offset_count + 1
+                # Calculate offset for PM address based on existing campers
+                existing_at_pm_address = await db.campers.count_documents({
+                    "location.latitude": {"$gte": pm_location.latitude - 0.001, "$lte": pm_location.latitude + 0.001},
+                    "location.longitude": {"$gte": pm_location.longitude - 0.001, "$lte": pm_location.longitude + 0.001}
+                })
                 
-                pm_offset = pm_offset_count * 0.00008  # ~25 feet per sibling
+                pm_offset = existing_at_pm_address * 0.00008
                 
                 camper_doc_pm = {
                     "_id": camper_id_pm,
