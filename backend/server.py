@@ -764,7 +764,7 @@ async def auto_sync_campminder():
             if pm_final_address.strip():
                 # Check if it's same as AM or different
                 if pm_final_address == am_address:
-                    # Same address - reuse AM location
+                    # Same address - reuse AM location but offset slightly so both pins show
                     if am_address.strip():
                         location = geocode_address(am_address, am_town, am_zip)
                         if location:
@@ -774,8 +774,8 @@ async def auto_sync_campminder():
                                 "last_name": last_name,
                                 "session": session,
                                 "location": {
-                                    "latitude": location.latitude,
-                                    "longitude": location.longitude,
+                                    "latitude": location.latitude + 0.00005,  # Tiny offset so both pins show
+                                    "longitude": location.longitude + 0.00005,
                                     "address": location.address
                                 },
                                 "town": pm_final_town,
