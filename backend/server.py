@@ -203,7 +203,7 @@ async def sync_campers(csv_data: Dict[str, Any]):
                         abs(p.location.latitude - location.latitude) < 0.0001 and
                         abs(p.location.longitude - location.longitude) < 0.0001
                     ])
-                    offset = existing_count * 0.00008
+                    offset = existing_count * 0.00002  # Reduced to ~6 feet per sibling
                     
                     pins.append(CamperPin(
                         first_name=first_name,
