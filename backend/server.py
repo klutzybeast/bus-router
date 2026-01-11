@@ -681,14 +681,14 @@ async def auto_sync_campminder():
             # For every camper with AM Bus, create BOTH AM and PM entries
             # Use PM bus if specified, otherwise use AM bus for both
             final_am_bus = am_bus.strip() if am_bus and am_bus.strip() else None
-            final_pm_bus = pm_bus.strip() if pm_bus and pm_bus.strip() and 'NONE' not in pm_bus.upper() else final_am_bus
+            final_pm_bus = pm_bus.strip() if pm_bus and pm_bus.strip() else final_am_bus
+            
+            # Filter out non-bus PM values
+            if final_pm_bus and any(x in final_pm_bus.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM', 'NONE']):
+                final_pm_bus = final_am_bus  # Use AM bus instead
             
             # Skip only if no AM bus at all
-            if not final_am_bus:
-                continue
-            
-            # Skip if explicitly NONE
-            if 'NONE' in final_am_bus.upper():
+            if not final_am_bus or 'NONE' in final_am_bus.upper():
                 continue
             
             first_name = row.get('First Name', '')
