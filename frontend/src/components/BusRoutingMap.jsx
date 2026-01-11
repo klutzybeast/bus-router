@@ -250,12 +250,21 @@ const BusRoutingMap = () => {
                 </h3>
                 <div className="space-y-1 text-xs md:text-sm">
                   <div className="flex flex-wrap items-center gap-1">
-                    <span className="font-semibold">Bus:</span> 
+                    <span className="font-semibold">AM Bus:</span> 
                     <span 
                       className="px-2 py-0.5 rounded text-white text-xs font-medium"
                       style={{ backgroundColor: selectedCamper.bus_color }}
                     >
-                      {selectedCamper.bus_number}
+                      {selectedCamper.am_bus_number || selectedCamper.bus_number}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1">
+                    <span className="font-semibold">PM Bus:</span> 
+                    <span 
+                      className="px-2 py-0.5 rounded text-white text-xs font-medium"
+                      style={{ backgroundColor: get_bus_color(selectedCamper.pm_bus_number || selectedCamper.bus_number) }}
+                    >
+                      {selectedCamper.pm_bus_number || selectedCamper.bus_number}
                     </span>
                   </div>
                   <div>
