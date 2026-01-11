@@ -183,7 +183,7 @@ const BusRoutingMap = () => {
   };
 
   const handleChangeBus = async (camperId, currentBus) => {
-    if (!newBusNumber) {
+    if (!newAmBus && !newPmBus) {
       toast.error("Please select a bus number");
       return;
     }
@@ -191,14 +191,19 @@ const BusRoutingMap = () => {
     try {
       toast.loading("Updating bus assignment...");
       
-      await axios.post(`${API}/campers/${camperId}/change-bus?new_bus_number=${encodeURIComponent(newBusNumber)}`);
+      const updates = {};
+      if (newAmBus) updates.am_bus_number = newAmBus;
+      if (newPmBus) updates.pm_bus_number = newPmBus;
+      
+      await axios.post(`${API}/campers/${camperId}/change-bus`, updates);
       
       toast.dismiss();
-      toast.success(`Updated to ${newBusNumber}`);
+      toast.success(`Updated successfully`);
       
-      setEditingCamper(null);
-      setNewBusNumber("");
+      setNewAmBus("");
+      setNewPmBus("");
       await fetchCampers();
+      setSelectedCamper(null);
     } catch (error) {
       toast.dismiss();
       toast.error("Failed to update bus");
