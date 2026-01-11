@@ -35,9 +35,17 @@ class CoverSheetGenerator:
         # Group campers by bus
         bus_groups = defaultdict(list)
         for camper in campers:
-            bus_number = camper.get('bus_number', '')
-            if bus_number and bus_number != 'NONE' and 'NONE' not in bus_number.upper():
-                bus_groups[bus_number].append(camper)
+            am_bus = camper.get('am_bus_number', '')
+            pm_bus = camper.get('pm_bus_number', '')
+            
+            # Add to AM bus group
+            if am_bus and am_bus != 'NONE' and 'NONE' not in am_bus.upper():
+                bus_groups[am_bus].append(camper)
+            
+            # Also add to PM bus group if different
+            if pm_bus and pm_bus != am_bus and pm_bus != 'NONE' and 'NONE' not in pm_bus.upper():
+                if camper not in bus_groups[pm_bus]:
+                    bus_groups[pm_bus].append(camper)
         
         sorted_buses = sorted(bus_groups.keys(), key=lambda x: int(''.join(filter(str.isdigit, x)) or '0'))
         
