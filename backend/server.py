@@ -838,11 +838,22 @@ async def auto_sync_campminder():
             camper_id = f"{last_name}_{first_name}_{am_zip}".replace(' ', '_')
             sheet_camper_ids.add(camper_id)
             
+            # Track address for sibling offset
+            if 'address_offset_counter' not in locals():
+                address_offset_counter = {}
+            
             if am_address.strip():
                 am_location = geocode_address(am_address, am_town, am_zip)  # Use am_location
                 if not am_location:
                     am_location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
                     logger.warning(f"AM geocoding failed: {first_name} {last_name} - {am_address}")
+                
+                # Apply offset for siblings at same address
+                address_key = f"{am_address}_{am_zip}"
+                offset_count = address_offset_counter.get(address_key, 0)
+                address_offset_counter[address_key] = offset_count + 1
+                
+                offset = offset_count * 0.00008  # ~25 feet per sibling
                 
                 camper_doc = {
                     "_id": camper_id,
