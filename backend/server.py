@@ -19,6 +19,7 @@ from campminder_integration import CampMinderAPI
 from sheets_generator import SheetsDataGenerator
 from cover_sheet_generator import CoverSheetGenerator
 from route_printer import RoutePrinter
+from sibling_offset import apply_sibling_offset
 from contextlib import asynccontextmanager
 import asyncio
 
