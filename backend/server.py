@@ -214,19 +214,23 @@ async def sync_campers(csv_data: Dict[str, Any]):
                 # Add separate PM pin only if address is different
                 if pm_final_address != am_address and pm_final_address.strip():
                     location_pm = geocode_address(pm_final_address, pm_final_town, pm_final_zip)
-                    if location_pm:
-                        pins.append(CamperPin(
-                            first_name=first_name,
-                            last_name=last_name,
-                            location=location_pm,
-                            am_bus_number=am_bus,
-                            pm_bus_number=final_pm_bus,
-                            bus_color=get_bus_color(final_pm_bus),
-                            session=session,
-                            pickup_type="PM Drop-off Only",
-                            town=pm_final_town,
-                            zip_code=pm_final_zip
-                        ))
+                    if not location_pm:
+                        # Geocoding failed - use placeholder
+                        location_pm = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {pm_final_address}")
+                        logger.warning(f"PM geocoding failed for {first_name} {last_name}: {pm_final_address}")
+                    
+                    pins.append(CamperPin(
+                        first_name=first_name,
+                        last_name=last_name,
+                        location=location_pm,
+                        am_bus_number=am_bus,
+                        pm_bus_number=final_pm_bus,
+                        bus_color=get_bus_color(final_pm_bus),
+                        session=session,
+                        pickup_type="PM Drop-off Only",
+                        town=pm_final_town,
+                        zip_code=pm_final_zip
+                    ))
         
         await db.campers.delete_many({})
         
