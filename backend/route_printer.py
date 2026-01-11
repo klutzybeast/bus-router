@@ -281,30 +281,33 @@ class RoutePrinter:
                 </div>
             </div>
             
-            <h2>Pickup/Drop-off Schedule</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Stop #</th>
-                        <th>Camper Name</th>
-                        <th>Address</th>
-                        <th>Town</th>
-                        <th>Type</th>
-                        <th>Session</th>
-                        <th>✓</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <!-- AM ROUTE (Morning Pickups) -->
+            <div class="route-section">
+                <div class="route-title">🌅 AM ROUTE - Morning Pickups (Camp → Stops → Camp)</div>
+                <p><strong>Distance:</strong> """ + route_sheet['am_distance'] + """ | <strong>Time:</strong> """ + route_sheet['am_time'] + """</p>
+                
+                <h3>Pickup Schedule</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stop #</th>
+                            <th>Camper Name</th>
+                            <th>Address</th>
+                            <th>Town</th>
+                            <th>Session</th>
+                            <th>✓</th>
+                        </tr>
+                    </thead>
+                    <tbody>
         """
         
-        for stop in route_sheet['stops']:
+        for stop in route_sheet["am_stops"]:
             html += f"""
                     <tr>
                         <td>{stop['stop_number']}</td>
                         <td><strong>{stop['camper_name']}</strong></td>
                         <td>{stop['address']}</td>
                         <td>{stop['town']}</td>
-                        <td>{stop['pickup_type']}</td>
                         <td>{stop['session']}</td>
                         <td>☐</td>
                     </tr>
@@ -315,7 +318,19 @@ class RoutePrinter:
             </table>
         """
         
-        html = f"""
+        # Add AM turn-by-turn directions
+        if route_sheet['am_directions']:
+            html += """
+            <div class="directions">
+                <h3>Turn-by-Turn Directions (AM)</h3>
+            """
+            
+            for direction in route_sheet['am_directions']:
+                html += f"""
+                <div style="margin: 15px 0; padding: 10px; background: #fef3c7; border-radius: 5px;">
+                    <h4>Leg {direction['leg_number']}: {direction['from']} → {direction['to']}</h4>
+                    <p><strong>Distance:</strong> {direction['distance']} | <strong>Time:</strong> {direction['duration']}</p>
+                """
                 
                 for idx, step in enumerate(direction['steps'], 1):
                     html += f"""
