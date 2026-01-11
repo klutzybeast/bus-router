@@ -276,7 +276,7 @@ const BusRoutingMap = () => {
           clickableIcons={true}
           onLoad={(map) => setMapInstance(map)}
         >
-          {sessionFilteredCampers.map((camper, index) => {
+          {searchFilteredCampers.map((camper, index) => {
             // Use AM bus for display unless it's PM-only
             const displayBus = camper.pickup_type === "PM Drop-off Only" 
               ? camper.pm_bus_number 
