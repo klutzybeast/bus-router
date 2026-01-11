@@ -1,702 +1,696 @@
-﻿"Last Name","First Name","Enrolled Child Sessions","Trans-AMDropOffMethod","2026Transportation M AM Trans Type","2026Transportation M AM Bus","Trans-PickUpAddress","Trans-PickUpTown","Trans-PickUpZip","Trans-PMDismissalMethod","Trans-Diff.DropOffAddress","2026Transportation M PM Trans Type","2026Transportation M PM Bus","Trans-DropOffAddress","Trans-DropOffTown","Trans-DropOffZip",,
-"Accarino","Jolie","Half Season 2- 5 Days","AM Bus","Bus #14 ","Bus #14 ","271 Laurelton Blvd","Long beach","11561","PM Bus","No","Bus #14 ","Bus #14 ","","",""
-"Adal","Emanuel","Full Season- 5 Days","AM Bus","Bus #11 ","Bus #11 ","25 Earle Avenue","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Agnetti","Mia","6 Week Season","AM Bus","Bus #21 ","Bus #21 ","140 Cedar Ave.","Rockville Centre","11570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Ahern","Colton","Flex 30 Days","AM Bus","Bus #28 ","Bus #28 ","2520 Southard Ave","Ocenside","11572","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Aiello","Sophia","Full Season- 5 Days","AM Bus","Bus #25 ","Bus #25 ","","","","PM Bus","","Bus #25 ","Bus #25 ","","",""
-"Aiello","Zoe","Full Season- 5 Days","AM Bus","Bus #25 ","Bus #25 ","","","","PM Bus","","Bus #25 ","Bus #25 ","","",""
-"Ainscough","Jocelyn","Flex 30 Days","AM Bus","Bus #10 ","Bus #10 ","84 Judson Place,","Rockville Centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Alberts","Lucas","Full Season- 5 Days","AM Bus","Bus #05","Bus #05","5 Alden Road","East Rockaway","11518","PM Bus","No","Bus #05","Bus #05","","",""
-"Alcantara","Melanie","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Alert","Noel","Full Season- 5 Days","AM Bus","Bus #04","Bus #04","158 Meyer avenue","Valley Stream","11580","PM Bus","No","Bus #04","Bus #04","","",""
-"Alexander","Asher","Full Season- 5 Days","AM Bus","Bus #27 ","Bus #27 ","54 Rolling Street","Lynbrook","11563","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Alexander","Hayden","Full Season- 5 Days","AM Bus","Bus #27 ","Bus #27 ","54 Rolling Street","Lynbrook","11563","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Ali","Zara","6 Week Season","AM Bus","Bus #21 ","Bus #21 ","122 Lee Ave","Rockville Centre","11570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Ali","Zayn","6 Week Season","AM Bus","Bus #21 ","Bus #21 ","122 Lee Ave","Rockville Centre","11570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Allaben","Caleb","Full Season- 5 Days","AM Bus","Bus #28 ","Bus #28 ","2539 Washington Avenue","Oceanside","11572","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"Allaben","Zoe","Half Season 2- 5 Days","AM Bus","Bus #28 ","Bus #28 ","2539 Washington Avenue","Oceanside","11572","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"Anderson","Harrison","6 Week Season","AM Bus","","NONE","575 Links Drive South","Oceanside","11572","PM Bus","No","","NONE","","",""
-"Anderson","Stella","6 Week Season","AM Bus","","NONE","575 Links Drive South","Oceanside","11572","PM Bus","No","","NONE","","",""
-"Angelides","Evelyn","Full Season- 5 Days","AM Bus","Bus #16 ","Bus #16 ","181 W Henrietta Avenue","Oceanside","11572","PM Bus","No","Bus #16 ","Bus #16 ","","",""
-"Anglin","Liam","Half Season 1- 5 Days","AM Morning Care*","","NONE","24 Dawson Drive","Valley Stream","11581","PM Bus","No","","NONE","","",""
-"Arguello","Brooke","Full Season- 5 Days","AM Bus","Bus #09","Bus #09","2839 Clark Ave","Oceanside","11572","PM Bus","No","Bus #09","Bus #09","","",""
-"Arguello","Liam","Full Season- 5 Days","AM Bus","Bus #09","Bus #09","2839 Clark Ave","Oceanside","11572","PM Bus","No","Bus #09","Bus #09","","",""
-"Arkow","Agnes","Full Season- 5 Days","AM Bus","Bus #15 ","Bus #15 ","20 Kerrigan Street","Long Beach","11561","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Arkow","Jacob","Full Season- 5 Days","AM Bus","Bus #15 ","Bus #15 ","20 Kerrigan Street","Long Beach","11561","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Artusa","Lola","Flex 30 Days","AM Bus","Bus #30 ","Bus #30 ","19 Leach Street","Lynbrook","11563","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Aue","Jameson","Flex 30 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Augello","Aiden","Flex 20 Days","AM Bus","Bus #08","Bus #08","108 Marvin Avenue","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Axelrod","Jake","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Axelrod","Jordan","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Aydiner","Alexandra","Half Season 1- 5 Days","AM Bus","Bus #04","Bus #04","27 Watts Place","Lynbrook","11563","PM Bus","","Bus #04","Bus #04","","",""
-"Azznara","Jackson","Full Season- 5 Days","AM Bus","Bus #10 ","Bus #10 ","55 Harvard Ave","Rockville Centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Azznara","Julia","Full Season- 5 Days","AM Bus","Bus #10 ","Bus #10 ","55 Harvard Ave","Rockville Centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Baez","James","Flex 25 Days","Staff Child- No Bus","Bus #27 ","Bus #27 ","","","","Staff Child- No Bus","","Bus #27 ","Bus #27 ","","",""
-"Bailey","Amelia","Full Season- 5 Days","AM Bus","Bus #28 ","Bus #28 ","744 Glover Place","Baldwin","11510","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"Bailey","Gavin","Full Season- 5 Days","AM Bus","Bus #28 ","Bus #28 ","744 Glover Place","Baldwin","11510","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"Baker","Tobias","Flex 20 Days","AM Morning Care*","Child Care","NONE","","","","PM After Care*","","Child Care","NONE","","",""
-"Balder","Adeline","Full Season- 5 Days","AM Bus","","NONE","292 Concord Ave","Oceanside","11572","PM Bus","No","","NONE","","",""
-"Balder","Grace","Half Season 1- 5 Days","AM Bus","","NONE","3394 fifth street","Oceanside","11572","PM Bus","","","NONE","","",""
-"Balder","Harper","Full Season- 5 Days","AM Bus","","NONE","338 concord ave","oceanside","11572","PM Bus","No","","NONE","","",""
-"Balder","Holden","Full Season- 5 Days","AM Bus","","NONE","292 Concord Ave","Oceanside","11572","PM Bus","No","","NONE","","",""
-"Balder","Mason","Half Season 1- 5 Days","AM Bus","","NONE","3394 fifth street","Oceanside","11572","PM Bus","","","NONE","","",""
-"Balder","Olivia","Full Season- 5 Days","AM Bus","","NONE","338 concord ave","oceanside","11572","PM Bus","No","","NONE","","",""
-"Balducci","Robert","Full Season- 5 Days","AM Bus","","NONE","1569 Kenneth Ave","Baldwin","11510","PM Bus","No","","NONE","","",""
-"Ball","Cassandra","Full Season- 5 Days","AM Bus","Bus #24 ","Bus #24 ","6 Behnke Court","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Ballow","Cole","Full Season- 5 Days","AM Bus","Bus #30 ","Bus #30 ","71 Webster St","Malverne","11565","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Ballow","Maddox","Full Season- 5 Days","AM Bus","Bus #30 ","Bus #30 ","71 Webster St","Malverne","11565","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Balsamo","Johnny","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","12 Pickwick Terrace","Rockville Centre","11570","PM Bus","No","Bus #23 ","Bus #23 ","","",""
-"Balsamo","Vinny","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","12 Pickwick Terrace","Rockville Centre","11570","PM Bus","No","Bus #23 ","Bus #23 ","","",""
-"Banks","Michael","Full Season- 5 Days","AM Bus","Bus #24 ","Bus #24 ","23 Atkinson Road","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Barnett","Hunter","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM After Care*","","","NONE","","",""
-"Batista","Valentina","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Battino","Hudson","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Battino","Jordyn","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Benisty","Eden","Half Season 1- 5 Days","AM Bus","Bus #32","Bus #32","20 Yale Place","Rockville Centre","11570","PM Bus","No","Bus #32","Bus #32","","",""
-"Berghorn","Brayden","Full Season- 5 Days","AM Bus","Bus #32","Bus #32","on Jons Bus","Er","11518","PM Bus","","Bus #32","Bus #32","","",""
-"Berghorn","Mackenzie","Full Season- 5 Days","AM Bus","Bus #32","Bus #32","Jon Bus","ER","11518","PM Bus","","Bus #32","Bus #32","","",""
-"Berlin","Riley","Flex 30 Days","AM Bus","Bus #11 ","Bus #11 ","330 Princeton Road","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Better","Max","Full Season- 5 Days","AM Bus","Bus #21 ","Bus #21 ","38 Raymond street","Rockville Centre","11570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Birnbaum","Maisie","Full Season- 5 Days","AM Bus","Bus #33","Bus #33","23 Sherwood Road","Rockville Centre","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Birnbaum","Wesley","Full Season- 5 Days","AM Bus","Bus #33","Bus #33","23 sherwood Road","rockville centre","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Blackston","Elijah","Full Season- 5 Days","AM Bus","Bus #14 ","Bus #14 ","101 Suffolk Blvd","Atlantic Beach","11509","PM Bus","No","Bus #14 ","Bus #14 ","","",""
-"Blackston","Ruben","Full Season- 5 Days","AM Bus","Bus #14 ","Bus #14 ","101 Suffolk Blvd","Atlantic Beach","11509","PM Bus","No","Bus #14 ","Bus #14 ","","",""
-"Bleau","Adelise","Full Season- 5 Days","AM Bus","Bus #30 ","Bus #30 ","22 Webster Street","Lynbrook","11563","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Bleau","Thomas","Full Season- 5 Days","AM Bus","Bus #30 ","Bus #30 ","22 Webster St","Lynbrook","11563","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Bocchino","Gianna","Full Season- 5 Days","AM Bus","Bus #33","Bus #33","30 Vanderveer Court","Rockville Centre","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Bocchino","Viviana","Full Season- 5 Days","AM Bus","Bus #33","Bus #33","30 Vanderveer Court","Rockville Centre","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Bono","John","Flex 30 Days","AM Bus","Bus #28 ","Bus #28 ","2380 Columbus Ave","Oceanside","11572","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"Borzumato","Jacob","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #04","Bus #04","","",""
-"Borzumato","Victoria","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #04","Bus #04","","",""
-"Bouchereau","Gabriella","Flex 20 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Bouchereau","Giada","Flex 20 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Bourne","Angel","Full Season- 5 Days","AM Bus","Bus #04","Bus #04","17 Highland Road","Valley Stream","11580","PM Bus","No","Bus #04","Bus #04","","",""
-"Bourne","Noel","6 Week Season","AM Bus","Bus #04","Bus #04","17 Highland Road","Valley Stream","11580","PM Bus","No","Bus #04","Bus #04","","",""
-"Bovell","Austin","Full Season- 5 Days","AM Bus","Bus #01","Bus #01","38 southgate","Valley stream","11581","PM Bus","No","Bus #01","Bus #01","","",""
-"Bowen","Nyla","6 Week Season","AM Bus","Bus #27 ","Bus #27 ","11 Willow Pl","Malverne","11565","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Boychuk","Avery","Half Season 1- 5 Days","AM Bus","Bus #10 ","Bus #10 ","67 Argyle Place","Rockville Centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Boychuk","Charlotte","Full Season- 5 Days","AM Bus","Bus #10 ","Bus #10 ","67 Argyle Place","Rockville Centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Boychuk","Emma","Full Season- 5 Days","AM Bus","Bus #10 ","Bus #10 ","67 Argyle Place","Rockville centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Bragin","James","Full Season- 5 Days","AM Bus","Bus #05","Bus #05","47 Arnold Ct","East Rockaway","11518","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Braithwaite","Eleanor","6 Week Season","AM Bus","Bus #14 ","Bus #14 ","70 cayuga avenue","Atlantic beach","11509","PM Bus","No","Bus #14 ","Bus #14 ","","",""
-"Braithwaite","Miles","6 Week Season","AM Bus","Bus #14 ","Bus #14 ","70 cayuga avenue","Atlantic Beach","11509","PM Bus","No","Bus #14 ","Bus #14 ","","",""
-"Bravo","Felix","Full Season- 5 Days","AM Bus","Bus #09","Bus #09","3190 Lawrence ave oceanside","","","PM Bus","No","Bus #09","Bus #09","","",""
-"Bray","Oakley","Full Season- 5 Days","AM Bus","Bus #01","Bus #01","1427 dartmouth st","Baldwin","11510","PM Bus","No","Bus #01","Bus #01","","",""
-"Brink","Nora","Full Season- 5 Days","AM Bus","Bus #25 ","Bus #25 ","36 Lawrence Ave","Malverne","11565","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Brink","Russell","Full Season- 5 Days","AM Bus","Bus #25 ","Bus #25 ","36 Lawrence Ave","Malverne","11565","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Broderick","Mason","Full Season- 5 Days","AM Bus","Bus #11 ","Bus #11 ","23 Shepherd St","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Broderick","Scarlett","Full Season- 5 Days","AM Bus","Bus #11 ","Bus #11 ","23 Shepherd St","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Brody","Dylan","Full Season- 5 Days","AM Bus","Bus #16 ","Bus #16 ","100 Daly Blvd Apt 207","Oceanside","11572","PM Bus","No","Bus #16 ","Bus #16 ","","",""
-"Brophy","Drew","Full Season- 5 Days","AM Bus","Car","NONE","295 links dr west","Oceanside","11572","PM Bus","No","Hockey Rink ","Hockey Rink ","","",""
-"Brotz","Gemma","Half Season 1- 5 Days","AM Bus","Bus #26","Bus #26","2925 Joyce Lane","Merrick","11566","PM Bus","No","Bus #26","Bus #26","","",""
-"Brower","Catherine","Flex 30 Days","AM Bus","Bus #24 ","Bus #24 ","61 Atkinson Road","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Brower","William","Flex 30 Days","AM Bus","Bus #24 ","Bus #24 ","61 Atkinson Road","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Brown","Ethan","Flex 20 Days","AM Bus","Bus #14 ","Bus #14 ","633 west Penn street","Long Beach, Ny","11561","PM Bus","","Bus #14 ","Bus #14 ","","",""
-"Buckley","Jack","Full Season- 5 Days","AM Bus","Bus #21 ","Bus #21 ","139 Cedar Ave","Rockville Centre","11570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Buckley","Liam","Full Season- 5 Days","Staff Child- No Bus","","NONE","","","","Staff Child- No Bus","","","NONE","","",""
-"Camacho","Rafael","Half Season 1- 5 Days","AM Bus","Bus #31","Bus #31","3255 5th street","Oceanside","11572","PM Bus","No","Bus #31","Bus #31","","",""
-"Campos","Ava","Full Season- 5 Days","AM Bus","Bus #15 ","Bus #15 ","410 East Broadway","Long Beach","11561","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Capone","Chase","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Carroll","Charlie","Full Season- 5 Days","AM Morning Care*","Child Care","NONE","","","","PM Bus","","","NONE","","",""
-"Casey","Kyla","Half Season 1- 5 Days","AM Bus","Bus #20","Bus #20","3031 Davis Place","Oceanside","11572","PM Bus","No","Bus #20","Bus #20","","",""
-"Caso","Chloe","Flex 30 Days","AM Bus","","NONE","74 Johnson Place","Oceanside","11572","PM Bus","No","","NONE","","",""
-"Cavanaugh","Patrick","Flex 30 Days","AM Bus","Bus #10 ","Bus #10 ","69 Broadway","Rockville Centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Cestra","Brianna","Full Season- 5 Days","AM Bus","Bus #01","Bus #01","1003 Dartmouth Lane","Woodmere","11598","PM Bus","No","Bus #01","Bus #01","","",""
-"Chandler","Makeda","Flex 25 Days","AM Bus","Bus #01","Bus #01","41 Kenmore Rd","Valley Stream","11581","PM Bus","No","Bus #01","Bus #01","","",""
-"Chandler","Moses","Flex 25 Days","AM Bus","Bus #01","Bus #01","","","","PM Bus","","Bus #01","Bus #01","","",""
-"Chatoff","Emma","Half Season 1- 5 Days","AM Bus","Bus #22","Bus #22","341 N Forest Avenue","Rockville Centre","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Chiprut","Theo","Flex 30 Days","AM Bus","Bus #23 ","Bus #23 ","87 Marlborough Ct","Rockville Centre","11570","PM Bus","No","Bus #23 ","Bus #23 ","","",""
-"Ciccullo","Tyler","Flex 25 Days","AM Bus","Bus #07","Bus #07","2744 Brian St","Oceanside","11572","PM Bus","No","Bus #07","Bus #07","","",""
-"Cimato","Alessandro","Flex 30 Days","AM Bus","Bus #24 ","Bus #24 ","1 Bulson road","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Cimato","Lorenzo","Full Season- 5 Days","AM Bus","Bus #24 ","Bus #24 ","1 Bulson road","Rockville Centre","11570","PM Bus","","Bus #24 ","Bus #24 ","","",""
-"Cinque","Carter","Flex 25 Days","AM Bus","Bus #07","Bus #07","91 Rodney Place","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Civello","Cameron","Full Season- 5 Days","AM Bus","Bus #10 ","Bus #10 ","100 Dorchester rd","Rockville centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Civello","Jack","Full Season- 5 Days","AM Bus","Bus #10 ","Bus #10 ","100 Dorchester rd","Rockville centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Clancy","Matthew","Flex 25 Days","AM Bus","Bus #29 ","Bus #29 ","15 Kathryn Street","Lynbrook","11563","PM Bus","","Bus #29 ","Bus #29 ","","",""
-"Clervi","Ely","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Cohen","Theodore","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Coismain","Isabelle","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Colvin","Ava","Flex 20 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Colvin","Charlotte","Flex 20 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Conneely","Eden","Flex 20 Days","AM Bus","Bus #11 ","Bus #11 ","16 Adams Ct","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Conza","Georgia","Flex 25 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Cooney","Callie","Half Season 1- 5 Days","AM Bus","","NONE","3929 Greentree Dr","Oceanside","11572","PM Bus","No","","NONE","","",""
-"Cooney","Cameron","Half Season 1- 5 Days","AM Bus","","NONE","3929 Greentree Dr","Oceanside","11572","PM Bus","No","","NONE","","",""
-"Cooney","Colton","Half Season 1- 5 Days","AM Bus","","NONE","3929 Greentree Dr","Oceanside NY","11572","PM Bus","No","","NONE","","",""
-"Coppola","Natalia","Half Season 1- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Corrigan","Evelyn","Full Season- 5 Days","AM Bus","","NONE","171 Windsor Ave","Rockville Centre","11570","PM Bus","No","","NONE","","",""
-"Corrigan","Oliver","Full Season- 5 Days","AM Bus","","NONE","171 Windsor Ave","Rockville Centre","11570","PM Bus","No","","NONE","","",""
-"Costello","Charlotte","Flex 25 Days","AM Bus","Bus #03","Bus #03","98 Powell Ave","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Costello","Madeline","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","98 Powell Ave","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Creegan","Chloe","Full Season- 5 Days","AM Bus","","NONE","6 August Walk","Long Beach","11561","PM Bus","No","","NONE","","",""
-"Creegan","William","Full Season- 5 Days","AM Bus","","NONE","","","","PM Bus","No","","NONE","","",""
-"Crowley","Benny","Full Season- 5 Days","Car Drop Off","Car","NONE","245 McKinley Avenue","Island Park","11558","Staff Child- No Bus","No","Main Tent ","Main Tent ","","",""
-"Crowley","Skylar","Full Season- 5 Days","Car Drop Off","Car","NONE","245 McKinley Avenue","Island Park","11558","Staff Child- No Bus","No","Main Tent ","Main Tent ","","",""
-"Cunningham","Ellie","Half Season 1- 5 Days","AM Bus","Bus #13 ","Bus #13 ","56 Voorhis Ave","Rockville Centre","11570","PM Bus","No","Bus #13 ","Bus #13 ","","",""
-"D'Ambrosio","Everly","Flex 20 Days","AM Bus","Bus #05","Bus #05","6 thixton ave","East rockaway","11518","PM Bus","No","Bus #05","Bus #05","","",""
-"Deal","Liam","Half Season 2- 5 Days","AM Bus","Bus #25 ","Bus #25 ","11 Linmouth Rd","Malverne","11565","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Deal","Maggie","Half Season 2- 5 Days","AM Bus","Bus #25 ","Bus #25 ","11 Linmouth Rd","Malverne","11565","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"DeAngelo","Alexandra","Full Season- 5 Days","AM Bus","Bus #27 ","Bus #27 ","881 Roosevelt Street","Franklin Square","11010","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"DeAngelo","Michael","Full Season- 5 Days","AM Bus","Bus #27 ","Bus #27 ","881 Roosevelt Street","Franklin Square","11010","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Decker","Jake","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #02","Bus #02","","",""
-"DeCoursey","Sean","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Dee","William","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Dee","Wyatt","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"DeGuzman","Malaya  Karla Raquelita","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Della Pelle","Arianna","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","413 Rose Ln","Rockville Centre","11570","PM Bus","No","Bus #23 ","Bus #23 ","","",""
-"DeMott","Danika","Half Season 1- 5 Days","AM Bus","Bus #28 ","Bus #28 ","2533 Park Avenue","Baldwin","11521","PM Bus","","Bus #28 ","Bus #28 ","","",""
-"DeRossi","Vincent","Full Season- 5 Days","AM Bus","Bus #33","Bus #33","16 Vanderveer Court","Rockville Centre, NY","11570","PM Bus","","Bus #33","Bus #33","","",""
-"DeVivo","Audrey","Full Season- 5 Days","AM Bus","Bus #24 ","Bus #24 ","85 Allen Road","Rockville Centre","11570","PM Bus","","Bus #24 ","Bus #24 ","","",""
-"DeVivo","Emilia","Full Season- 5 Days","AM Bus","Bus #24 ","Bus #24 ","85 Allen Rd","Rockville Centre","11570","PM Bus","","Bus #24 ","Bus #24 ","","",""
-"Devivo","Grace","Flex 30 Days","AM Bus","Bus #11 ","Bus #11 ","33 Fonda Road","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Devivo","Jack","Flex 30 Days","AM Bus","Bus #11 ","Bus #11 ","33 Fonda Road","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Di Mambro","Kai","Full Season- 5 Days","AM Bus","Bus #20","Bus #20","2 Country Place","Freeport","11520","PM Bus","Yes","Bus #31","Bus #31","17 Bellevue Ave","Oceanside","11572"
-"Di Mambro","Koa","Full Season- 5 Days","AM Bus","Bus #20","Bus #20","2 Country Place","Freeport","11520","PM Bus","Yes","Bus #31","Bus #31","17 Bellevue Ave","Oceanside","11572"
-"Diamond","Logan","Flex 30 Days","AM Bus","Bus #22","Bus #22","18 Capitolian Blvd","Rockville Centre","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Dichiaro","Dean","Full Season- 5 Days","AM Bus","Bus #24 ","Bus #24 ","110 Atkinson Rd","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Dickinson","Emma","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","137 S. Centre Avenue","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Dietsch","Evelyn","Full Season- 5 Days","AM Bus","Bus #08","Bus #08","68 Dartmouth Street","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"DiGioia","Oliver","Full Season- 5 Days","AM Bus","Bus #15 ","Bus #15 ","","","","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Dillon","John","Full Season- 5 Days","AM Bus","Bus #11 ","Bus #11 ","","","","PM Bus","","Bus #11 ","Bus #11 ","","",""
-"DiMarco","Benjamin","Full Season- 5 Days","AM Bus","Bus #04","Bus #04","54 Oakland Avenue","Lynbrook","11563","PM Bus","No","Bus #04","Bus #04","","",""
-"Dixon","Tyler","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Dold","Penelope","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Donin","Aidan","Full Season- 5 Days","AM Bus","Bus #09","Bus #09","337 Perkins Ave","Oceanside","11572","PM Bus","Yes","Bus #14 ","Bus #14 ","540 W Penn St","Long Beach","11561"
-"Donnelly","Julia","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","2711 Cheshire Dr","Baldwin","11510","PM Bus","No","Bus #17 ","Bus #17 ","","",""
-"Drucker","Charlie","Full Season- 5 Days","AM Morning Care*","Child Care","NONE","","","","PM After Care*","","Child Care","NONE","","",""
-"Drury","Brian","Half Season 2- 5 Days","AM Bus","Bus #09","Bus #09","238 Hoke Ave","Oceanside","11572","PM Bus","No","Bus #09","Bus #09","","",""
-"du Plessis","Sylvie","Full Season- 5 Days","AM Bus","Bus #02","Bus #02","25 Murdock Road","East Rockaway","11518","PM Bus","No","Bus #02","Bus #02","","",""
-"Dugger","Avery","Half Season 2- 5 Days","AM Bus","Bus #26","Bus #26","2273 Brody Lane","Bellmore","11710","PM Bus","","Bus #26","Bus #26","","",""
-"Dyomin","Noa","Full Season- 5 Days","AM Bus","Bus #05","Bus #05","1663 warwick road","hewlett","11557","PM Bus","No","Bus #05","Bus #05","","",""
-"Esslinger","Cecilia","Flex 30 Days","AM Bus","","NONE","2960 western blvd","","Baldwin ny 11510","PM Bus","No","Bus #20","Bus #20","","",""
-"Esslinger","Frank","Flex 30 Days","AM Bus","","NONE","2960 western blvd","Baldwin ny","11510","PM Bus","No","Bus #20","Bus #20","","",""
-"Fabiani","Adrian","Half Season 1- 5 Days","AM Bus","","NONE","53 William St","Rockville Centre","11570","PM Bus","No","","NONE","","",""
-"Fabiani","Matthew","Half Season 1- 5 Days","AM Bus","","NONE","53 william st","Rockville Centre","11570","PM Bus","No","","NONE","","",""
-"Fagan","Callen","Full Season- 5 Days","AM Bus","Bus #22","Bus #22","306 DeMott Avenue","Rockville Centre","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Fagan","Claire","Flex 20 Days","AM Bus","Bus #22","Bus #22","306 DeMott Avenue","Rockville Centre","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Faherty","Brian","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Fallik","Lucas","Full Season- 5 Days","AM Bus","Bus #16 ","Bus #16 ","100 Daly Blvd Unit 1103","Oceanside","11572","PM Bus","No","Bus #16 ","Bus #16 ","","",""
-"Famoso","Benjamin","Flex 30 Days","AM Bus","Bus #18","Bus #18","15 Franklin Place","Oceanside","11572","PM Bus","No","Bus #18","Bus #18","","",""
-"Farago","Ari","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","131 Palmyra Ave","Woodmere","11598","PM Bus","No","Bus #06","Bus #06","","",""
-"Ferraro","Alice","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Ferraro","Fiona","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Ferris","Jack","Full Season- 5 Days","AM Bus","","NONE","53 Arnold Court","East Rockaway","11518","PM Bus","No","","NONE","","",""
-"Filippi","Emerson","6 Week Season","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Filippi","Theodore","6 Week Season","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Filoteo","Graceanna","Full Season- 5 Days","AM Bus","Bus #30 ","Bus #30 ","45 blossom heath ave","Lynbrook","11563","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Filoteo","Luisa","Full Season- 5 Days","AM Bus","Bus #30 ","Bus #30 ","45 Blossom Heath Ave","Lynbrook","11563","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Filoteo","Salvatore","Flex 30 Days","AM Bus","Bus #30 ","Bus #30 ","45 Blossom Heath Ave","Lynbrook","11563","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Finneran","Dylan","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","438 Pepperidge Rd","Hewlett","11557","PM Bus","No","Bus #06","Bus #06","","",""
-"Fisher","Scarlett","Full Season- 5 Days","AM Bus","Bus #13 ","Bus #13 ","145 Greystone Rd","Rockville Centre","11570","PM Bus","No","Bus #13 ","Bus #13 ","","",""
-"Fisher","Sloane","Full Season- 5 Days","AM Bus","Bus #13 ","Bus #13 ","145 Greystone Rd","Rockville Centre","11570","PM Bus","No","Bus #13 ","Bus #13 ","","",""
-"Fisk","Callie","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","2920 Harbor Road","Merrick","11566","PM Bus","No","Bus #26","Bus #26","","",""
-"Formisano","Antonio","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Formont","Mabel","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Formont","Noelle","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Forte","Anthony","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","399 Everit Avenue","Hewlett","11557","PM Bus","No","Bus #06","Bus #06","","",""
-"Forte","Ryder","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","399 Everit Avenue","Hewlett","11557","PM Bus","No","Bus #06","Bus #06","","",""
-"Fortune","Dominic","Flex 25 Days","AM Bus","Bus #20","Bus #20","1027 McKinley Street","Baldwin","11510","PM Bus","No","Bus #20","Bus #20","","",""
-"Freed","Lucas","Full Season- 5 Days","AM Bus","Bus #11 ","Bus #11 ","1584 Berkeley Ave","Baldwin","11510","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Freedman","Evan","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Freedman","Shia","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Freeman","Declan","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","256 Lakeview Ave","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Freydberg","Avery","Full Season- 5 Days","AM Morning Care*","Child Care","NONE","","","","PM After Care*","","Child Care","NONE","","",""
-"Fusco","Matteo","Flex 20 Days","AM Bus","Bus #05","Bus #05","14 Yarmouth rd","East rockaway","11518","PM Bus","Yes","Bus #05","Bus #05","","",""
-"Fusco","Stella","Flex 20 Days","AM Bus","Bus #05","Bus #05","14 Yarmouth rd","East rockaway","11518","PM Bus","Yes","Bus #05","Bus #05","","",""
-"Gagliano","Matteo","Full Season- 5 Days","AM Bus","Bus #10 ","Bus #10 ","22 Argyle Place","Rockville Centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Gagliano","Sofia","Full Season- 5 Days","AM Bus","Bus #10 ","Bus #10 ","22 Argyle Place","Rockville Centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Gagliardi","Alexandria","Full Season- 5 Days","AM Bus","Bus #20","Bus #20","944 hayes st","Baldwin","11510","PM Bus","No","Bus #20","Bus #20","","",""
-"Galgano","Alexandra","Flex 20 Days","AM Bus","Bus #30 ","Bus #30 ","15 Holmes Place","Lynbrook","11563","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Gallagher","Dominick","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Gallehugh","Lucy","Flex 30 Days","AM Bus","Bus #24 ","Bus #24 ","113 Reeve Road","Rockville Centre, NY","11570","PM Bus","","Bus #24 ","Bus #24 ","","",""
-"Gallo","Henry","Half Season 1- 5 Days","AM Bus","Bus #04","Bus #04","52 Reyam Road","Lynbrook","11563","PM Bus","No","Bus #04","Bus #04","","",""
-"Gallo","Lucy","Half Season 1- 5 Days","AM Bus","Bus #04","Bus #04","52 Reyam Road","Lynbrook","11563","PM Bus","No","Bus #04","Bus #04","","",""
-"Garrison","Bennett","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","22 Strathmore Lane","Rockville Centre","11570","PM Bus","No","Bus #23 ","Bus #23 ","","",""
-"Garrison","Nathaniel","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","22 Strathmore Lane","Rockville Centre","11570","PM Bus","No","Bus #23 ","Bus #23 ","","",""
-"Gay","Alexis","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Gebel","Gemma","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","370 Everit Ave","Hewlett","11557","PM Bus","No","Bus #06","Bus #06","","",""
-"Gebel","Janie","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","370 Everit Ave","Hewlett","11557","PM Bus","No","Bus #06","Bus #06","","",""
-"Genna","Christopher","Full Season- 5 Days","AM Bus","Bus #12 ","Bus #12 ","80 Earle Avenue","Lynbrook","11563","PM Bus","Yes","Bus #30 ","Bus #30 ","44 Harding Avenue","Lynbrook","11563"
-"Genova","Emma","Half Season 1- 5 Days","AM Bus","Bus #07","Bus #07","","","","PM Bus","","Bus #07","Bus #07","","",""
-"Gilewski","Jayden","Full Season- 5 Days","AM Bus","Bus #24 ","Bus #24 ","89 Reeve Road","RVC","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Gillen","Ava","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","357 Pepperidge Road","Hewlett","11557","PM Bus","No","Bus #06","Bus #06","","",""
-"Gillen","Jake","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","357 Pepperidge Road","Hewlett","11557","PM Bus","No","Bus #06","Bus #06","","",""
-"Gilliam","Van","Full Season- 5 Days","AM Bus","Bus #12 ","Bus #12 ","185 forest Avenue","Lynbrook","11563","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Ginsberg","Owen","Full Season- 5 Days","AM Bus","Bus #02","Bus #02","1650 Warwick Road","Hewlett","11557","PM Bus","No","Bus #02","Bus #02","","",""
-"Giordano","Jaxson","Full Season- 5 Days","AM Bus","Bus #16 ","Bus #16 ","177 Virginia Avenue","Oceanside","11572","PM Bus","No","Bus #16 ","Bus #16 ","","",""
-"Giorlando","Oliver","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Gisonda","Liana","Flex 20 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Gisonda-Kass","Aubree","Flex 20 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Giusto","Luca","Flex 25 Days","AM Bus","","NONE","453 rose lane","rockville centre","11570","PM Bus","No","","NONE","","",""
-"Glamann","Leo","Flex 30 Days","AM Bus","Bus #27 ","Bus #27 ","1023 Glen Drive","Franklin Square","11010","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Glatzer","Maya","Flex 20 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Goff","Tyler","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #12 ","Bus #12 ","","",""
-"Goins","Rose","Full Season- 5 Days","AM Bus","Bus #13 ","Bus #13 ","2 Whitehall Road","Rockville Centre","11570","PM Bus","No","Bus #13 ","Bus #13 ","","",""
-"Gonzalez","Matthew","Full Season- 5 Days","AM Bus","Bus #11 ","Bus #11 ","128 Shepherd Street","Rockville Centre","11570","PM Bus","Yes","Bus #11 ","Bus #11 ","39 Evergreen Avenue","Lynbrook","11563"
-"Goodman","Leni","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Child Care","NONE","","",""
-"Goodman","Rylan","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Child Care","NONE","","",""
-"Gorecki","Cody","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","146 Grand Ave","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Gorecki","George","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","146 Grand Ave","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Gorecki","Nathaniel","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","146 Grand Ave","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Grey","Thomas","Full Season- 5 Days","AM Bus","Bus #29 ","Bus #29 ","230 Atlantic Avenue","Lynbrook","11563","PM Bus","","Bus #29 ","Bus #29 ","","",""
-"Grill","Brianna","Full Season- 5 Days","AM Bus","Bus #27 ","Bus #27 ","165 Madison Ave","Franklin Square","11010","PM Bus","","Bus #27 ","Bus #27 ","","",""
-"Grimaldi","Chase","Full Season- 5 Days","AM Bus","Bus #12 ","Bus #12 ","18 Clark Street","East Rockaway","11518","PM Bus","","Bus #12 ","Bus #12 ","","",""
-"Grogan","Kaitlyn","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Gruboy","Emilie","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","58 Marlborough Ct","Rockville Centre","11570","PM Bus","No","Bus #23 ","Bus #23 ","","",""
-"Guarini","Peter","Flex 25 Days","AM Bus","Bus #08","Bus #08","235 burtis avenue","rockville centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Guarini","Samantha","Flex 30 Days","AM Bus","Bus #08","Bus #08","235 burtis ave","rockville centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Guarino","Alexa","Full Season- 5 Days","AM Bus","Bus #26","Bus #26","1283 Taft Ave","Merrick","11566","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Guarino","Jack","Full Season- 5 Days","AM Bus","Bus #26","Bus #26","1283 Taft Ave","Merrick","11566","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Haig","Isaiah","Full Season- 5 Days","AM Bus","Bus #08","Bus #08","58 Lehigh Court","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Haig","Rosalee","Full Season- 5 Days","AM Bus","Bus #08","Bus #08","58 Lehigh Court","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Hannam","Finley","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Child Care","NONE","","",""
-"Hannam","Patrick Jr.","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Child Care","NONE","","",""
-"Harold","Colin","Full Season- 5 Days","AM Bus","Bus #08","Bus #08","26 Hampton Court","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Harold","Maeve","Full Season- 5 Days","AM Bus","Bus #08","Bus #08","26 Hampton Court","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Harrison","Cailyn","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Harrison","William","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Harwitt","Brody","Full Season- 5 Days","AM Bus","Bus #18","Bus #18","3865 Carrel Blvd","Oceanside","11572","PM Bus","No","Bus #18","Bus #18","","",""
-"Harwitt","Emma","Full Season- 5 Days","AM Bus","Bus #18","Bus #18","3866 Carrel Blvd","Oceanside","11572","PM Bus","No","Bus #18","Bus #18","","",""
-"Hecht","Charlotte","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","29 Strathmore Lane","Rockville Centre","11570","PM Bus","","Bus #23 ","Bus #23 ","","",""
-"Hecht","Francis","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","29 Strathmore Lane","Rockville Centre","11570","PM Bus","","Bus #23 ","Bus #23 ","","",""
-"Heindrichs","Josephine","Full Season- 5 Days","AM Bus","Bus #14 ","Bus #14 ","272 w walnut st","long beach","11561","PM Bus","No","Bus #14 ","Bus #14 ","","",""
-"Heindrichs","Rosalia","Half Season 2- 5 Days","AM Bus","Bus #14 ","Bus #14 ","272 w walnut st","long beach","11561","PM Bus","No","Bus #14 ","Bus #14 ","","",""
-"Held","Henry","Full Season- 5 Days","AM Bus","Bus #05","Bus #05","241 Waverly Ave","East Rockaway","11518","PM Bus","No","Bus #05","Bus #05","","",""
-"Hendel","Julian","Full Season- 5 Days","AM Bus","Bus #15 ","Bus #15 ","83 Pacific Blvd","Long Beach","11561","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Henderson","Liam","Flex 20 Days","AM Bus","Bus #08","Bus #08","23 Virginia ave","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Herman","Jackson","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","184 Cherry Street","Woodmere","11598","PM Bus","No","Bus #06","Bus #06","","",""
-"Herman","Jane","Full Season- 5 Days","AM Bus","Bus #24 ","Bus #24 ","76 Buckminster Rd","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Herman","Samuel","Full Season- 5 Days","AM Bus","Bus #24 ","Bus #24 ","76 Buckminster Rd","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Herman","Theodore","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","184 Cherry Street","Woodmere","11598","PM Bus","No","Bus #06","Bus #06","","",""
-"Hernandez","Chloe","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Hettinger","Aaron","Flex 20 Days","AM Bus","Bus #21 ","Bus #21 ","217 N Forest Avenue","Rockville Centre","11570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Hickey","Breanne","Flex 25 Days","AM Bus","Bus #11 ","Bus #11 ","115 Muirfield Rd","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Hickey","Erin","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Hickey","Liam","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Hickey","Patrick","Flex 25 Days","AM Bus","Bus #11 ","Bus #11 ","115 Muirfield Rd","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Hirsch","Harrison","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","5 Gifford Avenue","Oceanside","11572","PM Bus","No","Bus #17 ","Bus #17 ","","",""
-"Hirsch","Maddyn","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","5 Gifford Ave","Oceanside","11572","PM Bus","No","Bus #17 ","Bus #17 ","","",""
-"Hiskey","Ella","Full Season- 5 Days","AM Bus","Bus #18","Bus #18","3888 Carrel Blvd","Oceanside","11572","PM Bus","No","Bus #18","Bus #18","","",""
-"Hiskey","Olivia","Full Season- 5 Days","AM Bus","Bus #18","Bus #18","3888 Carrel Blvd","Oceanside","11572","PM Bus","No","Bus #18","Bus #18","","",""
-"Hoenig","Cole","Flex 25 Days","AM Bus","Bus #33","Bus #33","54 vanderveer court","Rockville centre","12570","PM Bus","No","Bus #33","Bus #33","","",""
-"Hoffman","Brandon","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #02","Bus #02","","",""
-"Hofmann","Naomi","Half Season 1- 5 Days","AM Bus","Bus #26","Bus #26","3006 Clubhouse Rd","Merrick","11566","PM Bus","No","Bus #26","Bus #26","","",""
-"Homeyer","Bethany","Flex 20 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #10 ","Bus #10 ","","",""
-"Howard Jr","Ronald","Full Season- 5 Days","AM Bus","Bus #04","Bus #04","9 Catherine Ct","Elmont","11003","PM Bus","No","Bus #04","Bus #04","","",""
-"Hughes","Brody","Full Season- 5 Days","AM Bus","Bus #31","Bus #31","36 Kent Road","Island park","11558","PM Bus","No","Bus #31","Bus #31","","",""
-"Israel","Cory","Flex 25 Days","AM Bus","Bus #27 ","Bus #27 ","280 Franklin Avenue, Unit 4","Franklin Square","11010","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Izquierdo","Valentina","Full Season- 5 Days","AM Bus","","NONE","36 Elmwood Street","Valley Stream","11581","PM Bus","No","","NONE","","",""
-"Izzo","Anastasia","Full Season- 5 Days","AM Bus","Bus #32","Bus #32","61 hempstead ave","Rockville centre","11570","PM Bus","No","Bus #32","Bus #32","","",""
-"Izzo","Giuliana","Full Season- 5 Days","AM Bus","Bus #32","Bus #32","61 hempstead Ave Rockville centre ny 11570","","","PM Bus","No","Bus #32","Bus #32","","",""
-"Izzo","Joseph","Full Season- 5 Days","AM Bus","Bus #32","Bus #32","61 hempstead ave","Rockville centre","11570","PM Bus","No","Bus #32","Bus #32","","",""
-"James","Caleb","Half Season 2- 5 Days","AM Bus","Bus #10 ","Bus #10 ","444 N Village Ave","Rockville Centre","11579","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Jarzynka","Theodore","Flex 25 Days","AM Bus","Bus #10 ","Bus #10 ","36 Cambridge st","Rockville centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Jeffery","Arya","6 Week Season","AM Bus","Bus #11 ","Bus #11 ","1592 Blenheim rd","Rockville centre","11570","PM Bus","","Bus #11 ","Bus #11 ","","",""
-"Judge","Morgan","Full Season- 5 Days","AM Bus","Bus #10 ","Bus #10 ","79 Lakeside Dr","Rockville Centre","NY","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Jussen","Tristan","Full Season- 5 Days","AM Bus","Bus #15 ","Bus #15 ","147 Harding Ave","Long Beach","11561","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Kahla","Alexander","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Kalan","Logan","Full Season- 5 Days","AM Bus","Bus #07","Bus #07","","","","Staff Child- No Bus","","Child Care","NONE","","",""
-"Kalan","Myles","Full Season- 5 Days","AM Bus","Bus #07","Bus #07","","","","Staff Child- No Bus","","Child Care","NONE","","",""
-"Kalantarov","Alice","Full Season- 5 Days","AM Bus","Bus #18","Bus #18","3949 Jane Ln","Oceanside","11572","PM Bus","","Bus #18","Bus #18","","",""
-"Kalantarov","Nathaniel","Full Season- 5 Days","AM Bus","Bus #18","Bus #18","3949 Jane Ln","Oceanside","11572","PM Bus","","Bus #18","Bus #18","","",""
-"Kaleli","Leah","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Kaleli","Noah","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Kambic","Ryan","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","496 Kent Court","Oceanside","11572","PM Bus","No","Bus #17 ","Bus #17 ","","",""
-"Kaminker","Aiden","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","","NONE","","",""
-"Kaminker","Ella","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","","NONE","","",""
-"Kaminski","Madeline","Flex 25 Days","AM Bus","Bus #28 ","Bus #28 ","2525 Harrison Avenue","Baldwin","11510","Car Pick Up ","No","Bus #28 ","Bus #28 ","","",""
-"Kaplan","Jace","Half Season 2- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Katulka","Conor","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Katz","Addison","Flex 30 Days","AM Bus","Bus #13 ","Bus #13 ","3 The Loch","Rockville Centre","11570","PM Bus","No","Bus #13 ","Bus #13 ","","",""
-"Katz","Annabella","Flex 25 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Katz","Sophie","Flex 30 Days","AM Bus","Bus #13 ","Bus #13 ","3 The Loch","Rockville Centre","11570","PM Bus","No","Bus #13 ","Bus #13 ","","",""
-"Katz","Steven","Flex 25 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Keenan","Eleanora","Flex 30 Days","AM Bus","Bus #25 ","Bus #25 ","366 Stewart Ave","Garden city","11530","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Kehoe","Kallie","Flex 25 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Kehoe","Kyla","Flex 25 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Kelch","Amelia","Half Season 2- 5 Days","AM Bus","Bus #25 ","Bus #25 ","40 Gerard Ave E","Malverne","11565","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Kelly","Mackenzie","Flex 30 Days","AM Bus","Bus #17 ","Bus #17 ","155 Bulson Road","Rockville Centre","11570","PM Bus","No","Bus #17 ","Bus #17 ","","",""
-"Kennedy","Alexandra","Flex 30 Days","AM Bus","Bus #33","Bus #33","48 Roxen Road","Rockville Centre","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Kennedy","Charlotte","Flex 30 Days","AM Bus","Bus #33","Bus #33","48 Roxen Road","Rockville Centre","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Kerr","Owen","Flex 30 Days","AM Bus","Bus #04","Bus #04","15 Highland Ave.","East Rockaway","11518","PM After Care*","","Child Care","NONE","","",""
-"Kerr","Sylvie","Flex 30 Days","AM Bus","Bus #04","Bus #04","15 Highland Ave.","East Rockaway","11518","PM After Care*","","Child Care","NONE","","",""
-"Kerrigan","Colleen","Half Season 2- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Kerrigan","Emily","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Kiernan","Hunter","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Kiernan","Presley","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Kinzer","Brandon","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Kizhner","Harrison","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Kizhner","Parker","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Klein","Cooper","Flex 25 Days","AM Bus","Bus #16 ","Bus #16 ","296 Virginia Ave","Oceanside","11572","PM Bus","No","Bus #16 ","Bus #16 ","","",""
-"Klein","Oliver","Flex 25 Days","AM Bus","Bus #16 ","Bus #16 ","296 Virginia Ave","Oceanside","11572","PM Bus","No","Bus #16 ","Bus #16 ","","",""
-"Klesh","Ann","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #03","Bus #03","","",""
-"Klesh","Catherine","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #03","Bus #03","","",""
-"Klesh","Lucy","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #03","Bus #03","","",""
-"Knight","Archie","Flex 30 Days","AM Bus","Bus #21 ","Bus #21 ","76 Cedar Ave","Rockville Centre","11570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Kochis","Jack","Flex 20 Days","AM Bus","Bus #33","Bus #33","9 Tamwood Court","Rockville Centre","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Koehle","Cosette","Flex 30 Days","AM Bus","Bus #15 ","Bus #15 ","263 regent dr","Lido beach","11561","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Koehle","Ryder","Flex 30 Days","AM Bus","Bus #15 ","Bus #15 ","263 regent dr","Lido beach","11561","Car Pick Up ","No","Bus #15 ","Bus #15 ","","",""
-"Kolodziejczyk","Suzanna","Full Season- 5 Days","AM Bus","Bus #29 ","Bus #29 ","2 Dorothy Pl","Lynbrook","11563","PM Bus","No","Bus #29 ","Bus #29 ","","",""
-"Krebs","Neala","Flex 30 Days","AM Bus","Bus #10 ","Bus #10 ","269 Harvard Avenue","Rockville Centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Krebs","Tierney","Flex 30 Days","AM Bus","Bus #10 ","Bus #10 ","269 Harvard avenue","Rockville Centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Krulewich","Vivienne","Full Season- 5 Days","AM Bus","Bus #15 ","Bus #15 ","454 East Fulton Street","Long Beach, New York","11561","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Kudva","Savannah","Half Season 1- 5 Days","AM Bus","Bus #12 ","Bus #12 ","77 Shellbank place","Rockville Centre","11570","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Kudva","Sebastian","Half Season 1- 5 Days","AM Bus","Bus #12 ","Bus #12 ","77 Shellbank Place","Rockville Centre","11570","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Lammertse","Ava","Flex 30 Days","Car Drop Off","Car","NONE","","","","PM After Care*","","Child Care","NONE","","",""
-"Lampard","Everly","Full Season- 5 Days","AM Bus","","NONE","482 Allen Ave","Baldwin","11510","PM Bus","No","","NONE","","",""
-"Lanning","Jared","Flex 20 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Larmann","Jack","Flex 25 Days","AM Bus","Bus #08","Bus #08","58 Marvin Avenue","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Latushkin","Caroline","Full Season- 5 Days","AM Bus","Bus #32","Bus #32","181 S Park Ave","Rockville Centre","11570","PM Bus","No","Bus #32","Bus #32","","",""
-"Lazarte-Klescovich","Bella","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Lazarte-Klescovich","Jaden","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Lee","Carissa","Flex 30 Days","AM Bus","Bus #01","Bus #01","32 Crestwood Lane","Valley Stream","11581","PM Bus","No","Bus #01","Bus #01","","",""
-"Lehman","Carter","Full Season- 5 Days","AM Bus","Bus #15 ","Bus #15 ","8 Kirkwood street","Long beach","11561","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Lehman","Teegan","Full Season- 5 Days","AM Bus","Bus #15 ","Bus #15 ","8 Kirkwood street","Long Beach","11561","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Lemley","Matthew","Full Season- 5 Days","AM Bus","Bus #13 ","Bus #13 ","11 Kent Court","Rockville Centre","11570","PM Bus","No","Bus #13 ","Bus #13 ","","",""
-"Lemley","Nathaniel","Full Season- 5 Days","AM Bus","Bus #13 ","Bus #13 ","11 Kent Court","Rockville Centre","11570","PM Bus","No","Bus #13 ","Bus #13 ","","",""
-"Leung","Lindsay","6 Week Season","AM Bus","Bus #21 ","Bus #21 ","127 Cedar Ave","Rockville Centre","11570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Leung","Zachary","6 Week Season","AM Bus","Bus #21 ","Bus #21 ","127 Cedar Ave","Rockville Centre","1570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Leupp","Sean","Full Season- 5 Days","AM Bus","Bus #25 ","Bus #25 ","31 hanson pl,","malverne","11565","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Levine","Ella","6 Week Season","AM Bus","Bus #22","Bus #22","24 Tarence Street","Rockville Centre","11570","PM Bus","","Bus #22","Bus #22","","",""
-"Levine","Tali","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Main Tent ","Main Tent ","","",""
-"Levitt","Dylan","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","","NONE","","",""
-"Levitt","Eli","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","","NONE","","",""
-"Levitt","Zara","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","","NONE","","",""
-"Li","Ethan","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Li","Oliver","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Librizzi","Ava","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","","","","PM Bus","","Bus #23 ","Bus #23 ","","",""
-"Librizzi","Landon","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","","","","PM Bus","","Bus #23 ","Bus #23 ","","",""
-"Lieber","Brandon","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Lieberman","Arielle","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Lieberman","Matthew","Flex 30 Days","AM Bus","Bus #08","Bus #08","428 Hempstead Avenue","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Lieberman","Talia","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Liebowitz","Jordyn","Half Season 1- 5 Days","AM Bus","Bus #06","Bus #06","375 Heather Ln","Hewlett","11557","PM Bus","No","Bus #06","Bus #06","","",""
-"Liebowitz","Tyler","Half Season 1- 5 Days","AM Bus","Bus #06","Bus #06","375 Heather Ln","Hewlett","11557","PM Bus","No","Bus #06","Bus #06","","",""
-"Linnane","Quinn","Full Season- 5 Days","AM Bus","Bus #21 ","Bus #21 ","212 Morris Avenue","Rockville Centre","11570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Lino","Maggie","6 Week Season","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Lino","Rosie","6 Week Season","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Liotta","Abigail","Flex 20 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Liotta","Cora","Flex 20 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Lipsky","Hunter","Flex 30 Days","AM Bus","Bus #16 ","Bus #16 ","105 west cortland ave","Oceanside","11573","PM Bus","No","Bus #16 ","Bus #16 ","","",""
-"Lipton","Eleanor","Full Season- 5 Days","AM Bus","Bus #10 ","Bus #10 ","37 Demott Avenue","Rockville Centre","11570","PM Bus","","Bus #10 ","Bus #10 ","","",""
-"Liu","Madeline","6 Week Season","AM Bus","Bus #30 ","Bus #30 ","19 Summit Ave","Lynbrook","11563-2021","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Locke","Charles","Full Season- 5 Days","AM Bus","Bus #12 ","Bus #12 ","183 Windsor Ave","Rockville Centre","115700","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Locke","Fiona","Full Season- 5 Days","AM Bus","Bus #12 ","Bus #12 ","183 Windsor Ave","Rockville Centre","11570","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Locke","Kieran","Full Season- 5 Days","AM Bus","Bus #12 ","Bus #12 ","183 Windsor Avenue","Rockville Centre","11570","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Longo","Matteo","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Loyal","Dylan","Full Season- 5 Days","AM Bus","Bus #07","Bus #07","34 Terrell Avenue","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Loyal","Madison","Full Season- 5 Days","AM Bus","Bus #07","Bus #07","34 Terrell Avenue","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Lyttle","Liya","Flex 25 Days","AM Bus","Bus #23 ","Bus #23 ","630 Lenox Road","Baldwin","11510","PM Bus","No","Bus #23 ","Bus #23 ","","",""
-"MacMillan","Hunter","Full Season- 5 Days","AM Bus","Bus #22","Bus #22","67 Oxford Road","Rockville Centre","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Magee","Blane","Half Season 2- 5 Days","AM Bus","Bus #25 ","Bus #25 ","78 cedar road","Malverne","11565","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Maiale","Malia","Full Season- 5 Days","AM Bus","Bus #31","Bus #31","150 Island Pkwy n","Island park","11558","PM Bus","No","Bus #31","Bus #31","","",""
-"Malone","Evan","Half Season 2- 5 Days","AM Bus","Bus #01","Bus #01","17 Jackson Road","Valley Stream","11581","PM Bus","","Bus #01","Bus #01","","",""
-"Mandel","Ashley","Full Season- 5 Days","AM Bus","Bus #26","Bus #26","2461 Lindenmere Drive","Merrick","11566","PM Bus","No","Bus #26","Bus #26","","",""
-"Mantle","Raelynn","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #05","Bus #05","","",""
-"Maraj","Skylar","Half Season 1- 5 Days","AM Bus","Bus #26","Bus #26","2542 Southard Avenue","Oceanside","11572","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"Mariano","Emma","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Mariano","Kayla","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Mastrande","Daniel","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Child Care","NONE","","",""
-"Mastrande","Vincent","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Child Care","NONE","","",""
-"Mastronicola","Vivienne","Full Season- 5 Days","AM Bus","","NONE","322 THOMPSON AVE","OCEANSIDE","11572","PM Bus","No","","NONE","","",""
-"Matheny","Jackson","Flex 30 Days","AM Bus","Bus #13 ","Bus #13 ","266 Lena Ave","Freeport","11520","PM Bus","No","Bus #13 ","Bus #13 ","","",""
-"Matrecano","Jude","Flex 30 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Matrecano","Lena","Flex 30 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Matthews","Rebecca","Flex 20 Days","AM Bus","Bus #08","Bus #08","82 Pine Street","rockville centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"McCann","Elise","Flex 25 Days","AM Bus","Bus #23 ","Bus #23 ","493 Stratford Rd.","South Hempstead","11550","PM Bus","Yes","Bus #28 ","Bus #28 ","2294 Coventry Rd.","Baldwin","11510"
-"McDermott","Hailey","Flex 20 Days","AM Morning Care*","Child Care","NONE","","","","PM Bus","","","NONE","","",""
-"McDonald","Charlie","Flex 30 Days","AM Bus","Bus #08","Bus #08","96 Forestdale Road","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"McDonald","Jack","Flex 30 Days","AM Bus","Bus #08","Bus #08","96 Forestdale Road","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"McFarlane","Arielle","6 Week Season","Car Drop Off","Car","NONE","","","","PM Bus","","","NONE","","",""
-"McGrath","Tessa","Full Season- 5 Days","AM Bus","Bus #22","Bus #22","149 Raymond street","Rockville Centre","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"McMillan","Cameron","Flex 25 Days","AM Bus","Bus #23 ","Bus #23 ","616 Joy Blvd","Baldwin","11510","PM Bus","No","Bus #23 ","Bus #23 ","","",""
-"McSherry","Charlie","Full Season- 5 Days","AM Bus","Bus #33","Bus #33","24 Eton Rd","Rockville Centre","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Mehldau","Alexis","Flex 30 Days","AM Bus","Bus #27 ","Bus #27 ","71 Chestnut St","Malverne","11565","PM Bus","","Bus #27 ","Bus #27 ","","",""
-"Melucci","Leonardo","Full Season- 5 Days","AM Bus","Bus #30 ","Bus #30 ","81 Whittier Street","Lynbrook","11563","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Mendez","Antonella","Full Season- 5 Days","AM Bus","Bus #01","Bus #01","","","","PM Bus","","Bus #01","Bus #01","","",""
-"Mendez","Matthew","Full Season- 5 Days","AM Bus","Bus #01","Bus #01","","","","PM Bus","","Bus #01","Bus #01","","",""
-"Menon","Lucas","Full Season- 5 Days","AM Bus","Bus #19 ","Bus #19 ","2910 Harvey Ave","Oceanside","11572","PM Bus","No","Bus #19 ","Bus #19 ","","",""
-"Merendino","Colby","Full Season- 5 Days","AM Bus","Bus #22","Bus #22","236 Princeton road","Rvc","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Merendino","Darcy","Full Season- 5 Days","AM Bus","Bus #22","Bus #22","236 Princeton road","Rvc","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Merendino","Ty","Full Season- 5 Days","AM Bus","Bus #22","Bus #22","236 Princeton road","Rockville Centre","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Merschel","Stella","Half Season 1- 5 Days","AM Bus","","NONE","3419 Weidner ave","Oceanside","11572","PM Bus","No","","NONE","","",""
-"Messenger","Madelyn","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Metu","Chidiadi","6 Week Season","AM Bus","Bus #33","Bus #33","39 Sherwood Road","Rockville Centre","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Metu","Chinaza","6 Week Season","AM Bus","Bus #33","Bus #33","39 Sherwood Road","Rockville Centre","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Meyer","Reese","Flex 25 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Meyers","Hudson","Half Season 1- 5 Days","AM Bus","","NONE","2638 locust avenue","Oceanside","11572","PM Bus","No","","NONE","","",""
-"Millan","Francesca","Full Season- 5 Days","AM Bus","Bus #26","Bus #26","60 Pettit Ave","Merrick","11566","PM Bus","No","Bus #26","Bus #26","","",""
-"Millan","Giovanni","Full Season- 5 Days","AM Bus","Bus #26","Bus #26","60 Pettit Ave","Merrick","11566","PM Bus","No","Bus #26","Bus #26","","",""
-"Miller","Madison","Full Season- 5 Days","AM Bus","Bus #22","Bus #22","160 Princeton Road","Rockville Centre","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Miller","Makayla","Full Season- 5 Days","AM Bus","Bus #22","Bus #22","160 Princeton Road","Rockville Centre","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Mitic","Mia","Full Season- 5 Days","AM Morning Care*","Child Care","NONE","","","","Car Pick Up ","","Car","NONE","","",""
-"Moccia","Hunter","Flex 20 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Car","NONE","","",""
-"Modansky","Liana","Flex 25 Days","AM Bus","Bus #21 ","Bus #21 ","45 Locust Avenue","Rockville Centre","11570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Modansky","Wyatt","Flex 30 Days","AM Bus","Bus #21 ","Bus #21 ","45 Locust Avenue","Rockville Centre","11570","PM Bus","No","Bus #21 ","Bus #21 ","","",""
-"Mohammed","Camila","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Mohammed","Summer","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Montana","Benjamin","Full Season- 5 Days","AM Bus","Bus #04","Bus #04","377 Broadway, Lynbrook, NY","Lynbrook","11563","Car Pick Up ","","Car","NONE","","",""
-"Montana","Elijah","Full Season- 5 Days","AM Bus","Bus #04","Bus #04","377 Broadway, Lynbrook, NY 11563","Lynbrook","11563","PM Bus","No","","NONE","","",""
-"Mooney","Brody","Full Season- 5 Days","AM Bus","Bus #19 ","Bus #19 ","3605 Mahlon Brower Drive","Oceanside","11572","PM Bus","No","Bus #19 ","Bus #19 ","","",""
-"Mooney","Cole","Full Season- 5 Days","AM Bus","Bus #19 ","Bus #19 ","3605 Mahlon Brower Drive","Oceanside","11572","PM Bus","No","Bus #19 ","Bus #19 ","","",""
-"Moore","Rylan","Flex 25 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Moran","Ashley","Flex 25 Days","AM Bus","Bus #27 ","Bus #27 ","280 Franklin Avenue, Unit #22","Franklin Square","11010","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Moran","Cecelia","Flex 25 Days","AM Bus","Bus #27 ","Bus #27 ","40 Madison Street","Lynbrook","11563","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Moran","James","Flex 30 Days","AM Bus","Bus #27 ","Bus #27 ","40 Madison Street","Lynbrook","11563","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Moran","Jamie","Full Season- 5 Days","AM Bus","Bus #05","Bus #05","1 Pepperidge Rd","East Rockaway","11518","PM Bus","No","Bus #05","Bus #05","","",""
-"Moran","Madeline","Flex 25 Days","AM Bus","Bus #27 ","Bus #27 ","40 Madison Street","Lynbrook","11563","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Moran","Sebastian","Full Season- 5 Days","AM Bus","Bus #05","Bus #05","1 Pepperidge Rd","East Rockaway","11518","PM Bus","No","Bus #05","Bus #05","","",""
-"Morin","Sienna","Full Season- 5 Days","AM Bus","Bus #07","Bus #07","94 Driscoll Ave","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Morin","Tyler","6 Week Season","AM Bus","Bus #07","Bus #07","94 Driscoll Ave","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Morris","Autumn","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Morris","Ethan","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Morrone","Mia","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #25 ","Bus #25 ","","",""
-"Morrone","Vincent","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #25 ","Bus #25 ","","",""
-"Moser","Finnigan","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Moser","Murphy","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Mulcahy","Jaxson","Full Season- 5 Days","AM Morning Care*","Car","NONE","","","","PM After Care*","","Child Care","NONE","","",""
-"Mulhern","Evie","Flex 25 Days","AM Bus","Bus #10 ","Bus #10 ","140 Harvard Avenue","Rockville Centre","11570","PM Bus","No","Bus #10 ","Bus #10 ","","",""
-"Mulligan","Olivia","Flex 25 Days","AM Bus","Bus #16 ","Bus #16 ","","","","PM Bus","No","Bus #16 ","Bus #16 ","","",""
-"Myers","John","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","573 Derby Drive East","Oceanside","11572","PM Bus","No","Bus #17 ","Bus #17 ","","",""
-"Napolitano","Luca","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","23 Liberty Avenue","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Narizzano","Alexander","Full Season- 5 Days","AM Bus","Bus #12 ","Bus #12 ","12 Windsor pl","Lynbrook","11563","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Narizzano","Lucas","Full Season- 5 Days","AM Bus","Bus #12 ","Bus #12 ","12 Windsor place","Lynbrook","11563","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Natalello","Rose","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Natalello","Talia","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Neider","Isabella","Flex 20 Days","AM Bus","Bus #29 ","Bus #29 ","18 Abrams Pl, Lynbrook NY 11563","","","PM Bus","No","Bus #29 ","Bus #29 ","","",""
-"Neider","Jackson","Flex 20 Days","AM Bus","Bus #29 ","Bus #29 ","18 Abrams Place, Lynbrook NY 11563","","","PM Bus","No","Bus #29 ","Bus #29 ","","",""
-"Nevolis","Claire","Full Season- 5 Days","AM Bus","Bus #29 ","Bus #29 ","675 Scranton Avenue","East Rockaway","11518","PM After Care*","","Child Care","NONE","","",""
-"Nilsen","Chase","Half Season 2- 5 Days","AM Bus","Bus #12 ","Bus #12 ","167 Windsor Ave.","Rockville Centre","11570","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Nipitella","Joseph","Full Season- 5 Days","AM Morning Care*","Child Care","NONE","","","","PM After Care*","","Child Care","NONE","","",""
-"Nozzolillo","Adrianna","Full Season- 5 Days","AM Bus","Bus #05","Bus #05","9 Wesley Drive","East Rockaway","11518","PM Bus","No","Bus #05","Bus #05","","",""
-"Nozzolillo","Alexandra","Full Season- 5 Days","AM Bus","Bus #05","Bus #05","9 Wesley Drive","East Rockaway","11518","PM Bus","No","Bus #05","Bus #05","","",""
-"Nurik","Ellie","Full Season- 5 Days","AM Bus","","NONE","9 Atkinson Rd","Rockville Centre","11570","PM Bus","No","","NONE","","",""
-"Nurik","Jacob","Full Season- 5 Days","AM Bus","","NONE","9 Atkinson Rd","Rockville Centre","11570","PM Bus","No","","NONE","","",""
-"O’Connor","Anabelle","Full Season- 5 Days","AM Morning Care*","Child Care","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"O’Connor","Shea","Full Season- 5 Days","AM Morning Care*","Child Care","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"OBrien","Madeline","Flex 20 Days","AM Bus","Bus #20","Bus #20","917 Steele Blvd","Baldwin","11510","PM Bus","","Bus #20","Bus #20","","",""
-"O'Brien","Meghan","Flex 20 Days","AM Bus","Bus #28 ","Bus #28 ","515 Wateredge Avenue","Baldwin","11510","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"O'Connor","Paxton","Flex 30 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Oleksiak","Romi","Full Season- 5 Days","AM Morning Care*","Child Care","NONE","","","","PM After Care*","","Child Care","NONE","","",""
-"Osani","Lyla","Full Season- 5 Days","AM Morning Care*","Child Care","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Pahle","Mira","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #19 ","Bus #19 ","","",""
-"Pavone","Jonathan","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Pedersen","Graham","Full Season- 5 Days","AM Bus","Bus #04","Bus #04","42 2nd street","lynbrook","11563","PM Bus","No","Bus #04","Bus #04","","",""
-"Pedro","Sophia","Flex 30 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Main Tent ","Main Tent ","","",""
-"Penn","Aiden","Half Season 2- 5 Days","AM Bus","Bus #09","Bus #09","131 Roosevelt St., Oceanside, NY 11572","Oceanside","11572","PM Bus","No","Bus #09","Bus #09","","",""
-"Perlow","Lucas","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","2633 loftus ave","Oceanside","11572","PM Bus","","Bus #17 ","Bus #17 ","","",""
-"Perlow","Olivia","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","2633 loftus ave","Oceanside","11572","PM Bus","","Bus #17 ","Bus #17 ","","",""
-"Persico","Matthew","Flex 20 Days","AM Bus","Bus #12 ","Bus #12 ","107 Hendrickson Ave.","Rockville Centre","11570","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Persico","Robert","Flex 20 Days","AM Bus","Bus #12 ","Bus #12 ","107 Hendrickson Ave.","Rockville Centre","11570","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Persico","Ryan","Flex 20 Days","AM Bus","Bus #12 ","Bus #12 ","107 Hendrickson Ave.","Rockville Centre","11570","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Peters","Declan","Full Season- 5 Days","AM Bus","Bus #07","Bus #07","14 Scott Place","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Peters","Maeve","Full Season- 5 Days","AM Bus","Bus #07","Bus #07","14 Scott Place","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Petry","Daniel","Full Season- 5 Days","AM Bus","Bus #31","Bus #31","66 Sagamore Road","Island Park","11558","PM Bus","No","Bus #31","Bus #31","","",""
-"Petry","Kelsey","Full Season- 5 Days","AM Bus","Bus #31","Bus #31","66 Sagamore Road","Island Park","11558","PM Bus","No","Bus #31","Bus #31","","",""
-"Piade","Mikah","Full Season- 5 Days","AM Bus","Bus #31","Bus #31","150 Island Pkwy n","Island park","11558","PM Bus","No","Bus #31","Bus #31","","",""
-"Piade","Rafi","Full Season- 5 Days","AM Bus","Bus #31","Bus #31","150 Island Pkwy n","Island park","11558","PM Bus","No","Bus #31","Bus #31","","",""
-"Piccolo","Isabella","Full Season- 5 Days","AM Bus","Bus #25 ","Bus #25 ","601 David Street","West hempstead","11552","PM Bus","","Bus #25 ","Bus #25 ","","",""
-"Pizziatolla","Dominic","Flex 20 Days","AM Bus","Bus #03","Bus #03","25 Saint Marks Ave","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Pizziatolla","Vincent","Flex 20 Days","AM Bus","Bus #03","Bus #03","25 Saint Marks Ave","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Pniewski","Michael","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Pollak","Erela","Full Season- 5 Days","AM Bus","Bus #28 ","Bus #28 ","167 Seiffert Ct","Oceanside","11572","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"Pollak","Melody","Full Season- 5 Days","AM Bus","Bus #28 ","Bus #28 ","167 Seiffert Ct","Oceanside","11572","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"Powell","Graysen","Full Season- 5 Days","AM Bus","Bus #32","Bus #32","80 N. Centre Ave. PH445","Rockville Centre","11570","PM Bus","","Bus #32","Bus #32","","",""
-"Pratt","James","Full Season- 5 Days","AM Bus","","NONE","70 Maine Avenue","Rockville Centre","11570","PM Bus","","","NONE","","",""
-"Procopio","Gabriela","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Procopio","Lucas","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Procopio","Marilyn","Full Season- 5 Days","AM Morning Care*","Child Care","NONE","","","","PM After Care*","","Child Care","NONE","","",""
-"Proietto","Fiona","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Proietto","Matthew","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Provvisiero","Everly","Half Season 2- 5 Days","AM Bus","Bus #04","Bus #04","117 Olive Dr","Lynbrook","11564","PM Bus","No","Bus #04","Bus #04","","",""
-"Provvisiero","Sadie","Half Season 2- 5 Days","AM Bus","Bus #04","Bus #04","117 Olive Dr","Lynbrook","11563","PM Bus","","Bus #04","Bus #04","","",""
-"Quindara","Violet","Flex 25 Days","AM Bus","Bus #25 ","Bus #25 ","146 Utterby Road","Malverne","11565","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Raimondi","Nikolas","Full Season- 5 Days","AM Bus","Bus #31","Bus #31","2684 Colonial Place","Oceanside","11572","PM Bus","No","Bus #31","Bus #31","","",""
-"Ramadan","Marouge","Flex 25 Days","AM Bus","Bus #25 ","Bus #25 ","7 Merillon Avenue","Garden City","11530","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Ramirez","Elizabeth","Full Season- 5 Days","AM Bus","Bus #07","Bus #07","132 Driscoll Ave","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Raphael","Silas","Full Season- 5 Days","AM Bus","Bus #19 ","Bus #19 ","186 Wrights Lane","Oceanside","11572","PM Bus","No","Bus #19 ","Bus #19 ","","",""
-"Rauch","Cameron","Full Season- 5 Days","Staff Child- No Bus","","NONE","","","","Staff Child- No Bus","","","NONE","","",""
-"Rauch","Lucianna","Full Season- 5 Days","Staff Child- No Bus","","NONE","","","","Staff Child- No Bus","","","NONE","","",""
-"Rauert","Robert","Flex 20 Days","AM Bus","Bus #16 ","Bus #16 ","78 Virginia Ave","Oceanside","11572","PM Bus","No","Bus #16 ","Bus #16 ","","",""
-"Realson","Jack","Full Season- 5 Days","Car Drop Off","Child Care","NONE","","","","Car Pick Up ","","Child Care","NONE","","",""
-"Reinertsen","Mila","Flex 20 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","Yes","Auditorium ","Auditorium ","","",""
-"Reisman","Sianna","Half Season 1- 5 Days","AM Bus","Bus #01","Bus #01","","","","PM Bus","","Bus #01","Bus #01","","",""
-"Renzo","Gemma","Flex 30 Days","AM Bus","Bus #02","Bus #02","","","","PM Bus","","Bus #02","Bus #02","","",""
-"Richardson","Eden","Flex 30 Days","AM Bus","Bus #04","Bus #04","88 Union Avenue","Lynbrook, New York","11563","PM Bus","No","Bus #04","Bus #04","","",""
-"Richardson","Jade","Flex 30 Days","AM Bus","Bus #04","Bus #04","88 Union Ave","Lynbrook, New York","11563","PM Bus","No","Bus #04","Bus #04","","",""
-"Rick","Brandon","Full Season- 5 Days","AM Bus","Bus #20","Bus #20","3530 Bayfield Blvd","Oceanside","11572","PM Bus","No","Bus #20","Bus #20","","",""
-"Rinaldi","Aurora","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Rinaldi","Carson","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Rinaldi","Isabella","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Rivera","Kaiya","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Rivera","Kenneth","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Rizzotti","Aidan","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Rizzotti","Chase","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Rocker Stoloff","Hudson","Flex 25 Days","Car Drop Off","Car","NONE","","","","PM After Care*","","Child Care","NONE","","",""
-"Rodriguez","Leo","Flex 30 Days","AM Bus","Bus #07","Bus #07","32 Woods Place","RVC","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Rodriguez","Olivia","Flex 30 Days","AM Bus","Bus #07","Bus #07","32 woods place","Rvc","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Rogers","Austin","Flex 25 Days","AM Bus","Bus #31","Bus #31","2762 Brook Ave","Oceanside","11572","PM Bus","No","Bus #31","Bus #31","","",""
-"Rogers","Kaz","Full Season- 5 Days","AM Bus","Bus #11 ","Bus #11 ","134 Grenada ave","Roosevelt","11575","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Rolston","Derek","Full Season- 5 Days","AM Bus","Bus #01","Bus #01","32 Edgeworth Street","Valley Stream","11581","PM Bus","No","Bus #01","Bus #01","","",""
-"Rolston","Heidi","Full Season- 5 Days","AM Bus","Bus #01","Bus #01","32 Edgeworth Street","Valley Stream","11581","PM Bus","No","Bus #01","Bus #01","","",""
-"Romanelli","Riley","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Ronzino","Anita","Full Season- 5 Days","AM Bus","Bus #18","Bus #18","3812 Illona Lane","Oceanside","11571","PM Bus","No","Bus #18","Bus #18","","",""
-"Rosen","Arielle","Full Season- 5 Days","AM Bus","Bus #16 ","Bus #16 ","3530 Long Beach Rood","Oceanside","11572","PM Bus","","Bus #16 ","Bus #16 ","","",""
-"Ross","Matthew","Full Season- 5 Days","AM Bus","Bus #28 ","Bus #28 ","2611 Southard Avenue","Oceanside","11572","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"Ross","Stella","Full Season- 5 Days","AM Bus","Bus #28 ","Bus #28 ","2611 Southard Avenue","Oceanside","11572","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"Rothenberg","Blake","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Rothenberg","Cole","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Rothman","Emma","Flex 25 Days","AM Bus","Bus #11 ","Bus #11 ","31 Muirfield Road","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Rubin","Harper","Full Season- 5 Days","AM Bus","Bus #18","Bus #18","3810 carrel boulevard","Oceanside","11572","PM Bus","No","Bus #18","Bus #18","","",""
-"Rubin","Logan","Full Season- 5 Days","AM Bus","Bus #18","Bus #18","3810 carrel boulevard","Oceanside","11572","PM Bus","No","Bus #18","Bus #18","","",""
-"Rudin","Maia","Full Season- 5 Days","AM Bus","Bus #15 ","Bus #15 ","410 E Broadway","Long Beach","11561","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Ruecker","Madison","Full Season- 5 Days","AM Bus","","NONE","142 Greystone Road","Rockville Centre","11570","PM Bus","No","","NONE","","",""
-"Ruggiero","Joseph","Flex 30 Days","AM Bus","Bus #20","Bus #20","2960 Western Blvd.","Baldwin","11510","PM Bus","No","Bus #20","Bus #20","","",""
-"Ruggiero","Mia","Flex 30 Days","AM Bus","Bus #20","Bus #20","2960 Western Blvd.","Baldwin","11510","PM Bus","No","Bus #20","Bus #20","","",""
-"Ruiz","Liana","Flex 30 Days","AM Bus","Bus #26","Bus #26","3146 lydia ln","Bellmore","11710","PM Bus","No","Bus #26","Bus #26","","",""
-"Ruiz","Raquel","Flex 30 Days","AM Bus","Bus #26","Bus #26","3146 Lydia Ln","Bellmore","11710","PM Bus","No","Bus #26","Bus #26","","",""
-"Ruskin","Charlotte","Full Season- 5 Days","AM Bus","Bus #12 ","Bus #12 ","174 Windsor Avenue","Rockville Centre","11570","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Ruskin","Logan","Full Season- 5 Days","AM Bus","Bus #12 ","Bus #12 ","174 Windsor Avenue","Rockville Centre","11570","PM Bus","No","Bus #12 ","Bus #12 ","","",""
-"Russell","Sadie","Full Season- 5 Days","AM Bus","Bus #08","Bus #08","464 Morris Avenue","Rockville Centre","NY","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Russo","Carmela","Full Season- 5 Days","AM Bus","Bus #25 ","Bus #25 ","85 Birch Rd. Malverne","Malverne","11565","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Russo","John","Full Season- 5 Days","AM Bus","Bus #25 ","Bus #25 ","85 Birch Rd.","Malverne","11565","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Ryan","Angelina","Full Season- 5 Days","AM Bus","Bus #31","Bus #31","2576 Hillside ct","Baldwin","11510","PM Bus","Yes","Bus #28 ","Bus #28 ","33 Davison Ave","Oceanside","11572"
-"Salter","Alexa","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Salter","Mason","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Salter","Matthew","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Sama","Nolan","Flex 30 Days","AM Bus","Bus #20","Bus #20","890 Pacific Street","Baldwin","11510","PM After Care*","Yes","Bus #20","Bus #20","16 Main Street","East Rockaway","11518"
-"Sama","Penelope","Flex 30 Days","AM Bus","Bus #20","Bus #20","890 Pacific Street","Baldwin","11510","PM Bus","Yes","","NONE","16 Main Street","East Rockaway","11518"
-"Sanchez","Alana","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Sanchez","Juliet","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Sanchez","Michaela","Flex 30 Days","AM Bus","Bus #19 ","Bus #19 ","2629 Clovermere Road","Oceanside","11572","PM Bus","No","Bus #19 ","Bus #19 ","","",""
-"Sands","Savannah","Full Season- 5 Days","AM Bus","Bus #29 ","Bus #29 ","67 Prospect Avenue","Hewlett","11557","PM Bus","No","Bus #29 ","Bus #29 ","","",""
-"Santoro","Skyla","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Sarakos","Adrian","Flex 30 Days","AM Bus","Bus #33","Bus #33","22 Warwick rd","Rockville centre","11570","PM After Care*","No","Bus #33","Bus #33","","",""
-"Sarakos","Anneliese","Flex 30 Days","AM Bus","Bus #33","Bus #33","22 Warwick rd","Rockville centre","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Sarkis","Kendall","Flex 25 Days","AM Bus","Bus #24 ","Bus #24 ","121 Wright Road","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Sarkis","Sophie","Flex 25 Days","AM Bus","Bus #24 ","Bus #24 ","121 Wright Road","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Sarrel","Cameron","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Sarrel","Jordan","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Sarrel","Morgan","Full Season- 5 Days","AM Bus","Car","NONE","586 Derby Drive S","Oceanside","11572","PM Bus","No","Auditorium ","Auditorium ","","",""
-"Sarrel","Ryan","Full Season- 5 Days","AM Bus","Car","NONE","586 Derby Drive S","Oceanside","11572","PM Bus","No","Auditorium ","Auditorium ","","",""
-"Sarrel","Sloane","Full Season- 5 Days","AM Bus","Bus #08","Bus #08","403 Hempstead Ave","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Sawh","James","Half Season 1- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Sawh","Jaxon","Half Season 1- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Schafler","Donovan","Half Season 1- 5 Days","AM Bus","","NONE","32 Melvin Avenue","West Hempstead","11552","PM Bus","No","","NONE","","",""
-"Schafler","Hayden","Half Season 1- 5 Days","AM Bus","","NONE","32 Melvin Avenue","West Hempstead","11552","PM Bus","No","","NONE","","",""
-"Schimmenti","Lia","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #26","Bus #26","","",""
-"Schmidt","Ava","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","3285 Bayfield Blvd","Oceanside","11572","PM Bus","No","Bus #17 ","Bus #17 ","","",""
-"Schmier","Siena","Flex 20 Days","AM Bus","Bus #02","Bus #02","","","","PM Bus","","Bus #02","Bus #02","","",""
-"Schmier","Vincent","Flex 20 Days","AM Bus","Bus #02","Bus #02","","","","PM Bus","","Bus #02","Bus #02","","",""
-"Schoell","Emersyn","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Schoell","Kennedy","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Schultz","Molly","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Schwartz","Scarlett","Full Season- 5 Days","AM Bus","Bus #20","Bus #20","417 Kenilworth St","Oceanside","11572","PM Bus","No","Bus #20","Bus #20","","",""
-"Schwartz","Sonia","Flex 25 Days","AM Bus","Bus #28 ","Bus #28 ","48 Rowe Avenue","Lynbrook","11563","PM Bus","","Bus #29 ","Bus #29 ","","",""
-"Schwartz","Thomas","Flex 25 Days","AM Bus","Bus #29 ","Bus #29 ","48 Rowe Avenue","Lynbrook","11563","PM Bus","No","Bus #29 ","Bus #29 ","","",""
-"Schwemmer","Carolyn","Flex 20 Days","AM Bus","Bus #11 ","Bus #11 ","11 Blenheim Court","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Scimonelli","Emilia","Flex 20 Days","AM Bus","","NONE","76 Vernon Ave","Rockville Centre","11570","PM Bus","No","","NONE","","",""
-"Scimonelli","Henry","Flex 20 Days","AM Bus","","NONE","76 Vernon Ave","Rockville Centre","11570","PM Bus","No","","NONE","","",""
-"Sebring","Lyla","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","61 Surrey Lane","Rockville Centre","11570","PM Bus","No","Bus #23 ","Bus #23 ","","",""
-"Sebring","Molly","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","61 Surrey Lane","Rockville Centre","11570","PM Bus","No","Bus #23 ","Bus #23 ","","",""
-"Seibert","Madelyn","Full Season- 5 Days","AM Bus","Bus #08","Bus #08","250 Burtis Avenue","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Seidman","Jake","Full Season- 5 Days","Staff Child- No Bus","","NONE","","","","Staff Child- No Bus","","","NONE","","",""
-"Senft","Madison","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","544 derby drive n","Oceanside","11572","PM Bus","","Bus #17 ","Bus #17 ","","",""
-"Senken","Garner","Flex 25 Days","AM Bus","Bus #15 ","Bus #15 ","57 Dalton Street","Long Beach","11561","PM Bus","","Bus #15 ","Bus #15 ","","",""
-"Sfass","Charlie","Full Season- 5 Days","AM Bus","Bus #08","Bus #08","507 morris avenue","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Sfass","Layla","Full Season- 5 Days","AM Bus","Bus #08","Bus #08","507 morris avenue","Rockville Centre","11570","PM Bus","No","Bus #08","Bus #08","","",""
-"Sheinkopf","Brooke","Full Season- 5 Days","Staff Child- No Bus","","NONE","","","","Staff Child- No Bus","","","NONE","","",""
-"Sheinkopf","Jake","Full Season- 5 Days","Staff Child- No Bus","","NONE","","","","Staff Child- No Bus","","","NONE","","",""
-"Shnayderov","Charlotte","Full Season- 5 Days","AM Bus","","NONE","465 Merrick Rd.","Rockville Centre","11570","PM Bus","No","","NONE","","",""
-"Sidelman","Hannah","Flex 25 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #12 ","Bus #12 ","","",""
-"Siegel","Shane","Full Season- 5 Days","AM Bus","Bus #14 ","Bus #14 ","59 W Penn Street","Long Beach","11561","PM Bus","","Bus #14 ","Bus #14 ","","",""
-"Singh","Lilah","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Singh","Lucas","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Sirochinsky","Madison","Full Season- 5 Days","AM Bus","Bus #24 ","Bus #24 ","125 Allen Road","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Sirochinsky","Maxwell","Full Season- 5 Days","AM Bus","Bus #24 ","Bus #24 ","125 allen road","rockville centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Slutsky","Logan","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Smith","Hunter","Full Season- 5 Days","AM Bus","Bus #32","Bus #32","19 Walnut Ave","Rockville Centre","11570","PM Bus","No","Bus #32","Bus #32","","",""
-"Smith","Ruby","Full Season- 5 Days","AM Bus","Bus #32","Bus #32","19 Walnut Ave","Rockville Centre","11570","PM Bus","No","Bus #32","Bus #32","","",""
-"Sneider","Sawyer","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","35 Clubside Dr","Woodmere","11598","PM Bus","No","Bus #06","Bus #06","","",""
-"Solarino","John","Flex 30 Days","AM Bus","Bus #27 ","Bus #27 ","36 Gates Ave","Malverne","11565","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Solow","Andrew","Full Season- 5 Days","AM Bus","Bus #29 ","Bus #29 ","41 Dunne Place","Lynbrook","11563","PM Bus","No","Bus #29 ","Bus #29 ","","",""
-"Solow","Juliana","Full Season- 5 Days","AM Bus","Bus #29 ","Bus #29 ","41 Dunne Place","Lynbrook","11563","PM Bus","No","Bus #29 ","Bus #29 ","","",""
-"Sosa","Michael","6 Week Season","AM Bus","Bus #31","Bus #31","293 Jefferson Avenue","Island Park","11558","PM Bus","No","Bus #31","Bus #31","","",""
-"Sparberg","Brooke","Full Season- 5 Days","AM Bus","Bus #19 ","Bus #19 ","","","","PM Bus","No","Bus #19 ","Bus #19 ","","",""
-"Steffensmeier","Alaina","Full Season- 5 Days","AM Bus","Bus #30 ","Bus #30 ","48 Harding Ave","Lynbrook","11563","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Steffensmeier","Alexander","Full Season- 5 Days","AM Bus","Bus #30 ","Bus #30 ","48 Harding Ave","Lynbrook","11563","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Stein","Lily","Full Season- 5 Days","AM Bus","Bus #31","Bus #31","","","","PM Bus","","Bus #31","Bus #31","","",""
-"Steller","Logan","Full Season- 5 Days","AM Bus","Bus #07","Bus #07","149 Rockaway Ave","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Steller","Ryan","Full Season- 5 Days","AM Bus","Bus #07","Bus #07","149 Rockaway Ave.","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Strohm","Patrick","Flex 25 Days","AM Bus","Bus #22","Bus #22","162 Hamilton Road","Rockville Centre","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Stromer","Jesse","Flex 25 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #19 ","Bus #19 ","","",""
-"Sullivan","Miya","Full Season- 5 Days","AM Bus","Bus #01","Bus #01","04145th Road","Springfield Gardens","11413","PM Bus","","Bus #01","Bus #01","","",""
-"Suppa","Lilliana","Full Season- 5 Days","AM Bus","Bus #05","Bus #05","101 emmet ave.","East Rockaway","11518","PM Bus","","Bus #05","Bus #05","","",""
-"Sweeney-Kirson","Charlotte","Flex 30 Days","AM Bus","Bus #25 ","Bus #25 ","91 Kensington Rd South","West Hempstead","11552","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Sweeney-Kirson","Isabella","Flex 30 Days","AM Bus","Bus #25 ","Bus #25 ","91 Kensington Rd South","West Hemsptead","11552","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Sweeney-Kirson","Madison","Flex 30 Days","AM Bus","Bus #25 ","Bus #25 ","91 Kensignton Rd South","West Hempstead","11552","PM Bus","No","Bus #25 ","Bus #25 ","","",""
-"Tavella","Luciana","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","460 woodbridge rd","rockville centre","11570","PM Bus","","Bus #23 ","Bus #23 ","","",""
-"Telesca","Cameron","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Telesca","Taylor","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Testa","Claire","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Testa","Troy","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Thompson","Kaylee","6 Week Season","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Hockey Rink ","Hockey Rink ","","",""
-"Thornton","Ricky","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Tracey","Zoey","Full Season- 5 Days","AM Bus","Bus #26","Bus #26","106 COMMONWEALTH AVE","Massapequa","11758","PM Bus","No","Bus #26","Bus #26","","",""
-"Trotta","Thomas","Flex 30 Days","AM Bus","Bus #20","Bus #20","2960 Western Blvd","Baldwin","11510","PM Bus","No","Bus #20","Bus #20","","",""
-"Tubridy","Quinn","Flex 20 Days","AM Bus","Bus #08","Bus #08","141 DeMott Avenue","ROCKVILLE CENTRE","11570","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"Turk","Madison","6 Week Season","AM Bus","Bus #32","Bus #32","193 Lakeview Ave","Rockville Centre","11570","PM Bus","","Bus #32","Bus #32","","",""
-"Turk","Sophia","6 Week Season","AM Bus","Bus #32","Bus #32","193 Lakeview Ave","Rockville Centre","11570","PM Bus","","Bus #32","Bus #32","","",""
-"Turman","Alexandra","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","1 Dell Drive","East Rockaway","11518","PM Bus","","Bus #06","Bus #06","","",""
-"Turman","Emma","Full Season- 5 Days","AM Bus","Bus #06","Bus #06","1 Dell Drive","East Rockaway","11518","PM Bus","","Bus #06","Bus #06","","",""
-"Vais","Michael","Full Season- 5 Days","AM Bus","","NONE","1413 Kew Ave","Hewlett","11557","PM Bus","No","","NONE","","",""
-"Valle","Victoria","Full Season- 5 Days","AM Bus","Bus #23 ","Bus #23 ","1381 Exeter St","Baldwin","11510","PM Bus","","Bus #23 ","Bus #23 ","","",""
-"Vanaski","Cassidy","Flex 30 Days","AM Bus","Bus #32","Bus #32","96 Windsor Avenue","Rockville Centre","11570","PM Bus","No","Bus #32","Bus #32","","",""
-"Vassallo","Fiona","Full Season- 5 Days","AM Bus","Bus #28 ","Bus #28 ","2290 Milburn Avenue","Baldwin","11510","PM Bus","No","Bus #28 ","Bus #28 ","","",""
-"Velazquez","Abigail","Flex 25 Days","AM Bus","Bus #16 ","Bus #16 ","240 Moore Avenue","Oceanside, NY","11572","PM Bus","No","Bus #16 ","Bus #16 ","","",""
-"Velk","Liam","Full Season- 5 Days","AM Bus","Bus #11 ","Bus #11 ","25 Fonda Road","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Vella","Abigail","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","15 Forest Place","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Vella","Grace","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","15 Forest Place","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Vides","Sofia","Full Season- 5 Days","AM Bus","Bus #31","Bus #31","2957 Roxbury Road","Oceanside","11572","PM Bus","No","Bus #31","Bus #31","","",""
-"Villaman","Jonathan","Flex 30 Days","AM Bus","Bus #07","Bus #07","154 Shellbank Place","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Viola","Dakota","Full Season- 5 Days","AM Bus","Bus #16 ","Bus #16 ","302 Virginia Ave","Oceanside","11572","PM Bus","No","Bus #16 ","Bus #16 ","","",""
-"Visco","Brooke","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","544 derby drive n","Oceanside","11572","PM Bus","","Bus #17 ","Bus #17 ","","",""
-"Vitebsky","Kayla","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","PM Bus","","Bus #19 ","Bus #19 ","","",""
-"Vitullo","Victoria","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"von Arx","Zachary","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","356 Lakeview Avenue","Rockville Centre","11570","PM Bus","No","Bus #03","Bus #03","","",""
-"Wagman","Emily","Full Season- 5 Days","AM Bus","Bus #15 ","Bus #15 ","68 Curley Street","Long Beach","11561","PM Bus","No","Bus #15 ","Bus #15 ","","",""
-"Wagner","Han","6 Week Season","Staff Child- No Bus","","NONE","","","","Staff Child- No Bus","","","NONE","","",""
-"Wagner","Olivia","6 Week Season","Staff Child- No Bus","","NONE","","","","Staff Child- No Bus","","","NONE","","",""
-"Walker","Olivia","Full Season- 5 Days","AM Bus","Bus #11 ","Bus #11 ","575 Stanton ave","Baldwin","11510","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Walsh","Callan","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Auditorium ","Auditorium ","","",""
-"Walter","Olivia","Full Season- 5 Days","AM Bus","Bus #26","Bus #26","2808 Shore Dr","Merrick","11566","PM Bus","No","Bus #26","Bus #26","","",""
-"Warshawski","Kira","Full Season- 5 Days","AM Bus","Bus #01","Bus #01","122 Wilson Rd","Valley Stream","11581","PM Bus","No","Bus #01","Bus #01","","",""
-"Wasserman","Bea","Full Season- 5 Days","AM Bus","","NONE","3 hargale ct","Rockville centre","11570","PM Bus","No","","NONE","","",""
-"Waxman","Rachel","6 Week Season","AM Bus","Bus #30 ","Bus #30 ","97 Foster Avenue","Malverne","11565","PM Bus","No","Bus #30 ","Bus #30 ","","",""
-"Weakley","Carolyn","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Weakley","Ryan","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Hockey Rink ","Hockey Rink ","","",""
-"Weaver","Patrick","Full Season- 5 Days","AM Bus","Bus #22","Bus #22","19 Capitolian Blvd","Rockville Centre","11570","PM Bus","No","Bus #22","Bus #22","","",""
-"Weeks","Madeline","Flex 30 Days","AM Bus","Bus #33","Bus #33","25 Andover Road","RVC","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Weeks","Vanessa","Flex 30 Days","AM Bus","Bus #33","Bus #33","25 Andover Road","RVC","11570","PM Bus","No","Bus #33","Bus #33","","",""
-"Weg","Emilia","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","1331 Adams road","Hewlett","11557","PM Bus","","Bus #06","Bus #06","","",""
-"Weg","Mason","Full Season- 5 Days","AM Bus","Bus #03","Bus #03","1331 Adams road","Hewlett","11557","PM Bus","","Bus #03","Bus #03","","",""
-"Weiss","Ari","6 Week Season","AM Bus","Bus #11 ","Bus #11 ","103 Muirfield Road","Rockville Centre","11470","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Weiss","Connor","Flex 25 Days","AM Bus","Bus #13 ","Bus #13 ","46 Intervale","Rockville Centre","11570","PM Bus","No","Bus #13 ","Bus #13 ","","",""
-"Weiss","Natalia","6 Week Season","AM Bus","Bus #11 ","Bus #11 ","103 Muirfieild Road","Rockville Centre","11570","PM Bus","No","Bus #11 ","Bus #11 ","","",""
-"Weiss","Ryan","Flex 25 Days","AM Bus","Bus #13 ","Bus #13 ","46 Intervale","Rockville Centre","11570","PM Bus","No","Bus #13 ","Bus #13 ","","",""
-"Wexlar","Ethan","Flex 25 Days","AM Bus","Bus #24 ","Bus #24 ","122 Wright Road","Rockville Centre","11570","PM Bus","No","Bus #24 ","Bus #24 ","","",""
-"Wexler","Roslyn","Full Season- 5 Days","AM Bus","Bus #02","Bus #02","26 Plymouth road","East rockaway","11519","PM Bus","No","Bus #02","Bus #02","","",""
-"White","Connor","Full Season- 5 Days","Car Drop Off","Car","NONE","","","","Car Pick Up ","","Main Tent ","Main Tent ","","",""
-"White","Taylor","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Williams","Edward","Full Season- 5 Days","AM Bus","","NONE","10 Dogwood Lane","Rockville Centre","11570","PM Bus","No","","NONE","","",""
-"Wofsy","Billie","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Wofsy","Demi","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Woodka","Dominic","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Main Tent ","Main Tent ","","",""
-"Xenofontos","Andriana","Flex 30 Days","AM Bus","Bus #09","Bus #09","595 yale street","Oceanside","11572","PM Bus","","Bus #09","Bus #09","","",""
-"Yasin","Deen","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"Yasin","Luke","Full Season- 5 Days","Staff Child- No Bus","Car","NONE","","","","Staff Child- No Bus","","Auditorium ","Auditorium ","","",""
-"York","Kayleigh","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","517 Derby Drive East","Oceanside","11572","PM Bus","No","Bus #17 ","Bus #17 ","","",""
-"York","Reagan","Full Season- 5 Days","AM Bus","Bus #17 ","Bus #17 ","517 Derby Drive East","Oceanside","11572","PM Bus","No","Bus #17 ","Bus #17 ","","",""
-"Zacco","Domenica","Full Season- 5 Days","AM Bus","Bus #27 ","Bus #27 ","18 nassau blvd malverne","malverne","11565","PM Bus","No","Bus #27 ","Bus #27 ","","",""
-"Zak","McKenzie","Full Season- 5 Days","AM Bus","Bus #07","Bus #07","9 Ormond Street","Rockville Centre","11570","PM Bus","No","Bus #07","Bus #07","","",""
-"Zangla","Andrew","Full Season- 5 Days","AM Bus","Bus #27 ","Bus #27 ","959 cloud ave","Franklin square","11010","PM Bus","No","Bus #27 ","Bus #27 ","","",""
+Last Name,First Name,Enrolled Child Sessions,Trans-AMDropOffMethod,2026Transportation M AM Trans Type,2026Transportation M AM Bus,Trans-PickUpAddress,Trans-PickUpTown,Trans-PickUpZip,Trans-PMDismissalMethod,Trans-Diff.DropOffAddress,2026Transportation M PM Trans Type,2026Transportation M PM Bus,Trans-DropOffAddress,Trans-DropOffTown,Trans-DropOffZip
+Accarino,Jolie,Half Season 2- 5 Days,AM Bus,Bus #14,Bus #14,271 Laurelton Blvd,Long beach,11561,PM Bus,No,Bus #14,Bus #14,,,
+Adal,Emanuel,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,25 Earle Avenue,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Agnetti,Mia,6 Week Season,AM Bus,Bus #21,Bus #21,140 Cedar Ave.,Rockville Centre,11570,PM Bus,No,Bus #21,Bus #21,,,
+Aiello,Sophia,Full Season- 5 Days,AM Bus,Bus #25,Bus #25,,,,PM Bus,,Bus #25,Bus #25,,,
+Aiello,Zoe,Full Season- 5 Days,AM Bus,Bus #25,Bus #25,,,,PM Bus,,Bus #25,Bus #25,,,
+Ainscough,Jocelyn,Flex 30 Days,AM Bus,Bus #10,Bus #10,"84 Judson Place,",Rockville Centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Alberts,Lucas,Full Season- 5 Days,AM Bus,Bus #05,Bus #05,5 Alden Road,East Rockaway,11518,PM Bus,No,Bus #05,Bus #05,,,
+Alert,Noel,Full Season- 5 Days,AM Bus,Bus #04,Bus #04,158 Meyer avenue,Valley Stream,11580,PM Bus,No,Bus #04,Bus #04,,,
+Alexander,Asher,Full Season- 5 Days,AM Bus,Bus #27,Bus #27,54 Rolling Street,Lynbrook,11563,PM Bus,No,Bus #27,Bus #27,,,
+Alexander,Hayden,Full Season- 5 Days,AM Bus,Bus #27,Bus #27,54 Rolling Street,Lynbrook,11563,PM Bus,No,Bus #27,Bus #27,,,
+Ali,Zara,6 Week Season,AM Bus,Bus #21,Bus #21,122 Lee Ave,Rockville Centre,11570,PM Bus,No,Bus #21,Bus #21,,,
+Ali,Zayn,6 Week Season,AM Bus,Bus #21,Bus #21,122 Lee Ave,Rockville Centre,11570,PM Bus,No,Bus #21,Bus #21,,,
+Allaben,Caleb,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,2539 Washington Avenue,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Allaben,Zoe,Half Season 2- 5 Days,AM Bus,Bus #28,Bus #28,2539 Washington Avenue,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Anderson,Harrison,6 Week Season,AM Bus,,NONE,575 Links Drive South,Oceanside,11572,PM Bus,No,,NONE,,,
+Anderson,Stella,6 Week Season,AM Bus,,NONE,575 Links Drive South,Oceanside,11572,PM Bus,No,,NONE,,,
+Angelides,Evelyn,Full Season- 5 Days,AM Bus,Bus #16,Bus #16,181 W Henrietta Avenue,Oceanside,11572,PM Bus,No,Bus #16,Bus #16,,,
+Arguello,Brooke,Full Season- 5 Days,AM Bus,Bus #09,Bus #09,2839 Clark Ave,Oceanside,11572,PM Bus,No,Bus #09,Bus #09,,,
+Arguello,Liam,Full Season- 5 Days,AM Bus,Bus #09,Bus #09,2839 Clark Ave,Oceanside,11572,PM Bus,No,Bus #09,Bus #09,,,
+Arkow,Agnes,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,20 Kerrigan Street,Long Beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Arkow,Jacob,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,20 Kerrigan Street,Long Beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Artusa,Lola,Flex 30 Days,AM Bus,Bus #30,Bus #30,19 Leach Street,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Augello,Aiden,Flex 20 Days,AM Bus,Bus #08,Bus #08,108 Marvin Avenue,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Aydiner,Alexandra,Half Season 1- 5 Days,AM Bus,Bus #04,Bus #04,27 Watts Place,Lynbrook,11563,PM Bus,,Bus #04,Bus #04,,,
+Azznara,Jackson,Full Season- 5 Days,AM Bus,Bus #10,Bus #10,55 Harvard Ave,Rockville Centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Azznara,Julia,Full Season- 5 Days,AM Bus,Bus #10,Bus #10,55 Harvard Ave,Rockville Centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Bailey,Amelia,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,744 Glover Place,Baldwin,11510,PM Bus,No,Bus #28,Bus #28,,,
+Bailey,Gavin,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,744 Glover Place,Baldwin,11510,PM Bus,No,Bus #28,Bus #28,,,
+Balder,Adeline,Full Season- 5 Days,AM Bus,,NONE,292 Concord Ave,Oceanside,11572,PM Bus,No,,NONE,,,
+Balder,Grace,Half Season 1- 5 Days,AM Bus,,NONE,3394 fifth street,Oceanside,11572,PM Bus,,,NONE,,,
+Balder,Harper,Full Season- 5 Days,AM Bus,,NONE,338 concord ave,oceanside,11572,PM Bus,No,,NONE,,,
+Balder,Holden,Full Season- 5 Days,AM Bus,,NONE,292 Concord Ave,Oceanside,11572,PM Bus,No,,NONE,,,
+Balder,Mason,Half Season 1- 5 Days,AM Bus,,NONE,3394 fifth street,Oceanside,11572,PM Bus,,,NONE,,,
+Balder,Olivia,Full Season- 5 Days,AM Bus,,NONE,338 concord ave,oceanside,11572,PM Bus,No,,NONE,,,
+Balducci,Robert,Full Season- 5 Days,AM Bus,,NONE,1569 Kenneth Ave,Baldwin,11510,PM Bus,No,,NONE,,,
+Ball,Cassandra,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,6 Behnke Court,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Ballow,Cole,Full Season- 5 Days,AM Bus,Bus #30,Bus #30,71 Webster St,Malverne,11565,PM Bus,No,Bus #30,Bus #30,,,
+Ballow,Maddox,Full Season- 5 Days,AM Bus,Bus #30,Bus #30,71 Webster St,Malverne,11565,PM Bus,No,Bus #30,Bus #30,,,
+Balsamo,Johnny,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,12 Pickwick Terrace,Rockville Centre,11570,PM Bus,No,Bus #23,Bus #23,,,
+Balsamo,Vinny,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,12 Pickwick Terrace,Rockville Centre,11570,PM Bus,No,Bus #23,Bus #23,,,
+Banks,Michael,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,23 Atkinson Road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Benisty,Eden,Half Season 1- 5 Days,AM Bus,Bus #32,Bus #32,20 Yale Place,Rockville Centre,11570,PM Bus,No,Bus #32,Bus #32,,,
+Berghorn,Brayden,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,on Jons Bus,Er,11518,PM Bus,,Bus #32,Bus #32,,,
+Berghorn,Mackenzie,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,Jon Bus,ER,11518,PM Bus,,Bus #32,Bus #32,,,
+Berlin,Riley,Flex 30 Days,AM Bus,Bus #11,Bus #11,330 Princeton Road,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Better,Max,Full Season- 5 Days,AM Bus,Bus #21,Bus #21,38 Raymond street,Rockville Centre,11570,PM Bus,No,Bus #21,Bus #21,,,
+Birnbaum,Maisie,Full Season- 5 Days,AM Bus,Bus #33,Bus #33,23 Sherwood Road,Rockville Centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Birnbaum,Wesley,Full Season- 5 Days,AM Bus,Bus #33,Bus #33,23 sherwood Road,rockville centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Blackston,Elijah,Full Season- 5 Days,AM Bus,Bus #14,Bus #14,101 Suffolk Blvd,Atlantic Beach,11509,PM Bus,No,Bus #14,Bus #14,,,
+Blackston,Ruben,Full Season- 5 Days,AM Bus,Bus #14,Bus #14,101 Suffolk Blvd,Atlantic Beach,11509,PM Bus,No,Bus #14,Bus #14,,,
+Bleau,Adelise,Full Season- 5 Days,AM Bus,Bus #30,Bus #30,22 Webster Street,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Bleau,Thomas,Full Season- 5 Days,AM Bus,Bus #30,Bus #30,22 Webster St,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Bocchino,Gianna,Full Season- 5 Days,AM Bus,Bus #33,Bus #33,30 Vanderveer Court,Rockville Centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Bocchino,Viviana,Full Season- 5 Days,AM Bus,Bus #33,Bus #33,30 Vanderveer Court,Rockville Centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Bono,John,Flex 30 Days,AM Bus,Bus #28,Bus #28,2380 Columbus Ave,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Bourne,Angel,Full Season- 5 Days,AM Bus,Bus #04,Bus #04,17 Highland Road,Valley Stream,11580,PM Bus,No,Bus #04,Bus #04,,,
+Bourne,Noel,6 Week Season,AM Bus,Bus #04,Bus #04,17 Highland Road,Valley Stream,11580,PM Bus,No,Bus #04,Bus #04,,,
+Bovell,Austin,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,38 southgate,Valley stream,11581,PM Bus,No,Bus #01,Bus #01,,,
+Bowen,Nyla,6 Week Season,AM Bus,Bus #27,Bus #27,11 Willow Pl,Malverne,11565,PM Bus,No,Bus #27,Bus #27,,,
+Boychuk,Avery,Half Season 1- 5 Days,AM Bus,Bus #10,Bus #10,67 Argyle Place,Rockville Centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Boychuk,Charlotte,Full Season- 5 Days,AM Bus,Bus #10,Bus #10,67 Argyle Place,Rockville Centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Boychuk,Emma,Full Season- 5 Days,AM Bus,Bus #10,Bus #10,67 Argyle Place,Rockville centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Braithwaite,Eleanor,6 Week Season,AM Bus,Bus #14,Bus #14,70 cayuga avenue,Atlantic beach,11509,PM Bus,No,Bus #14,Bus #14,,,
+Braithwaite,Miles,6 Week Season,AM Bus,Bus #14,Bus #14,70 cayuga avenue,Atlantic Beach,11509,PM Bus,No,Bus #14,Bus #14,,,
+Bravo,Felix,Full Season- 5 Days,AM Bus,Bus #09,Bus #09,3190 Lawrence ave oceanside,,,PM Bus,No,Bus #09,Bus #09,,,
+Bray,Oakley,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,1427 dartmouth st,Baldwin,11510,PM Bus,No,Bus #01,Bus #01,,,
+Brink,Nora,Full Season- 5 Days,AM Bus,Bus #25,Bus #25,36 Lawrence Ave,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Brink,Russell,Full Season- 5 Days,AM Bus,Bus #25,Bus #25,36 Lawrence Ave,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Broderick,Mason,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,23 Shepherd St,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Broderick,Scarlett,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,23 Shepherd St,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Brody,Dylan,Full Season- 5 Days,AM Bus,Bus #16,Bus #16,100 Daly Blvd Apt 207,Oceanside,11572,PM Bus,No,Bus #16,Bus #16,,,
+Brophy,Drew,Full Season- 5 Days,AM Bus,Car,NONE,295 links dr west,Oceanside,11572,PM Bus,No,Hockey Rink,Hockey Rink,,,
+Brotz,Gemma,Half Season 1- 5 Days,AM Bus,Bus #26,Bus #26,2925 Joyce Lane,Merrick,11566,PM Bus,No,Bus #26,Bus #26,,,
+Brower,Catherine,Flex 30 Days,AM Bus,Bus #24,Bus #24,61 Atkinson Road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Brower,William,Flex 30 Days,AM Bus,Bus #24,Bus #24,61 Atkinson Road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Brown,Ethan,Flex 20 Days,AM Bus,Bus #14,Bus #14,633 west Penn street,"Long Beach, Ny",11561,PM Bus,,Bus #14,Bus #14,,,
+Buckley,Jack,Full Season- 5 Days,AM Bus,Bus #21,Bus #21,139 Cedar Ave,Rockville Centre,11570,PM Bus,No,Bus #21,Bus #21,,,
+Camacho,Rafael,Half Season 1- 5 Days,AM Bus,Bus #31,Bus #31,3255 5th street,Oceanside,11572,PM Bus,No,Bus #31,Bus #31,,,
+Campos,Ava,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,410 East Broadway,Long Beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Casey,Kyla,Half Season 1- 5 Days,AM Bus,Bus #20,Bus #20,3031 Davis Place,Oceanside,11572,PM Bus,No,Bus #20,Bus #20,,,
+Caso,Chloe,Flex 30 Days,AM Bus,,NONE,74 Johnson Place,Oceanside,11572,PM Bus,No,,NONE,,,
+Cavanaugh,Patrick,Flex 30 Days,AM Bus,Bus #10,Bus #10,69 Broadway,Rockville Centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Cestra,Brianna,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,1003 Dartmouth Lane,Woodmere,11598,PM Bus,No,Bus #01,Bus #01,,,
+Chandler,Makeda,Flex 25 Days,AM Bus,Bus #01,Bus #01,41 Kenmore Rd,Valley Stream,11581,PM Bus,No,Bus #01,Bus #01,,,
+Chandler,Moses,Flex 25 Days,AM Bus,Bus #01,Bus #01,,,,PM Bus,,Bus #01,Bus #01,,,
+Chatoff,Emma,Half Season 1- 5 Days,AM Bus,Bus #22,Bus #22,341 N Forest Avenue,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Chiprut,Theo,Flex 30 Days,AM Bus,Bus #23,Bus #23,87 Marlborough Ct,Rockville Centre,11570,PM Bus,No,Bus #23,Bus #23,,,
+Ciccullo,Tyler,Flex 25 Days,AM Bus,Bus #07,Bus #07,2744 Brian St,Oceanside,11572,PM Bus,No,Bus #07,Bus #07,,,
+Cimato,Alessandro,Flex 30 Days,AM Bus,Bus #24,Bus #24,1 Bulson road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Cimato,Lorenzo,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,1 Bulson road,Rockville Centre,11570,PM Bus,,Bus #24,Bus #24,,,
+Cinque,Carter,Flex 25 Days,AM Bus,Bus #07,Bus #07,91 Rodney Place,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Civello,Cameron,Full Season- 5 Days,AM Bus,Bus #10,Bus #10,100 Dorchester rd,Rockville centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Civello,Jack,Full Season- 5 Days,AM Bus,Bus #10,Bus #10,100 Dorchester rd,Rockville centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Clancy,Matthew,Flex 25 Days,AM Bus,Bus #29,Bus #29,15 Kathryn Street,Lynbrook,11563,PM Bus,,Bus #29,Bus #29,,,
+Conneely,Eden,Flex 20 Days,AM Bus,Bus #11,Bus #11,16 Adams Ct,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Cooney,Callie,Half Season 1- 5 Days,AM Bus,,NONE,3929 Greentree Dr,Oceanside,11572,PM Bus,No,,NONE,,,
+Cooney,Cameron,Half Season 1- 5 Days,AM Bus,,NONE,3929 Greentree Dr,Oceanside,11572,PM Bus,No,,NONE,,,
+Cooney,Colton,Half Season 1- 5 Days,AM Bus,,NONE,3929 Greentree Dr,Oceanside NY,11572,PM Bus,No,,NONE,,,
+Corrigan,Evelyn,Full Season- 5 Days,AM Bus,,NONE,171 Windsor Ave,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Corrigan,Oliver,Full Season- 5 Days,AM Bus,,NONE,171 Windsor Ave,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Costello,Charlotte,Flex 25 Days,AM Bus,Bus #03,Bus #03,98 Powell Ave,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Costello,Madeline,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,98 Powell Ave,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Creegan,Chloe,Full Season- 5 Days,AM Bus,,NONE,6 August Walk,Long Beach,11561,PM Bus,No,,NONE,,,
+Creegan,William,Full Season- 5 Days,AM Bus,,NONE,,,,PM Bus,No,,NONE,,,
+Cunningham,Ellie,Half Season 1- 5 Days,AM Bus,Bus #13,Bus #13,56 Voorhis Ave,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+D'Ambrosio,Everly,Flex 20 Days,AM Bus,Bus #05,Bus #05,6 thixton ave,East rockaway,11518,PM Bus,No,Bus #05,Bus #05,,,
+Deal,Liam,Half Season 2- 5 Days,AM Bus,Bus #25,Bus #25,11 Linmouth Rd,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Deal,Maggie,Half Season 2- 5 Days,AM Bus,Bus #25,Bus #25,11 Linmouth Rd,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+DeAngelo,Alexandra,Full Season- 5 Days,AM Bus,Bus #27,Bus #27,881 Roosevelt Street,Franklin Square,11010,PM Bus,No,Bus #27,Bus #27,,,
+DeAngelo,Michael,Full Season- 5 Days,AM Bus,Bus #27,Bus #27,881 Roosevelt Street,Franklin Square,11010,PM Bus,No,Bus #27,Bus #27,,,
+Della Pelle,Arianna,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,413 Rose Ln,Rockville Centre,11570,PM Bus,No,Bus #23,Bus #23,,,
+DeMott,Danika,Half Season 1- 5 Days,AM Bus,Bus #28,Bus #28,2533 Park Avenue,Baldwin,11521,PM Bus,,Bus #28,Bus #28,,,
+DeRossi,Vincent,Full Season- 5 Days,AM Bus,Bus #33,Bus #33,16 Vanderveer Court,"Rockville Centre, NY",11570,PM Bus,,Bus #33,Bus #33,,,
+DeVivo,Audrey,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,85 Allen Road,Rockville Centre,11570,PM Bus,,Bus #24,Bus #24,,,
+DeVivo,Emilia,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,85 Allen Rd,Rockville Centre,11570,PM Bus,,Bus #24,Bus #24,,,
+Devivo,Grace,Flex 30 Days,AM Bus,Bus #11,Bus #11,33 Fonda Road,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Devivo,Jack,Flex 30 Days,AM Bus,Bus #11,Bus #11,33 Fonda Road,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Di Mambro,Kai,Full Season- 5 Days,AM Bus,Bus #20,Bus #20,2 Country Place,Freeport,11520,PM Bus,Yes,Bus #31,Bus #31,17 Bellevue Ave,Oceanside,11572
+Di Mambro,Koa,Full Season- 5 Days,AM Bus,Bus #20,Bus #20,2 Country Place,Freeport,11520,PM Bus,Yes,Bus #31,Bus #31,17 Bellevue Ave,Oceanside,11572
+Diamond,Logan,Flex 30 Days,AM Bus,Bus #22,Bus #22,18 Capitolian Blvd,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Dichiaro,Dean,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,110 Atkinson Rd,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Dickinson,Emma,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,137 S. Centre Avenue,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Dietsch,Evelyn,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,68 Dartmouth Street,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+DiGioia,Oliver,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,,,,PM Bus,No,Bus #15,Bus #15,,,
+Dillon,John,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,,,,PM Bus,,Bus #11,Bus #11,,,
+DiMarco,Benjamin,Full Season- 5 Days,AM Bus,Bus #04,Bus #04,54 Oakland Avenue,Lynbrook,11563,PM Bus,No,Bus #04,Bus #04,,,
+Donin,Aidan,Full Season- 5 Days,AM Bus,Bus #09,Bus #09,337 Perkins Ave,Oceanside,11572,PM Bus,Yes,Bus #14,Bus #14,540 W Penn St,Long Beach,11561
+Donnelly,Julia,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,2711 Cheshire Dr,Baldwin,11510,PM Bus,No,Bus #17,Bus #17,,,
+Drury,Brian,Half Season 2- 5 Days,AM Bus,Bus #09,Bus #09,238 Hoke Ave,Oceanside,11572,PM Bus,No,Bus #09,Bus #09,,,
+du Plessis,Sylvie,Full Season- 5 Days,AM Bus,Bus #02,Bus #02,25 Murdock Road,East Rockaway,11518,PM Bus,No,Bus #02,Bus #02,,,
+Dugger,Avery,Half Season 2- 5 Days,AM Bus,Bus #26,Bus #26,2273 Brody Lane,Bellmore,11710,PM Bus,,Bus #26,Bus #26,,,
+Dyomin,Noa,Full Season- 5 Days,AM Bus,Bus #05,Bus #05,1663 warwick road,hewlett,11557,PM Bus,No,Bus #05,Bus #05,,,
+Esslinger,Cecilia,Flex 30 Days,AM Bus,,NONE,2960 western blvd,,Baldwin ny 11510,PM Bus,No,Bus #20,Bus #20,,,
+Esslinger,Frank,Flex 30 Days,AM Bus,,NONE,2960 western blvd,Baldwin ny,11510,PM Bus,No,Bus #20,Bus #20,,,
+Fabiani,Adrian,Half Season 1- 5 Days,AM Bus,,NONE,53 William St,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Fabiani,Matthew,Half Season 1- 5 Days,AM Bus,,NONE,53 william st,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Fagan,Callen,Full Season- 5 Days,AM Bus,Bus #22,Bus #22,306 DeMott Avenue,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Fagan,Claire,Flex 20 Days,AM Bus,Bus #22,Bus #22,306 DeMott Avenue,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Fallik,Lucas,Full Season- 5 Days,AM Bus,Bus #16,Bus #16,100 Daly Blvd Unit 1103,Oceanside,11572,PM Bus,No,Bus #16,Bus #16,,,
+Famoso,Benjamin,Flex 30 Days,AM Bus,Bus #18,Bus #18,15 Franklin Place,Oceanside,11572,PM Bus,No,Bus #18,Bus #18,,,
+Farago,Ari,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,131 Palmyra Ave,Woodmere,11598,PM Bus,No,Bus #06,Bus #06,,,
+Ferris,Jack,Full Season- 5 Days,AM Bus,,NONE,53 Arnold Court,East Rockaway,11518,PM Bus,No,,NONE,,,
+Filoteo,Graceanna,Full Season- 5 Days,AM Bus,Bus #30,Bus #30,45 blossom heath ave,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Filoteo,Luisa,Full Season- 5 Days,AM Bus,Bus #30,Bus #30,45 Blossom Heath Ave,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Filoteo,Salvatore,Flex 30 Days,AM Bus,Bus #30,Bus #30,45 Blossom Heath Ave,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Finneran,Dylan,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,438 Pepperidge Rd,Hewlett,11557,PM Bus,No,Bus #06,Bus #06,,,
+Fisher,Scarlett,Full Season- 5 Days,AM Bus,Bus #13,Bus #13,145 Greystone Rd,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+Fisher,Sloane,Full Season- 5 Days,AM Bus,Bus #13,Bus #13,145 Greystone Rd,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+Fisk,Callie,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,2920 Harbor Road,Merrick,11566,PM Bus,No,Bus #26,Bus #26,,,
+Forte,Anthony,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,399 Everit Avenue,Hewlett,11557,PM Bus,No,Bus #06,Bus #06,,,
+Forte,Ryder,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,399 Everit Avenue,Hewlett,11557,PM Bus,No,Bus #06,Bus #06,,,
+Fortune,Dominic,Flex 25 Days,AM Bus,Bus #20,Bus #20,1027 McKinley Street,Baldwin,11510,PM Bus,No,Bus #20,Bus #20,,,
+Freed,Lucas,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,1584 Berkeley Ave,Baldwin,11510,PM Bus,No,Bus #11,Bus #11,,,
+Freeman,Declan,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,256 Lakeview Ave,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Fusco,Matteo,Flex 20 Days,AM Bus,Bus #05,Bus #05,14 Yarmouth rd,East rockaway,11518,PM Bus,Yes,Bus #05,Bus #05,,,
+Fusco,Stella,Flex 20 Days,AM Bus,Bus #05,Bus #05,14 Yarmouth rd,East rockaway,11518,PM Bus,Yes,Bus #05,Bus #05,,,
+Gagliano,Matteo,Full Season- 5 Days,AM Bus,Bus #10,Bus #10,22 Argyle Place,Rockville Centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Gagliano,Sofia,Full Season- 5 Days,AM Bus,Bus #10,Bus #10,22 Argyle Place,Rockville Centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Gagliardi,Alexandria,Full Season- 5 Days,AM Bus,Bus #20,Bus #20,944 hayes st,Baldwin,11510,PM Bus,No,Bus #20,Bus #20,,,
+Galgano,Alexandra,Flex 20 Days,AM Bus,Bus #30,Bus #30,15 Holmes Place,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Gallehugh,Lucy,Flex 30 Days,AM Bus,Bus #24,Bus #24,113 Reeve Road,"Rockville Centre, NY",11570,PM Bus,,Bus #24,Bus #24,,,
+Gallo,Henry,Half Season 1- 5 Days,AM Bus,Bus #04,Bus #04,52 Reyam Road,Lynbrook,11563,PM Bus,No,Bus #04,Bus #04,,,
+Gallo,Lucy,Half Season 1- 5 Days,AM Bus,Bus #04,Bus #04,52 Reyam Road,Lynbrook,11563,PM Bus,No,Bus #04,Bus #04,,,
+Garrison,Bennett,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,22 Strathmore Lane,Rockville Centre,11570,PM Bus,No,Bus #23,Bus #23,,,
+Garrison,Nathaniel,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,22 Strathmore Lane,Rockville Centre,11570,PM Bus,No,Bus #23,Bus #23,,,
+Gebel,Gemma,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,370 Everit Ave,Hewlett,11557,PM Bus,No,Bus #06,Bus #06,,,
+Gebel,Janie,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,370 Everit Ave,Hewlett,11557,PM Bus,No,Bus #06,Bus #06,,,
+Genna,Christopher,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,80 Earle Avenue,Lynbrook,11563,PM Bus,Yes,Bus #30,Bus #30,44 Harding Avenue,Lynbrook,11563
+Genova,Emma,Half Season 1- 5 Days,AM Bus,Bus #07,Bus #07,,,,PM Bus,,Bus #07,Bus #07,,,
+Gilewski,Jayden,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,89 Reeve Road,RVC,11570,PM Bus,No,Bus #24,Bus #24,,,
+Gillen,Ava,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,357 Pepperidge Road,Hewlett,11557,PM Bus,No,Bus #06,Bus #06,,,
+Gillen,Jake,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,357 Pepperidge Road,Hewlett,11557,PM Bus,No,Bus #06,Bus #06,,,
+Gilliam,Van,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,185 forest Avenue,Lynbrook,11563,PM Bus,No,Bus #12,Bus #12,,,
+Ginsberg,Owen,Full Season- 5 Days,AM Bus,Bus #02,Bus #02,1650 Warwick Road,Hewlett,11557,PM Bus,No,Bus #02,Bus #02,,,
+Giordano,Jaxson,Full Season- 5 Days,AM Bus,Bus #16,Bus #16,177 Virginia Avenue,Oceanside,11572,PM Bus,No,Bus #16,Bus #16,,,
+Giusto,Luca,Flex 25 Days,AM Bus,,NONE,453 rose lane,rockville centre,11570,PM Bus,No,,NONE,,,
+Glamann,Leo,Flex 30 Days,AM Bus,Bus #27,Bus #27,1023 Glen Drive,Franklin Square,11010,PM Bus,No,Bus #27,Bus #27,,,
+Goins,Rose,Full Season- 5 Days,AM Bus,Bus #13,Bus #13,2 Whitehall Road,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+Gonzalez,Matthew,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,128 Shepherd Street,Rockville Centre,11570,PM Bus,Yes,Bus #11,Bus #11,39 Evergreen Avenue,Lynbrook,11563
+Gorecki,Cody,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,146 Grand Ave,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Gorecki,George,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,146 Grand Ave,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Gorecki,Nathaniel,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,146 Grand Ave,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Grey,Thomas,Full Season- 5 Days,AM Bus,Bus #29,Bus #29,230 Atlantic Avenue,Lynbrook,11563,PM Bus,,Bus #29,Bus #29,,,
+Grill,Brianna,Full Season- 5 Days,AM Bus,Bus #27,Bus #27,165 Madison Ave,Franklin Square,11010,PM Bus,,Bus #27,Bus #27,,,
+Grimaldi,Chase,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,18 Clark Street,East Rockaway,11518,PM Bus,,Bus #12,Bus #12,,,
+Gruboy,Emilie,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,58 Marlborough Ct,Rockville Centre,11570,PM Bus,No,Bus #23,Bus #23,,,
+Guarini,Peter,Flex 25 Days,AM Bus,Bus #08,Bus #08,235 burtis avenue,rockville centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Guarini,Samantha,Flex 30 Days,AM Bus,Bus #08,Bus #08,235 burtis ave,rockville centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Guarino,Alexa,Full Season- 5 Days,AM Bus,Bus #26,Bus #26,1283 Taft Ave,Merrick,11566,PM Bus,No,Bus #27,Bus #27,,,
+Guarino,Jack,Full Season- 5 Days,AM Bus,Bus #26,Bus #26,1283 Taft Ave,Merrick,11566,PM Bus,No,Bus #27,Bus #27,,,
+Haig,Isaiah,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,58 Lehigh Court,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Haig,Rosalee,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,58 Lehigh Court,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Harold,Colin,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,26 Hampton Court,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Harold,Maeve,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,26 Hampton Court,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Harwitt,Brody,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3865 Carrel Blvd,Oceanside,11572,PM Bus,No,Bus #18,Bus #18,,,
+Harwitt,Emma,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3866 Carrel Blvd,Oceanside,11572,PM Bus,No,Bus #18,Bus #18,,,
+Hecht,Charlotte,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,29 Strathmore Lane,Rockville Centre,11570,PM Bus,,Bus #23,Bus #23,,,
+Hecht,Francis,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,29 Strathmore Lane,Rockville Centre,11570,PM Bus,,Bus #23,Bus #23,,,
+Heindrichs,Josephine,Full Season- 5 Days,AM Bus,Bus #14,Bus #14,272 w walnut st,long beach,11561,PM Bus,No,Bus #14,Bus #14,,,
+Heindrichs,Rosalia,Half Season 2- 5 Days,AM Bus,Bus #14,Bus #14,272 w walnut st,long beach,11561,PM Bus,No,Bus #14,Bus #14,,,
+Held,Henry,Full Season- 5 Days,AM Bus,Bus #05,Bus #05,241 Waverly Ave,East Rockaway,11518,PM Bus,No,Bus #05,Bus #05,,,
+Hendel,Julian,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,83 Pacific Blvd,Long Beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Henderson,Liam,Flex 20 Days,AM Bus,Bus #08,Bus #08,23 Virginia ave,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Herman,Jackson,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,184 Cherry Street,Woodmere,11598,PM Bus,No,Bus #06,Bus #06,,,
+Herman,Jane,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,76 Buckminster Rd,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Herman,Samuel,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,76 Buckminster Rd,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Herman,Theodore,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,184 Cherry Street,Woodmere,11598,PM Bus,No,Bus #06,Bus #06,,,
+Hettinger,Aaron,Flex 20 Days,AM Bus,Bus #21,Bus #21,217 N Forest Avenue,Rockville Centre,11570,PM Bus,No,Bus #21,Bus #21,,,
+Hickey,Breanne,Flex 25 Days,AM Bus,Bus #11,Bus #11,115 Muirfield Rd,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Hickey,Patrick,Flex 25 Days,AM Bus,Bus #11,Bus #11,115 Muirfield Rd,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Hirsch,Harrison,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,5 Gifford Avenue,Oceanside,11572,PM Bus,No,Bus #17,Bus #17,,,
+Hirsch,Maddyn,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,5 Gifford Ave,Oceanside,11572,PM Bus,No,Bus #17,Bus #17,,,
+Hiskey,Ella,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3888 Carrel Blvd,Oceanside,11572,PM Bus,No,Bus #18,Bus #18,,,
+Hiskey,Olivia,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3888 Carrel Blvd,Oceanside,11572,PM Bus,No,Bus #18,Bus #18,,,
+Hoenig,Cole,Flex 25 Days,AM Bus,Bus #33,Bus #33,54 vanderveer court,Rockville centre,12570,PM Bus,No,Bus #33,Bus #33,,,
+Hofmann,Naomi,Half Season 1- 5 Days,AM Bus,Bus #26,Bus #26,3006 Clubhouse Rd,Merrick,11566,PM Bus,No,Bus #26,Bus #26,,,
+Howard Jr,Ronald,Full Season- 5 Days,AM Bus,Bus #04,Bus #04,9 Catherine Ct,Elmont,11003,PM Bus,No,Bus #04,Bus #04,,,
+Hughes,Brody,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,36 Kent Road,Island park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Israel,Cory,Flex 25 Days,AM Bus,Bus #27,Bus #27,"280 Franklin Avenue, Unit 4",Franklin Square,11010,PM Bus,No,Bus #27,Bus #27,,,
+Izquierdo,Valentina,Full Season- 5 Days,AM Bus,,NONE,36 Elmwood Street,Valley Stream,11581,PM Bus,No,,NONE,,,
+Izzo,Anastasia,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,61 hempstead ave,Rockville centre,11570,PM Bus,No,Bus #32,Bus #32,,,
+Izzo,Giuliana,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,61 hempstead Ave Rockville centre ny 11570,,,PM Bus,No,Bus #32,Bus #32,,,
+Izzo,Joseph,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,61 hempstead ave,Rockville centre,11570,PM Bus,No,Bus #32,Bus #32,,,
+James,Caleb,Half Season 2- 5 Days,AM Bus,Bus #10,Bus #10,444 N Village Ave,Rockville Centre,11579,PM Bus,No,Bus #10,Bus #10,,,
+Jarzynka,Theodore,Flex 25 Days,AM Bus,Bus #10,Bus #10,36 Cambridge st,Rockville centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Jeffery,Arya,6 Week Season,AM Bus,Bus #11,Bus #11,1592 Blenheim rd,Rockville centre,11570,PM Bus,,Bus #11,Bus #11,,,
+Judge,Morgan,Full Season- 5 Days,AM Bus,Bus #10,Bus #10,79 Lakeside Dr,Rockville Centre,NY,PM Bus,No,Bus #10,Bus #10,,,
+Jussen,Tristan,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,147 Harding Ave,Long Beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Kalantarov,Alice,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3949 Jane Ln,Oceanside,11572,PM Bus,,Bus #18,Bus #18,,,
+Kalantarov,Nathaniel,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3949 Jane Ln,Oceanside,11572,PM Bus,,Bus #18,Bus #18,,,
+Kambic,Ryan,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,496 Kent Court,Oceanside,11572,PM Bus,No,Bus #17,Bus #17,,,
+Katz,Addison,Flex 30 Days,AM Bus,Bus #13,Bus #13,3 The Loch,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+Katz,Sophie,Flex 30 Days,AM Bus,Bus #13,Bus #13,3 The Loch,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+Keenan,Eleanora,Flex 30 Days,AM Bus,Bus #25,Bus #25,366 Stewart Ave,Garden city,11530,PM Bus,No,Bus #25,Bus #25,,,
+Kelch,Amelia,Half Season 2- 5 Days,AM Bus,Bus #25,Bus #25,40 Gerard Ave E,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Kelly,Mackenzie,Flex 30 Days,AM Bus,Bus #17,Bus #17,155 Bulson Road,Rockville Centre,11570,PM Bus,No,Bus #17,Bus #17,,,
+Kennedy,Alexandra,Flex 30 Days,AM Bus,Bus #33,Bus #33,48 Roxen Road,Rockville Centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Kennedy,Charlotte,Flex 30 Days,AM Bus,Bus #33,Bus #33,48 Roxen Road,Rockville Centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Klein,Cooper,Flex 25 Days,AM Bus,Bus #16,Bus #16,296 Virginia Ave,Oceanside,11572,PM Bus,No,Bus #16,Bus #16,,,
+Klein,Oliver,Flex 25 Days,AM Bus,Bus #16,Bus #16,296 Virginia Ave,Oceanside,11572,PM Bus,No,Bus #16,Bus #16,,,
+Knight,Archie,Flex 30 Days,AM Bus,Bus #21,Bus #21,76 Cedar Ave,Rockville Centre,11570,PM Bus,No,Bus #21,Bus #21,,,
+Kochis,Jack,Flex 20 Days,AM Bus,Bus #33,Bus #33,9 Tamwood Court,Rockville Centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Koehle,Cosette,Flex 30 Days,AM Bus,Bus #15,Bus #15,263 regent dr,Lido beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Kolodziejczyk,Suzanna,Full Season- 5 Days,AM Bus,Bus #29,Bus #29,2 Dorothy Pl,Lynbrook,11563,PM Bus,No,Bus #29,Bus #29,,,
+Krebs,Neala,Flex 30 Days,AM Bus,Bus #10,Bus #10,269 Harvard Avenue,Rockville Centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Krebs,Tierney,Flex 30 Days,AM Bus,Bus #10,Bus #10,269 Harvard avenue,Rockville Centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Krulewich,Vivienne,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,454 East Fulton Street,"Long Beach, New York",11561,PM Bus,No,Bus #15,Bus #15,,,
+Kudva,Savannah,Half Season 1- 5 Days,AM Bus,Bus #12,Bus #12,77 Shellbank place,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Kudva,Sebastian,Half Season 1- 5 Days,AM Bus,Bus #12,Bus #12,77 Shellbank Place,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Lampard,Everly,Full Season- 5 Days,AM Bus,,NONE,482 Allen Ave,Baldwin,11510,PM Bus,No,,NONE,,,
+Larmann,Jack,Flex 25 Days,AM Bus,Bus #08,Bus #08,58 Marvin Avenue,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Latushkin,Caroline,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,181 S Park Ave,Rockville Centre,11570,PM Bus,No,Bus #32,Bus #32,,,
+Lee,Carissa,Flex 30 Days,AM Bus,Bus #01,Bus #01,32 Crestwood Lane,Valley Stream,11581,PM Bus,No,Bus #01,Bus #01,,,
+Lehman,Carter,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,8 Kirkwood street,Long beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Lehman,Teegan,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,8 Kirkwood street,Long Beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Lemley,Matthew,Full Season- 5 Days,AM Bus,Bus #13,Bus #13,11 Kent Court,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+Lemley,Nathaniel,Full Season- 5 Days,AM Bus,Bus #13,Bus #13,11 Kent Court,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+Leung,Lindsay,6 Week Season,AM Bus,Bus #21,Bus #21,127 Cedar Ave,Rockville Centre,11570,PM Bus,No,Bus #21,Bus #21,,,
+Leung,Zachary,6 Week Season,AM Bus,Bus #21,Bus #21,127 Cedar Ave,Rockville Centre,1570,PM Bus,No,Bus #21,Bus #21,,,
+Leupp,Sean,Full Season- 5 Days,AM Bus,Bus #25,Bus #25,"31 hanson pl,",malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Levine,Ella,6 Week Season,AM Bus,Bus #22,Bus #22,24 Tarence Street,Rockville Centre,11570,PM Bus,,Bus #22,Bus #22,,,
+Librizzi,Ava,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,,,,PM Bus,,Bus #23,Bus #23,,,
+Librizzi,Landon,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,,,,PM Bus,,Bus #23,Bus #23,,,
+Lieberman,Matthew,Flex 30 Days,AM Bus,Bus #08,Bus #08,428 Hempstead Avenue,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Liebowitz,Jordyn,Half Season 1- 5 Days,AM Bus,Bus #06,Bus #06,375 Heather Ln,Hewlett,11557,PM Bus,No,Bus #06,Bus #06,,,
+Liebowitz,Tyler,Half Season 1- 5 Days,AM Bus,Bus #06,Bus #06,375 Heather Ln,Hewlett,11557,PM Bus,No,Bus #06,Bus #06,,,
+Linnane,Quinn,Full Season- 5 Days,AM Bus,Bus #21,Bus #21,212 Morris Avenue,Rockville Centre,11570,PM Bus,No,Bus #21,Bus #21,,,
+Lipsky,Hunter,Flex 30 Days,AM Bus,Bus #16,Bus #16,105 west cortland ave,Oceanside,11573,PM Bus,No,Bus #16,Bus #16,,,
+Lipton,Eleanor,Full Season- 5 Days,AM Bus,Bus #10,Bus #10,37 Demott Avenue,Rockville Centre,11570,PM Bus,,Bus #10,Bus #10,,,
+Liu,Madeline,6 Week Season,AM Bus,Bus #30,Bus #30,19 Summit Ave,Lynbrook,11563-2021,PM Bus,No,Bus #30,Bus #30,,,
+Locke,Charles,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,183 Windsor Ave,Rockville Centre,115700,PM Bus,No,Bus #12,Bus #12,,,
+Locke,Fiona,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,183 Windsor Ave,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Locke,Kieran,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,183 Windsor Avenue,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Loyal,Dylan,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,34 Terrell Avenue,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Loyal,Madison,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,34 Terrell Avenue,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Lyttle,Liya,Flex 25 Days,AM Bus,Bus #23,Bus #23,630 Lenox Road,Baldwin,11510,PM Bus,No,Bus #23,Bus #23,,,
+MacMillan,Hunter,Full Season- 5 Days,AM Bus,Bus #22,Bus #22,67 Oxford Road,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Magee,Blane,Half Season 2- 5 Days,AM Bus,Bus #25,Bus #25,78 cedar road,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Maiale,Malia,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,150 Island Pkwy n,Island park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Malone,Evan,Half Season 2- 5 Days,AM Bus,Bus #01,Bus #01,17 Jackson Road,Valley Stream,11581,PM Bus,,Bus #01,Bus #01,,,
+Mandel,Ashley,Full Season- 5 Days,AM Bus,Bus #26,Bus #26,2461 Lindenmere Drive,Merrick,11566,PM Bus,No,Bus #26,Bus #26,,,
+Maraj,Skylar,Half Season 1- 5 Days,AM Bus,Bus #26,Bus #26,2542 Southard Avenue,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Mastronicola,Vivienne,Full Season- 5 Days,AM Bus,,NONE,322 THOMPSON AVE,OCEANSIDE,11572,PM Bus,No,,NONE,,,
+Matheny,Jackson,Flex 30 Days,AM Bus,Bus #13,Bus #13,266 Lena Ave,Freeport,11520,PM Bus,No,Bus #13,Bus #13,,,
+Matthews,Rebecca,Flex 20 Days,AM Bus,Bus #08,Bus #08,82 Pine Street,rockville centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+McCann,Elise,Flex 25 Days,AM Bus,Bus #23,Bus #23,493 Stratford Rd.,South Hempstead,11550,PM Bus,Yes,Bus #28,Bus #28,2294 Coventry Rd.,Baldwin,11510
+McDonald,Charlie,Flex 30 Days,AM Bus,Bus #08,Bus #08,96 Forestdale Road,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+McDonald,Jack,Flex 30 Days,AM Bus,Bus #08,Bus #08,96 Forestdale Road,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+McGrath,Tessa,Full Season- 5 Days,AM Bus,Bus #22,Bus #22,149 Raymond street,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+McMillan,Cameron,Flex 25 Days,AM Bus,Bus #23,Bus #23,616 Joy Blvd,Baldwin,11510,PM Bus,No,Bus #23,Bus #23,,,
+McSherry,Charlie,Full Season- 5 Days,AM Bus,Bus #33,Bus #33,24 Eton Rd,Rockville Centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Mehldau,Alexis,Flex 30 Days,AM Bus,Bus #27,Bus #27,71 Chestnut St,Malverne,11565,PM Bus,,Bus #27,Bus #27,,,
+Melucci,Leonardo,Full Season- 5 Days,AM Bus,Bus #30,Bus #30,81 Whittier Street,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Mendez,Antonella,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,,,,PM Bus,,Bus #01,Bus #01,,,
+Mendez,Matthew,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,,,,PM Bus,,Bus #01,Bus #01,,,
+Menon,Lucas,Full Season- 5 Days,AM Bus,Bus #19,Bus #19,2910 Harvey Ave,Oceanside,11572,PM Bus,No,Bus #19,Bus #19,,,
+Merendino,Colby,Full Season- 5 Days,AM Bus,Bus #22,Bus #22,236 Princeton road,Rvc,11570,PM Bus,No,Bus #22,Bus #22,,,
+Merendino,Darcy,Full Season- 5 Days,AM Bus,Bus #22,Bus #22,236 Princeton road,Rvc,11570,PM Bus,No,Bus #22,Bus #22,,,
+Merendino,Ty,Full Season- 5 Days,AM Bus,Bus #22,Bus #22,236 Princeton road,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Merschel,Stella,Half Season 1- 5 Days,AM Bus,,NONE,3419 Weidner ave,Oceanside,11572,PM Bus,No,,NONE,,,
+Metu,Chidiadi,6 Week Season,AM Bus,Bus #33,Bus #33,39 Sherwood Road,Rockville Centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Metu,Chinaza,6 Week Season,AM Bus,Bus #33,Bus #33,39 Sherwood Road,Rockville Centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Meyers,Hudson,Half Season 1- 5 Days,AM Bus,,NONE,2638 locust avenue,Oceanside,11572,PM Bus,No,,NONE,,,
+Millan,Francesca,Full Season- 5 Days,AM Bus,Bus #26,Bus #26,60 Pettit Ave,Merrick,11566,PM Bus,No,Bus #26,Bus #26,,,
+Millan,Giovanni,Full Season- 5 Days,AM Bus,Bus #26,Bus #26,60 Pettit Ave,Merrick,11566,PM Bus,No,Bus #26,Bus #26,,,
+Miller,Madison,Full Season- 5 Days,AM Bus,Bus #22,Bus #22,160 Princeton Road,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Miller,Makayla,Full Season- 5 Days,AM Bus,Bus #22,Bus #22,160 Princeton Road,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Modansky,Liana,Flex 25 Days,AM Bus,Bus #21,Bus #21,45 Locust Avenue,Rockville Centre,11570,PM Bus,No,Bus #21,Bus #21,,,
+Modansky,Wyatt,Flex 30 Days,AM Bus,Bus #21,Bus #21,45 Locust Avenue,Rockville Centre,11570,PM Bus,No,Bus #21,Bus #21,,,
+Montana,Elijah,Full Season- 5 Days,AM Bus,Bus #04,Bus #04,"377 Broadway, Lynbrook, NY 11563",Lynbrook,11563,PM Bus,No,,NONE,,,
+Mooney,Brody,Full Season- 5 Days,AM Bus,Bus #19,Bus #19,3605 Mahlon Brower Drive,Oceanside,11572,PM Bus,No,Bus #19,Bus #19,,,
+Mooney,Cole,Full Season- 5 Days,AM Bus,Bus #19,Bus #19,3605 Mahlon Brower Drive,Oceanside,11572,PM Bus,No,Bus #19,Bus #19,,,
+Moran,Ashley,Flex 25 Days,AM Bus,Bus #27,Bus #27,"280 Franklin Avenue, Unit #22",Franklin Square,11010,PM Bus,No,Bus #27,Bus #27,,,
+Moran,Cecelia,Flex 25 Days,AM Bus,Bus #27,Bus #27,40 Madison Street,Lynbrook,11563,PM Bus,No,Bus #27,Bus #27,,,
+Moran,James,Flex 30 Days,AM Bus,Bus #27,Bus #27,40 Madison Street,Lynbrook,11563,PM Bus,No,Bus #27,Bus #27,,,
+Moran,Jamie,Full Season- 5 Days,AM Bus,Bus #05,Bus #05,1 Pepperidge Rd,East Rockaway,11518,PM Bus,No,Bus #05,Bus #05,,,
+Moran,Madeline,Flex 25 Days,AM Bus,Bus #27,Bus #27,40 Madison Street,Lynbrook,11563,PM Bus,No,Bus #27,Bus #27,,,
+Moran,Sebastian,Full Season- 5 Days,AM Bus,Bus #05,Bus #05,1 Pepperidge Rd,East Rockaway,11518,PM Bus,No,Bus #05,Bus #05,,,
+Morin,Sienna,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,94 Driscoll Ave,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Morin,Tyler,6 Week Season,AM Bus,Bus #07,Bus #07,94 Driscoll Ave,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Mulhern,Evie,Flex 25 Days,AM Bus,Bus #10,Bus #10,140 Harvard Avenue,Rockville Centre,11570,PM Bus,No,Bus #10,Bus #10,,,
+Mulligan,Olivia,Flex 25 Days,AM Bus,Bus #16,Bus #16,,,,PM Bus,No,Bus #16,Bus #16,,,
+Myers,John,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,573 Derby Drive East,Oceanside,11572,PM Bus,No,Bus #17,Bus #17,,,
+Napolitano,Luca,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,23 Liberty Avenue,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Narizzano,Alexander,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,12 Windsor pl,Lynbrook,11563,PM Bus,No,Bus #12,Bus #12,,,
+Narizzano,Lucas,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,12 Windsor place,Lynbrook,11563,PM Bus,No,Bus #12,Bus #12,,,
+Neider,Isabella,Flex 20 Days,AM Bus,Bus #29,Bus #29,"18 Abrams Pl, Lynbrook NY 11563",,,PM Bus,No,Bus #29,Bus #29,,,
+Neider,Jackson,Flex 20 Days,AM Bus,Bus #29,Bus #29,"18 Abrams Place, Lynbrook NY 11563",,,PM Bus,No,Bus #29,Bus #29,,,
+Nilsen,Chase,Half Season 2- 5 Days,AM Bus,Bus #12,Bus #12,167 Windsor Ave.,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Nozzolillo,Adrianna,Full Season- 5 Days,AM Bus,Bus #05,Bus #05,9 Wesley Drive,East Rockaway,11518,PM Bus,No,Bus #05,Bus #05,,,
+Nozzolillo,Alexandra,Full Season- 5 Days,AM Bus,Bus #05,Bus #05,9 Wesley Drive,East Rockaway,11518,PM Bus,No,Bus #05,Bus #05,,,
+Nurik,Ellie,Full Season- 5 Days,AM Bus,,NONE,9 Atkinson Rd,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Nurik,Jacob,Full Season- 5 Days,AM Bus,,NONE,9 Atkinson Rd,Rockville Centre,11570,PM Bus,No,,NONE,,,
+OBrien,Madeline,Flex 20 Days,AM Bus,Bus #20,Bus #20,917 Steele Blvd,Baldwin,11510,PM Bus,,Bus #20,Bus #20,,,
+O'Brien,Meghan,Flex 20 Days,AM Bus,Bus #28,Bus #28,515 Wateredge Avenue,Baldwin,11510,PM Bus,No,Bus #28,Bus #28,,,
+Pedersen,Graham,Full Season- 5 Days,AM Bus,Bus #04,Bus #04,42 2nd street,lynbrook,11563,PM Bus,No,Bus #04,Bus #04,,,
+Penn,Aiden,Half Season 2- 5 Days,AM Bus,Bus #09,Bus #09,"131 Roosevelt St., Oceanside, NY 11572",Oceanside,11572,PM Bus,No,Bus #09,Bus #09,,,
+Perlow,Lucas,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,2633 loftus ave,Oceanside,11572,PM Bus,,Bus #17,Bus #17,,,
+Perlow,Olivia,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,2633 loftus ave,Oceanside,11572,PM Bus,,Bus #17,Bus #17,,,
+Persico,Matthew,Flex 20 Days,AM Bus,Bus #12,Bus #12,107 Hendrickson Ave.,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Persico,Robert,Flex 20 Days,AM Bus,Bus #12,Bus #12,107 Hendrickson Ave.,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Persico,Ryan,Flex 20 Days,AM Bus,Bus #12,Bus #12,107 Hendrickson Ave.,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Peters,Declan,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,14 Scott Place,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Peters,Maeve,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,14 Scott Place,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Petry,Daniel,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,66 Sagamore Road,Island Park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Petry,Kelsey,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,66 Sagamore Road,Island Park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Piade,Mikah,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,150 Island Pkwy n,Island park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Piade,Rafi,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,150 Island Pkwy n,Island park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Piccolo,Isabella,Full Season- 5 Days,AM Bus,Bus #25,Bus #25,601 David Street,West hempstead,11552,PM Bus,,Bus #25,Bus #25,,,
+Pizziatolla,Dominic,Flex 20 Days,AM Bus,Bus #03,Bus #03,25 Saint Marks Ave,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Pizziatolla,Vincent,Flex 20 Days,AM Bus,Bus #03,Bus #03,25 Saint Marks Ave,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Pollak,Erela,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,167 Seiffert Ct,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Pollak,Melody,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,167 Seiffert Ct,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Powell,Graysen,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,80 N. Centre Ave. PH445,Rockville Centre,11570,PM Bus,,Bus #32,Bus #32,,,
+Pratt,James,Full Season- 5 Days,AM Bus,,NONE,70 Maine Avenue,Rockville Centre,11570,PM Bus,,,NONE,,,
+Provvisiero,Everly,Half Season 2- 5 Days,AM Bus,Bus #04,Bus #04,117 Olive Dr,Lynbrook,11564,PM Bus,No,Bus #04,Bus #04,,,
+Provvisiero,Sadie,Half Season 2- 5 Days,AM Bus,Bus #04,Bus #04,117 Olive Dr,Lynbrook,11563,PM Bus,,Bus #04,Bus #04,,,
+Quindara,Violet,Flex 25 Days,AM Bus,Bus #25,Bus #25,146 Utterby Road,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Raimondi,Nikolas,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,2684 Colonial Place,Oceanside,11572,PM Bus,No,Bus #31,Bus #31,,,
+Ramadan,Marouge,Flex 25 Days,AM Bus,Bus #25,Bus #25,7 Merillon Avenue,Garden City,11530,PM Bus,No,Bus #25,Bus #25,,,
+Ramirez,Elizabeth,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,132 Driscoll Ave,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Raphael,Silas,Full Season- 5 Days,AM Bus,Bus #19,Bus #19,186 Wrights Lane,Oceanside,11572,PM Bus,No,Bus #19,Bus #19,,,
+Rauert,Robert,Flex 20 Days,AM Bus,Bus #16,Bus #16,78 Virginia Ave,Oceanside,11572,PM Bus,No,Bus #16,Bus #16,,,
+Reisman,Sianna,Half Season 1- 5 Days,AM Bus,Bus #01,Bus #01,,,,PM Bus,,Bus #01,Bus #01,,,
+Renzo,Gemma,Flex 30 Days,AM Bus,Bus #02,Bus #02,,,,PM Bus,,Bus #02,Bus #02,,,
+Richardson,Eden,Flex 30 Days,AM Bus,Bus #04,Bus #04,88 Union Avenue,"Lynbrook, New York",11563,PM Bus,No,Bus #04,Bus #04,,,
+Richardson,Jade,Flex 30 Days,AM Bus,Bus #04,Bus #04,88 Union Ave,"Lynbrook, New York",11563,PM Bus,No,Bus #04,Bus #04,,,
+Rick,Brandon,Full Season- 5 Days,AM Bus,Bus #20,Bus #20,3530 Bayfield Blvd,Oceanside,11572,PM Bus,No,Bus #20,Bus #20,,,
+Rodriguez,Leo,Flex 30 Days,AM Bus,Bus #07,Bus #07,32 Woods Place,RVC,11570,PM Bus,No,Bus #07,Bus #07,,,
+Rodriguez,Olivia,Flex 30 Days,AM Bus,Bus #07,Bus #07,32 woods place,Rvc,11570,PM Bus,No,Bus #07,Bus #07,,,
+Rogers,Austin,Flex 25 Days,AM Bus,Bus #31,Bus #31,2762 Brook Ave,Oceanside,11572,PM Bus,No,Bus #31,Bus #31,,,
+Rogers,Kaz,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,134 Grenada ave,Roosevelt,11575,PM Bus,No,Bus #11,Bus #11,,,
+Rolston,Derek,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,32 Edgeworth Street,Valley Stream,11581,PM Bus,No,Bus #01,Bus #01,,,
+Rolston,Heidi,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,32 Edgeworth Street,Valley Stream,11581,PM Bus,No,Bus #01,Bus #01,,,
+Ronzino,Anita,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3812 Illona Lane,Oceanside,11571,PM Bus,No,Bus #18,Bus #18,,,
+Rosen,Arielle,Full Season- 5 Days,AM Bus,Bus #16,Bus #16,3530 Long Beach Rood,Oceanside,11572,PM Bus,,Bus #16,Bus #16,,,
+Ross,Matthew,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,2611 Southard Avenue,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Ross,Stella,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,2611 Southard Avenue,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Rothman,Emma,Flex 25 Days,AM Bus,Bus #11,Bus #11,31 Muirfield Road,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Rubin,Harper,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3810 carrel boulevard,Oceanside,11572,PM Bus,No,Bus #18,Bus #18,,,
+Rubin,Logan,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3810 carrel boulevard,Oceanside,11572,PM Bus,No,Bus #18,Bus #18,,,
+Rudin,Maia,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,410 E Broadway,Long Beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Ruecker,Madison,Full Season- 5 Days,AM Bus,,NONE,142 Greystone Road,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Ruggiero,Joseph,Flex 30 Days,AM Bus,Bus #20,Bus #20,2960 Western Blvd.,Baldwin,11510,PM Bus,No,Bus #20,Bus #20,,,
+Ruggiero,Mia,Flex 30 Days,AM Bus,Bus #20,Bus #20,2960 Western Blvd.,Baldwin,11510,PM Bus,No,Bus #20,Bus #20,,,
+Ruiz,Liana,Flex 30 Days,AM Bus,Bus #26,Bus #26,3146 lydia ln,Bellmore,11710,PM Bus,No,Bus #26,Bus #26,,,
+Ruiz,Raquel,Flex 30 Days,AM Bus,Bus #26,Bus #26,3146 Lydia Ln,Bellmore,11710,PM Bus,No,Bus #26,Bus #26,,,
+Ruskin,Charlotte,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,174 Windsor Avenue,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Ruskin,Logan,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,174 Windsor Avenue,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Russo,Carmela,Full Season- 5 Days,AM Bus,Bus #25,Bus #25,85 Birch Rd. Malverne,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Russo,John,Full Season- 5 Days,AM Bus,Bus #25,Bus #25,85 Birch Rd.,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Ryan,Angelina,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,2576 Hillside ct,Baldwin,11510,PM Bus,Yes,Bus #28,Bus #28,33 Davison Ave,Oceanside,11572
+Sama,Penelope,Flex 30 Days,AM Bus,Bus #20,Bus #20,890 Pacific Street,Baldwin,11510,PM Bus,Yes,,NONE,16 Main Street,East Rockaway,11518
+Sanchez,Michaela,Flex 30 Days,AM Bus,Bus #19,Bus #19,2629 Clovermere Road,Oceanside,11572,PM Bus,No,Bus #19,Bus #19,,,
+Sands,Savannah,Full Season- 5 Days,AM Bus,Bus #29,Bus #29,67 Prospect Avenue,Hewlett,11557,PM Bus,No,Bus #29,Bus #29,,,
+Sarakos,Anneliese,Flex 30 Days,AM Bus,Bus #33,Bus #33,22 Warwick rd,Rockville centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Sarkis,Kendall,Flex 25 Days,AM Bus,Bus #24,Bus #24,121 Wright Road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Sarkis,Sophie,Flex 25 Days,AM Bus,Bus #24,Bus #24,121 Wright Road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Sarrel,Morgan,Full Season- 5 Days,AM Bus,Car,NONE,586 Derby Drive S,Oceanside,11572,PM Bus,No,Auditorium,Auditorium,,,
+Sarrel,Ryan,Full Season- 5 Days,AM Bus,Car,NONE,586 Derby Drive S,Oceanside,11572,PM Bus,No,Auditorium,Auditorium,,,
+Sarrel,Sloane,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,403 Hempstead Ave,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Schafler,Donovan,Half Season 1- 5 Days,AM Bus,,NONE,32 Melvin Avenue,West Hempstead,11552,PM Bus,No,,NONE,,,
+Schafler,Hayden,Half Season 1- 5 Days,AM Bus,,NONE,32 Melvin Avenue,West Hempstead,11552,PM Bus,No,,NONE,,,
+Schmidt,Ava,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,3285 Bayfield Blvd,Oceanside,11572,PM Bus,No,Bus #17,Bus #17,,,
+Schmier,Siena,Flex 20 Days,AM Bus,Bus #02,Bus #02,,,,PM Bus,,Bus #02,Bus #02,,,
+Schmier,Vincent,Flex 20 Days,AM Bus,Bus #02,Bus #02,,,,PM Bus,,Bus #02,Bus #02,,,
+Schwartz,Scarlett,Full Season- 5 Days,AM Bus,Bus #20,Bus #20,417 Kenilworth St,Oceanside,11572,PM Bus,No,Bus #20,Bus #20,,,
+Schwartz,Sonia,Flex 25 Days,AM Bus,Bus #28,Bus #28,48 Rowe Avenue,Lynbrook,11563,PM Bus,,Bus #29,Bus #29,,,
+Schwartz,Thomas,Flex 25 Days,AM Bus,Bus #29,Bus #29,48 Rowe Avenue,Lynbrook,11563,PM Bus,No,Bus #29,Bus #29,,,
+Schwemmer,Carolyn,Flex 20 Days,AM Bus,Bus #11,Bus #11,11 Blenheim Court,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Scimonelli,Emilia,Flex 20 Days,AM Bus,,NONE,76 Vernon Ave,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Scimonelli,Henry,Flex 20 Days,AM Bus,,NONE,76 Vernon Ave,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Sebring,Lyla,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,61 Surrey Lane,Rockville Centre,11570,PM Bus,No,Bus #23,Bus #23,,,
+Sebring,Molly,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,61 Surrey Lane,Rockville Centre,11570,PM Bus,No,Bus #23,Bus #23,,,
+Seibert,Madelyn,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,250 Burtis Avenue,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Senft,Madison,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,544 derby drive n,Oceanside,11572,PM Bus,,Bus #17,Bus #17,,,
+Senken,Garner,Flex 25 Days,AM Bus,Bus #15,Bus #15,57 Dalton Street,Long Beach,11561,PM Bus,,Bus #15,Bus #15,,,
+Sfass,Charlie,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,507 morris avenue,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Sfass,Layla,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,507 morris avenue,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Shnayderov,Charlotte,Full Season- 5 Days,AM Bus,,NONE,465 Merrick Rd.,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Siegel,Shane,Full Season- 5 Days,AM Bus,Bus #14,Bus #14,59 W Penn Street,Long Beach,11561,PM Bus,,Bus #14,Bus #14,,,
+Sirochinsky,Madison,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,125 Allen Road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Sirochinsky,Maxwell,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,125 allen road,rockville centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Smith,Hunter,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,19 Walnut Ave,Rockville Centre,11570,PM Bus,No,Bus #32,Bus #32,,,
+Smith,Ruby,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,19 Walnut Ave,Rockville Centre,11570,PM Bus,No,Bus #32,Bus #32,,,
+Sneider,Sawyer,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,35 Clubside Dr,Woodmere,11598,PM Bus,No,Bus #06,Bus #06,,,
+Solarino,John,Flex 30 Days,AM Bus,Bus #27,Bus #27,36 Gates Ave,Malverne,11565,PM Bus,No,Bus #27,Bus #27,,,
+Solow,Andrew,Full Season- 5 Days,AM Bus,Bus #29,Bus #29,41 Dunne Place,Lynbrook,11563,PM Bus,No,Bus #29,Bus #29,,,
+Solow,Juliana,Full Season- 5 Days,AM Bus,Bus #29,Bus #29,41 Dunne Place,Lynbrook,11563,PM Bus,No,Bus #29,Bus #29,,,
+Sosa,Michael,6 Week Season,AM Bus,Bus #31,Bus #31,293 Jefferson Avenue,Island Park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Sparberg,Brooke,Full Season- 5 Days,AM Bus,Bus #19,Bus #19,,,,PM Bus,No,Bus #19,Bus #19,,,
+Steffensmeier,Alaina,Full Season- 5 Days,AM Bus,Bus #30,Bus #30,48 Harding Ave,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Steffensmeier,Alexander,Full Season- 5 Days,AM Bus,Bus #30,Bus #30,48 Harding Ave,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Stein,Lily,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,4288 new york avenue,,,PM Bus,,Bus #31,Bus #31,4288 new york avenue,,
+Steller,Logan,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,149 Rockaway Ave,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Steller,Ryan,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,149 Rockaway Ave.,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Strohm,Patrick,Flex 25 Days,AM Bus,Bus #22,Bus #22,162 Hamilton Road,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Sullivan,Miya,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,04145th Road,Springfield Gardens,11413,PM Bus,,Bus #01,Bus #01,,,
+Suppa,Lilliana,Full Season- 5 Days,AM Bus,Bus #05,Bus #05,101 emmet ave.,East Rockaway,11518,PM Bus,,Bus #05,Bus #05,,,
+Sweeney-Kirson,Charlotte,Flex 30 Days,AM Bus,Bus #25,Bus #25,91 Kensington Rd South,West Hempstead,11552,PM Bus,No,Bus #25,Bus #25,,,
+Sweeney-Kirson,Isabella,Flex 30 Days,AM Bus,Bus #25,Bus #25,91 Kensington Rd South,West Hemsptead,11552,PM Bus,No,Bus #25,Bus #25,,,
+Sweeney-Kirson,Madison,Flex 30 Days,AM Bus,Bus #25,Bus #25,91 Kensignton Rd South,West Hempstead,11552,PM Bus,No,Bus #25,Bus #25,,,
+Tavella,Luciana,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,460 woodbridge rd,rockville centre,11570,PM Bus,,Bus #23,Bus #23,,,
+Tracey,Zoey,Full Season- 5 Days,AM Bus,Bus #26,Bus #26,106 COMMONWEALTH AVE,Massapequa,11758,PM Bus,No,Bus #26,Bus #26,,,
+Trotta,Thomas,Flex 30 Days,AM Bus,Bus #20,Bus #20,2960 Western Blvd,Baldwin,11510,PM Bus,No,Bus #20,Bus #20,,,
+Turk,Madison,6 Week Season,AM Bus,Bus #32,Bus #32,193 Lakeview Ave,Rockville Centre,11570,PM Bus,,Bus #32,Bus #32,,,
+Turk,Sophia,6 Week Season,AM Bus,Bus #32,Bus #32,193 Lakeview Ave,Rockville Centre,11570,PM Bus,,Bus #32,Bus #32,,,
+Turman,Alexandra,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,1 Dell Drive,East Rockaway,11518,PM Bus,,Bus #06,Bus #06,,,
+Turman,Emma,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,1 Dell Drive,East Rockaway,11518,PM Bus,,Bus #06,Bus #06,,,
+Vais,Michael,Full Season- 5 Days,AM Bus,,NONE,1413 Kew Ave,Hewlett,11557,PM Bus,No,,NONE,,,
+Valle,Victoria,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,1381 Exeter St,Baldwin,11510,PM Bus,,Bus #23,Bus #23,,,
+Vanaski,Cassidy,Flex 30 Days,AM Bus,Bus #32,Bus #32,96 Windsor Avenue,Rockville Centre,11570,PM Bus,No,Bus #32,Bus #32,,,
+Vassallo,Fiona,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,2290 Milburn Avenue,Baldwin,11510,PM Bus,No,Bus #28,Bus #28,,,
+Velazquez,Abigail,Flex 25 Days,AM Bus,Bus #16,Bus #16,240 Moore Avenue,"Oceanside, NY",11572,PM Bus,No,Bus #16,Bus #16,,,
+Velk,Liam,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,25 Fonda Road,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Vella,Abigail,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,15 Forest Place,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Vella,Grace,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,15 Forest Place,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Vides,Sofia,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,2957 Roxbury Road,Oceanside,11572,PM Bus,No,Bus #31,Bus #31,,,
+Villaman,Jonathan,Flex 30 Days,AM Bus,Bus #07,Bus #07,154 Shellbank Place,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Viola,Dakota,Full Season- 5 Days,AM Bus,Bus #16,Bus #16,302 Virginia Ave,Oceanside,11572,PM Bus,No,Bus #16,Bus #16,,,
+Visco,Brooke,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,544 derby drive n,Oceanside,11572,PM Bus,,Bus #17,Bus #17,,,
+von Arx,Zachary,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,356 Lakeview Avenue,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Wagman,Emily,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,68 Curley Street,Long Beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Walker,Olivia,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,575 Stanton ave,Baldwin,11510,PM Bus,No,Bus #11,Bus #11,,,
+Walter,Olivia,Full Season- 5 Days,AM Bus,Bus #26,Bus #26,2808 Shore Dr,Merrick,11566,PM Bus,No,Bus #26,Bus #26,,,
+Warshawski,Kira,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,122 Wilson Rd,Valley Stream,11581,PM Bus,No,Bus #01,Bus #01,,,
+Wasserman,Bea,Full Season- 5 Days,AM Bus,,NONE,3 hargale ct,Rockville centre,11570,PM Bus,No,,NONE,,,
+Waxman,Rachel,6 Week Season,AM Bus,Bus #30,Bus #30,97 Foster Avenue,Malverne,11565,PM Bus,No,Bus #30,Bus #30,,,
+Weaver,Patrick,Full Season- 5 Days,AM Bus,Bus #22,Bus #22,19 Capitolian Blvd,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Weeks,Madeline,Flex 30 Days,AM Bus,Bus #33,Bus #33,25 Andover Road,RVC,11570,PM Bus,No,Bus #33,Bus #33,,,
+Weeks,Vanessa,Flex 30 Days,AM Bus,Bus #33,Bus #33,25 Andover Road,RVC,11570,PM Bus,No,Bus #33,Bus #33,,,
+Weg,Emilia,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,1331 Adams road,Hewlett,11557,PM Bus,,Bus #06,Bus #06,,,
+Weg,Mason,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,1331 Adams road,Hewlett,11557,PM Bus,,Bus #03,Bus #03,,,
+Weiss,Ari,6 Week Season,AM Bus,Bus #11,Bus #11,103 Muirfield Road,Rockville Centre,11470,PM Bus,No,Bus #11,Bus #11,,,
+Weiss,Connor,Flex 25 Days,AM Bus,Bus #13,Bus #13,46 Intervale,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+Weiss,Natalia,6 Week Season,AM Bus,Bus #11,Bus #11,103 Muirfieild Road,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Weiss,Ryan,Flex 25 Days,AM Bus,Bus #13,Bus #13,46 Intervale,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+Wexlar,Ethan,Flex 25 Days,AM Bus,Bus #24,Bus #24,122 Wright Road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Wexler,Roslyn,Full Season- 5 Days,AM Bus,Bus #02,Bus #02,26 Plymouth road,East rockaway,11519,PM Bus,No,Bus #02,Bus #02,,,
+Williams,Edward,Full Season- 5 Days,AM Bus,,NONE,10 Dogwood Lane,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Xenofontos,Andriana,Flex 30 Days,AM Bus,Bus #09,Bus #09,595 yale street,Oceanside,11572,PM Bus,,Bus #09,Bus #09,,,
+York,Kayleigh,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,517 Derby Drive East,Oceanside,11572,PM Bus,No,Bus #17,Bus #17,,,
+York,Reagan,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,517 Derby Drive East,Oceanside,11572,PM Bus,No,Bus #17,Bus #17,,,
+Zacco,Domenica,Full Season- 5 Days,AM Bus,Bus #27,Bus #27,18 nassau blvd malverne,malverne,11565,PM Bus,No,Bus #27,Bus #27,,,
+Zak,McKenzie,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,9 Ormond Street,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Zangla,Andrew,Full Season- 5 Days,AM Bus,Bus #27,Bus #27,959 cloud ave,Franklin square,11010,PM Bus,No,Bus #27,Bus #27,,,
+Perlow,Olivia,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,2633 loftus ave,Oceanside,11572,PM Bus,,Bus #17,Bus #17,,,
+Persico,Matthew,Flex 20 Days,AM Bus,Bus #12,Bus #12,107 Hendrickson Ave.,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Persico,Robert,Flex 20 Days,AM Bus,Bus #12,Bus #12,107 Hendrickson Ave.,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Persico,Ryan,Flex 20 Days,AM Bus,Bus #12,Bus #12,107 Hendrickson Ave.,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Peters,Declan,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,14 Scott Place,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Peters,Maeve,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,14 Scott Place,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Petry,Daniel,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,66 Sagamore Road,Island Park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Petry,Kelsey,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,66 Sagamore Road,Island Park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Piade,Mikah,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,150 Island Pkwy n,Island park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Piade,Rafi,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,150 Island Pkwy n,Island park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Piccolo,Isabella,Full Season- 5 Days,AM Bus,Bus #25,Bus #25,601 David Street,West hempstead,11552,PM Bus,,Bus #25,Bus #25,,,
+Pizziatolla,Dominic,Flex 20 Days,AM Bus,Bus #03,Bus #03,25 Saint Marks Ave,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Pizziatolla,Vincent,Flex 20 Days,AM Bus,Bus #03,Bus #03,25 Saint Marks Ave,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Pniewski,Michael,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Pollak,Erela,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,167 Seiffert Ct,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Pollak,Melody,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,167 Seiffert Ct,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Powell,Graysen,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,80 N. Centre Ave. PH445,Rockville Centre,11570,PM Bus,,Bus #32,Bus #32,,,
+Pratt,James,Full Season- 5 Days,AM Bus,,NONE,70 Maine Avenue,Rockville Centre,11570,PM Bus,,,NONE,,,
+Procopio,Gabriela,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Main Tent,Main Tent,,,
+Procopio,Lucas,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Main Tent,Main Tent,,,
+Procopio,Marilyn,Full Season- 5 Days,AM Morning Care*,Child Care,NONE,,,,PM After Care*,,Child Care,NONE,,,
+Proietto,Fiona,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Hockey Rink,Hockey Rink,,,
+Proietto,Matthew,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Hockey Rink,Hockey Rink,,,
+Provvisiero,Everly,Half Season 2- 5 Days,AM Bus,Bus #04,Bus #04,117 Olive Dr,Lynbrook,11564,PM Bus,No,Bus #04,Bus #04,,,
+Provvisiero,Sadie,Half Season 2- 5 Days,AM Bus,Bus #04,Bus #04,117 Olive Dr,Lynbrook,11563,PM Bus,,Bus #04,Bus #04,,,
+Quindara,Violet,Flex 25 Days,AM Bus,Bus #25,Bus #25,146 Utterby Road,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Raimondi,Nikolas,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,2684 Colonial Place,Oceanside,11572,PM Bus,No,Bus #31,Bus #31,,,
+Ramadan,Marouge,Flex 25 Days,AM Bus,Bus #25,Bus #25,7 Merillon Avenue,Garden City,11530,PM Bus,No,Bus #25,Bus #25,,,
+Ramirez,Elizabeth,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,132 Driscoll Ave,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Raphael,Silas,Full Season- 5 Days,AM Bus,Bus #19,Bus #19,186 Wrights Lane,Oceanside,11572,PM Bus,No,Bus #19,Bus #19,,,
+Rauch,Cameron,Full Season- 5 Days,Staff Child- No Bus,,NONE,,,,Staff Child- No Bus,,,NONE,,,
+Rauch,Lucianna,Full Season- 5 Days,Staff Child- No Bus,,NONE,,,,Staff Child- No Bus,,,NONE,,,
+Rauert,Robert,Flex 20 Days,AM Bus,Bus #16,Bus #16,78 Virginia Ave,Oceanside,11572,PM Bus,No,Bus #16,Bus #16,,,
+Realson,Jack,Full Season- 5 Days,Car Drop Off,Child Care,NONE,,,,Car Pick Up,,Child Care,NONE,,,
+Reinertsen,Mila,Flex 20 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,Yes,Auditorium,Auditorium,,,
+Reisman,Sianna,Half Season 1- 5 Days,AM Bus,Bus #01,Bus #01,,,,PM Bus,,Bus #01,Bus #01,,,
+Renzo,Gemma,Flex 30 Days,AM Bus,Bus #02,Bus #02,,,,PM Bus,,Bus #02,Bus #02,,,
+Richardson,Eden,Flex 30 Days,AM Bus,Bus #04,Bus #04,88 Union Avenue,"Lynbrook, New York",11563,PM Bus,No,Bus #04,Bus #04,,,
+Richardson,Jade,Flex 30 Days,AM Bus,Bus #04,Bus #04,88 Union Ave,"Lynbrook, New York",11563,PM Bus,No,Bus #04,Bus #04,,,
+Rick,Brandon,Full Season- 5 Days,AM Bus,Bus #20,Bus #20,3530 Bayfield Blvd,Oceanside,11572,PM Bus,No,Bus #20,Bus #20,,,
+Rinaldi,Aurora,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Auditorium,Auditorium,,,
+Rinaldi,Carson,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Auditorium,Auditorium,,,
+Rinaldi,Isabella,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Auditorium,Auditorium,,,
+Rivera,Kaiya,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Rivera,Kenneth,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Rizzotti,Aidan,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Main Tent,Main Tent,,,
+Rizzotti,Chase,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Main Tent,Main Tent,,,
+Rocker Stoloff,Hudson,Flex 25 Days,Car Drop Off,Car,NONE,,,,PM After Care*,,Child Care,NONE,,,
+Rodriguez,Leo,Flex 30 Days,AM Bus,Bus #07,Bus #07,32 Woods Place,RVC,11570,PM Bus,No,Bus #07,Bus #07,,,
+Rodriguez,Olivia,Flex 30 Days,AM Bus,Bus #07,Bus #07,32 woods place,Rvc,11570,PM Bus,No,Bus #07,Bus #07,,,
+Rogers,Austin,Flex 25 Days,AM Bus,Bus #31,Bus #31,2762 Brook Ave,Oceanside,11572,PM Bus,No,Bus #31,Bus #31,,,
+Rogers,Kaz,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,134 Grenada ave,Roosevelt,11575,PM Bus,No,Bus #11,Bus #11,,,
+Rolston,Derek,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,32 Edgeworth Street,Valley Stream,11581,PM Bus,No,Bus #01,Bus #01,,,
+Rolston,Heidi,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,32 Edgeworth Street,Valley Stream,11581,PM Bus,No,Bus #01,Bus #01,,,
+Romanelli,Riley,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Hockey Rink,Hockey Rink,,,
+Ronzino,Anita,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3812 Illona Lane,Oceanside,11571,PM Bus,No,Bus #18,Bus #18,,,
+Rosen,Arielle,Full Season- 5 Days,AM Bus,Bus #16,Bus #16,3530 Long Beach Rood,Oceanside,11572,PM Bus,,Bus #16,Bus #16,,,
+Ross,Matthew,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,2611 Southard Avenue,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Ross,Stella,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,2611 Southard Avenue,Oceanside,11572,PM Bus,No,Bus #28,Bus #28,,,
+Rothenberg,Blake,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Hockey Rink,Hockey Rink,,,
+Rothenberg,Cole,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Hockey Rink,Hockey Rink,,,
+Rothman,Emma,Flex 25 Days,AM Bus,Bus #11,Bus #11,31 Muirfield Road,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Rubin,Harper,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3810 carrel boulevard,Oceanside,11572,PM Bus,No,Bus #18,Bus #18,,,
+Rubin,Logan,Full Season- 5 Days,AM Bus,Bus #18,Bus #18,3810 carrel boulevard,Oceanside,11572,PM Bus,No,Bus #18,Bus #18,,,
+Rudin,Maia,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,410 E Broadway,Long Beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Ruecker,Madison,Full Season- 5 Days,AM Bus,,NONE,142 Greystone Road,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Ruggiero,Joseph,Flex 30 Days,AM Bus,Bus #20,Bus #20,2960 Western Blvd.,Baldwin,11510,PM Bus,No,Bus #20,Bus #20,,,
+Ruggiero,Mia,Flex 30 Days,AM Bus,Bus #20,Bus #20,2960 Western Blvd.,Baldwin,11510,PM Bus,No,Bus #20,Bus #20,,,
+Ruiz,Liana,Flex 30 Days,AM Bus,Bus #26,Bus #26,3146 lydia ln,Bellmore,11710,PM Bus,No,Bus #26,Bus #26,,,
+Ruiz,Raquel,Flex 30 Days,AM Bus,Bus #26,Bus #26,3146 Lydia Ln,Bellmore,11710,PM Bus,No,Bus #26,Bus #26,,,
+Ruskin,Charlotte,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,174 Windsor Avenue,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Ruskin,Logan,Full Season- 5 Days,AM Bus,Bus #12,Bus #12,174 Windsor Avenue,Rockville Centre,11570,PM Bus,No,Bus #12,Bus #12,,,
+Russell,Sadie,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,464 Morris Avenue,Rockville Centre,NY,Car Pick Up,,Main Tent,Main Tent,,,
+Russo,Carmela,Full Season- 5 Days,AM Bus,Bus #25,Bus #25,85 Birch Rd. Malverne,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Russo,John,Full Season- 5 Days,AM Bus,Bus #25,Bus #25,85 Birch Rd.,Malverne,11565,PM Bus,No,Bus #25,Bus #25,,,
+Ryan,Angelina,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,2576 Hillside ct,Baldwin,11510,PM Bus,Yes,Bus #28,Bus #28,33 Davison Ave,Oceanside,11572
+Salter,Alexa,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Salter,Mason,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Salter,Matthew,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Sama,Nolan,Flex 30 Days,AM Bus,Bus #20,Bus #20,890 Pacific Street,Baldwin,11510,PM After Care*,Yes,Bus #20,Bus #20,16 Main Street,East Rockaway,11518
+Sama,Penelope,Flex 30 Days,AM Bus,Bus #20,Bus #20,890 Pacific Street,Baldwin,11510,PM Bus,Yes,,NONE,16 Main Street,East Rockaway,11518
+Sanchez,Alana,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Hockey Rink,Hockey Rink,,,
+Sanchez,Juliet,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Hockey Rink,Hockey Rink,,,
+Sanchez,Michaela,Flex 30 Days,AM Bus,Bus #19,Bus #19,2629 Clovermere Road,Oceanside,11572,PM Bus,No,Bus #19,Bus #19,,,
+Sands,Savannah,Full Season- 5 Days,AM Bus,Bus #29,Bus #29,67 Prospect Avenue,Hewlett,11557,PM Bus,No,Bus #29,Bus #29,,,
+Santoro,Skyla,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Main Tent,Main Tent,,,
+Sarakos,Adrian,Flex 30 Days,AM Bus,Bus #33,Bus #33,22 Warwick rd,Rockville centre,11570,PM After Care*,No,Bus #33,Bus #33,,,
+Sarakos,Anneliese,Flex 30 Days,AM Bus,Bus #33,Bus #33,22 Warwick rd,Rockville centre,11570,PM Bus,No,Bus #33,Bus #33,,,
+Sarkis,Kendall,Flex 25 Days,AM Bus,Bus #24,Bus #24,121 Wright Road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Sarkis,Sophie,Flex 25 Days,AM Bus,Bus #24,Bus #24,121 Wright Road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Sarrel,Cameron,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Sarrel,Jordan,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Sarrel,Morgan,Full Season- 5 Days,AM Bus,Car,NONE,586 Derby Drive S,Oceanside,11572,PM Bus,No,Auditorium,Auditorium,,,
+Sarrel,Ryan,Full Season- 5 Days,AM Bus,Car,NONE,586 Derby Drive S,Oceanside,11572,PM Bus,No,Auditorium,Auditorium,,,
+Sarrel,Sloane,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,403 Hempstead Ave,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Sawh,James,Half Season 1- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Auditorium,Auditorium,,,
+Sawh,Jaxon,Half Season 1- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Auditorium,Auditorium,,,
+Schafler,Donovan,Half Season 1- 5 Days,AM Bus,,NONE,32 Melvin Avenue,West Hempstead,11552,PM Bus,No,,NONE,,,
+Schafler,Hayden,Half Season 1- 5 Days,AM Bus,,NONE,32 Melvin Avenue,West Hempstead,11552,PM Bus,No,,NONE,,,
+Schimmenti,Lia,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,PM Bus,,Bus #26,Bus #26,,,
+Schmidt,Ava,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,3285 Bayfield Blvd,Oceanside,11572,PM Bus,No,Bus #17,Bus #17,,,
+Schmier,Siena,Flex 20 Days,AM Bus,Bus #02,Bus #02,,,,PM Bus,,Bus #02,Bus #02,,,
+Schmier,Vincent,Flex 20 Days,AM Bus,Bus #02,Bus #02,,,,PM Bus,,Bus #02,Bus #02,,,
+Schoell,Emersyn,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Schoell,Kennedy,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Schultz,Molly,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Hockey Rink,Hockey Rink,,,
+Schwartz,Scarlett,Full Season- 5 Days,AM Bus,Bus #20,Bus #20,417 Kenilworth St,Oceanside,11572,PM Bus,No,Bus #20,Bus #20,,,
+Schwartz,Sonia,Flex 25 Days,AM Bus,Bus #28,Bus #28,48 Rowe Avenue,Lynbrook,11563,PM Bus,,Bus #29,Bus #29,,,
+Schwartz,Thomas,Flex 25 Days,AM Bus,Bus #29,Bus #29,48 Rowe Avenue,Lynbrook,11563,PM Bus,No,Bus #29,Bus #29,,,
+Schwemmer,Carolyn,Flex 20 Days,AM Bus,Bus #11,Bus #11,11 Blenheim Court,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Scimonelli,Emilia,Flex 20 Days,AM Bus,,NONE,76 Vernon Ave,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Scimonelli,Henry,Flex 20 Days,AM Bus,,NONE,76 Vernon Ave,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Sebring,Lyla,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,61 Surrey Lane,Rockville Centre,11570,PM Bus,No,Bus #23,Bus #23,,,
+Sebring,Molly,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,61 Surrey Lane,Rockville Centre,11570,PM Bus,No,Bus #23,Bus #23,,,
+Seibert,Madelyn,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,250 Burtis Avenue,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Seidman,Jake,Full Season- 5 Days,Staff Child- No Bus,,NONE,,,,Staff Child- No Bus,,,NONE,,,
+Senft,Madison,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,544 derby drive n,Oceanside,11572,PM Bus,,Bus #17,Bus #17,,,
+Senken,Garner,Flex 25 Days,AM Bus,Bus #15,Bus #15,57 Dalton Street,Long Beach,11561,PM Bus,,Bus #15,Bus #15,,,
+Sfass,Charlie,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,507 morris avenue,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Sfass,Layla,Full Season- 5 Days,AM Bus,Bus #08,Bus #08,507 morris avenue,Rockville Centre,11570,PM Bus,No,Bus #08,Bus #08,,,
+Sheinkopf,Brooke,Full Season- 5 Days,Staff Child- No Bus,,NONE,,,,Staff Child- No Bus,,,NONE,,,
+Sheinkopf,Jake,Full Season- 5 Days,Staff Child- No Bus,,NONE,,,,Staff Child- No Bus,,,NONE,,,
+Shnayderov,Charlotte,Full Season- 5 Days,AM Bus,,NONE,465 Merrick Rd.,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Sidelman,Hannah,Flex 25 Days,Car Drop Off,Car,NONE,,,,PM Bus,,Bus #12,Bus #12,,,
+Siegel,Shane,Full Season- 5 Days,AM Bus,Bus #14,Bus #14,59 W Penn Street,Long Beach,11561,PM Bus,,Bus #14,Bus #14,,,
+Singh,Lilah,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Main Tent,Main Tent,,,
+Singh,Lucas,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Main Tent,Main Tent,,,
+Sirochinsky,Madison,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,125 Allen Road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Sirochinsky,Maxwell,Full Season- 5 Days,AM Bus,Bus #24,Bus #24,125 allen road,rockville centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Slutsky,Logan,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Main Tent,Main Tent,,,
+Smith,Hunter,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,19 Walnut Ave,Rockville Centre,11570,PM Bus,No,Bus #32,Bus #32,,,
+Smith,Ruby,Full Season- 5 Days,AM Bus,Bus #32,Bus #32,19 Walnut Ave,Rockville Centre,11570,PM Bus,No,Bus #32,Bus #32,,,
+Sneider,Sawyer,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,35 Clubside Dr,Woodmere,11598,PM Bus,No,Bus #06,Bus #06,,,
+Solarino,John,Flex 30 Days,AM Bus,Bus #27,Bus #27,36 Gates Ave,Malverne,11565,PM Bus,No,Bus #27,Bus #27,,,
+Solow,Andrew,Full Season- 5 Days,AM Bus,Bus #29,Bus #29,41 Dunne Place,Lynbrook,11563,PM Bus,No,Bus #29,Bus #29,,,
+Solow,Juliana,Full Season- 5 Days,AM Bus,Bus #29,Bus #29,41 Dunne Place,Lynbrook,11563,PM Bus,No,Bus #29,Bus #29,,,
+Sosa,Michael,6 Week Season,AM Bus,Bus #31,Bus #31,293 Jefferson Avenue,Island Park,11558,PM Bus,No,Bus #31,Bus #31,,,
+Sparberg,Brooke,Full Season- 5 Days,AM Bus,Bus #19,Bus #19,,,,PM Bus,No,Bus #19,Bus #19,,,
+Steffensmeier,Alaina,Full Season- 5 Days,AM Bus,Bus #30,Bus #30,48 Harding Ave,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Steffensmeier,Alexander,Full Season- 5 Days,AM Bus,Bus #30,Bus #30,48 Harding Ave,Lynbrook,11563,PM Bus,No,Bus #30,Bus #30,,,
+Stein,Lily,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,4288 new york avenue,island park,11558,PM Bus,no,Bus #31,Bus #31,,,
+Steller,Logan,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,149 Rockaway Ave,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Steller,Ryan,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,149 Rockaway Ave.,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Strohm,Patrick,Flex 25 Days,AM Bus,Bus #22,Bus #22,162 Hamilton Road,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Stromer,Jesse,Flex 25 Days,Car Drop Off,Car,NONE,,,,PM Bus,,Bus #19,Bus #19,,,
+Sullivan,Miya,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,04145th Road,Springfield Gardens,11413,PM Bus,,Bus #01,Bus #01,,,
+Suppa,Lilliana,Full Season- 5 Days,AM Bus,Bus #05,Bus #05,101 emmet ave.,East Rockaway,11518,PM Bus,,Bus #05,Bus #05,,,
+Sweeney-Kirson,Charlotte,Flex 30 Days,AM Bus,Bus #25,Bus #25,91 Kensington Rd South,West Hempstead,11552,PM Bus,No,Bus #25,Bus #25,,,
+Sweeney-Kirson,Isabella,Flex 30 Days,AM Bus,Bus #25,Bus #25,91 Kensington Rd South,West Hemsptead,11552,PM Bus,No,Bus #25,Bus #25,,,
+Sweeney-Kirson,Madison,Flex 30 Days,AM Bus,Bus #25,Bus #25,91 Kensignton Rd South,West Hempstead,11552,PM Bus,No,Bus #25,Bus #25,,,
+Tavella,Luciana,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,460 woodbridge rd,rockville centre,11570,PM Bus,,Bus #23,Bus #23,,,
+Telesca,Cameron,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Telesca,Taylor,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Auditorium,Auditorium,,,
+Testa,Claire,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Main Tent,Main Tent,,,
+Testa,Troy,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Main Tent,Main Tent,,,
+Thompson,Kaylee,6 Week Season,Car Drop Off,Car,NONE,,,,Car Pick Up,,Hockey Rink,Hockey Rink,,,
+Thornton,Ricky,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Main Tent,Main Tent,,,
+Tracey,Zoey,Full Season- 5 Days,AM Bus,Bus #26,Bus #26,106 COMMONWEALTH AVE,Massapequa,11758,PM Bus,No,Bus #26,Bus #26,,,
+Trotta,Thomas,Flex 30 Days,AM Bus,Bus #20,Bus #20,2960 Western Blvd,Baldwin,11510,PM Bus,No,Bus #20,Bus #20,,,
+Tubridy,Quinn,Flex 20 Days,AM Bus,Bus #08,Bus #08,141 DeMott Avenue,ROCKVILLE CENTRE,11570,Car Pick Up,,Main Tent,Main Tent,,,
+Turk,Madison,6 Week Season,AM Bus,Bus #32,Bus #32,193 Lakeview Ave,Rockville Centre,11570,PM Bus,,Bus #32,Bus #32,,,
+Turk,Sophia,6 Week Season,AM Bus,Bus #32,Bus #32,193 Lakeview Ave,Rockville Centre,11570,PM Bus,,Bus #32,Bus #32,,,
+Turman,Alexandra,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,1 Dell Drive,East Rockaway,11518,PM Bus,,Bus #06,Bus #06,,,
+Turman,Emma,Full Season- 5 Days,AM Bus,Bus #06,Bus #06,1 Dell Drive,East Rockaway,11518,PM Bus,,Bus #06,Bus #06,,,
+Vais,Michael,Full Season- 5 Days,AM Bus,,NONE,1413 Kew Ave,Hewlett,11557,PM Bus,No,,NONE,,,
+Valle,Victoria,Full Season- 5 Days,AM Bus,Bus #23,Bus #23,1381 Exeter St,Baldwin,11510,PM Bus,,Bus #23,Bus #23,,,
+Vanaski,Cassidy,Flex 30 Days,AM Bus,Bus #32,Bus #32,96 Windsor Avenue,Rockville Centre,11570,PM Bus,No,Bus #32,Bus #32,,,
+Vassallo,Fiona,Full Season- 5 Days,AM Bus,Bus #28,Bus #28,2290 Milburn Avenue,Baldwin,11510,PM Bus,No,Bus #28,Bus #28,,,
+Velazquez,Abigail,Flex 25 Days,AM Bus,Bus #16,Bus #16,240 Moore Avenue,"Oceanside, NY",11572,PM Bus,No,Bus #16,Bus #16,,,
+Velk,Liam,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,25 Fonda Road,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Vella,Abigail,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,15 Forest Place,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Vella,Grace,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,15 Forest Place,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Vides,Sofia,Full Season- 5 Days,AM Bus,Bus #31,Bus #31,2957 Roxbury Road,Oceanside,11572,PM Bus,No,Bus #31,Bus #31,,,
+Villaman,Jonathan,Flex 30 Days,AM Bus,Bus #07,Bus #07,154 Shellbank Place,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Viola,Dakota,Full Season- 5 Days,AM Bus,Bus #16,Bus #16,302 Virginia Ave,Oceanside,11572,PM Bus,No,Bus #16,Bus #16,,,
+Visco,Brooke,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,544 derby drive n,Oceanside,11572,PM Bus,,Bus #17,Bus #17,,,
+Vitebsky,Kayla,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,PM Bus,,Bus #19,Bus #19,,,
+Vitullo,Victoria,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Main Tent,Main Tent,,,
+von Arx,Zachary,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,356 Lakeview Avenue,Rockville Centre,11570,PM Bus,No,Bus #03,Bus #03,,,
+Wagman,Emily,Full Season- 5 Days,AM Bus,Bus #15,Bus #15,68 Curley Street,Long Beach,11561,PM Bus,No,Bus #15,Bus #15,,,
+Wagner,Han,6 Week Season,Staff Child- No Bus,,NONE,,,,Staff Child- No Bus,,,NONE,,,
+Wagner,Olivia,6 Week Season,Staff Child- No Bus,,NONE,,,,Staff Child- No Bus,,,NONE,,,
+Walker,Olivia,Full Season- 5 Days,AM Bus,Bus #11,Bus #11,575 Stanton ave,Baldwin,11510,PM Bus,No,Bus #11,Bus #11,,,
+Walsh,Callan,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Auditorium,Auditorium,,,
+Walter,Olivia,Full Season- 5 Days,AM Bus,Bus #26,Bus #26,2808 Shore Dr,Merrick,11566,PM Bus,No,Bus #26,Bus #26,,,
+Warshawski,Kira,Full Season- 5 Days,AM Bus,Bus #01,Bus #01,122 Wilson Rd,Valley Stream,11581,PM Bus,No,Bus #01,Bus #01,,,
+Wasserman,Bea,Full Season- 5 Days,AM Bus,,NONE,3 hargale ct,Rockville centre,11570,PM Bus,No,,NONE,,,
+Waxman,Rachel,6 Week Season,AM Bus,Bus #30,Bus #30,97 Foster Avenue,Malverne,11565,PM Bus,No,Bus #30,Bus #30,,,
+Weakley,Carolyn,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Hockey Rink,Hockey Rink,,,
+Weakley,Ryan,Full Season- 5 Days,Staff Child- No Bus,Car,NONE,,,,Staff Child- No Bus,,Hockey Rink,Hockey Rink,,,
+Weaver,Patrick,Full Season- 5 Days,AM Bus,Bus #22,Bus #22,19 Capitolian Blvd,Rockville Centre,11570,PM Bus,No,Bus #22,Bus #22,,,
+Weeks,Madeline,Flex 30 Days,AM Bus,Bus #33,Bus #33,25 Andover Road,RVC,11570,PM Bus,No,Bus #33,Bus #33,,,
+Weeks,Vanessa,Flex 30 Days,AM Bus,Bus #33,Bus #33,25 Andover Road,RVC,11570,PM Bus,No,Bus #33,Bus #33,,,
+Weg,Emilia,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,1331 Adams road,Hewlett,11557,PM Bus,,Bus #06,Bus #06,,,
+Weg,Mason,Full Season- 5 Days,AM Bus,Bus #03,Bus #03,1331 Adams road,Hewlett,11557,PM Bus,,Bus #03,Bus #03,,,
+Weiss,Ari,6 Week Season,AM Bus,Bus #11,Bus #11,103 Muirfield Road,Rockville Centre,11470,PM Bus,No,Bus #11,Bus #11,,,
+Weiss,Connor,Flex 25 Days,AM Bus,Bus #13,Bus #13,46 Intervale,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+Weiss,Natalia,6 Week Season,AM Bus,Bus #11,Bus #11,103 Muirfieild Road,Rockville Centre,11570,PM Bus,No,Bus #11,Bus #11,,,
+Weiss,Ryan,Flex 25 Days,AM Bus,Bus #13,Bus #13,46 Intervale,Rockville Centre,11570,PM Bus,No,Bus #13,Bus #13,,,
+Wexlar,Ethan,Flex 25 Days,AM Bus,Bus #24,Bus #24,122 Wright Road,Rockville Centre,11570,PM Bus,No,Bus #24,Bus #24,,,
+Wexler,Roslyn,Full Season- 5 Days,AM Bus,Bus #02,Bus #02,26 Plymouth road,East rockaway,11519,PM Bus,No,Bus #02,Bus #02,,,
+White,Connor,Full Season- 5 Days,Car Drop Off,Car,NONE,,,,Car Pick Up,,Main Tent,Main Tent,,,
+Williams,Edward,Full Season- 5 Days,AM Bus,,NONE,10 Dogwood Lane,Rockville Centre,11570,PM Bus,No,,NONE,,,
+Xenofontos,Andriana,Flex 30 Days,AM Bus,Bus #09,Bus #09,595 yale street,Oceanside,11572,PM Bus,,Bus #09,Bus #09,,,
+York,Kayleigh,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,517 Derby Drive East,Oceanside,11572,PM Bus,No,Bus #17,Bus #17,,,
+York,Reagan,Full Season- 5 Days,AM Bus,Bus #17,Bus #17,517 Derby Drive East,Oceanside,11572,PM Bus,No,Bus #17,Bus #17,,,
+Zacco,Domenica,Full Season- 5 Days,AM Bus,Bus #27,Bus #27,18 nassau blvd malverne,malverne,11565,PM Bus,No,Bus #27,Bus #27,,,
+Zak,McKenzie,Full Season- 5 Days,AM Bus,Bus #07,Bus #07,9 Ormond Street,Rockville Centre,11570,PM Bus,No,Bus #07,Bus #07,,,
+Zangla,Andrew,Full Season- 5 Days,AM Bus,Bus #27,Bus #27,959 cloud ave,Franklin square,11010,PM Bus,No,Bus #27,Bus #27,,,
