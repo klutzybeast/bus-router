@@ -775,11 +775,14 @@ async def auto_sync_campminder():
             # Create ONE entry if same address, TWO entries if different addresses
             
             camper_id = f"{last_name}_{first_name}_{am_zip}".replace(' ', '_')
-            sheet_camper_ids.add(camper_id)
+            sheet_camper_ids.add(camper_id)  # Add BEFORE geocoding so it doesn't get deleted
             
             if am_address.strip():
                 location = geocode_address(am_address, am_town, am_zip)
-                if location:
+                if not location:
+                    # Geocoding failed - use placeholder
+                    location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
+                    logger.warning(f"Geocoding failed: {first_name} {last_name} - {am_address}")
                     camper_doc = {
                         "_id": camper_id,
                         "first_name": first_name,
