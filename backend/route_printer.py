@@ -264,12 +264,20 @@ class RoutePrinter:
                     <div>{route_sheet['total_stops']} campers</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Total Distance:</div>
-                    <div>{route_sheet['total_distance']}</div>
+                    <div class="info-label">AM Distance:</div>
+                    <div>{route_sheet['am_distance']}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Estimated Time:</div>
-                    <div>{route_sheet['estimated_time']}</div>
+                    <div class="info-label">AM Time:</div>
+                    <div>{route_sheet['am_time']}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">PM Distance:</div>
+                    <div>{route_sheet['pm_distance']}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">PM Time:</div>
+                    <div>{route_sheet['pm_time']}</div>
                 </div>
             </div>
             
