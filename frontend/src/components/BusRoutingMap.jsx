@@ -161,6 +161,29 @@ const BusRoutingMap = () => {
     window.open(`${API}/route-sheet/${encodedBusNumber}/print`, '_blank');
   };
 
+  const handleChangeBus = async (camperId, currentBus) => {
+    if (!newBusNumber) {
+      toast.error("Please select a bus number");
+      return;
+    }
+    
+    try {
+      toast.loading("Updating bus assignment...");
+      
+      await axios.post(`${API}/campers/${camperId}/change-bus?new_bus_number=${encodeURIComponent(newBusNumber)}`);
+      
+      toast.dismiss();
+      toast.success(`Updated to ${newBusNumber}`);
+      
+      setEditingCamper(null);
+      setNewBusNumber("");
+      await fetchCampers();
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Failed to update bus");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-50">
