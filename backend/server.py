@@ -578,8 +578,13 @@ async def get_missing_addresses_report():
 
 @api_router.post("/campers/{camper_id}/change-bus")
 async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_number: str = None):
-    """Manually override bus assignment for a camper"""
+    """Manually override bus assignment - updates database AND Google Sheet instantly"""
     try:
+        # Get camper data first
+        camper = await db.campers.find_one({"_id": camper_id})
+        if not camper:
+            raise HTTPException(status_code=404, detail="Camper not found")
+        
         updates = {}
         
         if am_bus_number:
@@ -592,15 +597,37 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
         if not updates:
             raise HTTPException(status_code=400, detail="No bus assignments provided")
         
+        # Update database
         result = await db.campers.update_one(
             {"_id": camper_id},
             {"$set": updates}
         )
         
         if result.modified_count > 0:
+            # INSTANTLY update Google Sheet via webhook
+            webhook_url = os.environ.get('GOOGLE_SHEETS_WEBHOOK_URL', '')
+            if webhook_url:
+                try:
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        webhook_data = {
+                            "first_name": camper.get('first_name'),
+                            "last_name": camper.get('last_name'),
+                            "am_bus_number": updates.get('am_bus_number') or camper.get('am_bus_number'),
+                            "pm_bus_number": updates.get('pm_bus_number') or camper.get('pm_bus_number')
+                        }
+                        
+                        response = await client.post(webhook_url, json=webhook_data)
+                        
+                        if response.status_code == 200:
+                            logger.info(f"✓ Google Sheet updated instantly for {camper.get('first_name')} {camper.get('last_name')}")
+                        else:
+                            logger.warning(f"Webhook failed: {response.status_code}")
+                except Exception as e:
+                    logger.error(f"Webhook error: {str(e)}")
+            
             return {
                 "status": "success",
-                "message": "Updated bus assignments"
+                "message": "Updated bus assignments and Google Sheet"
             }
         else:
             raise HTTPException(status_code=404, detail="Camper not found")
