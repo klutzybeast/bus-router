@@ -595,16 +595,53 @@ async def download_bus_assignments():
         ])
         
         # Data rows - sorted by last name, first name
+        # Show both AM and PM for each camper
         for camper in sorted(campers, key=lambda x: (x.get('last_name', '').lower(), x.get('first_name', '').lower())):
+            am_bus = camper.get('am_bus_number', camper.get('bus_number', ''))
+            pm_bus = camper.get('pm_bus_number', camper.get('bus_number', ''))
+            
+            # AM row
             writer.writerow([
                 camper.get('last_name', ''),
                 camper.get('first_name', ''),
-                camper.get('bus_number', ''),
+                am_bus,
                 camper.get('session', ''),
                 camper.get('location', {}).get('address', ''),
                 camper.get('town', ''),
                 camper.get('zip_code', ''),
-                camper.get('pickup_type', '')
+                'AM Pickup'
+            ])
+            
+            # PM row (if not "PM Drop-off Only" type, use same address)
+            if camper.get('pickup_type') == 'PM Drop-off Only':
+                # Already a separate PM entry, skip
+                pass
+            else:
+                # Add PM row with same or different bus
+                writer.writerow([
+                    camper.get('last_name', ''),
+                    camper.get('first_name', ''),
+                    pm_bus,
+                    camper.get('session', ''),
+                    camper.get('location', {}).get('address', ''),
+                    camper.get('town', ''),
+                    camper.get('zip_code', ''),
+                    'PM Drop-off'
+                ])
+        
+        # Add separate PM-only entries
+        pm_only = [c for c in campers if c.get('pickup_type') == 'PM Drop-off Only']
+        for camper in sorted(pm_only, key=lambda x: (x.get('last_name', '').lower(), x.get('first_name', '').lower())):
+            pm_bus = camper.get('pm_bus_number', camper.get('bus_number', ''))
+            writer.writerow([
+                camper.get('last_name', ''),
+                camper.get('first_name', ''),
+                pm_bus,
+                camper.get('session', ''),
+                camper.get('location', {}).get('address', ''),
+                camper.get('town', ''),
+                camper.get('zip_code', ''),
+                'PM Drop-off'
             ])
         
         output.seek(0)
