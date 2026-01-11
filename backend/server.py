@@ -69,7 +69,8 @@ class CamperPin(BaseModel):
     first_name: str
     last_name: str
     location: GeoLocation
-    bus_number: str
+    am_bus_number: str
+    pm_bus_number: str
     bus_color: str
     session: str
     pickup_type: str
