@@ -926,6 +926,10 @@ async def auto_sync_campminder():
                 
                 offset = existing_at_address * 0.00002  # ~6 feet per existing camper
                 
+                # Gray color for NONE bus, otherwise use bus color
+                bus_color = "#808080" if final_am_bus == "NONE" else get_bus_color(final_am_bus)
+                pickup_type_val = "NEEDS BUS" if final_am_bus == "NONE" else ("AM Pickup" if (pm_final_address.strip() and pm_final_address != am_address) else "AM & PM")
+                
                 camper_doc = {
                     "_id": camper_id,
                     "first_name": first_name,
@@ -938,10 +942,10 @@ async def auto_sync_campminder():
                     },
                     "town": am_town,
                     "zip_code": am_zip,
-                    "pickup_type": "AM Pickup" if (pm_final_address.strip() and pm_final_address != am_address) else "AM & PM",
+                    "pickup_type": pickup_type_val,
                     "am_bus_number": final_am_bus,
                     "pm_bus_number": final_pm_bus,
-                    "bus_color": get_bus_color(final_am_bus),
+                    "bus_color": bus_color,
                     "created_at": datetime.now(timezone.utc)
                 }
                 
