@@ -956,6 +956,7 @@ async def auto_sync_campminder():
                     updated_count += 1
             else:
                 # No address
+                bus_color = "#808080" if final_am_bus == "NONE" else get_bus_color(final_am_bus)
                 camper_doc = {
                     "_id": camper_id,
                     "first_name": first_name,
@@ -967,7 +968,7 @@ async def auto_sync_campminder():
                     "pickup_type": "NO ADDRESS",
                     "am_bus_number": final_am_bus,
                     "pm_bus_number": final_pm_bus,
-                    "bus_color": get_bus_color(final_am_bus),
+                    "bus_color": bus_color,
                     "created_at": datetime.now(timezone.utc)
                 }
                 result = await db.campers.replace_one({"_id": camper_id}, camper_doc, upsert=True)
