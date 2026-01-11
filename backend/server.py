@@ -828,18 +828,6 @@ async def auto_sync_campminder():
             if not final_am_bus or not am_address.strip():
                 continue
             
-            first_name = row.get('First Name', '')
-            last_name = row.get('Last Name', '')
-            session = row.get('Enrolled Child Sessions', '')
-            
-            am_address = row.get('Trans-PickUpAddress', '')
-            am_town = row.get('Trans-PickUpTown', '')
-            am_zip = row.get('Trans-PickUpZip', '')
-            
-            pm_address = row.get('Trans-DropOffAddress', '')
-            pm_town = row.get('Trans-DropOffTown', '')
-            pm_zip = row.get('Trans-DropOffZip', '')
-            
             # Calculate final PM values
             pm_final_address = pm_address if pm_address.strip() else am_address
             pm_final_town = pm_town if pm_town.strip() else am_town
