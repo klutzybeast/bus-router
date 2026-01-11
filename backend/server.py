@@ -167,6 +167,15 @@ async def sync_campers(csv_data: Dict[str, Any]):
             pm_town = row.get('Trans-DropOffTown', '')
             pm_zip = row.get('Trans-DropOffZip', '')
             
+            # Determine final PM values
+            final_pm_bus = pm_bus.strip() if pm_bus and pm_bus.strip() else am_bus
+            if final_pm_bus and any(x in final_pm_bus.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM', 'NONE']):
+                final_pm_bus = am_bus
+            
+            pm_final_address = pm_address if pm_address.strip() else am_address
+            pm_final_town = pm_town if pm_town.strip() else am_town
+            pm_final_zip = pm_zip if pm_zip.strip() else am_zip
+            
             if am_bus and 'NONE' not in am_bus.upper():
                 if am_address.strip():
                     location = geocode_address(am_address, am_town, am_zip)
@@ -175,41 +184,45 @@ async def sync_campers(csv_data: Dict[str, Any]):
                             first_name=first_name,
                             last_name=last_name,
                             location=location,
-                            bus_number=am_bus,
+                            am_bus_number=am_bus,
+                            pm_bus_number=final_pm_bus,
                             bus_color=get_bus_color(am_bus),
                             session=session,
-                            pickup_type="AM Pickup",
+                            pickup_type="AM & PM",
                             town=am_town,
                             zip_code=am_zip
                         ))
                 else:
-                    # Add camper without location for sheet tracking
+                    # No address - still add for sheet tracking
                     pins.append(CamperPin(
                         first_name=first_name,
                         last_name=last_name,
                         location=GeoLocation(latitude=0.0, longitude=0.0, address="ADDRESS NEEDED"),
-                        bus_number=am_bus,
+                        am_bus_number=am_bus,
+                        pm_bus_number=final_pm_bus,
                         bus_color=get_bus_color(am_bus),
                         session=session,
-                        pickup_type="AM Pickup - NO ADDRESS",
+                        pickup_type="NO ADDRESS",
                         town=am_town or "UNKNOWN",
                         zip_code=am_zip or "UNKNOWN"
                     ))
-            
-            if pm_bus and pm_address.strip() and pm_address != am_address and 'NONE' not in pm_bus.upper():
-                location = geocode_address(pm_address, pm_town, pm_zip)
-                if location:
-                    pins.append(CamperPin(
-                        first_name=first_name,
-                        last_name=last_name,
-                        location=location,
-                        bus_number=pm_bus,
-                        bus_color=get_bus_color(pm_bus),
-                        session=session,
-                        pickup_type="PM Drop-off",
-                        town=pm_town,
-                        zip_code=pm_zip
-                    ))
+                
+                # Add separate PM pin only if address is different
+                if pm_final_address != am_address and pm_final_address.strip():
+                    location_pm = geocode_address(pm_final_address, pm_final_town, pm_final_zip)
+                    if location_pm:
+                        pins.append(CamperPin(
+                            first_name=first_name,
+                            last_name=last_name,
+                            location=location_pm,
+                            am_bus_number=am_bus,
+                            pm_bus_number=final_pm_bus,
+                            bus_color=get_bus_color(final_pm_bus),
+                            session=session,
+                            pickup_type="PM Drop-off Only",
+                            town=pm_final_town,
+                            zip_code=pm_final_zip
+                        ))
         
         await db.campers.delete_many({})
         
