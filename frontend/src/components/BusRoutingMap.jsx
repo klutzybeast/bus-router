@@ -277,7 +277,7 @@ const BusRoutingMap = () => {
                     <span className="font-semibold">AM Bus:</span> 
                     <span 
                       className="px-2 py-0.5 rounded text-white text-xs font-medium"
-                      style={{ backgroundColor: selectedCamper.bus_color }}
+                      style={{ backgroundColor: getBusColor(selectedCamper.am_bus_number || selectedCamper.bus_number) }}
                     >
                       {selectedCamper.am_bus_number || selectedCamper.bus_number}
                     </span>
