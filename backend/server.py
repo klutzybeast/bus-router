@@ -275,6 +275,9 @@ async def sync_campers(csv_data: Dict[str, Any]):
             pins_dict = [pin.model_dump() for pin in pins]
             await db.campers.insert_many(pins_dict)
         
+        # AUTOMATICALLY apply sibling offset after inserting
+        await apply_sibling_offset(db)
+        
         return {"status": "success", "count": len(pins)}
     except Exception as e:
         logging.error(f"Error syncing campers: {str(e)}")
