@@ -901,9 +901,17 @@ async def auto_sync_campminder():
             if not final_pm_bus:
                 final_pm_bus = "NONE"
             
+            # For PM-only campers (car drop-off AM), use PM address if AM address is empty
+            effective_address = am_address.strip() or pm_address.strip()
+            effective_town = am_town.strip() or pm_town.strip()
+            effective_zip = am_zip.strip() or pm_zip.strip()
+            
             # Skip only if no address at all
-            if not am_address.strip():
+            if not effective_address:
                 continue
+            
+            # Determine pickup type
+            is_pm_only = 'AM Bus' not in am_method and has_pm_bus
             
             # Calculate final PM values
             pm_final_address = pm_address if pm_address.strip() else am_address
