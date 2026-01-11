@@ -910,7 +910,7 @@ async def auto_sync_campminder():
                     "location.longitude": {"$gte": am_location.longitude - 0.001, "$lte": am_location.longitude + 0.001}
                 })
                 
-                offset = existing_at_address * 0.00008  # ~25 feet per existing camper
+                offset = existing_at_address * 0.00002  # ~6 feet per existing camper
                 
                 camper_doc = {
                     "_id": camper_id,
