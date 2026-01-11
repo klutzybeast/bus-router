@@ -1,20 +1,17 @@
 /**
  * Camp Bus Routing - Auto-Update Seat Availability
  * 
- * HOW TO INSTALL:
- * 1. Open your Google Sheet
+ * SETUP:
+ * 1. Open your SEAT AVAILABILITY Google Sheet (ID: 1ZK58gjF4BO0HF_2y6oovrjzRH3qV5zAs8H-7CeKOSGE)
  * 2. Extensions → Apps Script
- * 3. Delete any existing code
- * 4. Paste this entire script
- * 5. Update API_URL below with your backend URL
- * 6. Click Save (💾 icon)
- * 7. Run 'setupTrigger' once (it will ask for permissions)
- * 8. Done! Sheet will auto-update every 15 minutes
+ * 3. Paste this script
+ * 4. Click Save
+ * 5. Run 'setupTrigger' once
+ * 6. Done! Updates every 15 minutes
  */
 
-// ⚙️ CONFIGURATION - Update this with your backend URL
-const API_URL = 'https://camp-busmap.preview.emergentagent.com/api/sheets/seat-availability';  // Full detailed format
-// const API_URL = 'https://camp-busmap.preview.emergentagent.com/api/sheets/compact-availability';  // Compact summary
+// ⚙️ CONFIGURATION
+const API_URL = 'https://camp-busmap.preview.emergentagent.com/api/sheets/seat-availability';
 
 /**
  * Main function to update the sheet with seat availability
