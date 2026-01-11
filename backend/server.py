@@ -111,9 +111,9 @@ async def root():
 @api_router.get("/campers")
 async def get_campers():
     try:
-        # Return campers with valid locations - INCLUDE _id for updates
+        # Return ALL campers with valid locations (including NONE bus for assignment)
         existing_campers = await db.campers.find({
-            "am_bus_number": {"$exists": True, "$nin": ["NONE", ""]},
+            "am_bus_number": {"$exists": True},
             "location.latitude": {"$ne": 0.0}
         }).to_list(None)
         
