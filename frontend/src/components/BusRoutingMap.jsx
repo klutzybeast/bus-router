@@ -232,12 +232,17 @@ const BusRoutingMap = () => {
           onLoad={(map) => setMapInstance(map)}
         >
           {sessionFilteredCampers.map((camper, index) => {
-            const busNumber = camper.am_bus_number || camper.bus_number;
-            const busColor = camper.bus_color || getBusColor(busNumber);
+            // Use AM bus for display unless it's PM-only
+            const displayBus = camper.pickup_type === "PM Drop-off Only" 
+              ? camper.pm_bus_number 
+              : (camper.am_bus_number || camper.bus_number);
+            const busColor = camper.pickup_type === "PM Drop-off Only"
+              ? getBusColor(camper.pm_bus_number)
+              : (camper.bus_color || getBusColor(camper.am_bus_number || camper.bus_number));
             
             return (
             <AdvancedMarker
-              key={`${camper.first_name}-${camper.last_name}-${index}`}
+              key={`${camper.first_name}-${camper.last_name}-${camper.pickup_type}-${index}`}
               position={{
                 lat: camper.location.latitude,
                 lng: camper.location.longitude
@@ -247,9 +252,9 @@ const BusRoutingMap = () => {
               <div 
                 className="w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-lg border-2 border-white cursor-pointer hover:scale-110 active:scale-95 transition-transform"
                 style={{ backgroundColor: busColor }}
-                data-testid={`bus-marker-${busNumber}`}
+                data-testid={`bus-marker-${displayBus}`}
               >
-                {busNumber ? busNumber.replace('Bus #', '').substring(0, 2) : '?'}
+                {displayBus ? displayBus.replace('Bus #', '').substring(0, 2) : '?'}
               </div>
             </AdvancedMarker>
             );
