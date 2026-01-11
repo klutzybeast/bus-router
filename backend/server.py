@@ -600,7 +600,7 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
         if result.modified_count > 0:
             return {
                 "status": "success",
-                "message": f"Updated bus assignments"
+                "message": "Updated bus assignments"
             }
         else:
             raise HTTPException(status_code=404, detail="Camper not found")
