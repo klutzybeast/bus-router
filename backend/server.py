@@ -195,14 +195,24 @@ async def sync_campers(csv_data: Dict[str, Any]):
                 if am_address.strip():
                     location = geocode_address(am_address, am_town, am_zip)
                     if not location:
-                        # Geocoding failed - use placeholder
                         location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
                         logger.warning(f"Geocoding failed for {first_name} {last_name}: {am_address}")
+                    
+                    # Count existing campers at this location for offset
+                    existing_count = len([p for p in pins if 
+                        abs(p.location.latitude - location.latitude) < 0.001 and
+                        abs(p.location.longitude - location.longitude) < 0.001
+                    ])
+                    offset = existing_count * 0.00008
                     
                     pins.append(CamperPin(
                         first_name=first_name,
                         last_name=last_name,
-                        location=location,
+                        location=GeoLocation(
+                            latitude=location.latitude + offset,
+                            longitude=location.longitude + offset,
+                            address=location.address
+                        ),
                         am_bus_number=am_bus,
                         pm_bus_number=final_pm_bus,
                         bus_color=get_bus_color(am_bus),
