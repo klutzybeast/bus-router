@@ -231,7 +231,11 @@ const BusRoutingMap = () => {
           clickableIcons={true}
           onLoad={(map) => setMapInstance(map)}
         >
-          {sessionFilteredCampers.map((camper, index) => (
+          {sessionFilteredCampers.map((camper, index) => {
+            const busNumber = camper.am_bus_number || camper.bus_number;
+            const busColor = camper.bus_color || getBusColor(busNumber);
+            
+            return (
             <AdvancedMarker
               key={`${camper.first_name}-${camper.last_name}-${index}`}
               position={{
@@ -242,13 +246,14 @@ const BusRoutingMap = () => {
             >
               <div 
                 className="w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-lg border-2 border-white cursor-pointer hover:scale-110 active:scale-95 transition-transform"
-                style={{ backgroundColor: camper.bus_color }}
-                data-testid={`bus-marker-${camper.bus_number}`}
+                style={{ backgroundColor: busColor }}
+                data-testid={`bus-marker-${busNumber}`}
               >
-                {camper.bus_number.replace('Bus #', '').substring(0, 2)}
+                {busNumber ? busNumber.replace('Bus #', '').substring(0, 2) : '?'}
               </div>
             </AdvancedMarker>
-          ))}
+            );
+          })}
 
           {selectedCamper && (
             <InfoWindow
