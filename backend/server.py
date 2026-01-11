@@ -244,10 +244,21 @@ async def sync_campers(csv_data: Dict[str, Any]):
                         location_pm = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {pm_final_address}")
                         logger.warning(f"PM geocoding failed for {first_name} {last_name}: {pm_final_address}")
                     
+                    # Count existing at PM location
+                    existing_pm_count = len([p for p in pins if 
+                        abs(p.location.latitude - location_pm.latitude) < 0.001 and
+                        abs(p.location.longitude - location_pm.longitude) < 0.001
+                    ])
+                    pm_offset = existing_pm_count * 0.00008
+                    
                     pins.append(CamperPin(
                         first_name=first_name,
                         last_name=last_name,
-                        location=location_pm,
+                        location=GeoLocation(
+                            latitude=location_pm.latitude + pm_offset,
+                            longitude=location_pm.longitude + pm_offset,
+                            address=location_pm.address
+                        ),
                         am_bus_number=am_bus,
                         pm_bus_number=final_pm_bus,
                         bus_color=get_bus_color(final_pm_bus),
