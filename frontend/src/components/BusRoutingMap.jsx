@@ -163,7 +163,7 @@ const BusRoutingMap = () => {
   };
 
   const filteredCampers = selectedBusFilter 
-    ? campers.filter(c => c.bus_number === selectedBusFilter)
+    ? campers.filter(c => c.am_bus_number === selectedBusFilter || c.pm_bus_number === selectedBusFilter || c.bus_number === selectedBusFilter)
     : campers;
 
   const sessionFilteredCampers = sessionFilter === "all" 
