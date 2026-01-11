@@ -535,6 +535,32 @@ async def get_missing_addresses_report():
         logging.error(f"Error generating report: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/campers/{camper_id}/change-bus")
+async def change_camper_bus(camper_id: str, new_bus_number: str):
+    """Manually override bus assignment for a camper"""
+    try:
+        # Update the camper's bus assignment
+        result = await db.campers.update_one(
+            {"_id": camper_id},
+            {"$set": {
+                "bus_number": new_bus_number,
+                "bus_color": get_bus_color(new_bus_number)
+            }}
+        )
+        
+        if result.modified_count > 0:
+            return {
+                "status": "success",
+                "message": f"Updated to {new_bus_number}"
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Camper not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error changing bus: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/download/bus-assignments")
 async def download_bus_assignments():
     """Download bus assignments as CSV for importing to CampMinder"""
