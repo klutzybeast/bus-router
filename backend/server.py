@@ -535,6 +535,60 @@ async def get_missing_addresses_report():
         logging.error(f"Error generating report: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/download/bus-assignments")
+async def download_bus_assignments():
+    """Download bus assignments as CSV for importing to CampMinder"""
+    from fastapi.responses import StreamingResponse
+    from io import StringIO
+    import csv as csv_module
+    
+    try:
+        campers = await db.campers.find({
+            "bus_number": {"$exists": True, "$nin": ["NONE", ""]}
+        }).to_list(None)
+        
+        # Create CSV
+        output = StringIO()
+        writer = csv_module.writer(output)
+        
+        # Header
+        writer.writerow([
+            'Last Name',
+            'First Name', 
+            'Bus Assignment',
+            'Session',
+            'Pickup Address',
+            'Town',
+            'Zip',
+            'Type'
+        ])
+        
+        # Data rows
+        for camper in sorted(campers, key=lambda x: (x.get('bus_number', ''), x.get('last_name', ''))):
+            writer.writerow([
+                camper.get('last_name', ''),
+                camper.get('first_name', ''),
+                camper.get('bus_number', ''),
+                camper.get('session', ''),
+                camper.get('location', {}).get('address', ''),
+                camper.get('town', ''),
+                camper.get('zip_code', ''),
+                camper.get('pickup_type', '')
+            ])
+        
+        output.seek(0)
+        
+        return StreamingResponse(
+            iter([output.getvalue()]),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename=bus_assignments_{datetime.now().strftime('%Y%m%d')}.csv"
+            }
+        )
+    except Exception as e:
+        logging.error(f"Error generating download: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
