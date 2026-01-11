@@ -110,14 +110,15 @@ async def root():
 @api_router.get("/campers", response_model=List[CamperPin])
 async def get_campers():
     try:
-        # Return campers with valid locations
+        # Return campers with valid locations - INCLUDE _id for updates
         existing_campers = await db.campers.find({
             "am_bus_number": {"$exists": True, "$nin": ["NONE", ""]},
             "location.latitude": {"$ne": 0.0}
-        }, {"_id": 0}).to_list(None)
+        }).to_list(None)
         
-        # Add bus_number for backwards compatibility
+        # Convert _id to string and add bus_number for backwards compatibility
         for camper in existing_campers:
+            camper['_id'] = str(camper['_id'])
             camper['bus_number'] = camper.get('am_bus_number', '')
         
         return existing_campers
