@@ -921,27 +921,35 @@ async def auto_sync_campminder():
             # Process camper with BOTH AM and PM info
             # Create ONE entry if same address, TWO entries if different addresses
             
-            camper_id = f"{last_name}_{first_name}_{am_zip}".replace(' ', '_')
+            camper_id = f"{last_name}_{first_name}_{effective_zip}".replace(' ', '_')
             sheet_camper_ids.add(camper_id)
             
-            if am_address.strip():
-                am_location = geocode_address(am_address, am_town, am_zip)
-                if not am_location:
-                    am_location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
-                    logger.warning(f"AM geocoding failed: {first_name} {last_name} - {am_address}")
+            if effective_address:
+                location = geocode_address(effective_address, effective_town, effective_zip)
+                if not location:
+                    location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {effective_address}")
+                    logger.warning(f"Geocoding failed: {first_name} {last_name} - {effective_address}")
                 
                 # Calculate offset based on existing campers at this address
-                address_key = f"{am_location.latitude:.6f}_{am_location.longitude:.6f}"
+                address_key = f"{location.latitude:.6f}_{location.longitude:.6f}"
                 existing_at_address = await db.campers.count_documents({
-                    "location.latitude": {"$gte": am_location.latitude - 0.001, "$lte": am_location.latitude + 0.001},
-                    "location.longitude": {"$gte": am_location.longitude - 0.001, "$lte": am_location.longitude + 0.001}
+                    "location.latitude": {"$gte": location.latitude - 0.001, "$lte": location.latitude + 0.001},
+                    "location.longitude": {"$gte": location.longitude - 0.001, "$lte": location.longitude + 0.001}
                 })
                 
                 offset = existing_at_address * 0.00002  # ~6 feet per existing camper
                 
-                # Gray color for NONE bus, otherwise use bus color
-                bus_color = "#808080" if final_am_bus == "NONE" else get_bus_color(final_am_bus)
-                pickup_type_val = "NEEDS BUS" if final_am_bus == "NONE" else ("AM Pickup" if (pm_final_address.strip() and pm_final_address != am_address) else "AM & PM")
+                # Determine bus color and pickup type
+                if is_pm_only:
+                    # PM-only camper (car drop-off in AM)
+                    bus_color = get_bus_color(final_pm_bus) if final_pm_bus != "NONE" else "#808080"
+                    pickup_type_val = "PM Drop-off Only"
+                elif final_am_bus == "NONE":
+                    bus_color = "#808080"
+                    pickup_type_val = "NEEDS BUS"
+                else:
+                    bus_color = get_bus_color(final_am_bus)
+                    pickup_type_val = "AM Pickup" if (pm_final_address.strip() and pm_final_address != am_address) else "AM & PM"
                 
                 camper_doc = {
                     "_id": camper_id,
@@ -949,12 +957,12 @@ async def auto_sync_campminder():
                     "last_name": last_name,
                     "session": session,
                     "location": {
-                        "latitude": am_location.latitude + offset,
-                        "longitude": am_location.longitude + offset,
-                        "address": am_location.address
+                        "latitude": location.latitude + offset,
+                        "longitude": location.longitude + offset,
+                        "address": location.address
                     },
-                    "town": am_town,
-                    "zip_code": am_zip,
+                    "town": effective_town,
+                    "zip_code": effective_zip,
                     "pickup_type": pickup_type_val,
                     "am_bus_number": final_am_bus,
                     "pm_bus_number": final_pm_bus,
