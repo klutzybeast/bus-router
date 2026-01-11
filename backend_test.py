@@ -1,336 +1,328 @@
 import requests
 import sys
-import json
+from datetime import datetime
+import csv
+from io import StringIO
 
-class BusRoutingAPITester:
-    def __init__(self, base_url="https://camp-busmap.preview.emergentagent.com"):
+class CampBusRoutingTester:
+    def __init__(self, base_url="https://camp-busmap.preview.emergentagent.com/api"):
         self.base_url = base_url
-        self.api_url = f"{base_url}/api"
         self.tests_run = 0
         self.tests_passed = 0
-        self.tests_failed = 0
-        self.failed_tests = []
+        self.csv_content = None
 
-    def run_test(self, name, method, endpoint, expected_status, data=None, validate_response=None):
+    def log(self, message, level="INFO"):
+        """Log a message with timestamp"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {level}: {message}")
+
+    def run_test(self, name, method, endpoint, expected_status, data=None, json_data=None):
         """Run a single API test"""
-        url = f"{self.api_url}/{endpoint}"
+        url = f"{self.base_url}/{endpoint}"
         headers = {'Content-Type': 'application/json'}
 
         self.tests_run += 1
-        print(f"\n{'='*60}")
-        print(f"🔍 Test {self.tests_run}: {name}")
-        print(f"{'='*60}")
-        print(f"URL: {url}")
-        print(f"Method: {method}")
+        self.log(f"Testing {name}...")
         
         try:
             if method == 'GET':
                 response = requests.get(url, headers=headers, timeout=30)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers, timeout=120)
-            
-            print(f"Status Code: {response.status_code}")
-            
-            # Check status code
-            status_match = response.status_code == expected_status
-            
-            if not status_match:
-                self.tests_failed += 1
-                self.failed_tests.append({
-                    'name': name,
-                    'reason': f'Expected status {expected_status}, got {response.status_code}',
-                    'response': response.text[:500]
-                })
-                print(f"❌ FAILED - Expected status {expected_status}, got {response.status_code}")
-                print(f"Response: {response.text[:500]}")
-                return False, {}
-            
-            # Try to parse JSON response
-            try:
-                response_data = response.json()
-                print(f"Response Data: {json.dumps(response_data, indent=2)[:500]}")
-            except:
-                response_data = {}
-                print(f"Response Text: {response.text[:200]}")
-            
-            # Additional validation if provided
-            if validate_response and response_data:
-                validation_result = validate_response(response_data)
-                if not validation_result['success']:
-                    self.tests_failed += 1
-                    self.failed_tests.append({
-                        'name': name,
-                        'reason': validation_result['message'],
-                        'response': str(response_data)[:500]
-                    })
-                    print(f"❌ FAILED - {validation_result['message']}")
-                    return False, response_data
-            
-            self.tests_passed += 1
-            print(f"✅ PASSED")
-            return True, response_data
+                if json_data:
+                    response = requests.post(url, json=json_data, headers=headers, timeout=120)
+                else:
+                    response = requests.post(url, data=data, headers=headers, timeout=120)
 
-        except requests.exceptions.Timeout:
-            self.tests_failed += 1
-            self.failed_tests.append({
-                'name': name,
-                'reason': 'Request timeout (>30s)',
-                'response': 'N/A'
-            })
-            print(f"❌ FAILED - Request timeout")
-            return False, {}
-        except Exception as e:
-            self.tests_failed += 1
-            self.failed_tests.append({
-                'name': name,
-                'reason': f'Exception: {str(e)}',
-                'response': 'N/A'
-            })
-            print(f"❌ FAILED - Error: {str(e)}")
-            return False, {}
-
-    def test_root_endpoint(self):
-        """Test GET /api/ endpoint"""
-        def validate(data):
-            if 'message' not in data:
-                return {'success': False, 'message': 'Missing "message" field in response'}
-            if data['message'] != 'Bus Routing API':
-                return {'success': False, 'message': f'Expected message "Bus Routing API", got "{data["message"]}"'}
-            return {'success': True, 'message': 'Valid response'}
-        
-        return self.run_test(
-            "Root API Endpoint",
-            "GET",
-            "",
-            200,
-            validate_response=validate
-        )
-
-    def test_get_campers_initial(self):
-        """Test GET /api/campers - should return list (empty or with data)"""
-        def validate(data):
-            if not isinstance(data, list):
-                return {'success': False, 'message': f'Expected list, got {type(data).__name__}'}
-            return {'success': True, 'message': f'Valid list with {len(data)} items'}
-        
-        success, data = self.run_test(
-            "Get Campers (Initial)",
-            "GET",
-            "campers",
-            200,
-            validate_response=validate
-        )
-        return success, data
-
-    def test_sync_campers(self, csv_content):
-        """Test POST /api/sync-campers with CSV data"""
-        def validate(data):
-            if 'status' not in data:
-                return {'success': False, 'message': 'Missing "status" field in response'}
-            if data['status'] != 'success':
-                return {'success': False, 'message': f'Expected status "success", got "{data["status"]}"'}
-            if 'count' not in data:
-                return {'success': False, 'message': 'Missing "count" field in response'}
-            if not isinstance(data['count'], int):
-                return {'success': False, 'message': f'Count should be integer, got {type(data["count"]).__name__}'}
-            if data['count'] <= 0:
-                return {'success': False, 'message': f'Expected positive count, got {data["count"]}'}
-            return {'success': True, 'message': f'Successfully synced {data["count"]} campers'}
-        
-        return self.run_test(
-            "Sync Campers with CSV",
-            "POST",
-            "sync-campers",
-            200,
-            data={'csv_content': csv_content},
-            validate_response=validate
-        )
-
-    def test_get_campers_after_sync(self):
-        """Test GET /api/campers after sync - should have data"""
-        def validate(data):
-            if not isinstance(data, list):
-                return {'success': False, 'message': f'Expected list, got {type(data).__name__}'}
-            if len(data) == 0:
-                return {'success': False, 'message': 'Expected campers after sync, got empty list'}
-            
-            # Validate first camper structure
-            camper = data[0]
-            required_fields = ['first_name', 'last_name', 'location', 'bus_number', 'bus_color', 'session', 'pickup_type']
-            missing_fields = [field for field in required_fields if field not in camper]
-            if missing_fields:
-                return {'success': False, 'message': f'Missing fields in camper: {missing_fields}'}
-            
-            # Validate location structure
-            if 'latitude' not in camper['location'] or 'longitude' not in camper['location']:
-                return {'success': False, 'message': 'Location missing latitude or longitude'}
-            
-            # Check if only AM Bus campers are included
-            am_bus_count = sum(1 for c in data if 'AM' in c.get('pickup_type', ''))
-            
-            return {'success': True, 'message': f'Valid list with {len(data)} campers, {am_bus_count} AM pickups'}
-        
-        success, data = self.run_test(
-            "Get Campers (After Sync)",
-            "GET",
-            "campers",
-            200,
-            validate_response=validate
-        )
-        return success, data
-
-    def validate_bus_colors(self, campers):
-        """Validate that bus colors are consistent"""
-        print(f"\n{'='*60}")
-        print(f"🔍 Additional Validation: Bus Color Consistency")
-        print(f"{'='*60}")
-        
-        self.tests_run += 1
-        
-        bus_colors = {}
-        for camper in campers:
-            bus_num = camper['bus_number']
-            bus_color = camper['bus_color']
-            
-            if bus_num in bus_colors:
-                if bus_colors[bus_num] != bus_color:
-                    self.tests_failed += 1
-                    self.failed_tests.append({
-                        'name': 'Bus Color Consistency',
-                        'reason': f'Bus {bus_num} has inconsistent colors: {bus_colors[bus_num]} vs {bus_color}',
-                        'response': 'N/A'
-                    })
-                    print(f"❌ FAILED - Bus {bus_num} has inconsistent colors")
-                    return False
+            success = response.status_code == expected_status
+            if success:
+                self.tests_passed += 1
+                self.log(f"✅ {name} - Status: {response.status_code}", "PASS")
             else:
-                bus_colors[bus_num] = bus_color
-        
-        unique_buses = len(bus_colors)
-        print(f"Found {unique_buses} unique buses with consistent colors")
-        
-        if unique_buses > 33:
-            print(f"⚠️  WARNING: Found {unique_buses} buses, expected max 33")
-        
-        self.tests_passed += 1
-        print(f"✅ PASSED - All bus colors are consistent")
-        return True
+                self.log(f"❌ {name} - Expected {expected_status}, got {response.status_code}", "FAIL")
+                if response.text:
+                    self.log(f"Response: {response.text[:200]}", "ERROR")
 
-    def validate_am_bus_filter(self, csv_content, campers):
-        """Validate that only AM Bus campers are included"""
-        print(f"\n{'='*60}")
-        print(f"🔍 Additional Validation: AM Bus Filter")
-        print(f"{'='*60}")
+            return success, response.json() if response.text and success else {}
+
+        except Exception as e:
+            self.log(f"❌ {name} - Error: {str(e)}", "FAIL")
+            return False, {}
+
+    def load_csv_from_google_sheets(self):
+        """Download CSV from Google Sheets"""
+        self.log("Downloading CSV from Google Sheets...")
+        try:
+            csv_url = "https://docs.google.com/spreadsheets/d/1QX0BSUuG889BjOYsTji8kYwT3VomSRE1j2_ZtxLd65k/export?format=csv"
+            response = requests.get(csv_url, timeout=30)
+            
+            if response.status_code == 200:
+                self.csv_content = response.text
+                self.log(f"✅ Downloaded CSV ({len(self.csv_content)} chars)", "PASS")
+                return True
+            else:
+                self.log(f"❌ Failed to download CSV: {response.status_code}", "FAIL")
+                return False
+        except Exception as e:
+            self.log(f"❌ Error downloading CSV: {str(e)}", "FAIL")
+            return False
+
+    def analyze_csv_data(self):
+        """Analyze CSV to understand expected counts"""
+        self.log("\n" + "="*60)
+        self.log("CSV DATA ANALYSIS")
+        self.log("="*60)
         
-        self.tests_run += 1
+        if not self.csv_content:
+            self.log("❌ No CSV content to analyze", "FAIL")
+            return
         
-        # Count AM Bus entries in CSV
-        import csv
-        from io import StringIO
+        # Remove BOM if present
+        csv_content = self.csv_content
+        if csv_content.startswith('\ufeff'):
+            csv_content = csv_content[1:]
         
         csv_file = StringIO(csv_content)
         reader = csv.DictReader(csv_file)
         
-        am_bus_count = 0
-        non_am_bus_count = 0
+        total_rows = 0
+        am_bus_method = 0
+        valid_bus_assignment = 0
+        no_address = 0
+        with_address = 0
+        geocoding_needed = 0
+        different_pm_address = 0
+        filtered_pm_buses = 0
+        
+        campers_with_address = []
+        campers_without_address = []
         
         for row in reader:
+            total_rows += 1
             am_method = row.get('Trans-AMDropOffMethod', '')
+            
             if 'AM Bus' in am_method:
-                am_bus_count += 1
-            else:
-                non_am_bus_count += 1
+                am_bus_method += 1
+                
+                am_bus = row.get('2026Transportation M AM Bus', '')
+                pm_bus = row.get('2026Transportation M PM Bus', '')
+                
+                if am_bus and 'NONE' not in am_bus.upper():
+                    valid_bus_assignment += 1
+                    
+                    am_address = row.get('Trans-PickUpAddress', '')
+                    pm_address = row.get('Trans-DropOffAddress', '')
+                    
+                    if am_address.strip():
+                        with_address += 1
+                        geocoding_needed += 1
+                        campers_with_address.append({
+                            'name': f"{row.get('First Name', '')} {row.get('Last Name', '')}",
+                            'address': am_address,
+                            'town': row.get('Trans-PickUpTown', ''),
+                            'zip': row.get('Trans-PickUpZip', ''),
+                            'am_bus': am_bus
+                        })
+                    else:
+                        no_address += 1
+                        campers_without_address.append({
+                            'name': f"{row.get('First Name', '')} {row.get('Last Name', '')}",
+                            'am_bus': am_bus
+                        })
+                    
+                    # Check if PM address is different
+                    if pm_address.strip() and pm_address != am_address:
+                        different_pm_address += 1
+                    
+                    # Check if PM bus would be filtered
+                    if pm_bus and any(x in pm_bus.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM', 'NONE']):
+                        filtered_pm_buses += 1
         
-        print(f"CSV Analysis:")
-        print(f"  - Campers with 'AM Bus': {am_bus_count}")
-        print(f"  - Campers without 'AM Bus': {non_am_bus_count}")
-        print(f"  - Total campers in API: {len(campers)}")
+        self.log(f"Total rows in CSV: {total_rows}")
+        self.log(f"Campers with 'AM Bus' method: {am_bus_method}")
+        self.log(f"Campers with valid bus assignment (not NONE): {valid_bus_assignment}")
+        self.log(f"  - With addresses (need geocoding): {with_address}")
+        self.log(f"  - Without addresses (lat/lng=0): {no_address}")
+        self.log(f"Campers with different PM address: {different_pm_address}")
+        self.log(f"PM buses filtered (MAIN TENT/HOCKEY RINK/AUDITORIUM): {filtered_pm_buses}")
         
-        # Check if any non-AM Bus campers are in the results
-        for camper in campers:
-            if 'AM' not in camper.get('pickup_type', ''):
-                self.tests_failed += 1
-                self.failed_tests.append({
-                    'name': 'AM Bus Filter',
-                    'reason': f'Found non-AM camper: {camper["first_name"]} {camper["last_name"]}',
-                    'response': str(camper)
-                })
-                print(f"❌ FAILED - Found non-AM Bus camper in results")
-                return False
+        self.log(f"\n📊 EXPECTED DATABASE COUNT:")
+        self.log(f"  Minimum: {valid_bus_assignment} (one entry per camper)")
+        self.log(f"  Maximum: {valid_bus_assignment + different_pm_address} (if PM addresses create separate entries)")
         
-        self.tests_passed += 1
-        print(f"✅ PASSED - All campers have AM Bus transport")
-        return True
+        # Show sample campers without addresses
+        if campers_without_address:
+            self.log(f"\n📋 Sample campers WITHOUT addresses (first 5):")
+            for camper in campers_without_address[:5]:
+                self.log(f"  - {camper['name']} (Bus: {camper['am_bus']})")
+        
+        return {
+            'total_rows': total_rows,
+            'am_bus_method': am_bus_method,
+            'valid_bus_assignment': valid_bus_assignment,
+            'with_address': with_address,
+            'no_address': no_address,
+            'different_pm_address': different_pm_address,
+            'expected_min': valid_bus_assignment,
+            'expected_max': valid_bus_assignment + different_pm_address
+        }
 
-    def print_summary(self):
-        """Print test summary"""
-        print(f"\n{'='*60}")
-        print(f"📊 TEST SUMMARY")
-        print(f"{'='*60}")
-        print(f"Total Tests: {self.tests_run}")
-        print(f"✅ Passed: {self.tests_passed}")
-        print(f"❌ Failed: {self.tests_failed}")
-        print(f"Success Rate: {(self.tests_passed/self.tests_run*100):.1f}%")
+    def test_manual_csv_sync(self):
+        """Test manual CSV upload via /api/sync-campers"""
+        self.log("\n" + "="*60)
+        self.log("TEST 1: MANUAL CSV SYNC")
+        self.log("="*60)
         
-        if self.failed_tests:
-            print(f"\n{'='*60}")
-            print(f"❌ FAILED TESTS DETAILS:")
-            print(f"{'='*60}")
-            for i, test in enumerate(self.failed_tests, 1):
-                print(f"\n{i}. {test['name']}")
-                print(f"   Reason: {test['reason']}")
-                if test['response'] != 'N/A':
-                    print(f"   Response: {test['response'][:200]}")
+        if not self.csv_content:
+            self.log("❌ No CSV content loaded", "FAIL")
+            return False
         
-        return self.tests_failed == 0
+        success, response = self.run_test(
+            "Manual CSV Sync",
+            "POST",
+            "sync-campers",
+            200,
+            json_data={"csv_content": self.csv_content}
+        )
+        
+        if success:
+            count = response.get('count', 0)
+            self.log(f"📊 Synced {count} campers")
+            return count
+        
+        return 0
 
+    def test_auto_sync(self):
+        """Test auto-sync via /api/trigger-sync"""
+        self.log("\n" + "="*60)
+        self.log("TEST 2: AUTO-SYNC FROM GOOGLE SHEETS")
+        self.log("="*60)
+        
+        success, response = self.run_test(
+            "Auto-Sync Trigger",
+            "POST",
+            "trigger-sync",
+            200,
+            json_data={}
+        )
+        
+        if success:
+            self.log(f"✅ Auto-sync completed successfully")
+            return True
+        
+        return False
+
+    def verify_database_count(self):
+        """Verify database count via /api/campers"""
+        self.log("\n" + "="*60)
+        self.log("DATABASE VERIFICATION")
+        self.log("="*60)
+        
+        success, response = self.run_test(
+            "Get All Campers",
+            "GET",
+            "campers",
+            200
+        )
+        
+        if success:
+            campers = response if isinstance(response, list) else []
+            count = len(campers)
+            self.log(f"📊 Database contains {count} campers")
+            
+            # Count campers with/without addresses
+            with_location = sum(1 for c in campers if c.get('location', {}).get('latitude', 0) != 0)
+            without_location = count - with_location
+            
+            self.log(f"  - With valid locations: {with_location}")
+            self.log(f"  - Without locations (lat=0): {without_location}")
+            
+            return count, with_location, without_location
+        
+        return 0, 0, 0
+
+    def check_missing_addresses_report(self):
+        """Check the missing addresses report"""
+        self.log("\n" + "="*60)
+        self.log("MISSING ADDRESSES REPORT")
+        self.log("="*60)
+        
+        success, response = self.run_test(
+            "Missing Addresses Report",
+            "GET",
+            "reports/missing-addresses",
+            200
+        )
+        
+        if success:
+            count = response.get('count', 0)
+            campers = response.get('campers', [])
+            self.log(f"📊 {count} campers missing addresses")
+            
+            if campers:
+                self.log(f"\nSample campers missing addresses (first 10):")
+                for camper in campers[:10]:
+                    self.log(f"  - {camper.get('first_name')} {camper.get('last_name')} (Bus: {camper.get('bus_number', 'N/A')})")
+            
+            return count
+        
+        return 0
 
 def main():
-    print("="*60)
-    print("🚌 Camp Bus Routing API Test Suite")
-    print("="*60)
+    """Main test execution"""
+    print("\n" + "="*60)
+    print("CAMP BUS ROUTING - CSV SYNC TESTING")
+    print("="*60 + "\n")
     
-    # Initialize tester
-    tester = BusRoutingAPITester()
+    tester = CampBusRoutingTester()
     
-    # Test 1: Root endpoint
-    tester.test_root_endpoint()
-    
-    # Test 2: Get campers initially
-    tester.test_get_campers_initial()
-    
-    # Test 3: Load CSV file
-    print(f"\n{'='*60}")
-    print(f"📄 Loading CSV file...")
-    print(f"{'='*60}")
-    try:
-        with open('/app/test_campers.csv', 'r', encoding='utf-8-sig') as f:
-            csv_content = f.read()
-        print(f"✅ CSV file loaded successfully ({len(csv_content)} bytes)")
-    except Exception as e:
-        print(f"❌ Failed to load CSV file: {str(e)}")
+    # Step 1: Download and analyze CSV
+    if not tester.load_csv_from_google_sheets():
+        print("\n❌ Failed to download CSV. Exiting.")
         return 1
     
-    # Test 4: Sync campers
-    success, sync_response = tester.test_sync_campers(csv_content)
+    csv_analysis = tester.analyze_csv_data()
     
-    if not success:
-        print("\n⚠️  Sync failed, skipping remaining tests")
-        tester.print_summary()
-        return 1
+    # Step 2: Test manual CSV sync
+    manual_count = tester.test_manual_csv_sync()
     
-    # Test 5: Get campers after sync
-    success, campers = tester.test_get_campers_after_sync()
+    # Step 3: Verify database
+    db_count, with_location, without_location = tester.verify_database_count()
     
-    if success and campers:
-        # Additional validations
-        tester.validate_bus_colors(campers)
-        tester.validate_am_bus_filter(csv_content, campers)
+    # Step 4: Check missing addresses
+    missing_count = tester.check_missing_addresses_report()
     
-    # Print summary
-    all_passed = tester.print_summary()
+    # Step 5: Test auto-sync
+    tester.test_auto_sync()
     
-    return 0 if all_passed else 1
-
+    # Step 6: Verify database again after auto-sync
+    db_count_after, with_location_after, without_location_after = tester.verify_database_count()
+    
+    # Final Analysis
+    print("\n" + "="*60)
+    print("FINAL ANALYSIS")
+    print("="*60)
+    
+    if csv_analysis:
+        expected_min = csv_analysis['expected_min']
+        expected_max = csv_analysis['expected_max']
+        
+        print(f"\n📊 Expected campers: {expected_min} - {expected_max}")
+        print(f"📊 Actual in database: {db_count_after}")
+        print(f"📊 Missing: {expected_min - db_count_after}")
+        
+        if db_count_after >= expected_min:
+            print(f"\n✅ SUCCESS: All expected campers imported!")
+        else:
+            print(f"\n❌ FAILURE: Missing {expected_min - db_count_after} campers")
+            print(f"\n🔍 POTENTIAL ISSUES:")
+            print(f"  1. Geocoding failures: {csv_analysis['with_address']} addresses need geocoding")
+            print(f"     If geocoding fails, campers may be skipped entirely")
+            print(f"  2. Check backend logs for geocoding errors")
+            print(f"  3. Campers without addresses should still be imported with lat/lng=0")
+    
+    print(f"\n📊 Tests passed: {tester.tests_passed}/{tester.tests_run}")
+    
+    return 0 if tester.tests_passed == tester.tests_run else 1
 
 if __name__ == "__main__":
     sys.exit(main())
