@@ -229,6 +229,43 @@ const BusRoutingMap = () => {
     window.open(`${API}/route-sheet/${encodedBusNumber}/print`, '_blank');
   };
 
+  const handleAddCamper = async () => {
+    if (!newCamper.first_name || !newCamper.last_name || !newCamper.address || !newCamper.town || !newCamper.zip_code) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      toast.loading("Adding camper...");
+      const response = await axios.post(`${API}/campers/add`, {
+        ...newCamper,
+        pm_bus_number: newCamper.pm_bus_number || newCamper.am_bus_number
+      });
+      
+      toast.dismiss();
+      toast.success(`Added ${newCamper.first_name} ${newCamper.last_name}`);
+      
+      // Reset form and close dialog
+      setNewCamper({
+        first_name: "",
+        last_name: "",
+        address: "",
+        town: "",
+        zip_code: "",
+        am_bus_number: "NONE",
+        pm_bus_number: ""
+      });
+      setShowAddCamper(false);
+      
+      // Refresh the map
+      await fetchCampers();
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error adding camper:", error);
+      toast.error(error.response?.data?.detail || "Failed to add camper");
+    }
+  };
+
   const handleChangeBus = async (camperId, type) => {
     const busToUpdate = type === 'am' ? newAmBus : newPmBus;
     
