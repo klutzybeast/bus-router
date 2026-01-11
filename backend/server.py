@@ -652,7 +652,43 @@ async def auto_sync_campminder():
             am_bus = row.get('2026Transportation M AM Bus', '')
             pm_bus = row.get('2026Transportation M PM Bus', '')
             
-            if not am_bus or 'NONE' in am_bus.upper():
+            # Get existing routes for optimization (do once before processing)
+            if 'existing_routes' not in locals():
+                all_campers = await db.campers.find({"bus_number": {"$exists": True}}).to_list(None)
+                existing_routes = {}
+                
+                for existing_camper in all_campers:
+                    bus_num_str = existing_camper.get('bus_number', '')
+                    if bus_num_str and 'NONE' not in bus_num_str.upper():
+                        try:
+                            bus_num = int(''.join(filter(str.isdigit, bus_num_str)))
+                            if bus_num not in existing_routes:
+                                existing_routes[bus_num] = []
+                            
+                            if existing_camper.get('location') and existing_camper['location'].get('latitude'):
+                                existing_routes[bus_num].append({
+                                    'lat': existing_camper['location']['latitude'],
+                                    'lng': existing_camper['location']['longitude']
+                                })
+                        except (ValueError, IndexError):
+                            pass
+            
+            # If no bus assigned but has AM Bus method, AUTO-ASSIGN optimal bus
+            if not am_bus or am_bus.strip() == '' or am_bus.upper() == 'NONE':
+                if am_address.strip():
+                    # Has address but no bus - ASSIGN ONE!
+                    location = geocode_address(am_address, am_town, am_zip)
+                    if location:
+                        camper_address = {'lat': location.latitude, 'lng': location.longitude}
+                        optimal_bus_num = route_optimizer.find_optimal_bus(camper_address, existing_routes)
+                        am_bus = f"Bus #{optimal_bus_num:02d}"
+                        logger.info(f"AUTO-ASSIGNED: {first_name} {last_name} → {am_bus} (was unassigned)")
+                else:
+                    # No address and no bus - skip
+                    continue
+            
+            # Skip NONE buses
+            if 'NONE' in am_bus.upper():
                 continue
             
             first_name = row.get('First Name', '')
