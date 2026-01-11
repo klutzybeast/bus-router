@@ -107,7 +107,7 @@ def geocode_address(address: str, town: str = "", zip_code: str = "") -> Optiona
 async def root():
     return {"message": "Bus Routing API"}
 
-@api_router.get("/campers", response_model=List[CamperPin])
+@api_router.get("/campers")
 async def get_campers():
     try:
         # Return campers with valid locations - INCLUDE _id for updates
@@ -117,11 +117,25 @@ async def get_campers():
         }).to_list(None)
         
         # Convert _id to string and add bus_number for backwards compatibility
+        result = []
         for camper in existing_campers:
-            camper['_id'] = str(camper['_id'])
-            camper['bus_number'] = camper.get('am_bus_number', '')
+            camper_dict = {
+                "_id": str(camper['_id']),
+                "first_name": camper.get('first_name', ''),
+                "last_name": camper.get('last_name', ''),
+                "location": camper.get('location', {}),
+                "am_bus_number": camper.get('am_bus_number', ''),
+                "pm_bus_number": camper.get('pm_bus_number', ''),
+                "bus_number": camper.get('am_bus_number', ''),  # For compatibility
+                "bus_color": camper.get('bus_color', ''),
+                "session": camper.get('session', ''),
+                "pickup_type": camper.get('pickup_type', ''),
+                "town": camper.get('town', ''),
+                "zip_code": camper.get('zip_code', '')
+            }
+            result.append(camper_dict)
         
-        return existing_campers
+        return result
     except Exception as e:
         logging.error(f"Error fetching campers: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
