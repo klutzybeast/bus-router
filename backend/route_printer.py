@@ -103,16 +103,16 @@ class RoutePrinter:
                 "notes": ""
             })
         
-        # Add turn-by-turn directions if available
-        if directions and len(directions) > 0:
-            route = directions[0]
+        # Add AM turn-by-turn directions
+        if directions_am and len(directions_am) > 0:
+            route = directions_am[0]
             legs = route.get('legs', [])
             
             total_distance_meters = sum(leg['distance']['value'] for leg in legs)
             total_duration_seconds = sum(leg['duration']['value'] for leg in legs)
             
-            route_sheet["total_distance"] = f"{total_distance_meters / 1609.34:.1f} miles"
-            route_sheet["estimated_time"] = f"{total_duration_seconds // 60} minutes"
+            route_sheet["am_distance"] = f"{total_distance_meters / 1609.34:.1f} miles"
+            route_sheet["am_time"] = f"{total_duration_seconds // 60} minutes"
             
             for idx, leg in enumerate(legs, 1):
                 step_directions = []
@@ -124,9 +124,39 @@ class RoutePrinter:
                         "duration": step['duration']['text']
                     })
                 
-                route_sheet["directions"].append({
+                route_sheet["am_directions"].append({
                     "leg_number": idx,
-                    "from": legs[idx-1]['end_address'] if idx > 1 else "Camp",
+                    "from": "Camp" if idx == 1 else legs[idx-2]['end_address'],
+                    "to": leg['end_address'],
+                    "distance": leg['distance']['text'],
+                    "duration": leg['duration']['text'],
+                    "steps": step_directions
+                })
+        
+        # Add PM turn-by-turn directions (REVERSE route)
+        if directions_pm and len(directions_pm) > 0:
+            route = directions_pm[0]
+            legs = route.get('legs', [])
+            
+            total_distance_meters = sum(leg['distance']['value'] for leg in legs)
+            total_duration_seconds = sum(leg['duration']['value'] for leg in legs)
+            
+            route_sheet["pm_distance"] = f"{total_distance_meters / 1609.34:.1f} miles"
+            route_sheet["pm_time"] = f"{total_duration_seconds // 60} minutes"
+            
+            for idx, leg in enumerate(legs, 1):
+                step_directions = []
+                for step in leg.get('steps', []):
+                    instruction = step.get('html_instructions', '').replace('<b>', '').replace('</b>', '').replace('<div>', ' ').replace('</div>', '')
+                    step_directions.append({
+                        "instruction": instruction,
+                        "distance": step['distance']['text'],
+                        "duration": step['duration']['text']
+                    })
+                
+                route_sheet["pm_directions"].append({
+                    "leg_number": idx,
+                    "from": "Camp" if idx == 1 else legs[idx-2]['end_address'],
                     "to": leg['end_address'],
                     "distance": leg['distance']['text'],
                     "duration": leg['duration']['text'],
