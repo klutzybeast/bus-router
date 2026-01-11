@@ -562,22 +562,30 @@ async def get_missing_addresses_report():
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/campers/{camper_id}/change-bus")
-async def change_camper_bus(camper_id: str, new_bus_number: str):
+async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_number: str = None):
     """Manually override bus assignment for a camper"""
     try:
-        # Update the camper's bus assignment
+        updates = {}
+        
+        if am_bus_number:
+            updates["am_bus_number"] = am_bus_number
+            updates["bus_color"] = get_bus_color(am_bus_number)
+        
+        if pm_bus_number:
+            updates["pm_bus_number"] = pm_bus_number
+        
+        if not updates:
+            raise HTTPException(status_code=400, detail="No bus assignments provided")
+        
         result = await db.campers.update_one(
             {"_id": camper_id},
-            {"$set": {
-                "bus_number": new_bus_number,
-                "bus_color": get_bus_color(new_bus_number)
-            }}
+            {"$set": updates}
         )
         
         if result.modified_count > 0:
             return {
                 "status": "success",
-                "message": f"Updated to {new_bus_number}"
+                "message": f"Updated bus assignments"
             }
         else:
             raise HTTPException(status_code=404, detail="Camper not found")
