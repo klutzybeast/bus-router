@@ -277,6 +277,31 @@ const BusRoutingMap = () => {
                       <span className="font-semibold">Zip:</span> {selectedCamper.zip_code}
                     </div>
                   )}
+                  
+                  {/* Manual Bus Override */}
+                  <div className="mt-3 pt-3 border-t">
+                    <div className="text-xs font-semibold mb-2">Change Bus Assignment:</div>
+                    <div className="flex gap-2">
+                      <Select value={newBusNumber} onValueChange={setNewBusNumber}>
+                        <SelectTrigger className="w-32 h-8 text-xs">
+                          <SelectValue placeholder="Select bus" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {uniqueBuses.map(bus => (
+                            <SelectItem key={bus} value={bus}>{bus}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="sm"
+                        className="h-8 text-xs"
+                        onClick={() => handleChangeBus(selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}_${selectedCamper.pickup_type.includes('AM') ? 'AM' : 'PM'}`.replace(' ', '_'), selectedCamper.bus_number)}
+                        disabled={!newBusNumber}
+                      >
+                        Update
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </InfoWindow>
