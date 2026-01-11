@@ -198,10 +198,10 @@ async def sync_campers(csv_data: Dict[str, Any]):
                         location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
                         logger.warning(f"Geocoding failed for {first_name} {last_name}: {am_address}")
                     
-                    # Count existing campers at this location for offset
+                    # Count existing in CURRENT batch (pins list) for offset
                     existing_count = len([p for p in pins if 
-                        abs(p.location.latitude - location.latitude) < 0.001 and
-                        abs(p.location.longitude - location.longitude) < 0.001
+                        abs(p.location.latitude - location.latitude) < 0.0001 and
+                        abs(p.location.longitude - location.longitude) < 0.0001
                     ])
                     offset = existing_count * 0.00008
                     
