@@ -764,50 +764,29 @@ async def auto_sync_campminder():
             am_bus = row.get('2026Transportation M AM Bus', '')
             pm_bus = row.get('2026Transportation M PM Bus', '')
             
-            # For every camper with AM Bus method, process their data
-            # If they have an address, add them to map (auto-assign bus if missing)
-            final_am_bus = am_bus.strip() if am_bus and am_bus.strip() and 'NONE' not in am_bus.upper() else None
-            final_pm_bus = pm_bus.strip() if pm_bus and pm_bus.strip() else final_am_bus
+            # PRESERVE existing bus assignments from Google Sheet
+            # ONLY auto-assign if truly empty (not just whitespace)
+            final_am_bus = None
+            final_pm_bus = None
             
-            # Filter out non-bus PM values
-            if final_pm_bus and any(x in final_pm_bus.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM', 'NONE']):
+            if am_bus and am_bus.strip() and 'NONE' not in am_bus.upper():
+                # Has valid AM bus in sheet - KEEP IT
+                final_am_bus = am_bus.strip()
+            
+            if pm_bus and pm_bus.strip() and 'NONE' not in pm_bus.upper():
+                # Has valid PM bus in sheet - KEEP IT  
+                final_pm_bus = pm_bus.strip()
+            else:
+                # No PM bus specified - use AM bus
                 final_pm_bus = final_am_bus
             
-            # If has address but no bus, AUTO-ASSIGN optimal bus
-            if not final_am_bus and am_address.strip():
-                # Get existing routes for optimization
-                if 'existing_routes' not in locals():
-                    all_db_campers = await db.campers.find({"am_bus_number": {"$exists": True}}).to_list(None)
-                    existing_routes = {}
-                    for ec in all_db_campers:
-                        bus_str = ec.get('am_bus_number', '')
-                        if bus_str and 'NONE' not in bus_str.upper():
-                            try:
-                                bus_num = int(''.join(filter(str.isdigit, bus_str)))
-                                if bus_num not in existing_routes:
-                                    existing_routes[bus_num] = []
-                                if ec.get('location', {}).get('latitude', 0) != 0:
-                                    existing_routes[bus_num].append({
-                                        'lat': ec['location']['latitude'],
-                                        'lng': ec['location']['longitude']
-                                    })
-                            except (ValueError, IndexError):
-                                pass
-                
-                # Geocode to find optimal bus
-                location_temp = geocode_address(am_address, am_town, am_zip)
-                if location_temp:
-                    optimal_bus = route_optimizer.find_optimal_bus(
-                        {'lat': location_temp.latitude, 'lng': location_temp.longitude},
-                        existing_routes
-                    )
-                    final_am_bus = f"Bus #{optimal_bus:02d}"
-                    if not final_pm_bus:
-                        final_pm_bus = final_am_bus
-                    logger.info(f"AUTO-ASSIGNED: {first_name} {last_name} → {final_am_bus}")
+            # Filter out non-bus PM values
+            if final_pm_bus and any(x in final_pm_bus.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM']):
+                final_pm_bus = final_am_bus
             
-            # Skip only if no address AND no bus
-            if not final_am_bus and not am_address.strip():
+            # If has address but NO bus, skip (don't auto-assign anymore)
+            # User must assign bus in Google Sheet
+            if not final_am_bus:
                 continue
             
             first_name = row.get('First Name', '')
