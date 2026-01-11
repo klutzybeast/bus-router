@@ -141,6 +141,84 @@ async def get_campers():
         logging.error(f"Error fetching campers: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+class ManualCamperInput(BaseModel):
+    first_name: str
+    last_name: str
+    address: str
+    town: str
+    zip_code: str
+    am_bus_number: Optional[str] = "NONE"
+    pm_bus_number: Optional[str] = None
+    session: Optional[str] = ""
+
+@api_router.post("/campers/add")
+async def add_camper_manually(camper: ManualCamperInput):
+    """Manually add a camper to the map"""
+    try:
+        # Geocode the address
+        location = geocode_address(camper.address, camper.town, camper.zip_code)
+        if not location:
+            raise HTTPException(status_code=400, detail=f"Could not geocode address: {camper.address}, {camper.town}, {camper.zip_code}")
+        
+        # Generate camper ID
+        camper_id = f"{camper.last_name}_{camper.first_name}_{camper.zip_code}".replace(' ', '_')
+        
+        # Check for existing campers at same location for offset
+        existing_at_address = await db.campers.count_documents({
+            "location.latitude": {"$gte": location.latitude - 0.001, "$lte": location.latitude + 0.001},
+            "location.longitude": {"$gte": location.longitude - 0.001, "$lte": location.longitude + 0.001}
+        })
+        offset = existing_at_address * 0.00002
+        
+        # Determine bus values
+        am_bus = camper.am_bus_number if camper.am_bus_number else "NONE"
+        pm_bus = camper.pm_bus_number if camper.pm_bus_number else am_bus
+        
+        # Determine color and pickup type
+        if am_bus == "NONE":
+            bus_color = "#808080"
+            pickup_type = "NEEDS BUS"
+        else:
+            bus_color = get_bus_color(am_bus)
+            pickup_type = "AM & PM"
+        
+        camper_doc = {
+            "_id": camper_id,
+            "first_name": camper.first_name,
+            "last_name": camper.last_name,
+            "session": camper.session or "",
+            "location": {
+                "latitude": location.latitude + offset,
+                "longitude": location.longitude + offset,
+                "address": location.address
+            },
+            "town": camper.town,
+            "zip_code": camper.zip_code,
+            "pickup_type": pickup_type,
+            "am_bus_number": am_bus,
+            "pm_bus_number": pm_bus,
+            "bus_color": bus_color,
+            "created_at": datetime.now(timezone.utc),
+            "manually_added": True
+        }
+        
+        result = await db.campers.replace_one({"_id": camper_id}, camper_doc, upsert=True)
+        
+        return {
+            "success": True,
+            "message": f"Added {camper.first_name} {camper.last_name}",
+            "camper_id": camper_id,
+            "location": {"latitude": location.latitude + offset, "longitude": location.longitude + offset},
+            "was_update": result.modified_count > 0
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error adding camper: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api_router.post("/sync-campers")
 async def sync_campers(csv_data: Dict[str, Any]):
     try:
