@@ -67,23 +67,38 @@ class RoutePrinter:
             "capacity": get_bus_capacity(bus_number),
             "driver": get_bus_driver(bus_number),
             "counselor": get_bus_counselor(bus_number),
-            "total_stops": len(sorted_campers),
+            "total_stops": len(sorted_am),
             "date": datetime.now().strftime("%Y-%m-%d"),
-            "stops": [],
-            "directions": [],
-            "total_distance": "N/A",
-            "estimated_time": "N/A"
+            "am_stops": [],
+            "pm_stops": [],
+            "am_directions": [],
+            "pm_directions": [],
+            "am_distance": "N/A",
+            "am_time": "N/A",
+            "pm_distance": "N/A",
+            "pm_time": "N/A"
         }
         
-        # Add stop information
-        for idx, camper in enumerate(sorted_campers, 1):
-            route_sheet["stops"].append({
+        # Add AM stop information (morning pickups)
+        for idx, camper in enumerate(sorted_am, 1):
+            route_sheet["am_stops"].append({
                 "stop_number": idx,
                 "camper_name": f"{camper['first_name']} {camper['last_name']}",
                 "address": camper['location'].get('address', ''),
                 "town": camper.get('town', ''),
                 "zip": camper.get('zip_code', ''),
-                "pickup_type": camper.get('pickup_type', ''),
+                "session": camper.get('session', ''),
+                "notes": ""
+            })
+        
+        # Add PM stop information (afternoon drop-offs in REVERSE)
+        for idx, camper in enumerate(sorted_pm, 1):
+            route_sheet["pm_stops"].append({
+                "stop_number": idx,
+                "camper_name": f"{camper['first_name']} {camper['last_name']}",
+                "address": camper['location'].get('address', ''),
+                "town": camper.get('town', ''),
+                "zip": camper.get('zip_code', ''),
                 "session": camper.get('session', ''),
                 "notes": ""
             })
