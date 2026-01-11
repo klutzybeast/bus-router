@@ -563,8 +563,8 @@ async def download_bus_assignments():
             'Type'
         ])
         
-        # Data rows
-        for camper in sorted(campers, key=lambda x: (x.get('bus_number', ''), x.get('last_name', ''))):
+        # Data rows - sorted by last name, first name
+        for camper in sorted(campers, key=lambda x: (x.get('last_name', '').lower(), x.get('first_name', '').lower())):
             writer.writerow([
                 camper.get('last_name', ''),
                 camper.get('first_name', ''),
