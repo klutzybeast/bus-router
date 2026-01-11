@@ -517,8 +517,10 @@ const BusRoutingMap = () => {
                 </h3>
                 <div className="space-y-2 max-h-96 md:max-h-[40vh] overflow-y-auto">
                   {uniqueBuses.map((bus) => {
-                    const busColor = campers.find(c => c.bus_number === bus)?.bus_color || '#000000';
-                    const busCount = campers.filter(c => c.bus_number === bus).length;
+                    const busColor = getBusColor(bus);
+                    const busCount = campers.filter(c => 
+                      c.am_bus_number === bus || c.pm_bus_number === bus || c.bus_number === bus
+                    ).length;
                     const isSelected = selectedBusFilter === bus;
                     
                     return (
