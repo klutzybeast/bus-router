@@ -34,8 +34,8 @@ const BusRoutingMap = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedBusFilter, setSelectedBusFilter] = useState(null);
   const [sessionFilter, setSessionFilter] = useState("all");
-  const [editingCamper, setEditingCamper] = useState(null);
-  const [newBusNumber, setNewBusNumber] = useState("");
+  const [newAmBus, setNewAmBus] = useState("");
+  const [newPmBus, setNewPmBus] = useState("");
   const [mapInstance, setMapInstance] = useState(null);
 
   const fetchCampers = useCallback(async () => {
