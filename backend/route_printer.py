@@ -8,14 +8,21 @@ class RoutePrinter:
     def __init__(self, gmaps_client):
         self.gmaps = gmaps_client
     
-    def generate_route_sheet(self, bus_number: str, campers: List[Dict], camp_address: str = "Rolling River Day Camp, NY") -> Dict[str, Any]:
+    def generate_route_sheet(self, bus_number: str, campers: List[Dict], camp_address: str = "Rolling River Day Camp, Wantagh, NY") -> Dict[str, Any]:
         """Generate printable route sheet with turn-by-turn directions"""
         
         if not campers:
             return {"error": "No campers assigned to this bus"}
         
-        # Sort campers by proximity for efficient route
-        sorted_campers = self.optimize_stop_order(campers, camp_address)
+        # Separate AM and PM campers
+        am_campers = [c for c in campers if 'AM' in c.get('pickup_type', '')]
+        pm_campers = [c for c in campers if 'PM' in c.get('pickup_type', '') or c.get('pickup_type') == 'AM & PM']
+        
+        # Sort AM campers by proximity for efficient route (morning pickups)
+        sorted_am = self.optimize_stop_order(am_campers, camp_address) if am_campers else []
+        
+        # REVERSE for PM route (afternoon drop-offs)
+        sorted_pm = list(reversed(sorted_am)) if sorted_am else []
         
         # Get turn-by-turn directions
         waypoints = [
