@@ -477,9 +477,12 @@ async def get_compact_availability():
 async def get_route_sheet(bus_number: str):
     """Get printable route sheet with turn-by-turn directions for a specific bus"""
     try:
-        # Get campers for this bus
+        # Get campers for this bus (check both AM and PM bus fields)
         campers = await db.campers.find({
-            "bus_number": bus_number
+            "$or": [
+                {"am_bus_number": bus_number},
+                {"pm_bus_number": bus_number}
+            ]
         }).to_list(None)
         
         if not campers:
