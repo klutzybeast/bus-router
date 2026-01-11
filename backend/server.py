@@ -783,6 +783,8 @@ async def auto_sync_campminder():
                     # Geocoding failed - use placeholder
                     location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
                     logger.warning(f"Geocoding failed: {first_name} {last_name} - {am_address}")
+                
+                if location:
                     camper_doc = {
                         "_id": camper_id,
                         "first_name": first_name,
