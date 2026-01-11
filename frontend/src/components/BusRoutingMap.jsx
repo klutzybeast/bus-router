@@ -111,6 +111,11 @@ const BusRoutingMap = () => {
     }
   };
 
+  const handleDownloadAssignments = () => {
+    window.open(`${API}/download/bus-assignments`, '_blank');
+    toast.success("Downloading bus assignments...");
+  };
+
   const handleMarkerClick = useCallback((camper) => {
     setSelectedCamper(camper);
     if (window.innerWidth < 768) {
