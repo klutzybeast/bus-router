@@ -44,6 +44,16 @@ const BusRoutingMap = () => {
       const response = await axios.get(`${API}/campers`);
       setCampers(response.data);
       
+      // Calculate unique buses from am_bus_number and pm_bus_number
+      const busSet = new Set();
+      response.data.forEach(c => {
+        if (c.am_bus_number) busSet.add(c.am_bus_number);
+        if (c.pm_bus_number && c.pm_bus_number !== c.am_bus_number) busSet.add(c.pm_bus_number);
+        if (c.bus_number) busSet.add(c.bus_number);  // Backwards compatibility
+      });
+      const buses = Array.from(busSet).sort();
+      setUniqueBuses(buses);
+      
       const buses = [...new Set(response.data.map(c => c.bus_number))].sort();
       setUniqueBuses(buses);
       
