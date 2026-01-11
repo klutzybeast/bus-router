@@ -49,6 +49,16 @@ const BusRoutingMap = () => {
   const [newPmBus, setNewPmBus] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [mapInstance, setMapInstance] = useState(null);
+  const [showAddCamper, setShowAddCamper] = useState(false);
+  const [newCamper, setNewCamper] = useState({
+    first_name: "",
+    last_name: "",
+    address: "",
+    town: "",
+    zip_code: "",
+    am_bus_number: "NONE",
+    pm_bus_number: ""
+  });
 
   const fetchCampers = useCallback(async () => {
     try {
