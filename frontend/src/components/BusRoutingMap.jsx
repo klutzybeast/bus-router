@@ -179,6 +179,31 @@ const BusRoutingMap = () => {
         return true;
       });
 
+  const searchFilteredCampers = searchQuery.trim() === ""
+    ? sessionFilteredCampers
+    : sessionFilteredCampers.filter(c => {
+        const query = searchQuery.toLowerCase();
+        const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+        const address = c.location?.address?.toLowerCase() || '';
+        const town = c.town?.toLowerCase() || '';
+        return fullName.includes(query) || address.includes(query) || town.includes(query);
+      });
+
+  const handleSearchCamper = (query) => {
+    setSearchQuery(query);
+    if (query.trim() && searchFilteredCampers.length > 0) {
+      const firstMatch = searchFilteredCampers[0];
+      if (mapInstance && firstMatch.location) {
+        mapInstance.panTo({
+          lat: firstMatch.location.latitude,
+          lng: firstMatch.location.longitude
+        });
+        mapInstance.setZoom(15);
+        setSelectedCamper(firstMatch);
+      }
+    }
+  };
+
   const handlePrintRoute = (busNumber) => {
     const encodedBusNumber = encodeURIComponent(busNumber);
     window.open(`${API}/route-sheet/${encodedBusNumber}/print`, '_blank');
