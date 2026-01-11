@@ -703,7 +703,7 @@ async def auto_sync_campminder():
             pm_town = row.get('Trans-DropOffTown', '')
             pm_zip = row.get('Trans-DropOffZip', '')
             
-            # Process AM
+            # Process AM pickup
             if am_bus and 'NONE' not in am_bus.upper():
                 camper_id_am = f"{last_name}_{first_name}_{am_zip}_AM".replace(' ', '_')
                 sheet_camper_ids.add(camper_id_am)
@@ -753,35 +753,41 @@ async def auto_sync_campminder():
                     if result.upserted_id:
                         new_count += 1
             
-            # Process PM
-            if pm_bus and 'NONE' not in pm_bus.upper() and pm_address.strip() and pm_address != am_address:
-                camper_id_pm = f"{last_name}_{first_name}_{pm_zip}_PM".replace(' ', '_')
+            # Process PM drop-off - CREATE ENTRY FOR EVERYONE, even if same address
+            if pm_bus and 'NONE' not in pm_bus.upper():
+                camper_id_pm = f"{last_name}_{first_name}_{pm_zip if pm_zip else am_zip}_PM".replace(' ', '_')
                 sheet_camper_ids.add(camper_id_pm)
                 
-                location = geocode_address(pm_address, pm_town, pm_zip)
-                if location:
-                    camper_doc = {
-                        "_id": camper_id_pm,
-                        "first_name": first_name,
-                        "last_name": last_name,
-                        "session": session,
-                        "location": {
-                            "latitude": location.latitude,
-                            "longitude": location.longitude,
-                            "address": location.address
-                        },
-                        "town": pm_town,
-                        "zip_code": pm_zip,
-                        "pickup_type": "PM Drop-off",
-                        "bus_number": pm_bus.strip(),
-                        "bus_color": get_bus_color(pm_bus.strip()),
-                        "created_at": datetime.now(timezone.utc)
-                    }
-                    result = await db.campers.replace_one({"_id": camper_id_pm}, camper_doc, upsert=True)
-                    if result.upserted_id:
-                        new_count += 1
-                    elif result.modified_count > 0:
-                        updated_count += 1
+                # Use PM address if different, otherwise use AM address
+                pm_final_address = pm_address if pm_address.strip() else am_address
+                pm_final_town = pm_town if pm_town.strip() else am_town
+                pm_final_zip = pm_zip if pm_zip.strip() else am_zip
+                
+                if pm_final_address.strip():
+                    location = geocode_address(pm_final_address, pm_final_town, pm_final_zip)
+                    if location:
+                        camper_doc = {
+                            "_id": camper_id_pm,
+                            "first_name": first_name,
+                            "last_name": last_name,
+                            "session": session,
+                            "location": {
+                                "latitude": location.latitude,
+                                "longitude": location.longitude,
+                                "address": location.address
+                            },
+                            "town": pm_final_town,
+                            "zip_code": pm_final_zip,
+                            "pickup_type": "PM Drop-off",
+                            "bus_number": pm_bus.strip(),
+                            "bus_color": get_bus_color(pm_bus.strip()),
+                            "created_at": datetime.now(timezone.utc)
+                        }
+                        result = await db.campers.replace_one({"_id": camper_id_pm}, camper_doc, upsert=True)
+                        if result.upserted_id:
+                            new_count += 1
+                        elif result.modified_count > 0:
+                            updated_count += 1
         
         # Delete campers no longer in sheet
         all_db_campers = await db.campers.find({}).to_list(None)
