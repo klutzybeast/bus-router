@@ -79,7 +79,7 @@ if response.status_code == 200:
 # Get campers with valid locations
 response = requests.get(f"{base_url}/campers", timeout=30)
 if response.status_code == 200:
-    actual_campers = response
+    actual_campers = response.json()
     print(f"Campers with valid locations: {len(actual_campers)}")
     
     # Create lookup
