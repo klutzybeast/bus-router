@@ -3093,33 +3093,53 @@ async def auto_sync_campminder():
 
 async def sync_loop():
     """Continuous sync loop with retry logic"""
-    global last_sync_time
+    global last_sync_time, db_connected
     
-    # Wait a bit on startup to let MongoDB connect
-    logger.info("Waiting 10 seconds before first sync to allow MongoDB connection...")
-    await asyncio.sleep(10)
+    # Wait longer on startup to let MongoDB Atlas connect (can be slow)
+    logger.info("Waiting 30 seconds before first sync to allow MongoDB Atlas connection...")
+    await asyncio.sleep(30)
     
     retry_count = 0
-    max_retries = 3
+    max_retries = 5
+    base_delay = 15  # Base delay in seconds
     
     while True:
         try:
-            # Test database connection first
-            await db.command('ping')
+            # Test database connection first with timeout
+            logger.info("Testing database connection...")
+            await asyncio.wait_for(db.command('ping'), timeout=30.0)
+            db_connected = True
             logger.info("Database connection verified, starting sync...")
             await auto_sync_campminder()
             retry_count = 0  # Reset retry count on success
-        except Exception as e:
+            logger.info("Sync completed successfully")
+        except asyncio.TimeoutError:
             retry_count += 1
-            logger.error(f"Error in sync loop (attempt {retry_count}): {str(e)}")
+            db_connected = False
+            logger.error(f"Database connection timeout (attempt {retry_count}/{max_retries})")
             
             if retry_count >= max_retries:
-                logger.warning(f"Max retries reached, waiting longer before next attempt...")
-                await asyncio.sleep(60)  # Wait 1 minute before trying again
+                logger.warning(f"Max retries reached, waiting 5 minutes before next attempt...")
+                await asyncio.sleep(300)  # Wait 5 minutes
                 retry_count = 0
             else:
-                await asyncio.sleep(10)  # Short delay between retries
-                continue  # Retry immediately
+                delay = base_delay * (2 ** retry_count)  # Exponential backoff
+                logger.info(f"Retrying in {delay} seconds...")
+                await asyncio.sleep(delay)
+                continue
+        except Exception as e:
+            retry_count += 1
+            logger.error(f"Error in sync loop (attempt {retry_count}/{max_retries}): {str(e)}")
+            
+            if retry_count >= max_retries:
+                logger.warning(f"Max retries reached, waiting 5 minutes before next attempt...")
+                await asyncio.sleep(300)  # Wait 5 minutes
+                retry_count = 0
+            else:
+                delay = base_delay * (2 ** retry_count)  # Exponential backoff
+                logger.info(f"Retrying in {delay} seconds...")
+                await asyncio.sleep(delay)
+                continue
         
         await asyncio.sleep(SYNC_INTERVAL_MINUTES * 60)
 
