@@ -159,6 +159,7 @@ class RoutePrinter:
         """
         Consolidate multiple campers at the same address into a single stop.
         Preserves the order of stops based on the first camper at each address.
+        Now includes AM and PM bus numbers for each camper.
         """
         if not campers:
             return []
@@ -172,12 +173,25 @@ class RoutePrinter:
             # Normalize the address for comparison (remove extra spaces, etc.)
             normalized_address = ' '.join(address.split())
             
+            # Get AM and PM bus numbers
+            am_bus = camper.get('am_bus_number', 'N/A')
+            pm_bus = camper.get('pm_bus_number', 'N/A')
+            camper_name = f"{camper['first_name']} {camper['last_name']}"
+            
             if normalized_address in seen_addresses:
-                # Add camper name to existing stop
+                # Add camper info to existing stop
                 idx = seen_addresses[normalized_address]
-                existing_names = consolidated[idx]['camper_names']
-                new_name = f"{camper['first_name']} {camper['last_name']}"
-                consolidated[idx]['camper_names'] = f"{existing_names}, {new_name}"
+                
+                # Add camper with their bus info
+                consolidated[idx]['campers'].append({
+                    'name': camper_name,
+                    'am_bus': am_bus,
+                    'pm_bus': pm_bus,
+                    'session': camper.get('session', '')
+                })
+                
+                # Update combined names display
+                consolidated[idx]['camper_names'] = ', '.join([c['name'] for c in consolidated[idx]['campers']])
                 
                 # Combine sessions if different
                 new_session = camper.get('session', '')
@@ -187,12 +201,20 @@ class RoutePrinter:
                 # Create new stop
                 seen_addresses[normalized_address] = len(consolidated)
                 consolidated.append({
-                    'camper_names': f"{camper['first_name']} {camper['last_name']}",
+                    'campers': [{
+                        'name': camper_name,
+                        'am_bus': am_bus,
+                        'pm_bus': pm_bus,
+                        'session': camper.get('session', '')
+                    }],
+                    'camper_names': camper_name,
                     'address': camper['location'].get('address', ''),
                     'town': camper.get('town', ''),
                     'zip': camper.get('zip_code', ''),
                     'session': camper.get('session', ''),
-                    'location': camper['location']
+                    'location': camper['location'],
+                    'am_bus': am_bus,
+                    'pm_bus': pm_bus
                 })
         
         return consolidated
