@@ -184,15 +184,21 @@ async def api_health_check():
 
 @api_router.get("/campers")
 async def get_campers():
+    global db_connected
     try:
         # Return campers with valid locations and at least one valid bus assignment
-        existing_campers = await db.campers.find({
-            "location.latitude": {"$ne": 0.0},
-            "$or": [
-                {"am_bus_number": {"$regex": "^Bus"}},
-                {"pm_bus_number": {"$regex": "^Bus"}}
-            ]
-        }).to_list(None)
+        existing_campers = await asyncio.wait_for(
+            db.campers.find({
+                "location.latitude": {"$ne": 0.0},
+                "$or": [
+                    {"am_bus_number": {"$regex": "^Bus"}},
+                    {"pm_bus_number": {"$regex": "^Bus"}}
+                ]
+            }).to_list(None),
+            timeout=30.0  # 30 second timeout
+        )
+        
+        db_connected = True
         
         # Convert _id to string and clean up data
         result = []
