@@ -215,40 +215,82 @@ const BusRoutingMap = () => {
     }
   };
 
-  const handleDownloadAssignments = () => {
-    toast.loading("Opening download...");
+  const handleDownloadAssignments = async () => {
+    const toastId = toast.loading("Downloading bus assignments...");
     
-    // Use window.open - most reliable for mobile devices
-    const downloadUrl = `${API}/download/bus-assignments`;
-    const newWindow = window.open(downloadUrl, '_blank');
-    
-    // If popup was blocked, try direct navigation
-    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-      window.location.href = downloadUrl;
+    try {
+      const response = await fetch(`${API}/download/bus-assignments`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const blob = await response.blob();
+      const filename = `bus-assignments-${new Date().toISOString().split('T')[0]}.csv`;
+      
+      // Create blob URL and trigger download
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up blob URL
+      window.URL.revokeObjectURL(blobUrl);
+      
+      toast.dismiss(toastId);
+      toast.success(`Downloaded ${filename}`);
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.dismiss(toastId);
+      toast.error("Download failed. Opening in new tab...");
+      
+      // Fallback: open URL directly
+      window.open(`${API}/download/bus-assignments`, '_blank');
     }
-    
-    setTimeout(() => {
-      toast.dismiss();
-      toast.success("Download started! Check your downloads folder.");
-    }, 1500);
   };
 
-  const handleDownloadSeatAvailability = () => {
-    toast.loading("Opening download...");
+  const handleDownloadSeatAvailability = async () => {
+    const toastId = toast.loading("Downloading seat availability...");
     
-    // Use window.open - most reliable for mobile devices
-    const downloadUrl = `${API}/download/seat-availability`;
-    const newWindow = window.open(downloadUrl, '_blank');
-    
-    // If popup was blocked, try direct navigation
-    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-      window.location.href = downloadUrl;
+    try {
+      const response = await fetch(`${API}/download/seat-availability`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const blob = await response.blob();
+      const filename = `seat-availability-${new Date().toISOString().split('T')[0]}.csv`;
+      
+      // Create blob URL and trigger download
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up blob URL
+      window.URL.revokeObjectURL(blobUrl);
+      
+      toast.dismiss(toastId);
+      toast.success(`Downloaded ${filename}`);
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.dismiss(toastId);
+      toast.error("Download failed. Opening in new tab...");
+      
+      // Fallback: open URL directly
+      window.open(`${API}/download/seat-availability`, '_blank');
     }
-    
-    setTimeout(() => {
-      toast.dismiss();
-      toast.success("Download started! Check your downloads folder.");
-    }, 1500);
   };
 
   const handleRefreshSeatAvailabilitySheet = async () => {
