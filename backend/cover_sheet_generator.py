@@ -29,8 +29,18 @@ class CoverSheetGenerator:
         
         return result
     
-    def generate_cover_sheet(self, campers: List[Dict]) -> List[List[Any]]:
-        """Generate EXACT Cover Sheet format - compact summary like Excel"""
+    def generate_cover_sheet(self, campers: List[Dict[str, Any]], staff_dict: Dict[str, Dict] = None) -> List[List[Any]]:
+        """
+        Generate cover sheet data showing bus-by-bus seat availability
+        
+        Args:
+            campers: List of camper documents from database
+            staff_dict: Optional dict of bus_number -> staff config from database
+        
+        Returns list of rows (each row is a list of values)
+        """
+        if staff_dict is None:
+            staff_dict = {}
         
         # Group campers by bus
         bus_groups = defaultdict(list)
