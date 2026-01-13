@@ -215,13 +215,54 @@ const BusRoutingMap = () => {
     }
   };
 
-  const handleDownloadAssignments = () => {
-    window.location.href = `${API}/download/bus-assignments`;
+  const handleDownloadAssignments = async () => {
+    try {
+      toast.loading("Downloading bus assignments...");
+      const response = await fetch(`${API}/download/bus-assignments`);
+      if (!response.ok) throw new Error('Download failed');
+      
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bus-assignments.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast.dismiss();
+      toast.success("Download complete!");
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error downloading:", error);
+      toast.error("Failed to download bus assignments");
+    }
   };
 
-  const handleDownloadSeatAvailability = () => {
-    // Direct navigation triggers browser download
-    window.location.href = `${API}/download/seat-availability`;
+  const handleDownloadSeatAvailability = async () => {
+    try {
+      toast.loading("Downloading seat availability...");
+      const response = await fetch(`${API}/download/seat-availability`);
+      if (!response.ok) throw new Error('Download failed');
+      
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'seat-availability.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast.dismiss();
+      toast.success("Download complete!");
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error downloading:", error);
+      toast.error("Failed to download seat availability");
+    }
   };
 
   const handleRefreshSeatAvailabilitySheet = async () => {
