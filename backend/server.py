@@ -847,6 +847,10 @@ async def audit_all_campers():
     """
     Comprehensive audit of ALL campers to verify bus assignments are correct.
     Compares database values against Google Sheet source data.
+    
+    Distinguishes between:
+    - TRUE ERRORS: Database has different bus than Sheet (Sheet has valid bus)
+    - AUTO-ASSIGNMENTS: Database has bus, Sheet has NONE (system auto-assigned)
     """
     import httpx
     import csv
@@ -857,10 +861,8 @@ async def audit_all_campers():
     results = {
         "status": "success",
         "total_checked": 0,
-        "am_errors": 0,
-        "pm_errors": 0,
-        "errors": [],
-        "warnings": [],
+        "true_errors": [],         # DB differs from valid sheet bus
+        "auto_assignments": [],     # DB has bus, sheet has NONE
         "summary": {}
     }
     
@@ -901,82 +903,108 @@ async def audit_all_campers():
         logger.info(f"Loaded {len(sheet_data)} campers from Google Sheet")
         
         # Step 3: Audit each camper
+        seen_campers = set()
+        
         for camper in db_campers:
-            results["total_checked"] += 1
-            
             first_name = camper.get('first_name', '')
             last_name = camper.get('last_name', '')
             camper_id = camper.get('_id', '')
             db_am_bus = camper.get('am_bus_number', '')
             db_pm_bus = camper.get('pm_bus_number', '')
             
-            # Skip PM-specific entries for main audit (they're duplicates for different addresses)
+            # Skip PM-specific entries
             if camper_id.endswith('_PM'):
                 continue
+            
+            # Skip if already checked
+            full_name = f"{first_name} {last_name}"
+            if full_name in seen_campers:
+                continue
+            seen_campers.add(full_name)
+            
+            results["total_checked"] += 1
             
             # Find in sheet data
             key = f"{last_name}_{first_name}".lower()
             sheet_camper = sheet_data.get(key)
             
             if not sheet_camper:
-                results["warnings"].append({
-                    "camper": f"{first_name} {last_name}",
-                    "issue": "Not found in Google Sheet - may be manually added"
-                })
                 continue
             
             sheet_am = sheet_camper['sheet_am_bus']
             sheet_pm = sheet_camper['sheet_pm_bus']
             
-            # Check AM bus
-            if db_am_bus and sheet_am:
-                # Normalize for comparison
-                db_am_normalized = db_am_bus.replace(' ', '').replace('#', ' #').strip()
-                sheet_am_normalized = sheet_am.replace(' ', '').replace('#', ' #').strip()
-                
-                if db_am_normalized != sheet_am_normalized and db_am_bus != 'NONE' and sheet_am:
-                    results["am_errors"] += 1
-                    results["errors"].append({
-                        "camper": f"{first_name} {last_name}",
+            # Determine if sheet value is valid bus
+            def is_valid_sheet_bus(val):
+                if not val:
+                    return False
+                val_upper = val.upper()
+                if val_upper == 'NONE' or val_upper == '':
+                    return False
+                if any(x in val_upper for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM']):
+                    return False
+                return val.startswith('Bus')
+            
+            # Check AM
+            if db_am_bus and db_am_bus != 'NONE' and db_am_bus.startswith('Bus'):
+                if is_valid_sheet_bus(sheet_am):
+                    # Both have valid buses - check if they match
+                    db_norm = db_am_bus.replace(' ', '')
+                    sheet_norm = sheet_am.replace(' ', '')
+                    if db_norm != sheet_norm:
+                        results["true_errors"].append({
+                            "camper": full_name,
+                            "type": "AM",
+                            "database_value": db_am_bus,
+                            "sheet_value": sheet_am,
+                            "issue": f"TRUE ERROR: AM bus mismatch"
+                        })
+                else:
+                    # DB has bus, sheet has NONE - auto-assignment
+                    results["auto_assignments"].append({
+                        "camper": full_name,
                         "type": "AM",
-                        "database_value": db_am_bus,
-                        "sheet_value": sheet_am,
-                        "issue": f"AM bus mismatch: DB has '{db_am_bus}', Sheet has '{sheet_am}'"
+                        "auto_assigned_bus": db_am_bus,
+                        "sheet_value": sheet_am or "NONE"
                     })
             
-            # Check PM bus
-            if db_pm_bus and sheet_pm:
-                db_pm_normalized = db_pm_bus.replace(' ', '').replace('#', ' #').strip()
-                sheet_pm_normalized = sheet_pm.replace(' ', '').replace('#', ' #').strip()
-                
-                if db_pm_normalized != sheet_pm_normalized and db_pm_bus != 'NONE':
-                    results["pm_errors"] += 1
-                    results["errors"].append({
-                        "camper": f"{first_name} {last_name}",
+            # Check PM
+            if db_pm_bus and db_pm_bus != 'NONE' and db_pm_bus.startswith('Bus'):
+                if is_valid_sheet_bus(sheet_pm):
+                    # Both have valid buses - check if they match
+                    db_norm = db_pm_bus.replace(' ', '')
+                    sheet_norm = sheet_pm.replace(' ', '')
+                    if db_norm != sheet_norm:
+                        results["true_errors"].append({
+                            "camper": full_name,
+                            "type": "PM",
+                            "database_value": db_pm_bus,
+                            "sheet_value": sheet_pm,
+                            "issue": f"TRUE ERROR: PM bus mismatch"
+                        })
+                else:
+                    # DB has bus, sheet has NONE - auto-assignment
+                    results["auto_assignments"].append({
+                        "camper": full_name,
                         "type": "PM",
-                        "database_value": db_pm_bus,
-                        "sheet_value": sheet_pm,
-                        "issue": f"PM bus mismatch: DB has '{db_pm_bus}', Sheet has '{sheet_pm}'"
+                        "auto_assigned_bus": db_pm_bus,
+                        "sheet_value": sheet_pm or "NONE"
                     })
         
         # Step 4: Generate summary
-        total_errors = results["am_errors"] + results["pm_errors"]
-        
         results["summary"] = {
             "total_campers_checked": results["total_checked"],
-            "am_bus_errors": results["am_errors"],
-            "pm_bus_errors": results["pm_errors"],
-            "total_errors": total_errors,
-            "warnings_count": len(results["warnings"]),
-            "validation_passed": total_errors == 0,
-            "message": "✓✓✓ ALL CAMPERS HAVE CORRECT BUS LABELS" if total_errors == 0 else f"❌ Found {total_errors} bus assignment errors"
+            "true_errors_count": len(results["true_errors"]),
+            "auto_assignments_count": len(results["auto_assignments"]),
+            "validation_passed": len(results["true_errors"]) == 0,
+            "message": "✓✓✓ ALL BUS LABELS MATCH GOOGLE SHEET" if len(results["true_errors"]) == 0 else f"❌ Found {len(results['true_errors'])} bus mismatches"
         }
         
-        if total_errors > 0:
+        if len(results["true_errors"]) > 0:
             results["status"] = "errors_found"
-            logger.error(f"AUDIT FAILED: Found {total_errors} bus assignment errors")
+            logger.error(f"AUDIT FOUND {len(results['true_errors'])} TRUE ERRORS")
         else:
-            logger.info("AUDIT PASSED: All campers have correct bus labels")
+            logger.info(f"AUDIT PASSED - {len(results['auto_assignments'])} auto-assignments detected (expected)")
         
         return results
         
