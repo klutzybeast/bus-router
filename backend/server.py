@@ -1546,15 +1546,19 @@ async def sync_bus_assignments_to_sheet():
         reader = csv.DictReader(StringIO(original_csv))
         fieldnames = reader.fieldnames
         
-        # Find the AM Bus and PM Bus column names
+        # Find the AM Bus and PM Bus column names and indices
         am_bus_col = None
         pm_bus_col = None
+        am_bus_idx = None
+        pm_bus_idx = None
         
-        for col in fieldnames:
+        for idx, col in enumerate(fieldnames):
             if 'AM Bus' in col and 'Trans' in col:
                 am_bus_col = col
+                am_bus_idx = idx + 1  # 1-based for Sheets
             elif 'PM Bus' in col and 'Trans' in col:
                 pm_bus_col = col
+                pm_bus_idx = idx + 1
         
         if not am_bus_col or not pm_bus_col:
             logger.error(f"Could not find AM/PM Bus columns in sheet. Columns: {fieldnames}")
@@ -1564,8 +1568,8 @@ async def sync_bus_assignments_to_sheet():
                 "available_columns": [c for c in fieldnames if 'bus' in c.lower() or 'trans' in c.lower()]
             }
         
-        logger.info(f"AM Bus column: {am_bus_col}")
-        logger.info(f"PM Bus column: {pm_bus_col}")
+        logger.info(f"AM Bus column: {am_bus_col} (index {am_bus_idx})")
+        logger.info(f"PM Bus column: {pm_bus_col} (index {pm_bus_idx})")
         
         # Count updates needed
         updates_needed = []
@@ -1589,6 +1593,7 @@ async def sync_bus_assignments_to_sheet():
                 if db_am and db_am != sheet_am:
                     updates_needed.append({
                         'row': row_idx + 2,  # +2 for header and 1-based index
+                        'col': am_bus_idx,
                         'name': f"{first_name} {last_name}",
                         'type': 'AM',
                         'from': sheet_am or 'EMPTY',
@@ -1598,6 +1603,7 @@ async def sync_bus_assignments_to_sheet():
                 if db_pm and db_pm != sheet_pm:
                     updates_needed.append({
                         'row': row_idx + 2,
+                        'col': pm_bus_idx,
                         'name': f"{first_name} {last_name}",
                         'type': 'PM',
                         'from': sheet_pm or 'EMPTY',
@@ -1613,19 +1619,63 @@ async def sync_bus_assignments_to_sheet():
                 "updates_count": 0
             }
         
-        # Since we can't write directly without OAuth, provide instructions
+        # Try to use webhook if available
+        webhook_url = os.environ.get('GOOGLE_SHEETS_WEBHOOK_URL', '')
+        if webhook_url:
+            try:
+                async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
+                    # Send updates in batches
+                    batch_size = 50
+                    success_count = 0
+                    
+                    for i in range(0, len(updates_needed), batch_size):
+                        batch = updates_needed[i:i+batch_size]
+                        
+                        payload = {
+                            'action': 'updateBusAssignments',
+                            'updates': [
+                                {
+                                    'row': u['row'],
+                                    'col': u['col'],
+                                    'value': u['to']
+                                }
+                                for u in batch
+                            ]
+                        }
+                        
+                        response = await client.post(
+                            webhook_url,
+                            json=payload,
+                            headers={'Content-Type': 'application/json'}
+                        )
+                        
+                        if response.status_code == 200:
+                            success_count += len(batch)
+                    
+                    if success_count > 0:
+                        return {
+                            "status": "success",
+                            "message": f"Updated {success_count} bus assignments in Google Sheet",
+                            "updates_count": success_count
+                        }
+            except Exception as e:
+                logger.warning(f"Webhook update failed: {str(e)}")
+        
+        # Return update information for manual or script-based update
         return {
             "status": "updates_available",
             "message": f"Found {len(updates_needed)} bus assignments that need updating in the Google Sheet",
             "sheet_url": f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit",
             "am_bus_column": am_bus_col,
+            "am_bus_column_index": am_bus_idx,
             "pm_bus_column": pm_bus_col,
-            "updates_needed": updates_needed[:50],  # First 50
+            "pm_bus_column_index": pm_bus_idx,
+            "updates_needed": updates_needed[:100],
             "total_updates": len(updates_needed),
             "instructions": [
-                "1. Open the Google Sheet",
-                "2. For each update below, find the row and update the bus column",
-                "3. Or download the CSV from /api/export-campers-csv and import it"
+                "Option 1: Copy the Google Apps Script below to your sheet",
+                "Option 2: Download CSV from /api/export-campers-csv and import",
+                "Option 3: Manually update each row in the sheet"
             ]
         }
         
