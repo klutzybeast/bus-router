@@ -127,6 +127,7 @@ const BusRoutingMap = () => {
 
   useEffect(() => {
     fetchCampers();
+    fetchBusStaff();
     
     const now = new Date();
     const tomorrow = new Date(now);
