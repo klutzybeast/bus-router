@@ -597,6 +597,8 @@ class RoutePrinter:
                     <tr>
                         <th>Stop #</th>
                         <th>Camper Name</th>
+                        <th>AM Bus</th>
+                        <th>PM Bus</th>
                         <th>Address</th>
                         <th>Town</th>
                         <th>Session</th>
@@ -607,10 +609,33 @@ class RoutePrinter:
         """
         
         for stop in route_sheet["pm_stops"]:
-            html += f"""
+            # Build camper rows with AM/PM bus info
+            campers = stop.get('campers', [])
+            if campers:
+                for i, camper in enumerate(campers):
+                    stop_num = stop['stop_number'] if i == 0 else ''
+                    address = stop['address'] if i == 0 else ''
+                    town = stop['town'] if i == 0 else ''
+                    checkbox = '☐' if i == 0 else ''
+                    html += f"""
+                    <tr>
+                        <td><strong>{stop_num}</strong></td>
+                        <td><strong>{camper['name']}</strong></td>
+                        <td>{camper['am_bus']}</td>
+                        <td>{camper['pm_bus']}</td>
+                        <td>{address}</td>
+                        <td>{town}</td>
+                        <td>{camper['session']}</td>
+                        <td>{checkbox}</td>
+                    </tr>
+                """
+            else:
+                html += f"""
                     <tr>
                         <td><strong>{stop['stop_number']}</strong></td>
                         <td><strong>{stop['camper_name']}</strong></td>
+                        <td>-</td>
+                        <td>-</td>
                         <td>{stop['address']}</td>
                         <td>{stop['town']}</td>
                         <td>{stop['session']}</td>
