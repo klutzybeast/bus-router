@@ -966,8 +966,12 @@ async def push_seat_availability_to_sheet():
             (c.get('pm_bus_number', '') and c.get('pm_bus_number', '') != 'NONE' and c.get('pm_bus_number', '').startswith('Bus'))
         ]
         
-        # Generate cover sheet data
-        sheet_data = cover_sheet_generator.generate_cover_sheet(campers_with_buses)
+        # Get staff configurations from database
+        staff_configs = await db.bus_staff.find({}).to_list(None)
+        staff_dict = {c['bus_number']: c for c in staff_configs}
+        
+        # Generate cover sheet data with staff info
+        sheet_data = cover_sheet_generator.generate_cover_sheet(campers_with_buses, staff_dict)
         
         # Use webhook to update the sheet
         webhook_url = os.environ.get('GOOGLE_SHEETS_WEBHOOK_URL', '')
