@@ -215,68 +215,40 @@ const BusRoutingMap = () => {
     }
   };
 
-  const handleDownloadAssignments = async () => {
-    try {
-      toast.loading("Preparing download...");
-      
-      // Create a hidden link that points directly to the API endpoint
-      // This approach works better on mobile devices
-      const link = document.createElement('a');
-      link.href = `${API}/download/bus-assignments`;
-      link.setAttribute('download', `bus-assignments-${new Date().toISOString().split('T')[0]}.csv`);
-      link.setAttribute('target', '_blank');
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      
-      // Try the click approach first
-      link.click();
-      
-      // Clean up after a short delay
-      setTimeout(() => {
-        document.body.removeChild(link);
-        toast.dismiss();
-        toast.success("Download started! Check your downloads folder.");
-      }, 1000);
-      
-    } catch (error) {
-      toast.dismiss();
-      console.error("Error downloading:", error);
-      // Fallback: open in new tab
-      window.open(`${API}/download/bus-assignments`, '_blank');
-      toast.info("Download opened in new tab");
+  const handleDownloadAssignments = () => {
+    toast.loading("Opening download...");
+    
+    // Use window.open - most reliable for mobile devices
+    const downloadUrl = `${API}/download/bus-assignments`;
+    const newWindow = window.open(downloadUrl, '_blank');
+    
+    // If popup was blocked, try direct navigation
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+      window.location.href = downloadUrl;
     }
+    
+    setTimeout(() => {
+      toast.dismiss();
+      toast.success("Download started! Check your downloads folder.");
+    }, 1500);
   };
 
-  const handleDownloadSeatAvailability = async () => {
-    try {
-      toast.loading("Preparing download...");
-      
-      // Create a hidden link that points directly to the API endpoint
-      // This approach works better on mobile devices
-      const link = document.createElement('a');
-      link.href = `${API}/download/seat-availability`;
-      link.setAttribute('download', `seat-availability-${new Date().toISOString().split('T')[0]}.csv`);
-      link.setAttribute('target', '_blank');
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      
-      // Try the click approach first
-      link.click();
-      
-      // Clean up after a short delay
-      setTimeout(() => {
-        document.body.removeChild(link);
-        toast.dismiss();
-        toast.success("Download started! Check your downloads folder.");
-      }, 1000);
-      
-    } catch (error) {
-      toast.dismiss();
-      console.error("Error downloading:", error);
-      // Fallback: open in new tab
-      window.open(`${API}/download/seat-availability`, '_blank');
-      toast.info("Download opened in new tab");
+  const handleDownloadSeatAvailability = () => {
+    toast.loading("Opening download...");
+    
+    // Use window.open - most reliable for mobile devices
+    const downloadUrl = `${API}/download/seat-availability`;
+    const newWindow = window.open(downloadUrl, '_blank');
+    
+    // If popup was blocked, try direct navigation
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+      window.location.href = downloadUrl;
     }
+    
+    setTimeout(() => {
+      toast.dismiss();
+      toast.success("Download started! Check your downloads folder.");
+    }, 1500);
   };
 
   const handleRefreshSeatAvailabilitySheet = async () => {
