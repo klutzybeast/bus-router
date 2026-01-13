@@ -842,6 +842,205 @@ async def get_bus_details(bus_number: str):
         logging.error(f"Error getting bus details: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/audit/campers")
+async def audit_all_campers():
+    """
+    Comprehensive audit of ALL campers to verify bus assignments are correct.
+    Compares database values against Google Sheet source data.
+    """
+    import httpx
+    import csv
+    from io import StringIO
+    
+    logger.info("=== STARTING COMPREHENSIVE CAMPER AUDIT ===")
+    
+    results = {
+        "status": "success",
+        "total_checked": 0,
+        "am_errors": 0,
+        "pm_errors": 0,
+        "errors": [],
+        "warnings": [],
+        "summary": {}
+    }
+    
+    try:
+        # Step 1: Load all campers from database
+        db_campers = await db.campers.find({}).to_list(None)
+        logger.info(f"Loaded {len(db_campers)} campers from database")
+        
+        # Step 2: Load Google Sheet data for comparison
+        sheet_id = CAMPMINDER_SHEET_ID
+        csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+        
+        async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
+            response = await client.get(csv_url)
+            csv_content = response.text
+        
+        # Parse Google Sheet data
+        if csv_content.startswith('\ufeff'):
+            csv_content = csv_content[1:]
+        
+        reader = csv.DictReader(StringIO(csv_content))
+        sheet_data = {}
+        
+        for row in reader:
+            first_name = row.get('First Name', '').strip()
+            last_name = row.get('Last Name', '').strip()
+            am_bus = row.get('2026Transportation M AM Bus', '').strip()
+            pm_bus = row.get('2026Transportation M PM Bus', '').strip()
+            
+            if first_name and last_name:
+                key = f"{last_name}_{first_name}".lower()
+                sheet_data[key] = {
+                    'name': f"{first_name} {last_name}",
+                    'sheet_am_bus': am_bus,
+                    'sheet_pm_bus': pm_bus
+                }
+        
+        logger.info(f"Loaded {len(sheet_data)} campers from Google Sheet")
+        
+        # Step 3: Audit each camper
+        for camper in db_campers:
+            results["total_checked"] += 1
+            
+            first_name = camper.get('first_name', '')
+            last_name = camper.get('last_name', '')
+            camper_id = camper.get('_id', '')
+            db_am_bus = camper.get('am_bus_number', '')
+            db_pm_bus = camper.get('pm_bus_number', '')
+            
+            # Skip PM-specific entries for main audit (they're duplicates for different addresses)
+            if camper_id.endswith('_PM'):
+                continue
+            
+            # Find in sheet data
+            key = f"{last_name}_{first_name}".lower()
+            sheet_camper = sheet_data.get(key)
+            
+            if not sheet_camper:
+                results["warnings"].append({
+                    "camper": f"{first_name} {last_name}",
+                    "issue": "Not found in Google Sheet - may be manually added"
+                })
+                continue
+            
+            sheet_am = sheet_camper['sheet_am_bus']
+            sheet_pm = sheet_camper['sheet_pm_bus']
+            
+            # Check AM bus
+            if db_am_bus and sheet_am:
+                # Normalize for comparison
+                db_am_normalized = db_am_bus.replace(' ', '').replace('#', ' #').strip()
+                sheet_am_normalized = sheet_am.replace(' ', '').replace('#', ' #').strip()
+                
+                if db_am_normalized != sheet_am_normalized and db_am_bus != 'NONE' and sheet_am:
+                    results["am_errors"] += 1
+                    results["errors"].append({
+                        "camper": f"{first_name} {last_name}",
+                        "type": "AM",
+                        "database_value": db_am_bus,
+                        "sheet_value": sheet_am,
+                        "issue": f"AM bus mismatch: DB has '{db_am_bus}', Sheet has '{sheet_am}'"
+                    })
+            
+            # Check PM bus
+            if db_pm_bus and sheet_pm:
+                db_pm_normalized = db_pm_bus.replace(' ', '').replace('#', ' #').strip()
+                sheet_pm_normalized = sheet_pm.replace(' ', '').replace('#', ' #').strip()
+                
+                if db_pm_normalized != sheet_pm_normalized and db_pm_bus != 'NONE':
+                    results["pm_errors"] += 1
+                    results["errors"].append({
+                        "camper": f"{first_name} {last_name}",
+                        "type": "PM",
+                        "database_value": db_pm_bus,
+                        "sheet_value": sheet_pm,
+                        "issue": f"PM bus mismatch: DB has '{db_pm_bus}', Sheet has '{sheet_pm}'"
+                    })
+        
+        # Step 4: Generate summary
+        total_errors = results["am_errors"] + results["pm_errors"]
+        
+        results["summary"] = {
+            "total_campers_checked": results["total_checked"],
+            "am_bus_errors": results["am_errors"],
+            "pm_bus_errors": results["pm_errors"],
+            "total_errors": total_errors,
+            "warnings_count": len(results["warnings"]),
+            "validation_passed": total_errors == 0,
+            "message": "✓✓✓ ALL CAMPERS HAVE CORRECT BUS LABELS" if total_errors == 0 else f"❌ Found {total_errors} bus assignment errors"
+        }
+        
+        if total_errors > 0:
+            results["status"] = "errors_found"
+            logger.error(f"AUDIT FAILED: Found {total_errors} bus assignment errors")
+        else:
+            logger.info("AUDIT PASSED: All campers have correct bus labels")
+        
+        return results
+        
+    except Exception as e:
+        logger.error(f"Error during audit: {str(e)}")
+        results["status"] = "error"
+        results["message"] = str(e)
+        return results
+
+
+@api_router.get("/audit/bus/{bus_number}")
+async def audit_single_bus(bus_number: str):
+    """Audit all campers on a specific bus"""
+    
+    # Get all campers assigned to this bus
+    campers = await db.campers.find({
+        "$or": [
+            {"am_bus_number": bus_number},
+            {"pm_bus_number": bus_number}
+        ]
+    }).to_list(None)
+    
+    results = {
+        "bus_number": bus_number,
+        "am_campers": [],
+        "pm_campers": [],
+        "am_count": 0,
+        "pm_count": 0
+    }
+    
+    seen_am = set()
+    seen_pm = set()
+    
+    for camper in campers:
+        name = f"{camper['first_name']} {camper['last_name']}"
+        camper_id = camper.get('_id', '')
+        
+        # Check AM assignment
+        if camper.get('am_bus_number') == bus_number and name not in seen_am:
+            if not camper_id.endswith('_PM'):
+                results["am_campers"].append({
+                    "name": name,
+                    "address": camper.get('location', {}).get('address', ''),
+                    "am_bus": camper.get('am_bus_number', ''),
+                    "pm_bus": camper.get('pm_bus_number', '')
+                })
+                seen_am.add(name)
+        
+        # Check PM assignment
+        if camper.get('pm_bus_number') == bus_number and name not in seen_pm:
+            results["pm_campers"].append({
+                "name": name,
+                "address": camper.get('location', {}).get('address', ''),
+                "am_bus": camper.get('am_bus_number', ''),
+                "pm_bus": camper.get('pm_bus_number', '')
+            })
+            seen_pm.add(name)
+    
+    results["am_count"] = len(results["am_campers"])
+    results["pm_count"] = len(results["pm_campers"])
+    
+    return results
+
+
 @api_router.get("/route-sheet/{bus_number}")
 async def get_route_sheet(bus_number: str):
     """Get printable route sheet with turn-by-turn directions for a specific bus"""
