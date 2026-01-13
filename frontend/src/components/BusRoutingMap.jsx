@@ -818,6 +818,16 @@ const BusRoutingMap = () => {
                   <Download className="w-5 h-5 mr-2" />
                   Download Bus Assignments
                 </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full h-12 text-base bg-teal-50 hover:bg-teal-100 border-teal-600 text-teal-700"
+                  onClick={handleDownloadSeatAvailability}
+                  data-testid="download-seat-availability-btn"
+                >
+                  <FileSpreadsheet className="w-5 h-5 mr-2" />
+                  Seat Availability
+                </Button>
                 
                 <Button
                   variant="outline"
