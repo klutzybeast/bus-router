@@ -217,47 +217,67 @@ const BusRoutingMap = () => {
 
   const handleDownloadAssignments = async () => {
     try {
-      toast.loading("Downloading bus assignments...");
-      const response = await fetch(`${API}/download/bus-assignments`);
-      if (!response.ok) throw new Error('Download failed');
+      toast.loading("Preparing download...");
       
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'bus-assignments.csv';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      // Create a hidden link that points directly to the API endpoint
+      // This approach works better on mobile devices
+      const link = document.createElement('a');
+      link.href = `${API}/download/bus-assignments`;
+      link.setAttribute('download', `bus-assignments-${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('target', '_blank');
+      link.style.display = 'none';
+      document.body.appendChild(link);
       
-      toast.dismiss();
-      toast.success("Download complete!");
+      // Try the click approach first
+      link.click();
+      
+      // Clean up after a short delay
+      setTimeout(() => {
+        document.body.removeChild(link);
+        toast.dismiss();
+        toast.success("Download started! Check your downloads folder.");
+      }, 1000);
+      
     } catch (error) {
       toast.dismiss();
       console.error("Error downloading:", error);
-      toast.error("Failed to download bus assignments");
+      // Fallback: open in new tab
+      window.open(`${API}/download/bus-assignments`, '_blank');
+      toast.info("Download opened in new tab");
     }
   };
 
   const handleDownloadSeatAvailability = async () => {
     try {
-      toast.loading("Downloading seat availability...");
-      const response = await fetch(`${API}/download/seat-availability`);
-      if (!response.ok) throw new Error('Download failed');
+      toast.loading("Preparing download...");
       
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'seat-availability.csv';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      // Create a hidden link that points directly to the API endpoint
+      // This approach works better on mobile devices
+      const link = document.createElement('a');
+      link.href = `${API}/download/seat-availability`;
+      link.setAttribute('download', `seat-availability-${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('target', '_blank');
+      link.style.display = 'none';
+      document.body.appendChild(link);
       
+      // Try the click approach first
+      link.click();
+      
+      // Clean up after a short delay
+      setTimeout(() => {
+        document.body.removeChild(link);
+        toast.dismiss();
+        toast.success("Download started! Check your downloads folder.");
+      }, 1000);
+      
+    } catch (error) {
       toast.dismiss();
-      toast.success("Download complete!");
+      console.error("Error downloading:", error);
+      // Fallback: open in new tab
+      window.open(`${API}/download/seat-availability`, '_blank');
+      toast.info("Download opened in new tab");
+    }
+  };
     } catch (error) {
       toast.dismiss();
       console.error("Error downloading:", error);
