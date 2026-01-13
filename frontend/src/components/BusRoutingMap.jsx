@@ -272,6 +272,26 @@ const BusRoutingMap = () => {
     }
   };
 
+  const handleDeleteCamper = async (camperId, camperName) => {
+    if (!window.confirm(`Are you sure you want to delete ${camperName}?`)) {
+      return;
+    }
+    
+    try {
+      toast.loading("Deleting camper...");
+      await axios.delete(`${API}/campers/${camperId}`);
+      
+      toast.dismiss();
+      toast.success(`Deleted ${camperName}`);
+      setSelectedCamper(null);
+      await fetchCampers();
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error deleting camper:", error);
+      toast.error(error.response?.data?.detail || "Failed to delete camper");
+    }
+  };
+
   const handleChangeBus = async (camperId, type) => {
     const busToUpdate = type === 'am' ? newAmBus : newPmBus;
     
