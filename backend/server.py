@@ -442,7 +442,18 @@ async def refresh_colors():
         campers = await db.campers.find({}).to_list(None)
         
         for camper in campers:
-            new_color = get_bus_color(camper['bus_number'])
+            # Use am_bus_number as primary, fallback to bus_number for legacy
+            bus_num = camper.get('am_bus_number') or camper.get('bus_number', '')
+            if bus_num and bus_num != 'NONE' and bus_num.startswith('Bus'):
+                new_color = get_bus_color(bus_num)
+            else:
+                # Use PM bus if AM is not valid
+                pm_bus = camper.get('pm_bus_number', '')
+                if pm_bus and pm_bus != 'NONE' and pm_bus.startswith('Bus'):
+                    new_color = get_bus_color(pm_bus)
+                else:
+                    new_color = "#808080"  # Gray for no bus
+            
             await db.campers.update_one(
                 {"_id": camper["_id"]},
                 {"$set": {"bus_color": new_color}}
