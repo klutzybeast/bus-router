@@ -148,8 +148,8 @@ async def get_campers_needing_address():
         campers = await db.campers.find({
             "location.latitude": 0.0,
             "$or": [
-                {"am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}},
-                {"pm_bus_number": {"$exists": True, "$nin": ["NONE", ""]}}
+                {"am_bus_number": {"$exists": True, "$regex": "^Bus"}},
+                {"pm_bus_number": {"$exists": True, "$regex": "^Bus"}}
             ]
         }).to_list(None)
         
