@@ -490,9 +490,9 @@ const BusRoutingMap = () => {
           style={{ pointerEvents: 'auto' }}
           data-testid="control-panel"
         >
-          <div className="h-full md:h-auto flex flex-col">
+          <div className="h-full md:h-auto flex flex-col md:max-h-[calc(100vh-2rem)] overflow-hidden">
             {/* Header */}
-            <div className="p-4 md:p-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white">
+            <div className="p-4 md:p-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold">Camp Bus Routing</h2>
