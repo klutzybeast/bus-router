@@ -141,6 +141,34 @@ async def get_campers():
         logging.error(f"Error fetching campers: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/campers/needs-address")
+async def get_campers_needing_address():
+    """Get campers who have bus assignments but no address"""
+    try:
+        campers = await db.campers.find({
+            "location.latitude": 0.0,
+            "$or": [
+                {"am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}},
+                {"pm_bus_number": {"$exists": True, "$nin": ["NONE", ""]}}
+            ]
+        }).to_list(None)
+        
+        result = []
+        for camper in campers:
+            result.append({
+                "_id": str(camper['_id']),
+                "first_name": camper.get('first_name', ''),
+                "last_name": camper.get('last_name', ''),
+                "am_bus_number": camper.get('am_bus_number', ''),
+                "pm_bus_number": camper.get('pm_bus_number', ''),
+                "pickup_type": camper.get('pickup_type', '')
+            })
+        
+        return result
+    except Exception as e:
+        logging.error(f"Error fetching campers needing address: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 class ManualCamperInput(BaseModel):
     first_name: str
