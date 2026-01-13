@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
 from collections import defaultdict
-from bus_config import get_bus_capacity, get_bus_driver, get_bus_counselor
+from bus_config import get_bus_capacity, get_bus_driver, get_bus_counselor, get_bus_location
 
 class CoverSheetGenerator:
     """Generate EXACT format matching the Excel Cover Sheet - compact summary table"""
