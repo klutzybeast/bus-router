@@ -1006,7 +1006,9 @@ async def auto_sync_campminder():
             # Process camper with BOTH AM and PM info
             # Create ONE entry if same address, TWO entries if different addresses
             
-            camper_id = f"{last_name}_{first_name}_{effective_zip}".replace(' ', '_')
+            # Generate camper ID - use zip if available, otherwise use "NOADDR"
+            id_zip = effective_zip if effective_zip else "NOADDR"
+            camper_id = f"{last_name}_{first_name}_{id_zip}".replace(' ', '_')
             sheet_camper_ids.add(camper_id)
             
             if effective_address:
