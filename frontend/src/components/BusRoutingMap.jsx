@@ -849,7 +849,17 @@ const BusRoutingMap = () => {
                   data-testid="download-seat-availability-btn"
                 >
                   <FileSpreadsheet className="w-5 h-5 mr-2" />
-                  Seat Availability
+                  Download Seat Availability
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full h-12 text-base bg-orange-50 hover:bg-orange-100 border-orange-600 text-orange-700"
+                  onClick={handleRefreshSeatAvailabilitySheet}
+                  data-testid="refresh-seat-sheet-btn"
+                >
+                  <RefreshCw className="w-5 h-5 mr-2" />
+                  Update Seat Availability Sheet
                 </Button>
                 
                 <Button
