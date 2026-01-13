@@ -1071,6 +1071,243 @@ async def audit_single_bus(bus_number: str):
     return results
 
 
+@api_router.post("/update-output-sheet")
+async def update_output_google_sheet():
+    """
+    Update the output Google Sheets document with all camper bus assignments.
+    Sheet ID: 1ZK58gjF4BO0HF_2y6oovrjzRH3qV5zAs8H-7CeKOSGE
+    """
+    import httpx
+    
+    logger.info("=== UPDATING OUTPUT GOOGLE SHEET ===")
+    logger.info(f"Sheet ID: {OUTPUT_SHEET_ID}")
+    logger.info(f"Sheet URL: https://docs.google.com/spreadsheets/d/{OUTPUT_SHEET_ID}/edit")
+    
+    try:
+        # Get all campers from database
+        all_campers = await db.campers.find({}).to_list(None)
+        logger.info(f"Found {len(all_campers)} campers in database")
+        
+        # Prepare data for sheet
+        # Format: Name, Address, Town, Zip, Session Type, AM Bus, PM Bus
+        sheet_data = []
+        seen_campers = set()
+        
+        for camper in all_campers:
+            first_name = camper.get('first_name', '')
+            last_name = camper.get('last_name', '')
+            camper_id = camper.get('_id', '')
+            
+            # Skip PM-specific entries (we'll combine data)
+            if camper_id.endswith('_PM'):
+                continue
+            
+            full_name = f"{first_name} {last_name}"
+            if full_name in seen_campers:
+                continue
+            seen_campers.add(full_name)
+            
+            address = camper.get('location', {}).get('address', '')
+            town = camper.get('town', '')
+            zip_code = camper.get('zip_code', '')
+            session = camper.get('session', camper.get('pickup_type', ''))
+            am_bus = camper.get('am_bus_number', '')
+            pm_bus = camper.get('pm_bus_number', '')
+            
+            # Clean up bus values - don't show NONE
+            if am_bus == 'NONE':
+                am_bus = ''
+            if pm_bus == 'NONE':
+                pm_bus = ''
+            
+            sheet_data.append({
+                'name': full_name,
+                'first_name': first_name,
+                'last_name': last_name,
+                'address': address,
+                'town': town,
+                'zip': zip_code,
+                'session': session,
+                'am_bus': am_bus,
+                'pm_bus': pm_bus
+            })
+        
+        logger.info(f"Prepared {len(sheet_data)} unique campers for sheet")
+        
+        # Build CSV-like data for Google Sheets
+        # Headers
+        headers = ['First Name', 'Last Name', 'Address', 'Town', 'Zip', 'Session Type', 'AM Bus', 'PM Bus']
+        
+        # Sort by last name
+        sheet_data.sort(key=lambda x: (x['last_name'], x['first_name']))
+        
+        # Convert to rows
+        rows = [headers]
+        for camper in sheet_data:
+            rows.append([
+                camper['first_name'],
+                camper['last_name'],
+                camper['address'],
+                camper['town'],
+                camper['zip'],
+                camper['session'],
+                camper['am_bus'],
+                camper['pm_bus']
+            ])
+        
+        # Use the webhook URL to update the sheet
+        webhook_url = os.environ.get('GOOGLE_SHEETS_WEBHOOK_URL', '')
+        
+        if webhook_url:
+            # Try to use webhook for update
+            logger.info("Attempting update via webhook...")
+            
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                try:
+                    response = await client.post(
+                        webhook_url,
+                        json={
+                            'action': 'updateOutputSheet',
+                            'sheetId': OUTPUT_SHEET_ID,
+                            'data': rows
+                        }
+                    )
+                    
+                    if response.status_code == 200:
+                        logger.info("✓ Sheet updated via webhook")
+                        return {
+                            "status": "success",
+                            "message": f"Updated {len(sheet_data)} campers in Google Sheet",
+                            "sheet_url": f"https://docs.google.com/spreadsheets/d/{OUTPUT_SHEET_ID}/edit",
+                            "rows_written": len(rows),
+                            "method": "webhook"
+                        }
+                except Exception as e:
+                    logger.warning(f"Webhook update failed: {str(e)}, trying direct API...")
+        
+        # If no webhook or webhook failed, try direct API access
+        # This requires a service account with access to the sheet
+        try:
+            from google.oauth2 import service_account
+            from googleapiclient.discovery import build
+            
+            # Check for service account credentials
+            creds_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', '/app/backend/service-account.json')
+            
+            if os.path.exists(creds_path):
+                credentials = service_account.Credentials.from_service_account_file(
+                    creds_path,
+                    scopes=['https://www.googleapis.com/auth/spreadsheets']
+                )
+                
+                service = build('sheets', 'v4', credentials=credentials)
+                
+                # Clear existing data
+                logger.info("Clearing existing data...")
+                service.spreadsheets().values().clear(
+                    spreadsheetId=OUTPUT_SHEET_ID,
+                    range='Sheet1!A1:H1000'
+                ).execute()
+                
+                # Write new data
+                logger.info(f"Writing {len(rows)} rows...")
+                result = service.spreadsheets().values().update(
+                    spreadsheetId=OUTPUT_SHEET_ID,
+                    range='Sheet1!A1',
+                    valueInputOption='USER_ENTERED',
+                    body={'values': rows}
+                ).execute()
+                
+                logger.info(f"✓ Updated {result.get('updatedCells', 0)} cells")
+                
+                return {
+                    "status": "success",
+                    "message": f"Updated {len(sheet_data)} campers in Google Sheet",
+                    "sheet_url": f"https://docs.google.com/spreadsheets/d/{OUTPUT_SHEET_ID}/edit",
+                    "rows_written": len(rows),
+                    "cells_updated": result.get('updatedCells', 0),
+                    "method": "direct_api"
+                }
+            else:
+                logger.warning("No service account credentials found")
+                
+        except ImportError:
+            logger.warning("Google API client not fully configured")
+        except Exception as e:
+            logger.error(f"Direct API update failed: {str(e)}")
+        
+        # Return data for manual update if automated methods fail
+        return {
+            "status": "manual_required",
+            "message": "Automated update not available. Use the data below to update manually.",
+            "sheet_url": f"https://docs.google.com/spreadsheets/d/{OUTPUT_SHEET_ID}/edit",
+            "total_campers": len(sheet_data),
+            "headers": headers,
+            "sample_data": rows[:10],
+            "full_data_available": True,
+            "instructions": "Copy the data from /api/export-campers-csv endpoint to update the sheet manually"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error updating output sheet: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/export-campers-csv")
+async def export_campers_csv():
+    """Export all campers as CSV for manual sheet update"""
+    from fastapi.responses import StreamingResponse
+    import io
+    import csv
+    
+    # Get all campers
+    all_campers = await db.campers.find({}).to_list(None)
+    
+    # Prepare CSV
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Headers
+    writer.writerow(['First Name', 'Last Name', 'Address', 'Town', 'Zip', 'Session Type', 'AM Bus', 'PM Bus'])
+    
+    seen = set()
+    for camper in sorted(all_campers, key=lambda x: (x.get('last_name', ''), x.get('first_name', ''))):
+        camper_id = camper.get('_id', '')
+        if camper_id.endswith('_PM'):
+            continue
+        
+        name = f"{camper.get('first_name', '')} {camper.get('last_name', '')}"
+        if name in seen:
+            continue
+        seen.add(name)
+        
+        am_bus = camper.get('am_bus_number', '')
+        pm_bus = camper.get('pm_bus_number', '')
+        if am_bus == 'NONE':
+            am_bus = ''
+        if pm_bus == 'NONE':
+            pm_bus = ''
+        
+        writer.writerow([
+            camper.get('first_name', ''),
+            camper.get('last_name', ''),
+            camper.get('location', {}).get('address', ''),
+            camper.get('town', ''),
+            camper.get('zip_code', ''),
+            camper.get('session', camper.get('pickup_type', '')),
+            am_bus,
+            pm_bus
+        ])
+    
+    output.seek(0)
+    
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=camper_bus_assignments.csv"}
+    )
+
+
 @api_router.get("/route-sheet/{bus_number}")
 async def get_route_sheet(bus_number: str):
     """Get printable route sheet with turn-by-turn directions for a specific bus"""
