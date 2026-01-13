@@ -855,10 +855,12 @@ async def get_compact_availability():
 
 @api_router.get("/download/seat-availability")
 async def download_seat_availability():
-    """Download seat availability as CSV in the same format as the Cover Sheet"""
+    """Download seat availability as formatted Excel file matching the Google Sheet"""
     from fastapi.responses import Response
-    from io import StringIO
-    import csv as csv_module
+    from io import BytesIO
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
+    from openpyxl.utils import get_column_letter
     
     try:
         # Get all campers with bus assignments
@@ -873,23 +875,116 @@ async def download_seat_availability():
         # Generate cover sheet data with staff info
         sheet_data = cover_sheet_generator.generate_cover_sheet(campers, staff_dict)
         
-        # Convert to CSV
-        output = StringIO()
-        writer = csv_module.writer(output)
+        # Create Excel workbook with formatting
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Seat Availability"
         
-        for row in sheet_data:
-            writer.writerow(row)
+        # Define styles
+        title_font = Font(name='Arial', size=16, bold=True, color='1F4E79')
+        subtitle_font = Font(name='Arial', size=12, bold=True, color='1F4E79')
+        header_font = Font(name='Arial', size=11, bold=True, color='FFFFFF')
+        header_fill = PatternFill(start_color='1F4E79', end_color='1F4E79', fill_type='solid')
+        data_font = Font(name='Arial', size=10)
+        totals_font = Font(name='Arial', size=11, bold=True)
+        totals_fill = PatternFill(start_color='D9E2F3', end_color='D9E2F3', fill_type='solid')
         
-        csv_content = output.getvalue()
-        filename = f"seat_availability_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
+        # Border styles
+        thin_border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
         
-        # Use text/csv with proper headers for mobile compatibility
+        # Alternating row colors
+        light_fill = PatternFill(start_color='F2F2F2', end_color='F2F2F2', fill_type='solid')
+        white_fill = PatternFill(start_color='FFFFFF', end_color='FFFFFF', fill_type='solid')
+        
+        # Available column colors (green for positive, red for negative)
+        green_fill = PatternFill(start_color='C6EFCE', end_color='C6EFCE', fill_type='solid')
+        red_fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')
+        green_font = Font(name='Arial', size=10, color='006100')
+        red_font = Font(name='Arial', size=10, color='9C0006')
+        
+        # Write data with formatting
+        for row_idx, row_data in enumerate(sheet_data, 1):
+            for col_idx, value in enumerate(row_data, 1):
+                cell = ws.cell(row=row_idx, column=col_idx, value=value)
+                
+                # Title row (row 1)
+                if row_idx == 1:
+                    cell.font = title_font
+                    cell.alignment = Alignment(horizontal='left')
+                # Subtitle row (row 2)
+                elif row_idx == 2:
+                    cell.font = subtitle_font
+                    cell.alignment = Alignment(horizontal='left')
+                # Header row (row 4)
+                elif row_idx == 4:
+                    cell.font = header_font
+                    cell.fill = header_fill
+                    cell.border = thin_border
+                    cell.alignment = Alignment(horizontal='center', vertical='center')
+                # TOTALS row
+                elif row_data and row_data[0] == 'TOTALS':
+                    cell.font = totals_font
+                    cell.fill = totals_fill
+                    cell.border = thin_border
+                    cell.alignment = Alignment(horizontal='center')
+                # AVAILABLE SEATS header
+                elif row_data and 'AVAILABLE SEATS' in str(row_data[0]):
+                    cell.font = subtitle_font
+                # Data rows (bus data)
+                elif row_idx > 4 and row_data and str(row_data[0]).startswith('Bus'):
+                    cell.font = data_font
+                    cell.border = thin_border
+                    # Alternating row colors
+                    if (row_idx - 5) % 2 == 0:
+                        cell.fill = light_fill
+                    else:
+                        cell.fill = white_fill
+                    
+                    # Center align numeric columns
+                    if col_idx >= 5:
+                        cell.alignment = Alignment(horizontal='center')
+                    
+                    # Color the Available column (last column)
+                    if col_idx == 10:  # Available column
+                        try:
+                            avail = int(value) if value else 0
+                            if avail >= 0:
+                                cell.fill = green_fill
+                                cell.font = green_font
+                            else:
+                                cell.fill = red_fill
+                                cell.font = red_font
+                        except:
+                            pass
+                # Summary rows at bottom
+                elif row_data and ('Half' in str(row_data[0]) or 'Available' in str(row_data[0])):
+                    cell.font = data_font
+        
+        # Set column widths
+        column_widths = [10, 20, 20, 20, 8, 12, 12, 12, 12, 12]
+        for i, width in enumerate(column_widths, 1):
+            ws.column_dimensions[get_column_letter(i)].width = width
+        
+        # Freeze the header row
+        ws.freeze_panes = 'A5'
+        
+        # Save to BytesIO
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        filename = f"seat_availability_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
+        
         return Response(
-            content=csv_content,
-            media_type="text/csv; charset=utf-8",
+            content=output.getvalue(),
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             headers={
                 "Content-Disposition": f'attachment; filename="{filename}"',
-                "Content-Type": "text/csv; charset=utf-8",
                 "Cache-Control": "no-cache, no-store, must-revalidate",
                 "Pragma": "no-cache",
                 "Expires": "0",
