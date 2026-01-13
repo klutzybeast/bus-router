@@ -3,7 +3,7 @@ import { APIProvider, Map, AdvancedMarker, InfoWindow } from "@vis.gl/react-goog
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Upload, RefreshCw, Menu, X, MapPin, Printer, Filter, Download, Search, UserPlus, FileSpreadsheet } from "lucide-react";
+import { Upload, RefreshCw, Menu, X, MapPin, Printer, Filter, Download, Search, UserPlus, FileSpreadsheet, Settings, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
