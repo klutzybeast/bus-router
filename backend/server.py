@@ -233,6 +233,9 @@ async def get_campers():
             result.append(camper_dict)
         
         return result
+    except asyncio.TimeoutError:
+        logging.error("Timeout fetching campers - database may be slow or unavailable")
+        raise HTTPException(status_code=503, detail="Database timeout - please try again")
     except Exception as e:
         logging.error(f"Error fetching campers: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
