@@ -49,6 +49,8 @@ api_router = APIRouter(prefix="/api")
 AUTO_SYNC_ENABLED = os.environ.get('AUTO_SYNC_ENABLED', 'true').lower() == 'true'
 SYNC_INTERVAL_MINUTES = int(os.environ.get('SYNC_INTERVAL_MINUTES', '15'))
 CAMPMINDER_SHEET_ID = os.environ.get('CAMPMINDER_SHEET_ID', '')
+# Output sheet for bus assignments (different from source sheet)
+OUTPUT_SHEET_ID = os.environ.get('OUTPUT_SHEET_ID', '1ZK58gjF4BO0HF_2y6oovrjzRH3qV5zAs8H-7CeKOSGE')
 sync_task = None
 last_sync_time = None
 
