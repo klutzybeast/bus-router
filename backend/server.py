@@ -2639,29 +2639,22 @@ async def download_bus_assignments():
         output = StringIO()
         writer = csv_module.writer(output)
         
-        # Header with both AM and PM bus columns
+        # Simple header - just name and bus numbers
         writer.writerow([
             'Last Name',
             'First Name', 
             'AM Bus',
-            'PM Bus',
-            'Session',
-            'AM Pickup Address',
-            'AM Town',
-            'AM Zip',
-            'PM Drop-off Address',
-            'PM Town',
-            'PM Zip'
+            'PM Bus'
         ])
         
-        # Track campers to avoid duplicates (some have _PM suffix entries)
+        # Track campers to avoid duplicates
         seen_campers = set()
         
         # Data rows - sorted by last name, first name
         for camper in sorted(campers, key=lambda x: (x.get('last_name', '').lower(), x.get('first_name', '').lower())):
             camper_id = camper.get('_id', '')
             
-            # Skip _PM suffix entries - we'll get PM info from main entry
+            # Skip _PM suffix entries
             if str(camper_id).endswith('_PM'):
                 continue
             
@@ -2673,44 +2666,24 @@ async def download_bus_assignments():
             am_bus = camper.get('am_bus_number', '')
             pm_bus = camper.get('pm_bus_number', '')
             
-            # Get AM address info
-            am_address = camper.get('location', {}).get('address', '')
-            am_town = camper.get('town', '')
-            am_zip = camper.get('zip_code', '')
-            
-            # Check if there's a separate PM entry with different address
-            pm_address = am_address
-            pm_town = am_town
-            pm_zip = am_zip
-            
-            # Look for _PM entry for this camper
+            # Look for _PM entry for this camper (may have different PM bus)
             for c in campers:
                 if str(c.get('_id', '')).endswith('_PM'):
                     if c.get('first_name') == camper.get('first_name') and c.get('last_name') == camper.get('last_name'):
-                        pm_address = c.get('location', {}).get('address', pm_address)
-                        pm_town = c.get('town', pm_town)
-                        pm_zip = c.get('zip_code', pm_zip)
                         pm_bus = c.get('pm_bus_number', pm_bus)
                         break
             
-            # Display "NONE" as empty or "N/A"
-            if am_bus == 'NONE':
+            # Display "NONE" as "N/A"
+            if am_bus == 'NONE' or not am_bus:
                 am_bus = 'N/A'
-            if pm_bus == 'NONE':
+            if pm_bus == 'NONE' or not pm_bus:
                 pm_bus = 'N/A'
             
             writer.writerow([
                 camper.get('last_name', ''),
                 camper.get('first_name', ''),
                 am_bus,
-                pm_bus,
-                camper.get('session', ''),
-                am_address,
-                am_town,
-                am_zip,
-                pm_address,
-                pm_town,
-                pm_zip
+                pm_bus
             ])
         
         output.seek(0)
