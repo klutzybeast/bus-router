@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 # Bus colors - 34 maximally distinct colors for visual clarity
 BUS_COLORS = [
     "#FF0000",   # Bus 1 - Pure Red
-    "#00FF00",   # Bus 2 - Pure Green
+    "#228B22",   # Bus 2 - Forest Green (darker green)
     "#0000FF",   # Bus 3 - Pure Blue
     "#B8860B",   # Bus 4 - Dark Goldenrod (darker yellow)
     "#FF00FF",   # Bus 5 - Pure Magenta
@@ -33,7 +33,7 @@ BUS_COLORS = [
     "#FF69B4",   # Bus 25 - Hot Pink
     "#4682B4",   # Bus 26 - Steel Blue
     "#D2691E",   # Bus 27 - Chocolate
-    "#FFD700",   # Bus 28 - Gold
+    "#DAA520",   # Bus 28 - Goldenrod (darker gold)
     "#8A2BE2",   # Bus 29 - Blue Violet
     "#5F9EA0",   # Bus 30 - Cadet Blue
     "#A52A2A",   # Bus 31 - Brown
