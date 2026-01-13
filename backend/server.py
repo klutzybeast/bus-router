@@ -1121,8 +1121,10 @@ async def auto_sync_campminder():
                 if result.upserted_id:
                     new_count += 1
             
-            # Only create separate PM entry if address is DIFFERENT
-            if pm_final_address.strip() and pm_final_address != am_address:
+            # Only create separate PM entry if:
+            # 1. PM address is different from AM address
+            # 2. AND this is NOT a PM-only camper (PM-only campers already have their entry with PM address)
+            if pm_final_address.strip() and pm_final_address != am_address and not is_pm_only:
                 camper_id_pm = f"{last_name}_{first_name}_{pm_zip}_PM".replace(' ', '_')
                 sheet_camper_ids.add(camper_id_pm)
                 
