@@ -155,6 +155,48 @@ class RoutePrinter:
                 am_campers.append(c)
         return am_campers
     
+    def _consolidate_stops(self, campers: List[Dict]) -> List[Dict]:
+        """
+        Consolidate multiple campers at the same address into a single stop.
+        Preserves the order of stops based on the first camper at each address.
+        """
+        if not campers:
+            return []
+        
+        consolidated = []
+        seen_addresses = {}
+        
+        for camper in campers:
+            address = camper['location'].get('address', '').strip().lower()
+            
+            # Normalize the address for comparison (remove extra spaces, etc.)
+            normalized_address = ' '.join(address.split())
+            
+            if normalized_address in seen_addresses:
+                # Add camper name to existing stop
+                idx = seen_addresses[normalized_address]
+                existing_names = consolidated[idx]['camper_names']
+                new_name = f"{camper['first_name']} {camper['last_name']}"
+                consolidated[idx]['camper_names'] = f"{existing_names}, {new_name}"
+                
+                # Combine sessions if different
+                new_session = camper.get('session', '')
+                if new_session and new_session not in consolidated[idx]['session']:
+                    consolidated[idx]['session'] = f"{consolidated[idx]['session']}, {new_session}"
+            else:
+                # Create new stop
+                seen_addresses[normalized_address] = len(consolidated)
+                consolidated.append({
+                    'camper_names': f"{camper['first_name']} {camper['last_name']}",
+                    'address': camper['location'].get('address', ''),
+                    'town': camper.get('town', ''),
+                    'zip': camper.get('zip_code', ''),
+                    'session': camper.get('session', ''),
+                    'location': camper['location']
+                })
+        
+        return consolidated
+    
     def _get_pm_campers(self, campers: List[Dict], bus_number: str, is_valid_bus) -> List[Dict]:
         """Get campers for PM route - those with this PM bus assignment"""
         pm_campers = []
