@@ -278,12 +278,6 @@ const BusRoutingMap = () => {
       toast.info("Download opened in new tab");
     }
   };
-    } catch (error) {
-      toast.dismiss();
-      console.error("Error downloading:", error);
-      toast.error("Failed to download seat availability");
-    }
-  };
 
   const handleRefreshSeatAvailabilitySheet = async () => {
     try {
