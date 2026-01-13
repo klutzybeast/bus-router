@@ -192,14 +192,12 @@ const BusRoutingMap = () => {
   };
 
   const handleDownloadAssignments = () => {
-    window.open(`${API}/download/bus-assignments`, '_blank');
-    toast.success("Downloading bus assignments...");
+    window.location.href = `${API}/download/bus-assignments`;
   };
 
   const handleDownloadSeatAvailability = () => {
-    // Direct window.open works best for file downloads
-    window.open(`${API}/download/seat-availability`, '_blank');
-    toast.success("Opening download...");
+    // Direct navigation triggers browser download
+    window.location.href = `${API}/download/seat-availability`;
   };
 
   const handleRefreshSeatAvailabilitySheet = async () => {
