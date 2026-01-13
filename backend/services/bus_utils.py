@@ -9,9 +9,9 @@ BUS_COLORS = [
     "#FF0000",   # Bus 1 - Pure Red
     "#00FF00",   # Bus 2 - Pure Green
     "#0000FF",   # Bus 3 - Pure Blue
-    "#FFFF00",   # Bus 4 - Pure Yellow
+    "#B8860B",   # Bus 4 - Dark Goldenrod (darker yellow)
     "#FF00FF",   # Bus 5 - Pure Magenta
-    "#00FFFF",   # Bus 6 - Pure Cyan
+    "#008B8B",   # Bus 6 - Dark Cyan (darker)
     "#800000",   # Bus 7 - Dark Red (Maroon)
     "#008000",   # Bus 8 - Dark Green
     "#000080",   # Bus 9 - Dark Blue (Navy)
@@ -28,8 +28,8 @@ BUS_COLORS = [
     "#4169E1",   # Bus 20 - Royal Blue
     "#FF8C00",   # Bus 21 - Dark Orange
     "#8B4513",   # Bus 22 - Saddle Brown
-    "#7FFF00",   # Bus 23 - Chartreuse
-    "#00FA9A",   # Bus 24 - Medium Spring Green
+    "#6B8E23",   # Bus 23 - Olive Drab (darker chartreuse)
+    "#2E8B57",   # Bus 24 - Sea Green (darker spring green)
     "#FF69B4",   # Bus 25 - Hot Pink
     "#4682B4",   # Bus 26 - Steel Blue
     "#D2691E",   # Bus 27 - Chocolate
