@@ -825,19 +825,21 @@ const BusRoutingMap = () => {
                   </DialogContent>
                 </Dialog>
                 
-                <Button
-                  variant="outline"
-                  className="w-full h-12 text-base bg-purple-50 hover:bg-purple-100 border-purple-600 text-purple-700"
-                  onClick={handleDownloadAssignments}
+                <a 
+                  href="https://camp-bus-mapper.preview.emergentagent.com/api/download/bus-assignments"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full h-12 text-base bg-purple-50 hover:bg-purple-100 border-purple-600 text-purple-700 border rounded-md flex items-center justify-center gap-2 font-medium"
                   data-testid="download-assignments-btn"
                 >
-                  <Download className="w-5 h-5 mr-2" />
+                  <Download className="w-5 h-5" />
                   Download Bus Assignments
-                </Button>
+                </a>
 
                 <a 
-                  href={`${API}/download/seat-availability`}
-                  download
+                  href="https://camp-bus-mapper.preview.emergentagent.com/api/download/seat-availability"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-full h-12 text-base bg-teal-50 hover:bg-teal-100 border-teal-600 text-teal-700 border rounded-md flex items-center justify-center gap-2 font-medium"
                   data-testid="download-seat-availability-btn"
                 >
