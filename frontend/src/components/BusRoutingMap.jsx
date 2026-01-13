@@ -797,6 +797,34 @@ const BusRoutingMap = () => {
                 </div>
               </div>
               
+              {/* Needs Address Section */}
+              {campersNeedingAddress.length > 0 && (
+                <div className="border-t pt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <span className="font-semibold text-red-700">Needs Address ({campersNeedingAddress.length})</span>
+                  </div>
+                  <div className="max-h-40 overflow-y-auto space-y-1">
+                    {campersNeedingAddress.map((camper, idx) => (
+                      <div 
+                        key={idx}
+                        className="text-xs p-2 bg-red-50 rounded border border-red-200"
+                      >
+                        <div className="font-medium text-red-800">
+                          {camper.first_name} {camper.last_name}
+                        </div>
+                        <div className="text-red-600">
+                          AM: {camper.am_bus_number || 'None'} | PM: {camper.pm_bus_number || 'None'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-red-600 mt-2 italic">
+                    Add addresses in Google Sheet to show on map
+                  </p>
+                </div>
+              )}
+              
               {/* Stats Footer */}
               <div className="border-t pt-4 text-center space-y-2">
                 <div className="grid grid-cols-2 gap-4 text-sm">
