@@ -101,29 +101,36 @@ class RoutePrinter:
             "pm_time": "N/A"
         }
         
-        # Add AM stop information (morning pickups)
-        for idx, camper in enumerate(sorted_am, 1):
+        # Add AM stop information (morning pickups) - consolidated by address
+        am_consolidated = self._consolidate_stops(sorted_am)
+        for idx, stop in enumerate(am_consolidated, 1):
             route_sheet["am_stops"].append({
                 "stop_number": idx,
-                "camper_name": f"{camper['first_name']} {camper['last_name']}",
-                "address": camper['location'].get('address', ''),
-                "town": camper.get('town', ''),
-                "zip": camper.get('zip_code', ''),
-                "session": camper.get('session', ''),
+                "camper_name": stop['camper_names'],
+                "address": stop['address'],
+                "town": stop['town'],
+                "zip": stop['zip'],
+                "session": stop['session'],
                 "notes": ""
             })
         
-        # Add PM stop information (afternoon drop-offs)
-        for idx, camper in enumerate(sorted_pm, 1):
+        # Add PM stop information (afternoon drop-offs) - consolidated by address
+        pm_consolidated = self._consolidate_stops(sorted_pm)
+        for idx, stop in enumerate(pm_consolidated, 1):
             route_sheet["pm_stops"].append({
                 "stop_number": idx,
-                "camper_name": f"{camper['first_name']} {camper['last_name']}",
-                "address": camper['location'].get('address', ''),
-                "town": camper.get('town', ''),
-                "zip": camper.get('zip_code', ''),
-                "session": camper.get('session', ''),
+                "camper_name": stop['camper_names'],
+                "address": stop['address'],
+                "town": stop['town'],
+                "zip": stop['zip'],
+                "session": stop['session'],
                 "notes": ""
             })
+        
+        # Update stop counts to reflect consolidated stops
+        route_sheet["total_am_stops"] = len(am_consolidated)
+        route_sheet["total_pm_stops"] = len(pm_consolidated)
+        route_sheet["total_stops"] = max(len(am_consolidated), len(pm_consolidated))
         
         # Process AM directions
         if directions_am and len(directions_am) > 0:
