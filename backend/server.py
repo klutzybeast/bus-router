@@ -852,7 +852,7 @@ async def get_compact_availability():
 @api_router.get("/download/seat-availability")
 async def download_seat_availability():
     """Download seat availability as CSV in the same format as the Cover Sheet"""
-    from fastapi.responses import StreamingResponse
+    from fastapi.responses import Response
     from io import StringIO
     import csv as csv_module
     
@@ -872,13 +872,16 @@ async def download_seat_availability():
         for row in sheet_data:
             writer.writerow(row)
         
-        output.seek(0)
+        csv_content = output.getvalue()
+        filename = f"seat_availability_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
         
-        return StreamingResponse(
-            iter([output.getvalue()]),
-            media_type="text/csv",
+        return Response(
+            content=csv_content,
+            media_type="application/octet-stream",
             headers={
-                "Content-Disposition": f"attachment; filename=seat_availability_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Content-Type": "application/octet-stream",
+                "Cache-Control": "no-cache"
             }
         )
     except Exception as e:
