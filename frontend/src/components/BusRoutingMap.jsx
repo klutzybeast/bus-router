@@ -207,6 +207,23 @@ const BusRoutingMap = () => {
     toast.success("Downloading seat availability...");
   };
 
+  const handleRefreshSeatAvailabilitySheet = async () => {
+    try {
+      toast.loading("Updating Google Sheet...");
+      const response = await axios.post(`${API}/push-seat-availability-to-sheet`);
+      toast.dismiss();
+      if (response.data.status === 'success') {
+        toast.success(response.data.message);
+      } else {
+        toast.error(response.data.message || "Failed to update sheet");
+      }
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error updating sheet:", error);
+      toast.error("Failed to update Google Sheet");
+    }
+  };
+
   const handleMarkerClick = useCallback((camper) => {
     setSelectedCamper(camper);
     if (window.innerWidth < 768) {
