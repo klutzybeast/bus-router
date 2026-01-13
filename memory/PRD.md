@@ -66,9 +66,14 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - UI: "Configure Bus Staff" dialog with form and configured buses list
 
 ### Phase 8: Download Buttons Fix ✅ (January 2025)
-- Fixed download buttons using `fetch/blob/createObjectURL` pattern
-- "Download Bus Assignments" and "Download Seat Availability" buttons now work correctly
-- Proper cross-origin file download handling
+- Fixed download buttons to work on both desktop AND mobile devices
+- Uses direct link approach with `target="_blank"` for better mobile compatibility
+- Backend endpoints return proper headers for CSV downloads:
+  - `Content-Type: text/csv; charset=utf-8`
+  - `Content-Disposition: attachment; filename="..."`
+  - `Access-Control-Expose-Headers: Content-Disposition`
+- Toast notifications show download status
+- Fallback to opening in new tab if primary method fails
 
 ### Phase 9: Code Refactoring (Foundation Ready)
 - Created modular structure in `/app/backend/`:
