@@ -602,12 +602,126 @@ async def get_auto_sync_status():
 
 @api_router.post("/trigger-sync")
 async def trigger_manual_sync():
-    """Manually trigger a sync with CampMinder"""
+    """Manually trigger a sync with CampMinder (from Google Sheet)"""
     try:
         await auto_sync_campminder()
-        return {"status": "success", "message": "Sync completed"}
+        return {"status": "success", "message": "Sync from Google Sheet completed"}
     except Exception as e:
         logging.error(f"Error in manual sync: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/sync-from-campminder-api")
+async def sync_from_campminder_api():
+    """
+    Sync camper bus data directly from CampMinder API
+    
+    Uses:
+    - Custom Field API for AM/PM bus assignments
+    - Day Travel API for transportation assignments
+    - Camper Data API for camper information
+    """
+    try:
+        logger.info("Starting sync from CampMinder API")
+        
+        # Get campers with bus data from CampMinder API
+        campers_data = await campminder_api.get_all_campers_with_bus_data(season_id="2026")
+        
+        if not campers_data:
+            return {
+                "status": "warning",
+                "message": "No campers returned from CampMinder API. Check API credentials.",
+                "campers_processed": 0
+            }
+        
+        new_count = 0
+        updated_count = 0
+        skipped_count = 0
+        
+        for camper in campers_data:
+            # Skip if no address
+            if not camper.get('address'):
+                skipped_count += 1
+                continue
+            
+            # Skip if no valid bus assignment
+            am_bus = camper.get('am_bus_number', '')
+            pm_bus = camper.get('pm_bus_number', '')
+            
+            if not am_bus and not pm_bus:
+                skipped_count += 1
+                continue
+            
+            # Geocode address
+            location = geocode_address(
+                camper['address'],
+                camper.get('town', ''),
+                camper.get('zip_code', '')
+            )
+            
+            if not location or location.latitude == 0:
+                skipped_count += 1
+                continue
+            
+            # Generate camper ID
+            camper_id = f"{camper['last_name']}_{camper['first_name']}_{camper.get('zip_code', 'NOZIP')}".replace(' ', '_')
+            
+            # Determine bus color - use AM bus if available, else PM bus
+            primary_bus = am_bus if am_bus and am_bus.startswith('Bus') else pm_bus
+            bus_color = get_bus_color(primary_bus) if primary_bus else "#808080"
+            
+            # Determine pickup type based on session
+            if camper.get('has_am_session') and camper.get('has_pm_session'):
+                pickup_type = "AM & PM"
+            elif camper.get('has_am_session'):
+                pickup_type = "AM Only"
+            elif camper.get('has_pm_session'):
+                pickup_type = "PM Only"
+            else:
+                pickup_type = "Unknown"
+            
+            camper_doc = {
+                "_id": camper_id,
+                "first_name": camper['first_name'],
+                "last_name": camper['last_name'],
+                "session": camper.get('session_type', ''),
+                "location": {
+                    "latitude": location.latitude,
+                    "longitude": location.longitude,
+                    "address": location.address
+                },
+                "town": camper.get('town', ''),
+                "zip_code": camper.get('zip_code', ''),
+                "pickup_type": pickup_type,
+                "am_bus_number": am_bus,  # Empty string if no AM bus/session
+                "pm_bus_number": pm_bus,  # Empty string if no PM bus/session
+                "bus_color": bus_color,
+                "synced_from": "campminder_api",
+                "created_at": datetime.now(timezone.utc)
+            }
+            
+            result = await db.campers.replace_one({"_id": camper_id}, camper_doc, upsert=True)
+            
+            if result.upserted_id:
+                new_count += 1
+            elif result.modified_count > 0:
+                updated_count += 1
+        
+        # Apply sibling offset
+        await apply_sibling_offset(db)
+        
+        logger.info(f"CampMinder API sync complete: {new_count} new, {updated_count} updated, {skipped_count} skipped")
+        
+        return {
+            "status": "success",
+            "message": "Sync from CampMinder API completed",
+            "new_campers": new_count,
+            "updated_campers": updated_count,
+            "skipped_campers": skipped_count,
+            "total_processed": len(campers_data)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error syncing from CampMinder API: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/sheets/seat-availability")
