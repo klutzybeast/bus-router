@@ -27,8 +27,19 @@ import asyncio
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+# MongoDB connection with Atlas-compatible settings
 mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
+# Add connection parameters for Atlas compatibility
+client = AsyncIOMotorClient(
+    mongo_url,
+    serverSelectionTimeoutMS=30000,  # 30 second timeout for server selection
+    connectTimeoutMS=20000,          # 20 second connection timeout
+    socketTimeoutMS=30000,           # 30 second socket timeout
+    retryWrites=True,
+    retryReads=True,
+    maxPoolSize=10,
+    minPoolSize=1
+)
 db = client[os.environ['DB_NAME']]
 
 # Initialize services
