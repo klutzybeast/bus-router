@@ -804,6 +804,92 @@ async def get_compact_availability():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@api_router.get("/download/seat-availability")
+async def download_seat_availability():
+    """Download seat availability as CSV in the same format as the Cover Sheet"""
+    from fastapi.responses import StreamingResponse
+    from io import StringIO
+    import csv as csv_module
+    
+    try:
+        # Get all campers with bus assignments
+        campers = await db.campers.find({
+            "am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}
+        }).to_list(None)
+        
+        # Generate cover sheet data
+        sheet_data = cover_sheet_generator.generate_cover_sheet(campers)
+        
+        # Convert to CSV
+        output = StringIO()
+        writer = csv_module.writer(output)
+        
+        for row in sheet_data:
+            writer.writerow(row)
+        
+        output.seek(0)
+        
+        return StreamingResponse(
+            iter([output.getvalue()]),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename=seat_availability_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
+            }
+        )
+    except Exception as e:
+        logging.error(f"Error generating seat availability: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/update-seat-availability-sheet")
+async def update_seat_availability_sheet():
+    """
+    Update the seat availability Google Sheet (1ZK58gjF4BO0HF_2y6oovrjzRH3qV5zAs8H-7CeKOSGE)
+    with current bus assignments.
+    """
+    try:
+        # Get all campers with bus assignments
+        campers = await db.campers.find({
+            "am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}
+        }).to_list(None)
+        
+        # Generate cover sheet data
+        sheet_data = cover_sheet_generator.generate_cover_sheet(campers)
+        
+        # Use webhook to update the sheet
+        webhook_url = os.environ.get('GOOGLE_SHEETS_WEBHOOK_URL', '')
+        if not webhook_url:
+            return {
+                "status": "error",
+                "message": "GOOGLE_SHEETS_WEBHOOK_URL not configured"
+            }
+        
+        payload = {
+            "action": "update_seat_availability",
+            "sheet_id": OUTPUT_SHEET_ID,
+            "data": sheet_data
+        }
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(webhook_url, json=payload)
+            
+            if response.status_code == 200:
+                return {
+                    "status": "success",
+                    "message": f"Updated seat availability sheet with {len(sheet_data)} rows",
+                    "sheet_url": f"https://docs.google.com/spreadsheets/d/{OUTPUT_SHEET_ID}/edit"
+                }
+            else:
+                return {
+                    "status": "error",
+                    "message": f"Webhook returned status {response.status_code}",
+                    "response": response.text
+                }
+    except Exception as e:
+        logging.error(f"Error updating seat availability sheet: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api_router.get("/buses")
 async def get_buses():
     """Get all buses with their info including home locations"""
