@@ -1123,7 +1123,7 @@ const BusRoutingMap = () => {
                 </Dialog>
                 
                 <a 
-                  href="https://camp-bus-mapper.preview.emergentagent.com/api/download/bus-assignments"
+                  href="https://routemapper-1.preview.emergentagent.com/api/download/bus-assignments"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full h-12 text-base bg-purple-50 hover:bg-purple-100 border-purple-600 text-purple-700 border rounded-md flex items-center justify-center gap-2 font-medium"
@@ -1134,7 +1134,7 @@ const BusRoutingMap = () => {
                 </a>
 
                 <a 
-                  href="https://camp-bus-mapper.preview.emergentagent.com/api/download/seat-availability"
+                  href="https://routemapper-1.preview.emergentagent.com/api/download/seat-availability"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full h-12 text-base bg-teal-50 hover:bg-teal-100 border-teal-600 text-teal-700 border rounded-md flex items-center justify-center gap-2 font-medium"
