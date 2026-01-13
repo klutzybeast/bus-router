@@ -1,107 +1,164 @@
-# Camp Bus Routing System - PRD
+# Camp Bus Routing System - Product Requirements Document
 
-## Original Problem Statement
-The user wants a web application to display camper bus routes on a Google Map. The system should pull camper data (including name, address, and bus assignment) from a Google Sheet and display color-coded pins for each camper based on their assigned bus number. The system must handle campers with different AM and PM bus assignments, auto-sync from Google Sheet every 15 minutes, and write changes back to the sheet when bus assignments are updated in the UI.
+## Overview
+A web application that displays camper bus routes on a Google Map, using Google Sheets as the primary data source. The system manages AM and PM bus assignments for campers attending camp.
 
-## Core Requirements
-- Display campers on a Google Map with color-coded pins by bus number
-- Automatically sync camper data from Google Sheet (every 15 minutes)
-- Handle separate AM and PM bus assignments
-- Generate printable route sheets for drivers with turn-by-turn directions
-- Manage and assign buses to campers
-- Generate seat availability reports
-- Bidirectional sync with Google Sheet (read and write)
+## Primary Data Source
+- **Google Sheet**: `https://docs.google.com/spreadsheets/d/1QX0BSUuG889BjOYsTji8kYwT3VomSRE1j2_ZtxLd65k/edit`
+- **Webhook for Updates**: `https://script.google.com/macros/s/AKfycbybQKEZ4G0bBTMuLK7dOju864j_0rZyJ8pKpsP_hLnBNZGb3JN_n3xDgJd9AlpWyG4I/exec`
 
-## Technical Stack
-- **Backend**: FastAPI (Python) with Motor (async MongoDB driver)
-- **Frontend**: React with @react-google-maps/api
-- **Database**: MongoDB
-- **Integrations**: Google Maps API (Geocoding, Directions, Maps JavaScript), Google Sheets (via CSV export and Apps Script webhook), CampMinder API (partial)
+## CampMinder API Status
+- **Status**: BLOCKED
+- Partial integration exists but custom field access (bus assignments) is blocked by the API provider
+- User needs to contact CampMinder support to upgrade subscription for custom field access
+- Field IDs identified: AM Bus (20852), PM Bus (20853)
 
-## CampMinder API Integration Status (Updated: Jan 2026)
-
-### Working Endpoints:
-| Endpoint | Status | Description |
-|----------|--------|-------------|
-| `/auth/apikey` | ✅ | Authentication - JWT token obtained |
-| `/api/entity/customfield/GetFieldDefs` | ✅ | Retrieved 602 field definitions |
-| `/api/entity/person/camper/GetActiveCamper` | ✅ | Retrieved 736 active campers |
-| `/api/entity/person/GetPersons` | ✅ | Retrieved 14,921 person records |
-| `/api/entity/family/GetFamilyAddresses` | ✅ | Retrieved addresses for 12,896 families |
-
-### Not Working (Subscription Level):
-| Endpoint | Status | Issue |
-|----------|--------|-------|
-| `/api/entity/customfield/GetCustomFieldData` | ⚠️ | Returns empty - requires higher API access |
-| `/api/entity/customfield/GetEntityFieldContainers` | ⚠️ | Returns empty - requires higher API access |
-| `/api/travel/day/*` | ❌ | "Day travel API is not enabled" |
-
-### Bus Field IDs:
-- AM Bus: Field ID **20852** (Name: "Bus#AM Bus")
-- PM Bus: Field ID **20853** (Name: "Bus#PM Bus")
-
-### Recommendation:
-Continue using Google Sheets as primary data source for bus assignments until CampMinder API subscription is upgraded to include custom field access.
-
-## Data Source
-- **Primary**: Google Sheet at `https://docs.google.com/spreadsheets/d/1QX0BSUuG889BjOYsTji8kYwT3VomSRE1j2_ZtxLd65k/edit`
-- **Seat Availability Sheet**: `https://docs.google.com/spreadsheets/d/1ZK58gjF4BO0HF_2y6oovrjzRH3qV5zAs8H-7CeKOSGE/edit`
-- **Webhook URL**: `https://script.google.com/macros/s/AKfycbybQKEZ4G0bBTMuLK7dOju864j_0rZyJ8pKpsP_hLnBNZGb3JN_n3xDgJd9AlpWyG4I/exec`
+---
 
 ## What's Been Implemented
 
 ### Phase 1: Core Map Display ✅
 - Google Map with camper pins
 - Color-coded pins by bus number (33 unique colors)
-- Search functionality
+- Search functionality by name, address, town
 - Click on pin to see camper details
 
 ### Phase 2: Data Sync ✅
 - Auto-sync from Google Sheet every 15 minutes
 - Manual refresh button
-- Instant write-back to Google Sheet when bus changed in UI
+- Two-way sync: Changes in app write back to Google Sheet via webhook
 
 ### Phase 3: Route Management ✅
 - Separate AM and PM bus assignments
 - Different AM/PM addresses for campers who need them
 - Campers correctly appear ONLY on their assigned bus routes
-- PM-only campers (AM bus = NONE) supported
+- PM-only campers (car drop-off AM) supported
 
 ### Phase 4: Route Sheets ✅
 - Printable HTML route sheets
 - Turn-by-turn directions via Google Directions API
 - Separate AM and PM routes with correct campers
 - Distance and time estimates
-- **NEW: Single home location per bus for AM start and PM end**
-  - AM Route: Home Location (green) → Camper Pickups → Camp (red)
-  - PM Route: Camp (red) → Camper Drop-offs → Home Location (green)
-  - If home = camp, bus starts/ends at camp for both routes
-  - If home = driver address, bus starts/ends at driver's home
+- Route logic:
+  - AM Route: Driver Home → Camper Pickups → Camp
+  - PM Route: Camp → Camper Drop-offs → Driver Home
 
 ### Phase 5: UI Features ✅
-- Add Camper Manually button/dialog
-- "Needs Address" section showing 15 campers without addresses
+- Add Camper Manually dialog
+- "Needs Address" section showing campers without addresses
 - Filter by session type
 - Download bus assignments CSV
+- Scrollable bus list in sidebar
 
-## Current Stats (as of Jan 13, 2026)
-- **481 campers** on map
-- **15 campers** need addresses (have bus but no address in sheet)
-- **33 active buses**
-- **12 campers** with different AM/PM bus assignments
+### Phase 6: Change Detection System ✅ (December 2024)
+- `/api/detect-changes` endpoint implemented
+- Detects AM/PM bus additions, removals, and changes
+- Automatically syncs detected changes to Google Sheet
+- Categorizes changes by type (AM_ADDED, PM_ADDED, AM_CHANGED, PM_CHANGED, etc.)
+
+### Phase 7: Code Refactoring (Foundation Ready)
+- Created modular structure in `/app/backend/`:
+  - `models/` - Pydantic schemas
+  - `services/` - Database, geocoding, bus utilities
+  - `routers/` - Route handlers for campers, sync, routes, audit
+- Original `server.py` remains entry point for stability
+
+---
+
+## Current Stats (as of December 2024)
+- **492 campers** on map
+- **34 buses** configured
+- **33 active buses** with campers
+
+---
 
 ## Key Files
-- `/app/backend/server.py` - Main FastAPI app
-- `/app/backend/route_printer.py` - Route sheet generation
-- `/app/backend/sibling_offset.py` - Pin offset for siblings at same address
-- `/app/frontend/src/components/BusRoutingMap.jsx` - Main React component
+| File | Purpose |
+|------|---------|
+| `/app/backend/server.py` | Main FastAPI application (2596 lines) |
+| `/app/backend/route_printer.py` | Route sheet generation |
+| `/app/backend/bus_config.py` | Bus info and home locations |
+| `/app/backend/sibling_offset.py` | Pin offset for siblings |
+| `/app/frontend/src/components/BusRoutingMap.jsx` | Main React map component |
+| `/app/backend/models/schemas.py` | Pydantic models (new) |
+| `/app/backend/routers/*.py` | Modular route handlers (new) |
+
+---
+
+## API Endpoints
+
+### Core Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/campers` | GET | Get all campers with valid locations |
+| `/api/campers/needs-address` | GET | Get campers needing addresses |
+| `/api/campers/add` | POST | Manually add a camper |
+| `/api/campers/{id}` | DELETE | Delete a camper |
+| `/api/campers/{id}/change-bus` | POST | Change camper's bus assignment |
+
+### Sync Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/trigger-sync` | POST | Manual sync from Google Sheet |
+| `/api/sync-to-google-sheet` | POST | Sync all assignments to sheet |
+| `/api/detect-changes` | POST | Detect and sync bus assignment changes |
+
+### Route Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/buses` | GET | Get all buses with info |
+| `/api/buses/{number}` | GET | Get specific bus details |
+| `/api/route-sheet/{bus}/print` | GET | Printable route sheet HTML |
+| `/api/download/bus-assignments` | GET | Download CSV |
+
+### Audit Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/audit/campers` | GET | Full camper audit vs Google Sheet |
+| `/api/audit/bus/{number}` | GET | Audit single bus |
+
+---
+
+## Backlog
+
+### P1 - High Priority
+- [ ] Complete migration to modular routers (reduces `server.py` from 2596 lines)
+- [ ] Resolve CampMinder API access (requires user action with provider)
+
+### P2 - Medium Priority  
+- [ ] Bus capacity dashboard for admins
+- [ ] Historical route tracking
+
+### P3 - Low Priority
+- [ ] Deprecate Google Sheet sync once CampMinder API works
+- [ ] Mobile app version
+
+---
 
 ## Known Limitations
-- CampMinder API integration partially working (custom field access requires subscription upgrade)
-- Campers without addresses cannot be shown on map
-- Google Sheets data entry inconsistencies (some PM buses in wrong column)
+1. CampMinder API custom field access blocked by subscription level
+2. Campers without addresses cannot be shown on map
+3. Google Sheets data entry inconsistencies require manual cleanup
 
-## Future Enhancements (Backlog)
-- P1: Refactor server.py into smaller modules
-- P2: Upgrade CampMinder API subscription for custom field access
-- P3: Add admin dashboard for bus capacity management
+---
+
+## Environment Variables
+```
+# Backend (.env)
+MONGO_URL=<mongodb connection>
+DB_NAME=<database name>
+GOOGLE_MAPS_API_KEY=<google maps key>
+CAMPMINDER_SHEET_ID=1QX0BSUuG889BjOYsTji8kYwT3VomSRE1j2_ZtxLd65k
+GOOGLE_SHEETS_WEBHOOK_URL=<webhook url>
+AUTO_SYNC_ENABLED=true
+SYNC_INTERVAL_MINUTES=15
+
+# Frontend (.env)
+REACT_APP_BACKEND_URL=<backend url>
+REACT_APP_GOOGLE_MAPS_API_KEY=<google maps key>
+```
+
+---
+
+## Last Updated
+December 2024 - Change detection system completed, code refactoring foundation laid
