@@ -23,15 +23,15 @@ const API = `${BACKEND_URL}/api`;
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 const BUS_COLORS = {
-  'Bus #01': '#e6194b', 'Bus #02': '#3cb44b', 'Bus #03': '#ffe119', 'Bus #04': '#4363d8',
-  'Bus #05': '#f58231', 'Bus #06': '#911eb4', 'Bus #07': '#46f0f0', 'Bus #08': '#f032e6',
-  'Bus #09': '#bcf60c', 'Bus #10': '#fabebe', 'Bus #11': '#008080', 'Bus #12': '#e6beff',
-  'Bus #13': '#9a6324', 'Bus #14': '#000000', 'Bus #15': '#800000', 'Bus #16': '#aaffc3',
-  'Bus #17': '#808000', 'Bus #18': '#ffd8b1', 'Bus #19': '#000075', 'Bus #20': '#9370DB',
-  'Bus #21': '#FFB6C1', 'Bus #22': '#FF69B4', 'Bus #23': '#FF1493', 'Bus #24': '#FFD700',
-  'Bus #25': '#FFA500', 'Bus #26': '#FF4500', 'Bus #27': '#DC143C', 'Bus #28': '#8B0000',
-  'Bus #29': '#006400', 'Bus #30': '#228B22', 'Bus #31': '#20B2AA', 'Bus #32': '#00CED1',
-  'Bus #33': '#191970', 'Bus #34': '#e6194b'
+  'Bus #01': '#E53935', 'Bus #02': '#43A047', 'Bus #03': '#1E88E5', 'Bus #04': '#8E24AA',
+  'Bus #05': '#FB8C00', 'Bus #06': '#00ACC1', 'Bus #07': '#D81B60', 'Bus #08': '#5E35B1',
+  'Bus #09': '#7CB342', 'Bus #10': '#F4511E', 'Bus #11': '#00897B', 'Bus #12': '#3949AB',
+  'Bus #13': '#C0CA33', 'Bus #14': '#6D4C41', 'Bus #15': '#546E7A', 'Bus #16': '#EC407A',
+  'Bus #17': '#AB47BC', 'Bus #18': '#26A69A', 'Bus #19': '#FDD835', 'Bus #20': '#29B6F6',
+  'Bus #21': '#EF5350', 'Bus #22': '#66BB6A', 'Bus #23': '#42A5F5', 'Bus #24': '#7E57C2',
+  'Bus #25': '#FFCA28', 'Bus #26': '#26C6DA', 'Bus #27': '#78909C', 'Bus #28': '#8D6E63',
+  'Bus #29': '#9CCC65', 'Bus #30': '#FF7043', 'Bus #31': '#5C6BC0', 'Bus #32': '#FFEE58',
+  'Bus #33': '#4DB6AC', 'Bus #34': '#BA68C8'
 };
 
 const getBusColor = (busNumber) => BUS_COLORS[busNumber] || '#000000';
