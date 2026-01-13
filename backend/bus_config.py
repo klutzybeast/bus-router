@@ -6,6 +6,44 @@
 # Camp address (constant)
 CAMP_ADDRESS = "477 Ocean Avenue, East Rockaway, NY 11518"
 
+# Bus Location Names (for seat availability sheet)
+BUS_LOCATIONS = {
+    'Bus #01': 'Valley Stream',
+    'Bus #02': 'East Rockaway',
+    'Bus #03': 'Rockville Centre',
+    'Bus #04': 'Valley Stream',
+    'Bus #05': 'East Rockaway',
+    'Bus #06': 'Woodmere',
+    'Bus #07': 'Oceanside',
+    'Bus #08': 'Rockville Centre',
+    'Bus #09': 'Oceanside',
+    'Bus #10': 'Rockville Centre',
+    'Bus #11': 'Rockville Centre',
+    'Bus #12': 'Rockville Centre',
+    'Bus #13': 'Rockville Centre',
+    'Bus #14': 'Long Beach',
+    'Bus #15': 'Long Beach',
+    'Bus #16': 'Oceanside',
+    'Bus #17': 'Baldwin',
+    'Bus #18': 'Oceanside',
+    'Bus #19': 'Oceanside',
+    'Bus #20': 'Oceanside',
+    'Bus #21': 'Rockville Centre',
+    'Bus #22': 'Baldwin',
+    'Bus #23': 'Rockville Centre',
+    'Bus #24': 'Rockville Centre',
+    'Bus #25': 'Malverne',
+    'Bus #26': 'Merrick',
+    'Bus #27': 'Lynbrook',
+    'Bus #28': 'Oceanside',
+    'Bus #29': 'Lynbrook',
+    'Bus #30': 'Lynbrook',
+    'Bus #31': 'Island Park / Oceanside',
+    'Bus #32': 'Rockville Centre',
+    'Bus #33': 'Rockville Centre',
+    'Bus #34': 'Freeport'
+}
+
 # Bus Capacities (19-seater or 30-seater)
 BUS_CAPACITIES = {
     'Bus #01': 30,
