@@ -38,8 +38,7 @@ cover_sheet_generator = CoverSheetGenerator()
 route_printer = RoutePrinter(gmaps)
 campminder_api = CampMinderAPI(
     api_key=os.environ.get('CAMPMINDER_API_KEY', ''),
-    subscription_key=os.environ.get('CAMPMINDER_SUBSCRIPTION_KEY', ''),
-    api_url=os.environ.get('CAMPMINDER_API_URL', 'https://webapi.campminder.com')
+    subscription_key=os.environ.get('CAMPMINDER_SUBSCRIPTION_KEY', '')
 )
 
 app = FastAPI()
