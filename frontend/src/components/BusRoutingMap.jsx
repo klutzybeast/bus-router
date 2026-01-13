@@ -60,6 +60,29 @@ const BusRoutingMap = () => {
     am_bus_number: "NONE",
     pm_bus_number: ""
   });
+  
+  // Bus Staff Configuration State
+  const [showStaffConfig, setShowStaffConfig] = useState(false);
+  const [busStaffList, setBusStaffList] = useState({});
+  const [selectedStaffBus, setSelectedStaffBus] = useState("");
+  const [staffForm, setStaffForm] = useState({
+    driver_name: "",
+    counselor_name: "",
+    home_address: "",
+    capacity: "",
+    location_name: ""
+  });
+
+  const fetchBusStaff = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/bus-staff`);
+      if (response.data.status === 'success') {
+        setBusStaffList(response.data.staff || {});
+      }
+    } catch (error) {
+      console.error("Error fetching bus staff:", error);
+    }
+  }, []);
 
   const fetchCampers = useCallback(async () => {
     try {
