@@ -610,6 +610,95 @@ async def trigger_manual_sync():
         logging.error(f"Error in manual sync: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/test-campminder-api")
+async def test_campminder_api():
+    """
+    Test CampMinder API connectivity and endpoints
+    
+    Returns diagnostic information about API access
+    """
+    results = {
+        "auth": {"status": "pending", "message": ""},
+        "field_defs": {"status": "pending", "message": ""},
+        "campers": {"status": "pending", "message": ""},
+        "transportation": {"status": "pending", "message": ""},
+    }
+    
+    try:
+        # Test 1: Authentication
+        logger.info("Testing CampMinder API authentication...")
+        token = await campminder_api.get_jwt_token()
+        if token:
+            results["auth"] = {
+                "status": "success",
+                "message": f"Authenticated successfully. ClientIDs: {campminder_api.client_ids}"
+            }
+        else:
+            results["auth"] = {
+                "status": "error",
+                "message": "Failed to obtain JWT token. Check API credentials."
+            }
+            return {"status": "error", "results": results}
+        
+        # Test 2: Field Definitions
+        logger.info("Testing GetFieldDefs endpoint...")
+        fields = await campminder_api.get_field_definitions()
+        if fields:
+            results["field_defs"] = {
+                "status": "success",
+                "message": f"Retrieved {len(fields)} field definitions. AM Bus ID: {campminder_api.am_bus_field_id}, PM Bus ID: {campminder_api.pm_bus_field_id}"
+            }
+        else:
+            results["field_defs"] = {
+                "status": "error",
+                "message": "GetFieldDefs returned empty or 404. This endpoint may not be available for your API subscription."
+            }
+        
+        # Test 3: Get Campers
+        logger.info("Testing GetCampers endpoint...")
+        campers = await campminder_api.get_campers(season_id="2026")
+        if campers:
+            results["campers"] = {
+                "status": "success",
+                "message": f"Retrieved {len(campers)} campers",
+                "sample": campers[0] if campers else None
+            }
+        else:
+            results["campers"] = {
+                "status": "error",
+                "message": "GetCampers returned empty or 404. This endpoint may not be available for your API subscription."
+            }
+        
+        # Test 4: Transportation Assignments
+        logger.info("Testing transportation endpoint...")
+        transport = await campminder_api.get_transportation_assignments(season_id="2026")
+        if transport:
+            results["transportation"] = {
+                "status": "success",
+                "message": f"Retrieved {len(transport)} transportation assignments"
+            }
+        else:
+            results["transportation"] = {
+                "status": "error",
+                "message": "Transportation endpoint returned empty or 404. This endpoint may not be available."
+            }
+        
+        # Overall status
+        all_success = all(r["status"] == "success" for r in results.values())
+        partial_success = results["auth"]["status"] == "success"
+        
+        return {
+            "status": "success" if all_success else ("partial" if partial_success else "error"),
+            "message": "Full API access available" if all_success else "Some endpoints not accessible - API subscription may be limited",
+            "results": results,
+            "recommendation": "Use Google Sheet sync as fallback" if not all_success else "CampMinder API fully operational"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error testing CampMinder API: {str(e)}")
+        return {"status": "error", "message": str(e), "results": results}
+
+
 @api_router.post("/sync-from-campminder-api")
 async def sync_from_campminder_api():
     """
@@ -623,14 +712,25 @@ async def sync_from_campminder_api():
     try:
         logger.info("Starting sync from CampMinder API")
         
+        # First test if API is accessible
+        token = await campminder_api.get_jwt_token()
+        if not token:
+            return {
+                "status": "error",
+                "message": "CampMinder API authentication failed. Please verify API credentials in .env file.",
+                "campers_processed": 0,
+                "recommendation": "Use 'Refresh from CSV Now' button to sync from Google Sheet instead."
+            }
+        
         # Get campers with bus data from CampMinder API
         campers_data = await campminder_api.get_all_campers_with_bus_data(season_id="2026")
         
         if not campers_data:
             return {
                 "status": "warning",
-                "message": "No campers returned from CampMinder API. Check API credentials.",
-                "campers_processed": 0
+                "message": "CampMinder API returned no camper data. The API endpoints may not be available for your subscription level.",
+                "campers_processed": 0,
+                "recommendation": "Contact CampMinder support to verify API access or use Google Sheet sync as fallback."
             }
         
         new_count = 0
