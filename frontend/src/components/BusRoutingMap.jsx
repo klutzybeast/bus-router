@@ -241,6 +241,110 @@ const BusRoutingMap = () => {
     }
   };
 
+  // Bus Staff Configuration Functions
+  const loadStaffForBus = async (busNumber) => {
+    setSelectedStaffBus(busNumber);
+    if (busStaffList[busNumber]) {
+      const staff = busStaffList[busNumber];
+      setStaffForm({
+        driver_name: staff.driver_name || "",
+        counselor_name: staff.counselor_name || "",
+        home_address: staff.home_address || "",
+        capacity: staff.capacity?.toString() || "",
+        location_name: staff.location_name || ""
+      });
+    } else {
+      // Load defaults from API
+      try {
+        const response = await axios.get(`${API}/bus-staff/${encodeURIComponent(busNumber)}`);
+        if (response.data.status === 'success') {
+          setStaffForm({
+            driver_name: response.data.driver_name || "",
+            counselor_name: response.data.counselor_name || "",
+            home_address: response.data.home_address || "",
+            capacity: response.data.capacity?.toString() || "",
+            location_name: response.data.location_name || ""
+          });
+        }
+      } catch (error) {
+        setStaffForm({
+          driver_name: "",
+          counselor_name: "",
+          home_address: "",
+          capacity: "",
+          location_name: ""
+        });
+      }
+    }
+  };
+
+  const handleSaveStaff = async () => {
+    if (!selectedStaffBus) {
+      toast.error("Please select a bus");
+      return;
+    }
+    if (!staffForm.driver_name.trim()) {
+      toast.error("Please enter driver name");
+      return;
+    }
+    if (!staffForm.counselor_name.trim()) {
+      toast.error("Please enter counselor name");
+      return;
+    }
+
+    try {
+      toast.loading("Saving configuration...");
+      const response = await axios.post(`${API}/bus-staff`, {
+        bus_number: selectedStaffBus,
+        driver_name: staffForm.driver_name.trim(),
+        counselor_name: staffForm.counselor_name.trim(),
+        home_address: staffForm.home_address.trim(),
+        capacity: staffForm.capacity ? parseInt(staffForm.capacity) : null,
+        location_name: staffForm.location_name.trim()
+      });
+      toast.dismiss();
+
+      if (response.data.status === 'success') {
+        toast.success(`Saved: ${selectedStaffBus} - Driver: ${staffForm.driver_name}, Counselor: ${staffForm.counselor_name}`);
+        await fetchBusStaff();
+        // Clear form
+        setSelectedStaffBus("");
+        setStaffForm({
+          driver_name: "",
+          counselor_name: "",
+          home_address: "",
+          capacity: "",
+          location_name: ""
+        });
+      } else {
+        toast.error(response.data.message || "Failed to save");
+      }
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error saving staff:", error);
+      toast.error("Failed to save configuration");
+    }
+  };
+
+  const handleDeleteStaff = async (busNumber) => {
+    if (!window.confirm(`Delete configuration for ${busNumber}?`)) {
+      return;
+    }
+
+    try {
+      const response = await axios.delete(`${API}/bus-staff/${encodeURIComponent(busNumber)}`);
+      if (response.data.status === 'success') {
+        toast.success(`Deleted configuration for ${busNumber}`);
+        await fetchBusStaff();
+      } else {
+        toast.error(response.data.message || "Failed to delete");
+      }
+    } catch (error) {
+      console.error("Error deleting staff:", error);
+      toast.error("Failed to delete configuration");
+    }
+  };
+
   const handleMarkerClick = useCallback((camper) => {
     setSelectedCamper(camper);
     if (window.innerWidth < 768) {
