@@ -1061,17 +1061,27 @@ async def auto_sync_campminder():
                 elif result.modified_count > 0:
                     updated_count += 1
             else:
-                # No address
-                bus_color = "#808080" if final_am_bus == "NONE" else get_bus_color(final_am_bus)
+                # No address - still add for route planning
+                # For PM-only campers, use PM bus color
+                if is_pm_only and final_pm_bus and final_pm_bus != "NONE":
+                    bus_color = get_bus_color(final_pm_bus)
+                    pickup_type_val = "PM Drop-off Only - NO ADDRESS"
+                elif final_am_bus and final_am_bus != "NONE":
+                    bus_color = get_bus_color(final_am_bus)
+                    pickup_type_val = "NO ADDRESS"
+                else:
+                    bus_color = "#808080"
+                    pickup_type_val = "NO ADDRESS - NO BUS"
+                
                 camper_doc = {
                     "_id": camper_id,
                     "first_name": first_name,
                     "last_name": last_name,
                     "session": session,
                     "location": {"latitude": 0.0, "longitude": 0.0, "address": "ADDRESS NEEDED"},
-                    "town": am_town or "UNKNOWN",
-                    "zip_code": am_zip or "UNKNOWN",
-                    "pickup_type": "NO ADDRESS",
+                    "town": effective_town or "UNKNOWN",
+                    "zip_code": effective_zip or "UNKNOWN",
+                    "pickup_type": pickup_type_val,
                     "am_bus_number": final_am_bus,
                     "pm_bus_number": final_pm_bus,
                     "bus_color": bus_color,
