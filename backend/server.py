@@ -3142,17 +3142,56 @@ async def health_check():
 async def db_status():
     """Check database connection status"""
     try:
-        await db.command('ping')
-        camper_count = await db.campers.count_documents({})
+        # Try to ping the database
+        await asyncio.wait_for(db.command('ping'), timeout=10.0)
+        camper_count = await asyncio.wait_for(db.campers.count_documents({}), timeout=10.0)
         return {
             "status": "connected",
             "database": os.environ.get('DB_NAME', 'unknown'),
-            "camper_count": camper_count
+            "camper_count": camper_count,
+            "mongo_url_type": "atlas" if ('mongodb.net' in os.environ.get('MONGO_URL', '') or 'mongodb+srv' in os.environ.get('MONGO_URL', '')) else "local"
+        }
+    except asyncio.TimeoutError:
+        return {
+            "status": "timeout",
+            "error": "Database connection timed out after 10 seconds",
+            "mongo_url_type": "atlas" if ('mongodb.net' in os.environ.get('MONGO_URL', '') or 'mongodb+srv' in os.environ.get('MONGO_URL', '')) else "local"
         }
     except Exception as e:
         return {
             "status": "error",
-            "error": str(e)
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "mongo_url_type": "atlas" if ('mongodb.net' in os.environ.get('MONGO_URL', '') or 'mongodb+srv' in os.environ.get('MONGO_URL', '')) else "local"
+        }
+
+# Force sync endpoint for production debugging
+@app.post("/force-sync")
+async def force_sync():
+    """Force a sync from Google Sheets - useful for production debugging"""
+    try:
+        # First check DB connection
+        await asyncio.wait_for(db.command('ping'), timeout=10.0)
+        
+        # Trigger sync
+        await auto_sync_campminder()
+        
+        camper_count = await db.campers.count_documents({})
+        return {
+            "status": "success",
+            "message": "Sync completed",
+            "camper_count": camper_count
+        }
+    except asyncio.TimeoutError:
+        return {
+            "status": "error",
+            "error": "Database connection timed out"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "error_type": type(e).__name__
         }
 
 app.add_middleware(
