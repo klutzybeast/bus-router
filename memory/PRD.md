@@ -92,7 +92,7 @@ Continue using Google Sheets as primary data source for bus assignments until Ca
 - `/app/frontend/src/components/BusRoutingMap.jsx` - Main React component
 
 ## Known Limitations
-- CampMinder API integration abandoned (API access issues)
+- CampMinder API integration partially working (custom field access requires subscription upgrade)
 - Campers without addresses cannot be shown on map
 - Google Sheets data entry inconsistencies (some PM buses in wrong column)
 
