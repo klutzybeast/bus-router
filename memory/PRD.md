@@ -124,6 +124,15 @@ A web application that displays camper bus routes on a Google Map, using Google 
 | `/api/buses/{number}` | GET | Get specific bus details |
 | `/api/route-sheet/{bus}/print` | GET | Printable route sheet HTML |
 | `/api/download/bus-assignments` | GET | Download CSV |
+| `/api/download/seat-availability` | GET | Download seat availability CSV |
+
+### Bus Staff Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/bus-staff` | GET | Get all configured bus staff |
+| `/api/bus-staff` | POST | Create/update bus staff config |
+| `/api/bus-staff/{bus_number}` | GET | Get staff for specific bus |
+| `/api/bus-staff/{bus_number}` | DELETE | Delete staff configuration |
 
 ### Audit Endpoints
 | Endpoint | Method | Description |
