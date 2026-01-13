@@ -85,7 +85,8 @@ class CoverSheetGenerator:
             capacity = get_bus_capacity(bus_number)
             driver = get_bus_driver(bus_number)
             counselor = get_bus_counselor(bus_number)
-            location = bus_campers[0].get('town', '') if bus_campers else ''
+            # Use configured location, fallback to first camper's town
+            location = get_bus_location(bus_number) or (bus_campers[0].get('town', '') if bus_campers else '')
             
             # Count campers per half session
             half1_am_count = 0
