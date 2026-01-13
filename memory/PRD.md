@@ -16,7 +16,32 @@ The user wants a web application to display camper bus routes on a Google Map. T
 - **Backend**: FastAPI (Python) with Motor (async MongoDB driver)
 - **Frontend**: React with @react-google-maps/api
 - **Database**: MongoDB
-- **Integrations**: Google Maps API (Geocoding, Directions, Maps JavaScript), Google Sheets (via CSV export and Apps Script webhook)
+- **Integrations**: Google Maps API (Geocoding, Directions, Maps JavaScript), Google Sheets (via CSV export and Apps Script webhook), CampMinder API (partial)
+
+## CampMinder API Integration Status (Updated: Jan 2026)
+
+### Working Endpoints:
+| Endpoint | Status | Description |
+|----------|--------|-------------|
+| `/auth/apikey` | ✅ | Authentication - JWT token obtained |
+| `/api/entity/customfield/GetFieldDefs` | ✅ | Retrieved 602 field definitions |
+| `/api/entity/person/camper/GetActiveCamper` | ✅ | Retrieved 736 active campers |
+| `/api/entity/person/GetPersons` | ✅ | Retrieved 14,921 person records |
+| `/api/entity/family/GetFamilyAddresses` | ✅ | Retrieved addresses for 12,896 families |
+
+### Not Working (Subscription Level):
+| Endpoint | Status | Issue |
+|----------|--------|-------|
+| `/api/entity/customfield/GetCustomFieldData` | ⚠️ | Returns empty - requires higher API access |
+| `/api/entity/customfield/GetEntityFieldContainers` | ⚠️ | Returns empty - requires higher API access |
+| `/api/travel/day/*` | ❌ | "Day travel API is not enabled" |
+
+### Bus Field IDs:
+- AM Bus: Field ID **20852** (Name: "Bus#AM Bus")
+- PM Bus: Field ID **20853** (Name: "Bus#PM Bus")
+
+### Recommendation:
+Continue using Google Sheets as primary data source for bus assignments until CampMinder API subscription is upgraded to include custom field access.
 
 ## Data Source
 - **Primary**: Google Sheet at `https://docs.google.com/spreadsheets/d/1QX0BSUuG889BjOYsTji8kYwT3VomSRE1j2_ZtxLd65k/edit`
