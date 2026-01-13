@@ -4,14 +4,42 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Bus colors - 34 unique, visually distinct colors for 34 buses
+# Bus colors - 34 maximally distinct colors for visual clarity
 BUS_COLORS = [
-    "#E53935", "#43A047", "#1E88E5", "#8E24AA", "#FB8C00", "#00ACC1",
-    "#D81B60", "#5E35B1", "#7CB342", "#F4511E", "#00897B", "#3949AB",
-    "#C0CA33", "#6D4C41", "#546E7A", "#EC407A", "#AB47BC", "#26A69A",
-    "#FDD835", "#29B6F6", "#EF5350", "#66BB6A", "#42A5F5", "#7E57C2",
-    "#FFCA28", "#26C6DA", "#78909C", "#8D6E63", "#9CCC65", "#FF7043",
-    "#5C6BC0", "#FFEE58", "#4DB6AC", "#BA68C8"
+    "#FF0000",   # Bus 1 - Pure Red
+    "#00FF00",   # Bus 2 - Pure Green
+    "#0000FF",   # Bus 3 - Pure Blue
+    "#FFFF00",   # Bus 4 - Pure Yellow
+    "#FF00FF",   # Bus 5 - Pure Magenta
+    "#00FFFF",   # Bus 6 - Pure Cyan
+    "#800000",   # Bus 7 - Dark Red (Maroon)
+    "#008000",   # Bus 8 - Dark Green
+    "#000080",   # Bus 9 - Dark Blue (Navy)
+    "#808000",   # Bus 10 - Olive
+    "#800080",   # Bus 11 - Purple
+    "#008080",   # Bus 12 - Teal
+    "#FFA500",   # Bus 13 - Orange
+    "#FF1493",   # Bus 14 - Deep Pink
+    "#00CED1",   # Bus 15 - Dark Turquoise
+    "#FF4500",   # Bus 16 - Orange Red
+    "#9400D3",   # Bus 17 - Dark Violet
+    "#32CD32",   # Bus 18 - Lime Green
+    "#DC143C",   # Bus 19 - Crimson
+    "#4169E1",   # Bus 20 - Royal Blue
+    "#FF8C00",   # Bus 21 - Dark Orange
+    "#8B4513",   # Bus 22 - Saddle Brown
+    "#7FFF00",   # Bus 23 - Chartreuse
+    "#00FA9A",   # Bus 24 - Medium Spring Green
+    "#FF69B4",   # Bus 25 - Hot Pink
+    "#4682B4",   # Bus 26 - Steel Blue
+    "#D2691E",   # Bus 27 - Chocolate
+    "#FFD700",   # Bus 28 - Gold
+    "#8A2BE2",   # Bus 29 - Blue Violet
+    "#5F9EA0",   # Bus 30 - Cadet Blue
+    "#A52A2A",   # Bus 31 - Brown
+    "#DEB887",   # Bus 32 - Burlywood
+    "#6495ED",   # Bus 33 - Cornflower Blue
+    "#FF7F50"    # Bus 34 - Coral
 ]
 
 
