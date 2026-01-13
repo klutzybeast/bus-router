@@ -272,7 +272,7 @@ const BusRoutingMap = () => {
       }
       
       const blob = await response.blob();
-      const filename = `seat-availability-${new Date().toISOString().split('T')[0]}.csv`;
+      const filename = `seat-availability-${new Date().toISOString().split('T')[0]}.xlsx`;
       
       // Check if we're on iOS Safari (doesn't support download attribute well)
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
