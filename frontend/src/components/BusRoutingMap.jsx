@@ -460,11 +460,26 @@ const BusRoutingMap = () => {
                     selectedCamper.pm_bus_number !== 'NONE' && 
                     selectedCamper.pm_bus_number.startsWith('Bus');
                   
+                  // Check if this is a PM-specific location
+                  const isPmLocation = selectedCamper._id && selectedCamper._id.endsWith('_PM');
+                  
                   return (
                     <>
                       <h3 className="font-bold text-base md:text-lg mb-2">
                         {selectedCamper.first_name} {selectedCamper.last_name}
                       </h3>
+                      
+                      {/* Show location type badge */}
+                      {isPmLocation ? (
+                        <div className="mb-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded inline-block font-semibold">
+                          📍 PM Drop-off Location
+                        </div>
+                      ) : hasValidAmBus && hasValidPmBus && selectedCamper.am_bus_number !== selectedCamper.pm_bus_number ? (
+                        <div className="mb-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded inline-block font-semibold">
+                          📍 AM Pickup Location
+                        </div>
+                      ) : null}
+                      
                       <div className="space-y-1 text-xs md:text-sm">
                         {/* Only show AM Bus if valid */}
                         {hasValidAmBus && (
