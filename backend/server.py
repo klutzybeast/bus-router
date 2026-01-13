@@ -82,12 +82,23 @@ except Exception as e:
     db = None
     db_connected = False
 
-# Initialize services
-gmaps = googlemaps.Client(key=os.environ['GOOGLE_MAPS_API_KEY'])
+# Initialize services with error handling
+try:
+    google_maps_key = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+    if google_maps_key:
+        gmaps = googlemaps.Client(key=google_maps_key)
+        logging.info("Google Maps client initialized")
+    else:
+        gmaps = None
+        logging.warning("GOOGLE_MAPS_API_KEY not set - geocoding will be disabled")
+except Exception as e:
+    gmaps = None
+    logging.error(f"Failed to initialize Google Maps client: {e}")
+
 route_optimizer = RouteOptimizer(num_buses=34)
 sheets_generator = SheetsDataGenerator()
 cover_sheet_generator = CoverSheetGenerator()
-route_printer = RoutePrinter(gmaps)
+route_printer = RoutePrinter(gmaps) if gmaps else None
 campminder_api = CampMinderAPI(
     api_key=os.environ.get('CAMPMINDER_API_KEY', ''),
     subscription_key=os.environ.get('CAMPMINDER_SUBSCRIPTION_KEY', '')
