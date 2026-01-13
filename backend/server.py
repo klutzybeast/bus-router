@@ -3078,14 +3078,34 @@ async def auto_sync_campminder():
         )
 
 async def sync_loop():
-    """Continuous sync loop"""
+    """Continuous sync loop with retry logic"""
     global last_sync_time
+    
+    # Wait a bit on startup to let MongoDB connect
+    logger.info("Waiting 10 seconds before first sync to allow MongoDB connection...")
+    await asyncio.sleep(10)
+    
+    retry_count = 0
+    max_retries = 3
     
     while True:
         try:
+            # Test database connection first
+            await db.command('ping')
+            logger.info("Database connection verified, starting sync...")
             await auto_sync_campminder()
+            retry_count = 0  # Reset retry count on success
         except Exception as e:
-            logger.error(f"Error in sync loop: {str(e)}")
+            retry_count += 1
+            logger.error(f"Error in sync loop (attempt {retry_count}): {str(e)}")
+            
+            if retry_count >= max_retries:
+                logger.warning(f"Max retries reached, waiting longer before next attempt...")
+                await asyncio.sleep(60)  # Wait 1 minute before trying again
+                retry_count = 0
+            else:
+                await asyncio.sleep(10)  # Short delay between retries
+                continue  # Retry immediately
         
         await asyncio.sleep(SYNC_INTERVAL_MINUTES * 60)
 
