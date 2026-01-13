@@ -790,6 +790,58 @@ async def get_compact_availability():
         logging.error(f"Error generating compact data: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@api_router.get("/buses")
+async def get_buses():
+    """Get all buses with their info including home locations"""
+    try:
+        buses = []
+        for bus_number in get_all_buses():
+            bus_info = get_bus_info(bus_number)
+            # Get camper count for this bus
+            am_count = await db.campers.count_documents({"am_bus_number": bus_number})
+            pm_count = await db.campers.count_documents({"pm_bus_number": bus_number})
+            bus_info['am_camper_count'] = am_count
+            bus_info['pm_camper_count'] = pm_count
+            buses.append(bus_info)
+        
+        return {
+            "status": "success",
+            "buses": buses,
+            "camp_address": get_camp_address()
+        }
+    except Exception as e:
+        logging.error(f"Error getting buses: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/buses/{bus_number}")
+async def get_bus_details(bus_number: str):
+    """Get detailed info for a specific bus"""
+    try:
+        bus_info = get_bus_info(bus_number)
+        
+        # Get campers for this bus
+        am_campers = await db.campers.find({"am_bus_number": bus_number}).to_list(None)
+        pm_campers = await db.campers.find({"pm_bus_number": bus_number}).to_list(None)
+        
+        return {
+            "status": "success",
+            "bus": bus_info,
+            "camp_address": get_camp_address(),
+            "am_campers": [
+                {"name": f"{c['first_name']} {c['last_name']}", "address": c.get('location', {}).get('address', '')}
+                for c in am_campers
+            ],
+            "pm_campers": [
+                {"name": f"{c['first_name']} {c['last_name']}", "address": c.get('location', {}).get('address', '')}
+                for c in pm_campers
+            ]
+        }
+    except Exception as e:
+        logging.error(f"Error getting bus details: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/route-sheet/{bus_number}")
 async def get_route_sheet(bus_number: str):
     """Get printable route sheet with turn-by-turn directions for a specific bus"""
