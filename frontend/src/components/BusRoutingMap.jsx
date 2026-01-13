@@ -73,11 +73,15 @@ const BusRoutingMap = () => {
       setCampersNeedingAddress(needsAddressResponse.data);
       
       // Calculate unique buses from am_bus_number and pm_bus_number
+      // Only include valid bus assignments (not NONE or empty)
       const busSet = new Set();
       campersResponse.data.forEach(c => {
-        if (c.am_bus_number) busSet.add(c.am_bus_number);
-        if (c.pm_bus_number && c.pm_bus_number !== c.am_bus_number) busSet.add(c.pm_bus_number);
-        if (c.bus_number) busSet.add(c.bus_number);  // Backwards compatibility
+        if (c.am_bus_number && c.am_bus_number !== 'NONE' && c.am_bus_number.startsWith('Bus')) {
+          busSet.add(c.am_bus_number);
+        }
+        if (c.pm_bus_number && c.pm_bus_number !== 'NONE' && c.pm_bus_number.startsWith('Bus')) {
+          busSet.add(c.pm_bus_number);
+        }
       });
       const buses = Array.from(busSet).sort();
       setUniqueBuses(buses);
