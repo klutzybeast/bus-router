@@ -197,7 +197,13 @@ const BusRoutingMap = () => {
   };
 
   const handleDownloadSeatAvailability = () => {
-    window.open(`${API}/download/seat-availability`, '_blank');
+    // Use anchor element for proper file download
+    const link = document.createElement('a');
+    link.href = `${API}/download/seat-availability`;
+    link.download = `seat_availability_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     toast.success("Downloading seat availability...");
   };
 
