@@ -107,6 +107,7 @@ class RoutePrinter:
             route_sheet["am_stops"].append({
                 "stop_number": idx,
                 "camper_name": stop['camper_names'],
+                "campers": stop.get('campers', []),  # List of campers with AM/PM bus info
                 "address": stop['address'],
                 "town": stop['town'],
                 "zip": stop['zip'],
@@ -120,6 +121,7 @@ class RoutePrinter:
             route_sheet["pm_stops"].append({
                 "stop_number": idx,
                 "camper_name": stop['camper_names'],
+                "campers": stop.get('campers', []),  # List of campers with AM/PM bus info
                 "address": stop['address'],
                 "town": stop['town'],
                 "zip": stop['zip'],
