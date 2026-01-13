@@ -2622,88 +2622,101 @@ function testScript() {
 
 @api_router.get("/download/bus-assignments")
 async def download_bus_assignments():
-    """Download bus assignments as CSV for importing to CampMinder"""
-    from fastapi.responses import StreamingResponse
+    """Download bus assignments as CSV with AM and PM bus columns"""
+    from fastapi.responses import Response
     from io import StringIO
     import csv as csv_module
     
     try:
         campers = await db.campers.find({
-            "am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}
+            "$or": [
+                {"am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}},
+                {"pm_bus_number": {"$exists": True, "$nin": ["NONE", ""]}}
+            ]
         }).to_list(None)
         
         # Create CSV
         output = StringIO()
         writer = csv_module.writer(output)
         
-        # Header
+        # Header with both AM and PM bus columns
         writer.writerow([
             'Last Name',
             'First Name', 
-            'Bus Assignment',
+            'AM Bus',
+            'PM Bus',
             'Session',
-            'Pickup Address',
-            'Town',
-            'Zip',
-            'Type'
+            'AM Pickup Address',
+            'AM Town',
+            'AM Zip',
+            'PM Drop-off Address',
+            'PM Town',
+            'PM Zip'
         ])
         
+        # Track campers to avoid duplicates (some have _PM suffix entries)
+        seen_campers = set()
+        
         # Data rows - sorted by last name, first name
-        # Show both AM and PM for each camper
         for camper in sorted(campers, key=lambda x: (x.get('last_name', '').lower(), x.get('first_name', '').lower())):
-            am_bus = camper.get('am_bus_number', camper.get('bus_number', ''))
-            pm_bus = camper.get('pm_bus_number', camper.get('bus_number', ''))
+            camper_id = camper.get('_id', '')
             
-            # AM row
+            # Skip _PM suffix entries - we'll get PM info from main entry
+            if str(camper_id).endswith('_PM'):
+                continue
+            
+            camper_key = f"{camper.get('last_name', '')}_{camper.get('first_name', '')}"
+            if camper_key in seen_campers:
+                continue
+            seen_campers.add(camper_key)
+            
+            am_bus = camper.get('am_bus_number', '')
+            pm_bus = camper.get('pm_bus_number', '')
+            
+            # Get AM address info
+            am_address = camper.get('location', {}).get('address', '')
+            am_town = camper.get('town', '')
+            am_zip = camper.get('zip_code', '')
+            
+            # Check if there's a separate PM entry with different address
+            pm_address = am_address
+            pm_town = am_town
+            pm_zip = am_zip
+            
+            # Look for _PM entry for this camper
+            for c in campers:
+                if str(c.get('_id', '')).endswith('_PM'):
+                    if c.get('first_name') == camper.get('first_name') and c.get('last_name') == camper.get('last_name'):
+                        pm_address = c.get('location', {}).get('address', pm_address)
+                        pm_town = c.get('town', pm_town)
+                        pm_zip = c.get('zip_code', pm_zip)
+                        pm_bus = c.get('pm_bus_number', pm_bus)
+                        break
+            
+            # Display "NONE" as empty or "N/A"
+            if am_bus == 'NONE':
+                am_bus = 'N/A'
+            if pm_bus == 'NONE':
+                pm_bus = 'N/A'
+            
             writer.writerow([
                 camper.get('last_name', ''),
                 camper.get('first_name', ''),
                 am_bus,
-                camper.get('session', ''),
-                camper.get('location', {}).get('address', ''),
-                camper.get('town', ''),
-                camper.get('zip_code', ''),
-                'AM Pickup'
-            ])
-            
-            # PM row (if not "PM Drop-off Only" type, use same address)
-            if camper.get('pickup_type') == 'PM Drop-off Only':
-                # Already a separate PM entry, skip
-                pass
-            else:
-                # Add PM row with same or different bus
-                writer.writerow([
-                    camper.get('last_name', ''),
-                    camper.get('first_name', ''),
-                    pm_bus,
-                    camper.get('session', ''),
-                    camper.get('location', {}).get('address', ''),
-                    camper.get('town', ''),
-                    camper.get('zip_code', ''),
-                    'PM Drop-off'
-                ])
-        
-        # Add separate PM-only entries
-        pm_only = [c for c in campers if c.get('pickup_type') == 'PM Drop-off Only']
-        for camper in sorted(pm_only, key=lambda x: (x.get('last_name', '').lower(), x.get('first_name', '').lower())):
-            pm_bus = camper.get('pm_bus_number', camper.get('bus_number', ''))
-            writer.writerow([
-                camper.get('last_name', ''),
-                camper.get('first_name', ''),
                 pm_bus,
                 camper.get('session', ''),
-                camper.get('location', {}).get('address', ''),
-                camper.get('town', ''),
-                camper.get('zip_code', ''),
-                'PM Drop-off'
+                am_address,
+                am_town,
+                am_zip,
+                pm_address,
+                pm_town,
+                pm_zip
             ])
         
         output.seek(0)
         
         filename = f"bus_assignments_{datetime.now().strftime('%Y%m%d')}.csv"
         
-        # Use Response with proper headers for mobile compatibility
-        from fastapi.responses import Response
         return Response(
             content=output.getvalue(),
             media_type="text/csv; charset=utf-8",
