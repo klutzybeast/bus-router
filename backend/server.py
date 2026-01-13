@@ -942,7 +942,7 @@ async def push_seat_availability_to_sheet():
         
         logging.info(f"Pushing {len(sheet_data)} rows to seat availability sheet")
         
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
             response = await client.post(webhook_url, json=payload)
             response_text = response.text
             
