@@ -1,4 +1,4 @@
-const API_URL = 'https://camper-routes-1.preview.emergentagent.com/api/sheets/seat-availability';
+const API_URL = 'https://camperbuses.preview.emergentagent.com/api/sheets/seat-availability';
 
 function updateSeatAvailability() {
   try {

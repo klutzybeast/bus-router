@@ -1,7 +1,7 @@
 import requests
 import time
 
-base_url = "https://camper-routes-1.preview.emergentagent.com/api"
+base_url = "https://camperbuses.preview.emergentagent.com/api"
 
 print("="*60)
 print("AUTO-SYNC DETAILED TEST")

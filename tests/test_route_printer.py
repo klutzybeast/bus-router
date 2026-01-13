@@ -9,7 +9,7 @@ import sys
 from datetime import datetime
 
 class RoutePrinterTester:
-    def __init__(self, base_url="https://camper-routes-1.preview.emergentagent.com"):
+    def __init__(self, base_url="https://camperbuses.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
@@ -244,7 +244,7 @@ def main():
     print("="*60)
     print("🚌 ROUTE PRINTER TEST SUITE")
     print("="*60)
-    print(f"Testing: https://camper-routes-1.preview.emergentagent.com")
+    print(f"Testing: https://camperbuses.preview.emergentagent.com")
     print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*60)
     

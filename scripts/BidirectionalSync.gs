@@ -11,7 +11,7 @@
  */
 
 // CONFIGURATION
-const API_URL = 'https://camper-routes-1.preview.emergentagent.com/api/download/bus-assignments';
+const API_URL = 'https://camperbuses.preview.emergentagent.com/api/download/bus-assignments';
 const CAMPMINDER_SHEET_ID = '1QX0BSUuG889BjOYsTji8kYwT3VomSRE1j2_ZtxLd65k';  // Your source sheet
 const BUS_COLUMN_AM = 6;  // Column F: "2026Transportation M AM Bus"
 const BUS_COLUMN_PM = 13; // Column M: "2026Transportation M PM Bus"
