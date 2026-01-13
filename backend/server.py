@@ -883,13 +883,17 @@ async def download_seat_availability():
         csv_content = output.getvalue()
         filename = f"seat_availability_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
         
+        # Use text/csv with proper headers for mobile compatibility
         return Response(
             content=csv_content,
-            media_type="application/octet-stream",
+            media_type="text/csv; charset=utf-8",
             headers={
                 "Content-Disposition": f'attachment; filename="{filename}"',
-                "Content-Type": "application/octet-stream",
-                "Cache-Control": "no-cache"
+                "Content-Type": "text/csv; charset=utf-8",
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0",
+                "Access-Control-Expose-Headers": "Content-Disposition"
             }
         )
     except Exception as e:
