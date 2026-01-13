@@ -1684,6 +1684,287 @@ async def sync_bus_assignments_to_sheet():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@api_router.post("/detect-changes")
+async def detect_bus_assignment_changes():
+    """
+    Detect changes in bus assignments between database and Google Sheet.
+    Identifies:
+    - AM bus added (was empty, now has value)
+    - PM bus added (was empty, now has value)
+    - AM bus removed (had value, now empty)
+    - PM bus removed (had value, now empty)
+    - AM bus changed (different value)
+    - PM bus changed (different value)
+    
+    After detection, automatically syncs changes to Google Sheet.
+    """
+    import csv
+    from io import StringIO
+    
+    logger.info("=== DETECTING BUS ASSIGNMENT CHANGES ===")
+    
+    try:
+        # Load database state
+        db_campers = await db.campers.find({}).to_list(None)
+        
+        # Build lookup from database
+        db_lookup = {}
+        for camper in db_campers:
+            first_name = camper.get('first_name', '').strip()
+            last_name = camper.get('last_name', '').strip()
+            camper_id = camper.get('_id', '')
+            
+            if camper_id.endswith('_PM'):
+                continue
+            
+            key = f"{first_name}|{last_name}".lower()
+            
+            am_bus = camper.get('am_bus_number', '')
+            pm_bus = camper.get('pm_bus_number', '')
+            
+            if am_bus == 'NONE':
+                am_bus = ''
+            if pm_bus == 'NONE':
+                pm_bus = ''
+            
+            db_lookup[key] = {
+                'first_name': first_name,
+                'last_name': last_name,
+                'am_bus': am_bus,
+                'pm_bus': pm_bus,
+                'address': camper.get('location', {}).get('address', ''),
+                'has_location': bool(camper.get('location', {}).get('latitude'))
+            }
+        
+        # Load Google Sheet state
+        sheet_id = CAMPMINDER_SHEET_ID
+        csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+        
+        async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
+            response = await client.get(csv_url)
+            csv_content = response.text
+        
+        if csv_content.startswith('\ufeff'):
+            csv_content = csv_content[1:]
+        
+        reader = csv.DictReader(StringIO(csv_content))
+        
+        # Find bus columns
+        fieldnames = reader.fieldnames
+        am_bus_col = None
+        pm_bus_col = None
+        
+        for col in fieldnames:
+            if 'AM Bus' in col and 'Trans' in col:
+                am_bus_col = col
+            elif 'PM Bus' in col and 'Trans' in col:
+                pm_bus_col = col
+        
+        # Build sheet lookup
+        sheet_lookup = {}
+        for row in reader:
+            first_name = row.get('First Name', '').strip()
+            last_name = row.get('Last Name', '').strip()
+            
+            if not first_name or not last_name:
+                continue
+            
+            key = f"{first_name}|{last_name}".lower()
+            
+            sheet_am = row.get(am_bus_col, '').strip() if am_bus_col else ''
+            sheet_pm = row.get(pm_bus_col, '').strip() if pm_bus_col else ''
+            
+            # Normalize NONE values
+            if sheet_am.upper() == 'NONE':
+                sheet_am = ''
+            if sheet_pm.upper() == 'NONE':
+                sheet_pm = ''
+            
+            sheet_lookup[key] = {
+                'first_name': first_name,
+                'last_name': last_name,
+                'am_bus': sheet_am,
+                'pm_bus': sheet_pm
+            }
+        
+        # Detect changes
+        changes = []
+        
+        for key, db_data in db_lookup.items():
+            sheet_data = sheet_lookup.get(key)
+            
+            if not sheet_data:
+                continue
+            
+            first_name = db_data['first_name']
+            last_name = db_data['last_name']
+            full_name = f"{first_name} {last_name}"
+            
+            db_am = db_data['am_bus']
+            db_pm = db_data['pm_bus']
+            sheet_am = sheet_data['am_bus']
+            sheet_pm = sheet_data['pm_bus']
+            
+            # Check AM changes
+            had_am = bool(sheet_am and sheet_am.startswith('Bus'))
+            has_am = bool(db_am and db_am.startswith('Bus'))
+            
+            if not had_am and has_am:
+                changes.append({
+                    'name': full_name,
+                    'type': 'AM_ADDED',
+                    'old_value': sheet_am or 'EMPTY',
+                    'new_value': db_am,
+                    'message': f"{full_name}: AM bus ADDED ({db_am})"
+                })
+                logger.info(f"✓ {full_name}: AM bus ADDED ({db_am})")
+                
+            elif had_am and not has_am:
+                changes.append({
+                    'name': full_name,
+                    'type': 'AM_REMOVED',
+                    'old_value': sheet_am,
+                    'new_value': 'EMPTY',
+                    'message': f"{full_name}: AM bus REMOVED (was {sheet_am})"
+                })
+                logger.info(f"✓ {full_name}: AM bus REMOVED (was {sheet_am})")
+                
+            elif had_am and has_am and sheet_am != db_am:
+                changes.append({
+                    'name': full_name,
+                    'type': 'AM_CHANGED',
+                    'old_value': sheet_am,
+                    'new_value': db_am,
+                    'message': f"{full_name}: AM bus CHANGED ({sheet_am} → {db_am})"
+                })
+                logger.info(f"✓ {full_name}: AM bus CHANGED ({sheet_am} → {db_am})")
+            
+            # Check PM changes
+            had_pm = bool(sheet_pm and sheet_pm.startswith('Bus'))
+            has_pm = bool(db_pm and db_pm.startswith('Bus'))
+            
+            if not had_pm and has_pm:
+                changes.append({
+                    'name': full_name,
+                    'type': 'PM_ADDED',
+                    'old_value': sheet_pm or 'EMPTY',
+                    'new_value': db_pm,
+                    'message': f"{full_name}: PM bus ADDED ({db_pm})"
+                })
+                logger.info(f"✓ {full_name}: PM bus ADDED ({db_pm})")
+                
+            elif had_pm and not has_pm:
+                changes.append({
+                    'name': full_name,
+                    'type': 'PM_REMOVED',
+                    'old_value': sheet_pm,
+                    'new_value': 'EMPTY',
+                    'message': f"{full_name}: PM bus REMOVED (was {sheet_pm})"
+                })
+                logger.info(f"✓ {full_name}: PM bus REMOVED (was {sheet_pm})")
+                
+            elif had_pm and has_pm and sheet_pm != db_pm:
+                changes.append({
+                    'name': full_name,
+                    'type': 'PM_CHANGED',
+                    'old_value': sheet_pm,
+                    'new_value': db_pm,
+                    'message': f"{full_name}: PM bus CHANGED ({sheet_pm} → {db_pm})"
+                })
+                logger.info(f"✓ {full_name}: PM bus CHANGED ({sheet_pm} → {db_pm})")
+        
+        # Categorize changes
+        am_added = [c for c in changes if c['type'] == 'AM_ADDED']
+        pm_added = [c for c in changes if c['type'] == 'PM_ADDED']
+        am_removed = [c for c in changes if c['type'] == 'AM_REMOVED']
+        pm_removed = [c for c in changes if c['type'] == 'PM_REMOVED']
+        am_changed = [c for c in changes if c['type'] == 'AM_CHANGED']
+        pm_changed = [c for c in changes if c['type'] == 'PM_CHANGED']
+        
+        logger.info(f"Total changes detected: {len(changes)}")
+        
+        # If changes exist, sync to sheet
+        sync_result = None
+        if changes:
+            logger.info("Syncing changes to Google Sheet...")
+            # Call the sync endpoint logic
+            sync_response = await sync_bus_assignments_to_sheet()
+            sync_result = sync_response
+        
+        return {
+            "status": "success",
+            "total_changes": len(changes),
+            "summary": {
+                "am_added": len(am_added),
+                "pm_added": len(pm_added),
+                "am_removed": len(am_removed),
+                "pm_removed": len(pm_removed),
+                "am_changed": len(am_changed),
+                "pm_changed": len(pm_changed)
+            },
+            "changes": changes,
+            "am_added_campers": [c['name'] for c in am_added],
+            "pm_added_campers": [c['name'] for c in pm_added],
+            "sync_result": sync_result
+        }
+        
+    except Exception as e:
+        logger.error(f"Error detecting changes: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/refresh-and-sync")
+async def refresh_and_sync():
+    """
+    Complete workflow:
+    1. Refresh data from Google Sheet
+    2. Detect any bus assignment changes
+    3. Auto-assign buses to unassigned campers
+    4. Sync all changes back to Google Sheet
+    5. Return summary of all operations
+    """
+    logger.info("=== REFRESH AND SYNC WORKFLOW ===")
+    
+    results = {
+        "step1_refresh": None,
+        "step2_detect": None,
+        "step3_sync": None,
+        "summary": None
+    }
+    
+    try:
+        # Step 1: Trigger sync from Google Sheet
+        logger.info("Step 1: Refreshing data from Google Sheet...")
+        # This loads data from sheet into database
+        await auto_sync_campminder()
+        results["step1_refresh"] = {"status": "success", "message": "Data refreshed from Google Sheet"}
+        
+        # Step 2: Detect changes
+        logger.info("Step 2: Detecting bus assignment changes...")
+        detect_result = await detect_bus_assignment_changes()
+        results["step2_detect"] = detect_result
+        
+        # Step 3: Sync back to sheet
+        logger.info("Step 3: Syncing changes back to Google Sheet...")
+        sync_result = await sync_bus_assignments_to_sheet()
+        results["step3_sync"] = sync_result
+        
+        # Summary
+        results["summary"] = {
+            "status": "success",
+            "message": "Refresh and sync completed successfully",
+            "changes_detected": detect_result.get("total_changes", 0),
+            "changes_synced": sync_result.get("updates_count", 0) if isinstance(sync_result, dict) else 0
+        }
+        
+        return results
+        
+    except Exception as e:
+        logger.error(f"Error in refresh and sync: {str(e)}")
+        results["summary"] = {"status": "error", "message": str(e)}
+        return results
+
+
 @api_router.get("/google-apps-script")
 async def get_google_apps_script():
     """
