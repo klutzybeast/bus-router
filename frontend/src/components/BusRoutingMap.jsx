@@ -360,18 +360,24 @@ const BusRoutingMap = () => {
           onLoad={(map) => setMapInstance(map)}
         >
           {searchFilteredCampers.map((camper, index) => {
-            // Use AM bus for display unless it's PM-only
-            const displayBus = camper.pickup_type === "PM Drop-off Only" 
-              ? camper.pm_bus_number 
-              : (camper.am_bus_number || camper.bus_number);
-            const busColor = camper.pickup_type === "PM Drop-off Only"
-              ? getBusColor(camper.pm_bus_number)
-              : (camper.bus_color || getBusColor(camper.am_bus_number || camper.bus_number));
+            // Determine which bus to display on the pin
+            // Rule: Show AM bus if valid, otherwise show PM bus if valid
+            const hasValidAmBus = camper.am_bus_number && camper.am_bus_number !== 'NONE' && camper.am_bus_number.startsWith('Bus');
+            const hasValidPmBus = camper.pm_bus_number && camper.pm_bus_number !== 'NONE' && camper.pm_bus_number.startsWith('Bus');
             
-            // Get display text - handle NONE and empty cases
-            const displayText = !displayBus || displayBus === 'NONE' 
-              ? '?' 
-              : displayBus.replace('Bus #', '').substring(0, 2);
+            // Skip campers with no valid bus at all
+            if (!hasValidAmBus && !hasValidPmBus) {
+              return null;
+            }
+            
+            // Use AM bus for display, fall back to PM if AM is not valid
+            const displayBus = hasValidAmBus ? camper.am_bus_number : camper.pm_bus_number;
+            const busColor = hasValidAmBus 
+              ? (camper.bus_color || getBusColor(camper.am_bus_number))
+              : getBusColor(camper.pm_bus_number);
+            
+            // Get display text (bus number only)
+            const displayText = displayBus.replace('Bus #', '').substring(0, 2);
             
             return (
             <AdvancedMarker
