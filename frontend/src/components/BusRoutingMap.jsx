@@ -27,7 +27,7 @@ const BUS_COLORS = {
   'Bus #05': '#f58231', 'Bus #06': '#911eb4', 'Bus #07': '#46f0f0', 'Bus #08': '#f032e6',
   'Bus #09': '#bcf60c', 'Bus #10': '#fabebe', 'Bus #11': '#008080', 'Bus #12': '#e6beff',
   'Bus #13': '#9a6324', 'Bus #14': '#000000', 'Bus #15': '#800000', 'Bus #16': '#aaffc3',
-  'Bus #17': '#808000', 'Bus #18': '#ffd8b1', 'Bus #19': '#000075', 'Bus #20': '#808080',
+  'Bus #17': '#808000', 'Bus #18': '#ffd8b1', 'Bus #19': '#000075', 'Bus #20': '#9370DB',
   'Bus #21': '#FFB6C1', 'Bus #22': '#FF69B4', 'Bus #23': '#FF1493', 'Bus #24': '#FFD700',
   'Bus #25': '#FFA500', 'Bus #26': '#FF4500', 'Bus #27': '#DC143C', 'Bus #28': '#8B0000',
   'Bus #29': '#006400', 'Bus #30': '#228B22', 'Bus #31': '#20B2AA', 'Bus #32': '#00CED1',
@@ -38,6 +38,7 @@ const getBusColor = (busNumber) => BUS_COLORS[busNumber] || '#000000';
 
 const BusRoutingMap = () => {
   const [campers, setCampers] = useState([]);
+  const [campersNeedingAddress, setCampersNeedingAddress] = useState([]);
   const [selectedCamper, setSelectedCamper] = useState(null);
   const [loading, setLoading] = useState(true);
   const [mapCenter, setMapCenter] = useState({ lat: 40.7128, lng: -73.7949 });
