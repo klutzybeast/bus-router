@@ -111,23 +111,39 @@ async def root():
 @api_router.get("/campers")
 async def get_campers():
     try:
-        # Return ALL campers with valid locations (including NONE bus for assignment)
+        # Return campers with valid locations and at least one valid bus assignment
         existing_campers = await db.campers.find({
-            "am_bus_number": {"$exists": True},
-            "location.latitude": {"$ne": 0.0}
+            "location.latitude": {"$ne": 0.0},
+            "$or": [
+                {"am_bus_number": {"$regex": "^Bus"}},
+                {"pm_bus_number": {"$regex": "^Bus"}}
+            ]
         }).to_list(None)
         
-        # Convert _id to string and add bus_number for backwards compatibility
+        # Convert _id to string and clean up data
         result = []
         for camper in existing_campers:
+            am_bus = camper.get('am_bus_number', '')
+            pm_bus = camper.get('pm_bus_number', '')
+            
+            # Clean up NONE values - replace with empty string
+            if am_bus == 'NONE' or not am_bus.startswith('Bus'):
+                am_bus = ''
+            if pm_bus == 'NONE' or not pm_bus.startswith('Bus'):
+                pm_bus = ''
+            
+            # Skip campers with no valid bus at all
+            if not am_bus and not pm_bus:
+                continue
+            
             camper_dict = {
                 "_id": str(camper['_id']),
                 "first_name": camper.get('first_name', ''),
                 "last_name": camper.get('last_name', ''),
                 "location": camper.get('location', {}),
-                "am_bus_number": camper.get('am_bus_number', ''),
-                "pm_bus_number": camper.get('pm_bus_number', ''),
-                "bus_number": camper.get('am_bus_number', ''),  # For compatibility
+                "am_bus_number": am_bus,
+                "pm_bus_number": pm_bus,
+                "bus_number": am_bus or pm_bus,  # For compatibility - use whichever is valid
                 "bus_color": camper.get('bus_color', ''),
                 "session": camper.get('session', ''),
                 "pickup_type": camper.get('pickup_type', ''),
