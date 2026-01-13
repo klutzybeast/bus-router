@@ -4,14 +4,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Bus colors - 33 unique colors for 33+ buses
+# Bus colors - 34 unique, visually distinct colors for 34 buses
 BUS_COLORS = [
-    "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4",
-    "#46f0f0", "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff",
-    "#9a6324", "#000000", "#800000", "#aaffc3", "#808000", "#ffd8b1",
-    "#000075", "#9370DB", "#FFB6C1", "#FF69B4", "#FF1493", "#FFD700",
-    "#FFA500", "#FF4500", "#DC143C", "#8B0000", "#006400", "#228B22",
-    "#20B2AA", "#00CED1", "#191970"
+    "#E53935", "#43A047", "#1E88E5", "#8E24AA", "#FB8C00", "#00ACC1",
+    "#D81B60", "#5E35B1", "#7CB342", "#F4511E", "#00897B", "#3949AB",
+    "#C0CA33", "#6D4C41", "#546E7A", "#EC407A", "#AB47BC", "#26A69A",
+    "#FDD835", "#29B6F6", "#EF5350", "#66BB6A", "#42A5F5", "#7E57C2",
+    "#FFCA28", "#26C6DA", "#78909C", "#8D6E63", "#9CCC65", "#FF7043",
+    "#5C6BC0", "#FFEE58", "#4DB6AC", "#BA68C8"
 ]
 
 
