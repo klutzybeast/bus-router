@@ -166,6 +166,31 @@ const BusRoutingMap = () => {
     }
   };
 
+  const handleTestCampMinderAPI = async () => {
+    try {
+      toast.loading("Testing CampMinder API connectivity...");
+      
+      const response = await axios.get(`${API}/test-campminder-api`);
+      
+      toast.dismiss();
+      
+      if (response.data.status === "success") {
+        toast.success("CampMinder API fully operational!");
+      } else if (response.data.status === "partial") {
+        toast.warning(response.data.message);
+      } else {
+        toast.error(response.data.message);
+      }
+      
+      // Log detailed results for debugging
+      console.log("CampMinder API Test Results:", response.data);
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error testing CampMinder API:", error);
+      toast.error("Failed to test CampMinder API");
+    }
+  };
+
   const handleDownloadAssignments = () => {
     window.open(`${API}/download/bus-assignments`, '_blank');
     toast.success("Downloading bus assignments...");
