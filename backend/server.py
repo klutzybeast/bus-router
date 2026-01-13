@@ -33,21 +33,25 @@ mongo_url = os.environ['MONGO_URL']
 # Check if this is an Atlas connection (contains mongodb+srv or mongodb.net)
 is_atlas = 'mongodb.net' in mongo_url or 'mongodb+srv' in mongo_url
 
+# Log connection type
+logging.info(f"MongoDB connection type: {'Atlas' if is_atlas else 'Local'}")
+
 if is_atlas:
-    # Atlas connection - needs TLS and specific settings
+    # Atlas connection - use SRV-compatible settings
+    # Remove any conflicting parameters that might be in the URL
     client = AsyncIOMotorClient(
         mongo_url,
-        serverSelectionTimeoutMS=60000,  # 60 second timeout for Atlas
-        connectTimeoutMS=30000,          # 30 second connection timeout
-        socketTimeoutMS=60000,           # 60 second socket timeout
+        serverSelectionTimeoutMS=120000,  # 2 minute timeout for Atlas (initial connection can be slow)
+        connectTimeoutMS=60000,           # 60 second connection timeout
+        socketTimeoutMS=120000,           # 2 minute socket timeout
         retryWrites=True,
         retryReads=True,
         maxPoolSize=50,
-        minPoolSize=5,
-        maxIdleTimeMS=45000,
-        waitQueueTimeoutMS=60000,
-        tls=True,
-        tlsAllowInvalidCertificates=False
+        minPoolSize=0,                    # Start with 0 to avoid connection issues on startup
+        maxIdleTimeMS=60000,
+        waitQueueTimeoutMS=120000,
+        appName="BusRoutingApp",
+        directConnection=False,           # Required for replica sets
     )
 else:
     # Local MongoDB connection
@@ -63,6 +67,7 @@ else:
     )
 
 db = client[os.environ['DB_NAME']]
+db_connected = False  # Track connection status
 
 # Initialize services
 gmaps = googlemaps.Client(key=os.environ['GOOGLE_MAPS_API_KEY'])
