@@ -72,6 +72,11 @@ Continue using Google Sheets as primary data source for bus assignments until Ca
 - Turn-by-turn directions via Google Directions API
 - Separate AM and PM routes with correct campers
 - Distance and time estimates
+- **NEW: Single home location per bus for AM start and PM end**
+  - AM Route: Home Location (green) → Camper Pickups → Camp (red)
+  - PM Route: Camp (red) → Camper Drop-offs → Home Location (green)
+  - If home = camp, bus starts/ends at camp for both routes
+  - If home = driver address, bus starts/ends at driver's home
 
 ### Phase 5: UI Features ✅
 - Add Camper Manually button/dialog
