@@ -196,6 +196,11 @@ const BusRoutingMap = () => {
     toast.success("Downloading bus assignments...");
   };
 
+  const handleDownloadSeatAvailability = () => {
+    window.open(`${API}/download/seat-availability`, '_blank');
+    toast.success("Downloading seat availability...");
+  };
+
   const handleMarkerClick = useCallback((camper) => {
     setSelectedCamper(camper);
     if (window.innerWidth < 768) {
