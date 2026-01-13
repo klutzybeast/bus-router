@@ -612,6 +612,10 @@ const BusRoutingMap = () => {
                   // Check if this is a PM-specific location
                   const isPmLocation = selectedCamper._id && selectedCamper._id.endsWith('_PM');
                   
+                  // Get staff info for the relevant bus
+                  const relevantBus = isPmLocation ? selectedCamper.pm_bus_number : selectedCamper.am_bus_number;
+                  const staffInfo = busStaffList[relevantBus] || {};
+                  
                   return (
                     <>
                       <h3 className="font-bold text-base md:text-lg mb-2">
@@ -658,6 +662,21 @@ const BusRoutingMap = () => {
                         {!hasValidAmBus && !hasValidPmBus && (
                           <div className="text-red-600 font-semibold">No bus assigned</div>
                         )}
+                        
+                        {/* Driver and Counselor Info */}
+                        {(hasValidAmBus || hasValidPmBus) && (
+                          <div className="mt-2 pt-2 border-t border-gray-200">
+                            <div className="flex items-center gap-1">
+                              <span className="font-semibold">👤 Driver:</span> 
+                              <span>{staffInfo.driver_name || 'TBD'}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="font-semibold">🏫 Counselor:</span> 
+                              <span>{staffInfo.counselor_name || 'TBD'}</span>
+                            </div>
+                          </div>
+                        )}
+                        
                         <div>
                           <span className="font-semibold">Session:</span> {selectedCamper.session}
                         </div>
