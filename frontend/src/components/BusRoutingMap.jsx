@@ -776,14 +776,14 @@ const BusRoutingMap = () => {
               </div>
               
               {/* Bus List */}
-              <div className="border-t pt-4">
-                <h3 className="font-semibold mb-3 text-sm text-gray-700 flex items-center justify-between">
+              <div className="border-t pt-4 flex-1 min-h-0 flex flex-col">
+                <h3 className="font-semibold mb-3 text-sm text-gray-700 flex items-center justify-between flex-shrink-0">
                   <span>Active Buses ({uniqueBuses.length})</span>
                   {selectedBusFilter && (
                     <span className="text-xs text-blue-600">Filtered</span>
                   )}
                 </h3>
-                <div className="space-y-2 max-h-96 md:max-h-[40vh] overflow-y-auto">
+                <div className="space-y-2 overflow-y-auto flex-1" style={{maxHeight: '300px'}}>
                   {uniqueBuses.map((bus) => {
                     const busColor = getBusColor(bus);
                     const busCount = campers.filter(c => 
