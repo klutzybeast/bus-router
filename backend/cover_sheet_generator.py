@@ -92,11 +92,23 @@ class CoverSheetGenerator:
         # Data rows for each bus
         for bus_number in sorted_buses:
             bus_campers = bus_groups[bus_number]
-            capacity = get_bus_capacity(bus_number)
-            driver = get_bus_driver(bus_number)
-            counselor = get_bus_counselor(bus_number)
-            # Use configured location, fallback to first camper's town
-            location = get_bus_location(bus_number) or (bus_campers[0].get('town', '') if bus_campers else '')
+            
+            # Get staff info from database if available, else use defaults
+            if bus_number in staff_dict:
+                staff = staff_dict[bus_number]
+                driver = staff.get('driver_name', get_bus_driver(bus_number))
+                counselor = staff.get('counselor_name', get_bus_counselor(bus_number))
+                capacity = staff.get('capacity', get_bus_capacity(bus_number))
+                location = staff.get('location_name', get_bus_location(bus_number))
+            else:
+                capacity = get_bus_capacity(bus_number)
+                driver = get_bus_driver(bus_number)
+                counselor = get_bus_counselor(bus_number)
+                location = get_bus_location(bus_number)
+            
+            # Fallback location to first camper's town
+            if not location and bus_campers:
+                location = bus_campers[0].get('town', '')
             
             # Count campers per half session
             half1_am_count = 0
