@@ -216,6 +216,17 @@ const BusRoutingMap = () => {
   };
 
   const handleDownloadAssignments = async () => {
+    // Check if mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // For mobile: direct navigation works best
+      toast.success("Opening download...");
+      window.location.href = `${API}/download/bus-assignments`;
+      return;
+    }
+    
+    // Desktop: use fetch/blob approach
     const toastId = toast.loading("Downloading bus assignments...");
     
     try {
@@ -228,40 +239,36 @@ const BusRoutingMap = () => {
       const blob = await response.blob();
       const filename = `bus-assignments-${new Date().toISOString().split('T')[0]}.csv`;
       
-      // Check if we're on iOS Safari (doesn't support download attribute well)
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-      
-      if (isIOS || isSafari) {
-        // For iOS/Safari: Open blob in new tab - user can then share/save
-        const blobUrl = window.URL.createObjectURL(blob);
-        window.open(blobUrl, '_blank');
-        toast.dismiss(toastId);
-        toast.success("File opened! Tap Share to save.");
-      } else {
-        // Standard download for other browsers
-        const blobUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(blobUrl);
-        toast.dismiss(toastId);
-        toast.success(`Downloaded ${filename}`);
-      }
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      toast.dismiss(toastId);
+      toast.success(`Downloaded ${filename}`);
     } catch (error) {
       console.error("Download error:", error);
       toast.dismiss(toastId);
-      toast.error("Download failed. Trying alternate method...");
-      
-      // Ultimate fallback: direct URL navigation
+      // Fallback: direct URL navigation
       window.location.href = `${API}/download/bus-assignments`;
     }
   };
 
   const handleDownloadSeatAvailability = async () => {
+    // Check if mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // For mobile: direct navigation works best
+      toast.success("Opening download...");
+      window.location.href = `${API}/download/seat-availability`;
+      return;
+    }
+    
+    // Desktop: use fetch/blob approach
     const toastId = toast.loading("Downloading seat availability...");
     
     try {
@@ -274,35 +281,20 @@ const BusRoutingMap = () => {
       const blob = await response.blob();
       const filename = `seat-availability-${new Date().toISOString().split('T')[0]}.xlsx`;
       
-      // Check if we're on iOS Safari (doesn't support download attribute well)
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-      
-      if (isIOS || isSafari) {
-        // For iOS/Safari: Open blob in new tab - user can then share/save
-        const blobUrl = window.URL.createObjectURL(blob);
-        window.open(blobUrl, '_blank');
-        toast.dismiss(toastId);
-        toast.success("File opened! Tap Share to save.");
-      } else {
-        // Standard download for other browsers
-        const blobUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(blobUrl);
-        toast.dismiss(toastId);
-        toast.success(`Downloaded ${filename}`);
-      }
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      toast.dismiss(toastId);
+      toast.success(`Downloaded ${filename}`);
     } catch (error) {
       console.error("Download error:", error);
       toast.dismiss(toastId);
-      toast.error("Download failed. Trying alternate method...");
-      
-      // Ultimate fallback: direct URL navigation
+      // Fallback: direct URL navigation
       window.location.href = `${API}/download/seat-availability`;
     }
   };
