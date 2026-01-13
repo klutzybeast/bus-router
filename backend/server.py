@@ -247,6 +247,31 @@ async def add_camper_manually(camper: ManualCamperInput):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@api_router.delete("/campers/{camper_id}")
+async def delete_camper(camper_id: str):
+    """Delete a camper from the database"""
+    try:
+        # URL decode the camper_id
+        import urllib.parse
+        decoded_id = urllib.parse.unquote(camper_id)
+        
+        result = await db.campers.delete_one({"_id": decoded_id})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Camper not found")
+        
+        # Also delete any PM-specific entry
+        await db.campers.delete_many({"_id": {"$regex": f"^{decoded_id}_PM"}})
+        
+        return {"success": True, "message": "Camper deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting camper: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 @api_router.post("/sync-campers")
 async def sync_campers(csv_data: Dict[str, Any]):
     try:
