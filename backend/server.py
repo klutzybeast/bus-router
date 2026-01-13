@@ -887,7 +887,7 @@ async def update_seat_availability_sheet():
             "data": sheet_data
         }
         
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
             response = await client.post(webhook_url, json=payload)
             
             if response.status_code == 200:
