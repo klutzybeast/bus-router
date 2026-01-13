@@ -156,6 +156,11 @@ def get_bus_counselor(bus_number: str) -> str:
     return BUS_COUNSELORS.get(bus_number, 'TBD')
 
 
+def get_bus_location(bus_number: str) -> str:
+    """Get the location/area name for a specific bus"""
+    return BUS_LOCATIONS.get(bus_number, '')
+
+
 def get_bus_home_location(bus_number: str) -> str:
     """
     Get the home location for a specific bus.
