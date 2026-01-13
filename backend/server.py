@@ -2605,11 +2605,20 @@ async def download_bus_assignments():
         
         output.seek(0)
         
-        return StreamingResponse(
-            iter([output.getvalue()]),
-            media_type="text/csv",
+        filename = f"bus_assignments_{datetime.now().strftime('%Y%m%d')}.csv"
+        
+        # Use Response with proper headers for mobile compatibility
+        from fastapi.responses import Response
+        return Response(
+            content=output.getvalue(),
+            media_type="text/csv; charset=utf-8",
             headers={
-                "Content-Disposition": f"attachment; filename=bus_assignments_{datetime.now().strftime('%Y%m%d')}.csv"
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Content-Type": "text/csv; charset=utf-8",
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0",
+                "Access-Control-Expose-Headers": "Content-Disposition"
             }
         )
     except Exception as e:
