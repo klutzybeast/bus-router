@@ -14,25 +14,32 @@ class RoutePrinter:
         if not campers:
             return {"error": "No campers assigned to this bus"}
         
+        # Helper function to check if bus is valid (not NONE or empty)
+        def is_valid_bus(bus):
+            return bus and bus != 'NONE' and bus.startswith('Bus')
+        
         # Separate AM and PM campers based on their ACTUAL bus assignment for this route
-        # AM campers: those whose AM bus matches this bus number
+        # AM campers: those whose AM bus matches this bus number AND is valid
         # For campers with different AM/PM addresses, only include the non-PM entry
         am_campers = []
         for c in campers:
-            if c.get('am_bus_number') == bus_number:
+            am_bus = c.get('am_bus_number', '')
+            if am_bus == bus_number and is_valid_bus(am_bus):
                 camper_id = c.get('_id', '')
                 # Skip PM-specific entries for AM route
                 if camper_id.endswith('_PM'):
                     continue
                 am_campers.append(c)
-        # PM campers: those whose PM bus matches this bus number
+        
+        # PM campers: those whose PM bus matches this bus number AND is valid
         # For campers with different AM/PM addresses, only include the PM entry (ends with _PM or has PM-only type)
         pm_campers = []
         seen_names = set()
         
         # First pass: collect PM-specific entries
         for c in campers:
-            if c.get('pm_bus_number') == bus_number:
+            pm_bus = c.get('pm_bus_number', '')
+            if pm_bus == bus_number and is_valid_bus(pm_bus):
                 camper_id = c.get('_id', '')
                 name = f"{c.get('first_name', '')}_{c.get('last_name', '')}"
                 
@@ -42,7 +49,8 @@ class RoutePrinter:
         
         # Second pass: add campers without PM-specific entries
         for c in campers:
-            if c.get('pm_bus_number') == bus_number:
+            pm_bus = c.get('pm_bus_number', '')
+            if pm_bus == bus_number and is_valid_bus(pm_bus):
                 camper_id = c.get('_id', '')
                 name = f"{c.get('first_name', '')}_{c.get('last_name', '')}"
                 
