@@ -64,12 +64,17 @@ const BusRoutingMap = () => {
   const fetchCampers = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/campers`);
-      setCampers(response.data);
+      const [campersResponse, needsAddressResponse] = await Promise.all([
+        axios.get(`${API}/campers`),
+        axios.get(`${API}/campers/needs-address`)
+      ]);
+      
+      setCampers(campersResponse.data);
+      setCampersNeedingAddress(needsAddressResponse.data);
       
       // Calculate unique buses from am_bus_number and pm_bus_number
       const busSet = new Set();
-      response.data.forEach(c => {
+      campersResponse.data.forEach(c => {
         if (c.am_bus_number) busSet.add(c.am_bus_number);
         if (c.pm_bus_number && c.pm_bus_number !== c.am_bus_number) busSet.add(c.pm_bus_number);
         if (c.bus_number) busSet.add(c.bus_number);  // Backwards compatibility
@@ -77,14 +82,14 @@ const BusRoutingMap = () => {
       const buses = Array.from(busSet).sort();
       setUniqueBuses(buses);
       
-      if (response.data.length > 0) {
+      if (campersResponse.data.length > 0) {
         setMapCenter({
-          lat: response.data[0].location.latitude,
-          lng: response.data[0].location.longitude
+          lat: campersResponse.data[0].location.latitude,
+          lng: campersResponse.data[0].location.longitude
         });
       }
       
-      toast.success(`Loaded ${response.data.length} camper locations`);
+      toast.success(`Loaded ${campersResponse.data.length} campers (${needsAddressResponse.data.length} need addresses)`);
     } catch (error) {
       console.error("Error fetching campers:", error);
       toast.error("Failed to load camper data");
