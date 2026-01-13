@@ -984,6 +984,16 @@ const BusRoutingMap = () => {
                   <RefreshCw className="w-5 h-5 mr-2" />
                   Update Seat Availability Sheet
                 </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full h-12 text-base bg-indigo-50 hover:bg-indigo-100 border-indigo-600 text-indigo-700"
+                  onClick={() => setShowStaffConfig(true)}
+                  data-testid="configure-staff-btn"
+                >
+                  <Settings className="w-5 h-5 mr-2" />
+                  Configure Bus Staff
+                </Button>
                 
                 <Button
                   variant="outline"
