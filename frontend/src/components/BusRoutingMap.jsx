@@ -952,6 +952,156 @@ const BusRoutingMap = () => {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
+
+                {/* Bus Staff Configuration Dialog */}
+                <Dialog open={showStaffConfig} onOpenChange={setShowStaffConfig}>
+                  <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl">Configure Bus Staff</DialogTitle>
+                      <DialogDescription>
+                        Set driver and counselor names for each bus. Changes will update the seat availability report.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      {/* Bus Selection */}
+                      <div className="space-y-2">
+                        <Label htmlFor="staff_bus">Select Bus</Label>
+                        <Select
+                          value={selectedStaffBus}
+                          onValueChange={(value) => loadStaffForBus(value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="-- Select Bus --" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({length: 34}, (_, i) => `Bus #${String(i + 1).padStart(2, '0')}`).map(bus => (
+                              <SelectItem key={bus} value={bus}>{bus}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Driver Name */}
+                      <div className="space-y-2">
+                        <Label htmlFor="driver_name">Driver Name</Label>
+                        <Input
+                          id="driver_name"
+                          placeholder="Enter driver name"
+                          value={staffForm.driver_name}
+                          onChange={(e) => setStaffForm({...staffForm, driver_name: e.target.value})}
+                        />
+                      </div>
+
+                      {/* Counselor Name */}
+                      <div className="space-y-2">
+                        <Label htmlFor="counselor_name">Counselor Name</Label>
+                        <Input
+                          id="counselor_name"
+                          placeholder="Enter counselor name"
+                          value={staffForm.counselor_name}
+                          onChange={(e) => setStaffForm({...staffForm, counselor_name: e.target.value})}
+                        />
+                      </div>
+
+                      {/* Home Address */}
+                      <div className="space-y-2">
+                        <Label htmlFor="home_address">Driver's Home Address</Label>
+                        <Input
+                          id="home_address"
+                          placeholder="123 Main St, City, NY 11518"
+                          value={staffForm.home_address}
+                          onChange={(e) => setStaffForm({...staffForm, home_address: e.target.value})}
+                        />
+                        <p className="text-xs text-gray-500">This will be the start/end point for route sheets</p>
+                      </div>
+
+                      {/* Location Name */}
+                      <div className="space-y-2">
+                        <Label htmlFor="location_name">Location/Area Name</Label>
+                        <Input
+                          id="location_name"
+                          placeholder="e.g., Valley Stream, Oceanside"
+                          value={staffForm.location_name}
+                          onChange={(e) => setStaffForm({...staffForm, location_name: e.target.value})}
+                        />
+                      </div>
+
+                      {/* Capacity */}
+                      <div className="space-y-2">
+                        <Label htmlFor="capacity">Bus Capacity</Label>
+                        <Input
+                          id="capacity"
+                          type="number"
+                          placeholder="19 or 30"
+                          value={staffForm.capacity}
+                          onChange={(e) => setStaffForm({...staffForm, capacity: e.target.value})}
+                        />
+                      </div>
+
+                      {/* Save Button */}
+                      <Button 
+                        className="w-full bg-green-600 hover:bg-green-700"
+                        onClick={handleSaveStaff}
+                      >
+                        Save Configuration
+                      </Button>
+
+                      {/* Configured Buses List */}
+                      <div className="border-t pt-4 mt-4">
+                        <h3 className="font-semibold mb-3">Configured Buses:</h3>
+                        <div className="max-h-60 overflow-y-auto space-y-2">
+                          {Object.keys(busStaffList).length === 0 ? (
+                            <p className="text-gray-500 text-sm">No buses configured yet.</p>
+                          ) : (
+                            Object.entries(busStaffList)
+                              .sort(([a], [b]) => {
+                                const numA = parseInt(a.replace(/\D/g, ''));
+                                const numB = parseInt(b.replace(/\D/g, ''));
+                                return numA - numB;
+                              })
+                              .map(([busNum, staff]) => (
+                                <div 
+                                  key={busNum} 
+                                  className="p-3 bg-gray-50 rounded-lg border-l-4 flex justify-between items-start"
+                                  style={{ borderLeftColor: BUS_COLORS[busNum] || '#808080' }}
+                                >
+                                  <div>
+                                    <div className="font-bold">{busNum}</div>
+                                    <div className="text-sm">👤 Driver: {staff.driver_name || 'TBD'}</div>
+                                    <div className="text-sm">🏫 Counselor: {staff.counselor_name || 'TBD'}</div>
+                                    {staff.location_name && (
+                                      <div className="text-xs text-gray-500">📍 {staff.location_name}</div>
+                                    )}
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      className="text-orange-600 border-orange-600"
+                                      onClick={() => loadStaffForBus(busNum)}
+                                    >
+                                      Edit
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      className="text-red-600 border-red-600"
+                                      onClick={() => handleDeleteStaff(busNum)}
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setShowStaffConfig(false)}>Close</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
                 
                 <a 
                   href="https://camp-bus-mapper.preview.emergentagent.com/api/download/bus-assignments"
