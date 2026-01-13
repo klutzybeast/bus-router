@@ -399,14 +399,28 @@ const BusRoutingMap = () => {
               return null;
             }
             
-            // Use AM bus for display, fall back to PM if AM is not valid
-            const displayBus = hasValidAmBus ? camper.am_bus_number : camper.pm_bus_number;
-            const busColor = hasValidAmBus 
-              ? (camper.bus_color || getBusColor(camper.am_bus_number))
-              : getBusColor(camper.pm_bus_number);
+            // Check if this is a PM-specific entry (different PM address)
+            const isPmSpecificEntry = camper._id && camper._id.endsWith('_PM');
+            
+            // For PM-specific entries, show PM bus. Otherwise prefer AM bus.
+            let displayBus, busColor;
+            
+            if (isPmSpecificEntry) {
+              // This is a PM dropoff location - show PM bus
+              displayBus = camper.pm_bus_number;
+              busColor = getBusColor(camper.pm_bus_number);
+            } else if (hasValidAmBus) {
+              // Regular entry with AM bus - show AM bus
+              displayBus = camper.am_bus_number;
+              busColor = camper.bus_color || getBusColor(camper.am_bus_number);
+            } else {
+              // No AM bus, show PM bus
+              displayBus = camper.pm_bus_number;
+              busColor = getBusColor(camper.pm_bus_number);
+            }
             
             // Get display text (bus number only)
-            const displayText = displayBus.replace('Bus #', '').substring(0, 2);
+            const displayText = displayBus ? displayBus.replace('Bus #', '').substring(0, 2) : '?';
             
             return (
             <AdvancedMarker
