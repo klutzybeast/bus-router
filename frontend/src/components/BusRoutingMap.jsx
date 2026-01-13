@@ -408,96 +408,114 @@ const BusRoutingMap = () => {
               onCloseClick={() => setSelectedCamper(null)}
             >
               <div className="p-2 max-w-xs" data-testid="camper-info-window">
-                <h3 className="font-bold text-base md:text-lg mb-2">
-                  {selectedCamper.first_name} {selectedCamper.last_name}
-                </h3>
-                <div className="space-y-1 text-xs md:text-sm">
-                  <div className="flex flex-wrap items-center gap-1">
-                    <span className="font-semibold">AM Bus:</span> 
-                    <span 
-                      className="px-2 py-0.5 rounded text-white text-xs font-medium"
-                      style={{ backgroundColor: getBusColor(selectedCamper.am_bus_number || selectedCamper.bus_number) }}
-                    >
-                      {selectedCamper.am_bus_number || selectedCamper.bus_number}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-1">
-                    <span className="font-semibold">PM Bus:</span> 
-                    <span 
-                      className="px-2 py-0.5 rounded text-white text-xs font-medium"
-                      style={{ backgroundColor: getBusColor(selectedCamper.pm_bus_number || selectedCamper.bus_number) }}
-                    >
-                      {selectedCamper.pm_bus_number || selectedCamper.bus_number}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-semibold">Session:</span> {selectedCamper.session}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Type:</span> {selectedCamper.pickup_type}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Address:</span> {selectedCamper.location.address}
-                  </div>
-                  {selectedCamper.town && (
-                    <div>
-                      <span className="font-semibold">Town:</span> {selectedCamper.town}
-                    </div>
-                  )}
-                  {selectedCamper.zip_code && (
-                    <div>
-                      <span className="font-semibold">Zip:</span> {selectedCamper.zip_code}
-                    </div>
-                  )}
+                {/* Helper function to check valid bus */}
+                {(() => {
+                  const hasValidAmBus = selectedCamper.am_bus_number && 
+                    selectedCamper.am_bus_number !== 'NONE' && 
+                    selectedCamper.am_bus_number.startsWith('Bus');
+                  const hasValidPmBus = selectedCamper.pm_bus_number && 
+                    selectedCamper.pm_bus_number !== 'NONE' && 
+                    selectedCamper.pm_bus_number.startsWith('Bus');
                   
-                  {/* Manual Bus Override - Separate for AM and PM */}
-                  <div className="mt-3 pt-3 border-t">
-                    <div className="text-xs font-semibold mb-2">Change Bus Assignments:</div>
-                    <div className="space-y-2">
-                      <div className="flex gap-2 items-center">
-                        <span className="text-xs w-12">AM:</span>
-                        <Select value={newAmBus} onValueChange={setNewAmBus}>
-                          <SelectTrigger className="w-28 h-8 text-xs">
-                            <SelectValue placeholder="AM Bus" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {uniqueBuses.map(bus => (
-                              <SelectItem key={bus} value={bus}>{bus}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          size="sm"
-                          className="h-8 text-xs"
-                          onClick={() => handleChangeBus(selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}`.replace(' ', '_'), 'am')}
-                          disabled={!newAmBus}
-                        >
-                          Update AM
-                        </Button>
-                      </div>
-                      <div className="flex gap-2 items-center">
-                        <span className="text-xs w-12">PM:</span>
-                        <Select value={newPmBus} onValueChange={setNewPmBus}>
-                          <SelectTrigger className="w-28 h-8 text-xs">
-                            <SelectValue placeholder="PM Bus" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {uniqueBuses.map(bus => (
-                              <SelectItem key={`pm-${bus}`} value={bus}>{bus}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          size="sm"
-                          className="h-8 text-xs"
-                          onClick={() => handleChangeBus(selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}`.replace(' ', '_'), 'pm')}
-                          disabled={!newPmBus}
-                        >
-                          Update PM
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                  return (
+                    <>
+                      <h3 className="font-bold text-base md:text-lg mb-2">
+                        {selectedCamper.first_name} {selectedCamper.last_name}
+                      </h3>
+                      <div className="space-y-1 text-xs md:text-sm">
+                        {/* Only show AM Bus if valid */}
+                        {hasValidAmBus && (
+                          <div className="flex flex-wrap items-center gap-1">
+                            <span className="font-semibold">AM Bus:</span> 
+                            <span 
+                              className="px-2 py-0.5 rounded text-white text-xs font-medium"
+                              style={{ backgroundColor: getBusColor(selectedCamper.am_bus_number) }}
+                            >
+                              {selectedCamper.am_bus_number}
+                            </span>
+                          </div>
+                        )}
+                        {/* Only show PM Bus if valid */}
+                        {hasValidPmBus && (
+                          <div className="flex flex-wrap items-center gap-1">
+                            <span className="font-semibold">PM Bus:</span> 
+                            <span 
+                              className="px-2 py-0.5 rounded text-white text-xs font-medium"
+                              style={{ backgroundColor: getBusColor(selectedCamper.pm_bus_number) }}
+                            >
+                              {selectedCamper.pm_bus_number}
+                            </span>
+                          </div>
+                        )}
+                        {/* Show message if no buses assigned */}
+                        {!hasValidAmBus && !hasValidPmBus && (
+                          <div className="text-red-600 font-semibold">No bus assigned</div>
+                        )}
+                        <div>
+                          <span className="font-semibold">Session:</span> {selectedCamper.session}
+                        </div>
+                        <div>
+                          <span className="font-semibold">Address:</span> {selectedCamper.location.address}
+                        </div>
+                        {selectedCamper.town && (
+                          <div>
+                            <span className="font-semibold">Town:</span> {selectedCamper.town}
+                          </div>
+                        )}
+                        {selectedCamper.zip_code && (
+                          <div>
+                            <span className="font-semibold">Zip:</span> {selectedCamper.zip_code}
+                          </div>
+                        )}
+                        
+                        {/* Manual Bus Override - Separate for AM and PM */}
+                        <div className="mt-3 pt-3 border-t">
+                          <div className="text-xs font-semibold mb-2">Change Bus Assignments:</div>
+                          <div className="space-y-2">
+                            <div className="flex gap-2 items-center">
+                              <span className="text-xs w-12">AM:</span>
+                              <Select value={newAmBus} onValueChange={setNewAmBus}>
+                                <SelectTrigger className="w-28 h-8 text-xs">
+                                  <SelectValue placeholder="AM Bus" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {uniqueBuses.filter(b => b.startsWith('Bus')).map(bus => (
+                                    <SelectItem key={bus} value={bus}>{bus}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <Button
+                                size="sm"
+                                className="h-8 text-xs"
+                                onClick={() => handleChangeBus(selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}`.replace(' ', '_'), 'am')}
+                                disabled={!newAmBus}
+                              >
+                                Update AM
+                              </Button>
+                            </div>
+                            <div className="flex gap-2 items-center">
+                              <span className="text-xs w-12">PM:</span>
+                              <Select value={newPmBus} onValueChange={setNewPmBus}>
+                                <SelectTrigger className="w-28 h-8 text-xs">
+                                  <SelectValue placeholder="PM Bus" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {uniqueBuses.filter(b => b.startsWith('Bus')).map(bus => (
+                                    <SelectItem key={`pm-${bus}`} value={bus}>{bus}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <Button
+                                size="sm"
+                                className="h-8 text-xs"
+                                onClick={() => handleChangeBus(selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}`.replace(' ', '_'), 'pm')}
+                                disabled={!newPmBus}
+                              >
+                                Update PM
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
                   
                   {/* Delete Button */}
                   <div className="border-t pt-2 mt-2">
