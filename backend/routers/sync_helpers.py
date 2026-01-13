@@ -1,87 +1,74 @@
-"""Sync helper functions."""
+"""
+Sync helper functions for auto-sync from Google Sheets.
+This module contains the complete auto-sync logic.
+"""
 
 import logging
 import csv
+import asyncio
 from io import StringIO
 from datetime import datetime, timezone
 
 import httpx
 
 from services.database import (
-    db, CAMPMINDER_SHEET_ID, GOOGLE_SHEETS_WEBHOOK_URL
+    db, route_optimizer, 
+    CAMPMINDER_SHEET_ID, AUTO_SYNC_ENABLED, SYNC_INTERVAL_MINUTES
 )
 from services.bus_utils import get_bus_color
 from services.geocoding import geocode_address
-from models.schemas import GeoLocation, CamperPin
+from models.schemas import GeoLocation
 from sibling_offset import apply_sibling_offset
 
 logger = logging.getLogger(__name__)
 
+# Global sync state
+last_sync_time = None
+
 
 async def auto_sync_campminder():
-    """
-    Auto-sync from Google Sheet (CampMinder export).
-    This is the main sync function that refreshes data from the source sheet.
-    """
+    """Background task to automatically sync from Google Sheets - handles ADD, UPDATE, DELETE"""
     global last_sync_time
     
-    logger.info("=== AUTO-SYNC: Starting sync from Google Sheet ===")
+    logger.info("Starting auto-sync from CampMinder Google Sheet...")
     
     try:
         sheet_id = CAMPMINDER_SHEET_ID
         if not sheet_id:
-            logger.warning("No CAMPMINDER_SHEET_ID configured")
-            return {"status": "skipped", "reason": "No sheet ID configured"}
+            logger.error("No CAMPMINDER_SHEET_ID configured")
+            return
         
         csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
         
-        logger.info(f"Fetching from: {csv_url}")
-        
         async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
             response = await client.get(csv_url)
+            
+            if response.status_code != 200:
+                logger.error(f"Failed to download Google Sheet: {response.status_code}")
+                return
+            
             csv_content = response.text
+            logger.info(f"Downloaded CSV from Google Sheets ({len(csv_content)} chars)")
         
         if csv_content.startswith('\ufeff'):
             csv_content = csv_content[1:]
         
-        reader = csv.DictReader(StringIO(csv_content))
+        csv_file = StringIO(csv_content)
+        reader = csv.DictReader(csv_file)
         
-        fieldnames = reader.fieldnames
-        am_bus_col = None
-        pm_bus_col = None
+        sheet_camper_ids = set()
+        new_count = 0
+        updated_count = 0
+        existing_routes = None
         
-        for col in fieldnames:
-            if '2026Transportation M AM Bus' in col:
-                am_bus_col = col
-            elif '2026Transportation M PM Bus' in col:
-                pm_bus_col = col
-        
-        if not am_bus_col:
-            for col in fieldnames:
-                if 'AM Bus' in col:
-                    am_bus_col = col
-                    break
-        if not pm_bus_col:
-            for col in fieldnames:
-                if 'PM Bus' in col:
-                    pm_bus_col = col
-                    break
-        
-        logger.info(f"AM Bus Column: {am_bus_col}")
-        logger.info(f"PM Bus Column: {pm_bus_col}")
-        
-        pins = []
         for row in reader:
             am_method = row.get('Trans-AMDropOffMethod', '')
+            pm_bus_raw = row.get('2026Transportation M PM Bus', '').strip()
             
-            if 'AM Bus' not in am_method:
+            has_pm_bus = pm_bus_raw and 'NONE' not in pm_bus_raw.upper() and not any(x in pm_bus_raw.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM'])
+            
+            if 'AM Bus' not in am_method and not has_pm_bus:
                 continue
-            
-            am_bus = row.get(am_bus_col, '').strip() if am_bus_col else ''
-            pm_bus = row.get(pm_bus_col, '').strip() if pm_bus_col else ''
-            
-            if not am_bus or 'NONE' in am_bus.upper():
-                am_bus = 'NONE'
             
             first_name = row.get('First Name', '')
             last_name = row.get('Last Name', '')
@@ -95,137 +82,245 @@ async def auto_sync_campminder():
             pm_town = row.get('Trans-DropOffTown', '')
             pm_zip = row.get('Trans-DropOffZip', '')
             
-            final_pm_bus = pm_bus.strip() if pm_bus and pm_bus.strip() else am_bus
-            if final_pm_bus and any(x in final_pm_bus.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM', 'NONE']):
-                final_pm_bus = am_bus
+            am_bus = row.get('2026Transportation M AM Bus', '')
+            pm_bus = row.get('2026Transportation M PM Bus', '')
+            
+            has_valid_pm_bus = pm_bus and pm_bus.strip() and 'NONE' not in pm_bus.upper() and not any(x in pm_bus.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM'])
+            is_pm_only_camper = (not am_bus or 'NONE' in am_bus.upper()) and has_valid_pm_bus
+            
+            final_am_bus = None
+            final_pm_bus = None
+            
+            if am_bus and am_bus.strip() and 'NONE' not in am_bus.upper():
+                final_am_bus = am_bus.strip()
+            elif am_address.strip() and not is_pm_only_camper:
+                if existing_routes is None:
+                    all_db_campers = await db.campers.find({"am_bus_number": {"$exists": True}}).to_list(None)
+                    existing_routes = {}
+                    for ec in all_db_campers:
+                        bus_str = ec.get('am_bus_number', '')
+                        if bus_str and 'NONE' not in bus_str.upper():
+                            try:
+                                bus_num = int(''.join(filter(str.isdigit, bus_str)))
+                                if bus_num not in existing_routes:
+                                    existing_routes[bus_num] = []
+                                if ec.get('location', {}).get('latitude', 0) != 0:
+                                    existing_routes[bus_num].append({
+                                        'lat': ec['location']['latitude'],
+                                        'lng': ec['location']['longitude']
+                                    })
+                            except (ValueError, IndexError):
+                                pass
+                
+                location_temp = geocode_address(am_address, am_town, am_zip)
+                if location_temp:
+                    optimal_bus = route_optimizer.find_optimal_bus(
+                        {'lat': location_temp.latitude, 'lng': location_temp.longitude},
+                        existing_routes
+                    )
+                    final_am_bus = f"Bus #{optimal_bus:02d}"
+                    logger.info(f"AUTO-ASSIGNED (new): {first_name} {last_name} → {final_am_bus}")
+            
+            if pm_bus and pm_bus.strip() and 'NONE' not in pm_bus.upper():
+                final_pm_bus = pm_bus.strip()
+            else:
+                final_pm_bus = final_am_bus if final_am_bus else "NONE"
+            
+            if final_pm_bus and any(x in final_pm_bus.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM']):
+                final_pm_bus = final_am_bus if final_am_bus else "NONE"
+            
+            if not final_am_bus:
+                final_am_bus = "NONE"
+            if not final_pm_bus:
+                final_pm_bus = "NONE"
+            
+            effective_address = am_address.strip() or pm_address.strip()
+            effective_town = am_town.strip() or pm_town.strip()
+            effective_zip = am_zip.strip() or pm_zip.strip()
+            
+            has_any_bus = (final_am_bus and final_am_bus != "NONE") or (final_pm_bus and final_pm_bus != "NONE")
+            
+            if not effective_address and not has_any_bus:
+                continue
+            
+            is_pm_only = ('AM Bus' not in am_method and has_pm_bus) or (final_am_bus == "NONE" and final_pm_bus != "NONE")
             
             pm_final_address = pm_address if pm_address.strip() else am_address
             pm_final_town = pm_town if pm_town.strip() else am_town
             pm_final_zip = pm_zip if pm_zip.strip() else am_zip
             
-            camper_id = f"{last_name}_{first_name}_{am_zip}".replace(' ', '_')
+            id_zip = effective_zip if effective_zip else "NOADDR"
+            camper_id = f"{last_name}_{first_name}_{id_zip}".replace(' ', '_')
+            sheet_camper_ids.add(camper_id)
             
-            if am_address.strip():
-                existing = await db.campers.find_one({"_id": camper_id})
+            if effective_address:
+                location = geocode_address(effective_address, effective_town, effective_zip)
+                if not location:
+                    location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {effective_address}")
+                    logger.warning(f"Geocoding failed: {first_name} {last_name} - {effective_address}")
                 
-                if existing and existing.get('location', {}).get('latitude', 0) != 0:
-                    location = GeoLocation(
-                        latitude=existing['location']['latitude'],
-                        longitude=existing['location']['longitude'],
-                        address=existing['location'].get('address', '')
-                    )
+                existing_at_address = await db.campers.count_documents({
+                    "location.latitude": {"$gte": location.latitude - 0.001, "$lte": location.latitude + 0.001},
+                    "location.longitude": {"$gte": location.longitude - 0.001, "$lte": location.longitude + 0.001}
+                })
+                
+                offset = existing_at_address * 0.00002
+                
+                if is_pm_only:
+                    bus_color = get_bus_color(final_pm_bus) if final_pm_bus != "NONE" else "#808080"
+                    pickup_type_val = "PM Drop-off Only"
+                elif final_am_bus == "NONE":
+                    bus_color = "#808080"
+                    pickup_type_val = "NEEDS BUS"
                 else:
-                    location = geocode_address(am_address, am_town, am_zip)
-                    if not location:
-                        location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
+                    bus_color = get_bus_color(final_am_bus)
+                    pickup_type_val = "AM Pickup" if (pm_final_address.strip() and pm_final_address != am_address) else "AM & PM"
                 
-                existing_count = len([p for p in pins if 
-                    abs(p.location.latitude - location.latitude) < 0.0001 and
-                    abs(p.location.longitude - location.longitude) < 0.0001
-                ])
-                offset = existing_count * 0.00002
+                camper_doc = {
+                    "_id": camper_id,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "session": session,
+                    "location": {
+                        "latitude": location.latitude + offset,
+                        "longitude": location.longitude + offset,
+                        "address": location.address
+                    },
+                    "town": effective_town,
+                    "zip_code": effective_zip,
+                    "pickup_type": pickup_type_val,
+                    "am_bus_number": final_am_bus,
+                    "pm_bus_number": final_pm_bus,
+                    "bus_color": bus_color,
+                    "created_at": datetime.now(timezone.utc)
+                }
                 
-                bus_color = "#808080" if am_bus == "NONE" else get_bus_color(am_bus)
-                
-                pins.append(CamperPin(
-                    first_name=first_name,
-                    last_name=last_name,
-                    location=GeoLocation(
-                        latitude=location.latitude + offset,
-                        longitude=location.longitude + offset,
-                        address=location.address
-                    ),
-                    am_bus_number=am_bus,
-                    pm_bus_number=final_pm_bus,
-                    bus_color=bus_color,
-                    session=session,
-                    pickup_type="AM & PM" if am_bus != "NONE" else "NEEDS BUS",
-                    town=am_town,
-                    zip_code=am_zip
-                ))
+                result = await db.campers.replace_one({"_id": camper_id}, camper_doc, upsert=True)
+                if result.upserted_id:
+                    new_count += 1
+                elif result.modified_count > 0:
+                    updated_count += 1
             else:
-                bus_color = "#808080" if am_bus == "NONE" else get_bus_color(am_bus)
-                pins.append(CamperPin(
-                    first_name=first_name,
-                    last_name=last_name,
-                    location=GeoLocation(latitude=0.0, longitude=0.0, address="ADDRESS NEEDED"),
-                    am_bus_number=am_bus,
-                    pm_bus_number=final_pm_bus,
-                    bus_color=bus_color,
-                    session=session,
-                    pickup_type="NO ADDRESS",
-                    town=am_town or "UNKNOWN",
-                    zip_code=am_zip or "UNKNOWN"
-                ))
-            
-            if am_bus != "NONE" and pm_final_address != am_address and pm_final_address.strip():
-                pm_camper_id = f"{camper_id}_PM"
-                existing_pm = await db.campers.find_one({"_id": pm_camper_id})
-                
-                if existing_pm and existing_pm.get('location', {}).get('latitude', 0) != 0:
-                    location_pm = GeoLocation(
-                        latitude=existing_pm['location']['latitude'],
-                        longitude=existing_pm['location']['longitude'],
-                        address=existing_pm['location'].get('address', '')
-                    )
+                if is_pm_only and final_pm_bus and final_pm_bus != "NONE":
+                    bus_color = get_bus_color(final_pm_bus)
+                    pickup_type_val = "PM Drop-off Only - NO ADDRESS"
+                elif final_am_bus and final_am_bus != "NONE":
+                    bus_color = get_bus_color(final_am_bus)
+                    pickup_type_val = "NO ADDRESS"
                 else:
-                    location_pm = geocode_address(pm_final_address, pm_final_town, pm_final_zip)
-                    if not location_pm:
-                        location_pm = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {pm_final_address}")
+                    bus_color = "#808080"
+                    pickup_type_val = "NO ADDRESS - NO BUS"
                 
-                existing_pm_count = len([p for p in pins if 
-                    abs(p.location.latitude - location_pm.latitude) < 0.001 and
-                    abs(p.location.longitude - location_pm.longitude) < 0.001
-                ])
-                pm_offset = existing_pm_count * 0.00008
-                
-                pins.append(CamperPin(
-                    first_name=first_name,
-                    last_name=last_name,
-                    location=GeoLocation(
-                        latitude=location_pm.latitude + pm_offset,
-                        longitude=location_pm.longitude + pm_offset,
-                        address=location_pm.address
-                    ),
-                    am_bus_number=am_bus,
-                    pm_bus_number=final_pm_bus,
-                    bus_color=get_bus_color(final_pm_bus),
-                    session=session,
-                    pickup_type="PM Drop-off Only",
-                    town=pm_final_town,
-                    zip_code=pm_final_zip
-                ))
-        
-        await db.campers.delete_many({})
-        
-        if pins:
-            pins_to_insert = []
-            for i, pin in enumerate(pins):
-                pin_dict = pin.model_dump()
-                
-                base_id = f"{pin.last_name}_{pin.first_name}_{pin.zip_code}".replace(' ', '_')
-                if pin.pickup_type == "PM Drop-off Only":
-                    pin_dict['_id'] = f"{base_id}_PM"
-                else:
-                    pin_dict['_id'] = base_id
-                
-                pins_to_insert.append(pin_dict)
+                camper_doc = {
+                    "_id": camper_id,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "session": session,
+                    "location": {"latitude": 0.0, "longitude": 0.0, "address": "ADDRESS NEEDED"},
+                    "town": effective_town or "UNKNOWN",
+                    "zip_code": effective_zip or "UNKNOWN",
+                    "pickup_type": pickup_type_val,
+                    "am_bus_number": final_am_bus,
+                    "pm_bus_number": final_pm_bus,
+                    "bus_color": bus_color,
+                    "created_at": datetime.now(timezone.utc)
+                }
+                result = await db.campers.replace_one({"_id": camper_id}, camper_doc, upsert=True)
+                if result.upserted_id:
+                    new_count += 1
             
-            await db.campers.insert_many(pins_to_insert)
+            if pm_final_address.strip() and pm_final_address != am_address and not is_pm_only:
+                camper_id_pm = f"{last_name}_{first_name}_{pm_zip}_PM".replace(' ', '_')
+                sheet_camper_ids.add(camper_id_pm)
+                
+                pm_location = geocode_address(pm_final_address, pm_final_town, pm_final_zip)
+                if not pm_location:
+                    pm_location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {pm_final_address}")
+                    logger.warning(f"PM geocoding failed: {first_name} {last_name} - {pm_final_address}")
+                
+                existing_at_pm_address = await db.campers.count_documents({
+                    "location.latitude": {"$gte": pm_location.latitude - 0.001, "$lte": pm_location.latitude + 0.001},
+                    "location.longitude": {"$gte": pm_location.longitude - 0.001, "$lte": pm_location.longitude + 0.001}
+                })
+                
+                pm_offset = existing_at_pm_address * 0.00008
+                
+                camper_doc_pm = {
+                    "_id": camper_id_pm,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "session": session,
+                    "location": {
+                        "latitude": pm_location.latitude + pm_offset,
+                        "longitude": pm_location.longitude + pm_offset,
+                        "address": pm_location.address
+                    },
+                    "town": pm_final_town,
+                    "zip_code": pm_final_zip,
+                    "pickup_type": "PM Drop-off Only",
+                    "am_bus_number": final_am_bus,
+                    "pm_bus_number": final_pm_bus,
+                    "bus_color": get_bus_color(final_pm_bus),
+                    "created_at": datetime.now(timezone.utc)
+                }
+                result = await db.campers.replace_one({"_id": camper_id_pm}, camper_doc_pm, upsert=True)
+                if result.upserted_id:
+                    new_count += 1
+                elif result.modified_count > 0:
+                    updated_count += 1
+        
+        all_db_campers = await db.campers.find({}).to_list(None)
+        deleted_count = 0
+        for db_camper in all_db_campers:
+            if db_camper['_id'] not in sheet_camper_ids:
+                await db.campers.delete_one({"_id": db_camper['_id']})
+                deleted_count += 1
+                logger.info(f"Deleted: {db_camper.get('first_name')} {db_camper.get('last_name')}")
+        
+        last_sync_time = datetime.now(timezone.utc)
+        logger.info(f"Auto-sync complete: {new_count} new, {updated_count} updated, {deleted_count} deleted")
         
         await apply_sibling_offset(db)
         
-        from services import database
-        database.last_sync_time = datetime.now(timezone.utc)
-        
-        logger.info(f"AUTO-SYNC COMPLETE: {len(pins)} campers synced")
-        
-        return {
-            "status": "success",
-            "campers_synced": len(pins),
-            "sync_time": datetime.now(timezone.utc).isoformat()
-        }
+        await db.sync_status.update_one(
+            {"_id": "auto_sync"},
+            {"$set": {
+                "last_sync": last_sync_time,
+                "new_campers": new_count,
+                "updated_campers": updated_count,
+                "deleted_campers": deleted_count,
+                "status": "success",
+                "source": "Google Sheets"
+            }},
+            upsert=True
+        )
         
     except Exception as e:
-        logger.error(f"AUTO-SYNC ERROR: {str(e)}")
-        return {"status": "error", "message": str(e)}
+        logger.error(f"Error in auto-sync: {str(e)}")
+        await db.sync_status.update_one(
+            {"_id": "auto_sync"},
+            {"$set": {
+                "last_sync": datetime.now(timezone.utc),
+                "status": "error",
+                "error": str(e)
+            }},
+            upsert=True
+        )
+
+
+async def sync_loop():
+    """Continuous sync loop"""
+    global last_sync_time
+    
+    while True:
+        try:
+            await auto_sync_campminder()
+        except Exception as e:
+            logger.error(f"Error in sync loop: {str(e)}")
+        
+        await asyncio.sleep(SYNC_INTERVAL_MINUTES * 60)
+
+
+def get_last_sync_time():
+    """Get the last sync time."""
+    return last_sync_time
