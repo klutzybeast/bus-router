@@ -195,6 +195,43 @@ async def api_health_check():
     """Health check endpoint for API"""
     return {"status": "healthy", "service": "bus-routing-api"}
 
+# Database status endpoint on API router
+@api_router.get("/db-status")
+async def api_db_status():
+    """Check database connection status"""
+    global db_connected
+    if db is None:
+        return {"status": "error", "error": "Database not configured"}
+    try:
+        await asyncio.wait_for(db.command('ping'), timeout=10.0)
+        camper_count = await asyncio.wait_for(db.campers.count_documents({}), timeout=10.0)
+        db_connected = True
+        return {
+            "status": "connected",
+            "camper_count": camper_count,
+            "db_type": "atlas" if is_atlas else "local"
+        }
+    except asyncio.TimeoutError:
+        db_connected = False
+        return {"status": "timeout", "error": "Database connection timed out"}
+    except Exception as e:
+        db_connected = False
+        return {"status": "error", "error": str(e)}
+
+# Force sync endpoint on API router
+@api_router.post("/force-sync")
+async def api_force_sync():
+    """Force a sync from Google Sheets"""
+    if db is None:
+        return {"status": "error", "error": "Database not configured"}
+    try:
+        await asyncio.wait_for(db.command('ping'), timeout=10.0)
+        await auto_sync_campminder()
+        camper_count = await db.campers.count_documents({})
+        return {"status": "success", "camper_count": camper_count}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
 @api_router.get("/campers")
 async def get_campers():
     global db_connected
