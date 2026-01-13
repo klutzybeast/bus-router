@@ -196,27 +196,10 @@ const BusRoutingMap = () => {
     toast.success("Downloading bus assignments...");
   };
 
-  const handleDownloadSeatAvailability = async () => {
-    try {
-      toast.loading("Preparing download...");
-      const response = await fetch(`${API}/download/seat-availability`);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `seat_availability_${new Date().toISOString().slice(0,10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      toast.dismiss();
-      toast.success("Download complete!");
-    } catch (error) {
-      toast.dismiss();
-      console.error("Download error:", error);
-      toast.error("Download failed. Try opening in new tab.");
-      window.open(`${API}/download/seat-availability`, '_blank');
-    }
+  const handleDownloadSeatAvailability = () => {
+    // Direct window.open works best for file downloads
+    window.open(`${API}/download/seat-availability`, '_blank');
+    toast.success("Opening download...");
   };
 
   const handleRefreshSeatAvailabilitySheet = async () => {
