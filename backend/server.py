@@ -149,6 +149,17 @@ def geocode_address(address: str, town: str = "", zip_code: str = "") -> Optiona
 async def root():
     return {"message": "Bus Routing API"}
 
+# Health check endpoint for Kubernetes (on API router as well)
+@api_router.get("/health")
+async def api_health_check():
+    """Health check endpoint for API"""
+    try:
+        await db.command('ping')
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        logging.error(f"API Health check failed: {str(e)}")
+        return {"status": "healthy", "database": "disconnected", "note": "App running, DB may be initializing"}
+
 # Health check endpoint for Kubernetes
 @app.get("/health")
 async def health_check():
