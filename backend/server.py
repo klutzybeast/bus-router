@@ -28,46 +28,59 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection with Atlas-compatible settings
-mongo_url = os.environ['MONGO_URL']
+mongo_url = os.environ.get('MONGO_URL', '')
+db_name = os.environ.get('DB_NAME', 'bus_routing')
+
+if not mongo_url:
+    logging.error("MONGO_URL environment variable not set!")
+    # Use a dummy URL that will fail gracefully
+    mongo_url = "mongodb://localhost:27017"
 
 # Check if this is an Atlas connection (contains mongodb+srv or mongodb.net)
 is_atlas = 'mongodb.net' in mongo_url or 'mongodb+srv' in mongo_url
 
 # Log connection type
 logging.info(f"MongoDB connection type: {'Atlas' if is_atlas else 'Local'}")
+logging.info(f"Database name: {db_name}")
 
-if is_atlas:
-    # Atlas connection - use SRV-compatible settings
-    # Remove any conflicting parameters that might be in the URL
-    client = AsyncIOMotorClient(
-        mongo_url,
-        serverSelectionTimeoutMS=120000,  # 2 minute timeout for Atlas (initial connection can be slow)
-        connectTimeoutMS=60000,           # 60 second connection timeout
-        socketTimeoutMS=120000,           # 2 minute socket timeout
-        retryWrites=True,
-        retryReads=True,
-        maxPoolSize=50,
-        minPoolSize=0,                    # Start with 0 to avoid connection issues on startup
-        maxIdleTimeMS=60000,
-        waitQueueTimeoutMS=120000,
-        appName="BusRoutingApp",
-        directConnection=False,           # Required for replica sets
-    )
-else:
-    # Local MongoDB connection
-    client = AsyncIOMotorClient(
-        mongo_url,
-        serverSelectionTimeoutMS=30000,
-        connectTimeoutMS=20000,
-        socketTimeoutMS=30000,
-        retryWrites=True,
-        retryReads=True,
-        maxPoolSize=10,
-        minPoolSize=1
-    )
-
-db = client[os.environ['DB_NAME']]
-db_connected = False  # Track connection status
+try:
+    if is_atlas:
+        # Atlas connection - use SRV-compatible settings
+        client = AsyncIOMotorClient(
+            mongo_url,
+            serverSelectionTimeoutMS=120000,
+            connectTimeoutMS=60000,
+            socketTimeoutMS=120000,
+            retryWrites=True,
+            retryReads=True,
+            maxPoolSize=50,
+            minPoolSize=0,
+            maxIdleTimeMS=60000,
+            waitQueueTimeoutMS=120000,
+            appName="BusRoutingApp",
+            directConnection=False,
+        )
+    else:
+        # Local MongoDB connection
+        client = AsyncIOMotorClient(
+            mongo_url,
+            serverSelectionTimeoutMS=30000,
+            connectTimeoutMS=20000,
+            socketTimeoutMS=30000,
+            retryWrites=True,
+            retryReads=True,
+            maxPoolSize=10,
+            minPoolSize=1
+        )
+    
+    db = client[db_name]
+    db_connected = False  # Will be set to True when first successful connection
+    logging.info("MongoDB client initialized successfully")
+except Exception as e:
+    logging.error(f"Failed to initialize MongoDB client: {str(e)}")
+    client = None
+    db = None
+    db_connected = False
 
 # Initialize services
 gmaps = googlemaps.Client(key=os.environ['GOOGLE_MAPS_API_KEY'])
