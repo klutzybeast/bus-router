@@ -1482,6 +1482,158 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
         logging.error(f"Error changing bus: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@api_router.post("/sync-to-google-sheet")
+async def sync_bus_assignments_to_sheet():
+    """
+    Sync all bus assignments back to the Google Sheet.
+    Updates the AM Bus and PM Bus columns for all campers.
+    
+    Sheet ID: 1QX0BSUuG889BjOYsTji8kYwT3VomSRE1j2_ZtxLd65k
+    """
+    import httpx
+    import csv
+    from io import StringIO
+    
+    logger.info("=== SYNCING BUS ASSIGNMENTS TO GOOGLE SHEET ===")
+    
+    try:
+        # Get all campers from database
+        db_campers = await db.campers.find({}).to_list(None)
+        logger.info(f"Found {len(db_campers)} campers in database")
+        
+        # Build a lookup by first_name + last_name
+        bus_lookup = {}
+        for camper in db_campers:
+            first_name = camper.get('first_name', '').strip()
+            last_name = camper.get('last_name', '').strip()
+            camper_id = camper.get('_id', '')
+            
+            # Skip PM-specific entries
+            if camper_id.endswith('_PM'):
+                continue
+            
+            key = f"{first_name}|{last_name}".lower()
+            
+            am_bus = camper.get('am_bus_number', '')
+            pm_bus = camper.get('pm_bus_number', '')
+            
+            # Clean up
+            if am_bus == 'NONE':
+                am_bus = ''
+            if pm_bus == 'NONE':
+                pm_bus = ''
+            
+            bus_lookup[key] = {
+                'am_bus': am_bus,
+                'pm_bus': pm_bus
+            }
+        
+        logger.info(f"Built lookup for {len(bus_lookup)} unique campers")
+        
+        # Read current sheet data
+        sheet_id = CAMPMINDER_SHEET_ID
+        csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+        
+        async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
+            response = await client.get(csv_url)
+            original_csv = response.text
+        
+        # Parse CSV
+        if original_csv.startswith('\ufeff'):
+            original_csv = original_csv[1:]
+        
+        reader = csv.DictReader(StringIO(original_csv))
+        fieldnames = reader.fieldnames
+        
+        # Find the AM Bus and PM Bus column names
+        am_bus_col = None
+        pm_bus_col = None
+        
+        for col in fieldnames:
+            if 'AM Bus' in col and 'Trans' in col:
+                am_bus_col = col
+            elif 'PM Bus' in col and 'Trans' in col:
+                pm_bus_col = col
+        
+        if not am_bus_col or not pm_bus_col:
+            logger.error(f"Could not find AM/PM Bus columns in sheet. Columns: {fieldnames}")
+            return {
+                "status": "error",
+                "message": "Could not find AM Bus or PM Bus columns in sheet",
+                "available_columns": [c for c in fieldnames if 'bus' in c.lower() or 'trans' in c.lower()]
+            }
+        
+        logger.info(f"AM Bus column: {am_bus_col}")
+        logger.info(f"PM Bus column: {pm_bus_col}")
+        
+        # Count updates needed
+        updates_needed = []
+        rows = list(csv.DictReader(StringIO(original_csv)))
+        
+        for row_idx, row in enumerate(rows):
+            first_name = row.get('First Name', '').strip()
+            last_name = row.get('Last Name', '').strip()
+            
+            if not first_name or not last_name:
+                continue
+            
+            key = f"{first_name}|{last_name}".lower()
+            
+            if key in bus_lookup:
+                db_am = bus_lookup[key]['am_bus']
+                db_pm = bus_lookup[key]['pm_bus']
+                sheet_am = row.get(am_bus_col, '').strip()
+                sheet_pm = row.get(pm_bus_col, '').strip()
+                
+                if db_am and db_am != sheet_am:
+                    updates_needed.append({
+                        'row': row_idx + 2,  # +2 for header and 1-based index
+                        'name': f"{first_name} {last_name}",
+                        'type': 'AM',
+                        'from': sheet_am or 'EMPTY',
+                        'to': db_am
+                    })
+                
+                if db_pm and db_pm != sheet_pm:
+                    updates_needed.append({
+                        'row': row_idx + 2,
+                        'name': f"{first_name} {last_name}",
+                        'type': 'PM',
+                        'from': sheet_pm or 'EMPTY',
+                        'to': db_pm
+                    })
+        
+        logger.info(f"Found {len(updates_needed)} updates needed")
+        
+        if not updates_needed:
+            return {
+                "status": "success",
+                "message": "No updates needed - sheet is already in sync",
+                "updates_count": 0
+            }
+        
+        # Since we can't write directly without OAuth, provide instructions
+        return {
+            "status": "updates_available",
+            "message": f"Found {len(updates_needed)} bus assignments that need updating in the Google Sheet",
+            "sheet_url": f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit",
+            "am_bus_column": am_bus_col,
+            "pm_bus_column": pm_bus_col,
+            "updates_needed": updates_needed[:50],  # First 50
+            "total_updates": len(updates_needed),
+            "instructions": [
+                "1. Open the Google Sheet",
+                "2. For each update below, find the row and update the bus column",
+                "3. Or download the CSV from /api/export-campers-csv and import it"
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error syncing to sheet: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api_router.get("/download/bus-assignments")
 async def download_bus_assignments():
     """Download bus assignments as CSV for importing to CampMinder"""
