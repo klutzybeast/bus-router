@@ -3137,6 +3137,24 @@ async def health_check():
     """Health check endpoint for Kubernetes liveness/readiness probes"""
     return {"status": "healthy"}
 
+# Database status endpoint
+@app.get("/db-status")
+async def db_status():
+    """Check database connection status"""
+    try:
+        await db.command('ping')
+        camper_count = await db.campers.count_documents({})
+        return {
+            "status": "connected",
+            "database": os.environ.get('DB_NAME', 'unknown'),
+            "camper_count": camper_count
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e)
+        }
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
