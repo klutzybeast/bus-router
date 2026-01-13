@@ -835,15 +835,15 @@ const BusRoutingMap = () => {
                   Download Bus Assignments
                 </Button>
 
-                <Button
-                  variant="outline"
-                  className="w-full h-12 text-base bg-teal-50 hover:bg-teal-100 border-teal-600 text-teal-700"
-                  onClick={handleDownloadSeatAvailability}
+                <a 
+                  href={`${API}/download/seat-availability`}
+                  download
+                  className="w-full h-12 text-base bg-teal-50 hover:bg-teal-100 border-teal-600 text-teal-700 border rounded-md flex items-center justify-center gap-2 font-medium"
                   data-testid="download-seat-availability-btn"
                 >
-                  <FileSpreadsheet className="w-5 h-5 mr-2" />
+                  <FileSpreadsheet className="w-5 h-5" />
                   Download Seat Availability
-                </Button>
+                </a>
 
                 <Button
                   variant="outline"
