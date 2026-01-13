@@ -959,7 +959,7 @@ async def audit_all_campers():
                             "type": "AM",
                             "database_value": db_am_bus,
                             "sheet_value": sheet_am,
-                            "issue": f"TRUE ERROR: AM bus mismatch"
+                            "issue": "TRUE ERROR: AM bus mismatch"
                         })
                 else:
                     # DB has bus, sheet has NONE - auto-assignment
@@ -982,7 +982,7 @@ async def audit_all_campers():
                             "type": "PM",
                             "database_value": db_pm_bus,
                             "sheet_value": sheet_pm,
-                            "issue": f"TRUE ERROR: PM bus mismatch"
+                            "issue": "TRUE ERROR: PM bus mismatch"
                         })
                 else:
                     # DB has bus, sheet has NONE - auto-assignment
