@@ -368,6 +368,11 @@ const BusRoutingMap = () => {
               ? getBusColor(camper.pm_bus_number)
               : (camper.bus_color || getBusColor(camper.am_bus_number || camper.bus_number));
             
+            // Get display text - handle NONE and empty cases
+            const displayText = !displayBus || displayBus === 'NONE' 
+              ? '?' 
+              : displayBus.replace('Bus #', '').substring(0, 2);
+            
             return (
             <AdvancedMarker
               key={`${camper.first_name}-${camper.last_name}-${camper.pickup_type}-${index}`}
@@ -382,7 +387,7 @@ const BusRoutingMap = () => {
                 style={{ backgroundColor: busColor }}
                 data-testid={`bus-marker-${displayBus}`}
               >
-                {displayBus ? displayBus.replace('Bus #', '').substring(0, 2) : '?'}
+                {displayText}
               </div>
             </AdvancedMarker>
             );
