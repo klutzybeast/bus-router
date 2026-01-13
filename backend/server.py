@@ -251,6 +251,23 @@ async def add_camper_manually(camper: ManualCamperInput):
         
         result = await db.campers.replace_one({"_id": camper_id}, camper_doc, upsert=True)
         
+        # Trigger instant update to Google Sheet for this camper
+        webhook_url = os.environ.get('GOOGLE_SHEETS_WEBHOOK_URL', '')
+        if webhook_url and am_bus != "NONE":
+            try:
+                payload = {
+                    "action": "update_camper",
+                    "first_name": camper.first_name,
+                    "last_name": camper.last_name,
+                    "am_bus": am_bus,
+                    "pm_bus": pm_bus
+                }
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    await client.post(webhook_url, json=payload)
+                    logger.info(f"✓ Google Sheet updated instantly for {camper.first_name} {camper.last_name}")
+            except Exception as e:
+                logger.warning(f"Failed to update sheet instantly: {str(e)}")
+        
         return {
             "success": True,
             "message": f"Added {camper.first_name} {camper.last_name}",
