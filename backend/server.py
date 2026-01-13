@@ -1684,6 +1684,170 @@ async def sync_bus_assignments_to_sheet():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@api_router.get("/google-apps-script")
+async def get_google_apps_script():
+    """
+    Returns the Google Apps Script code that should be deployed to the Google Sheet
+    to enable instant bus assignment updates.
+    
+    Instructions:
+    1. Open your Google Sheet
+    2. Extensions > Apps Script
+    3. Paste this code
+    4. Deploy as Web App (execute as yourself, allow anyone)
+    5. Copy the deployment URL to GOOGLE_SHEETS_WEBHOOK_URL in .env
+    """
+    
+    script = '''
+// Google Apps Script for Bus Route Management
+// Deploy this as a Web App to enable instant updates from the bus routing system
+
+function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+    
+    if (data.action === 'updateBusAssignments') {
+      // Batch update bus assignments
+      var updates = data.updates || [];
+      var updatedCount = 0;
+      
+      for (var i = 0; i < updates.length; i++) {
+        var update = updates[i];
+        if (update.row && update.col && update.value) {
+          sheet.getRange(update.row, update.col).setValue(update.value);
+          updatedCount++;
+        }
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        success: true,
+        message: 'Updated ' + updatedCount + ' cells',
+        count: updatedCount
+      })).setMimeType(ContentService.MimeType.JSON);
+      
+    } else if (data.action === 'updateSingleCamper') {
+      // Update a single camper's bus assignment
+      var firstName = data.first_name;
+      var lastName = data.last_name;
+      var amBus = data.am_bus_number || '';
+      var pmBus = data.pm_bus_number || '';
+      
+      // Find the row with this camper
+      var dataRange = sheet.getDataRange();
+      var values = dataRange.getValues();
+      var headers = values[0];
+      
+      // Find column indices
+      var firstNameCol = headers.indexOf('First Name');
+      var lastNameCol = headers.indexOf('Last Name');
+      var amBusCol = -1;
+      var pmBusCol = -1;
+      
+      for (var h = 0; h < headers.length; h++) {
+        if (headers[h].toString().indexOf('AM Bus') > -1 && headers[h].toString().indexOf('Trans') > -1) {
+          amBusCol = h;
+        }
+        if (headers[h].toString().indexOf('PM Bus') > -1 && headers[h].toString().indexOf('Trans') > -1) {
+          pmBusCol = h;
+        }
+      }
+      
+      if (firstNameCol < 0 || lastNameCol < 0 || amBusCol < 0 || pmBusCol < 0) {
+        return ContentService.createTextOutput(JSON.stringify({
+          success: false,
+          message: 'Could not find required columns'
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+      
+      // Find and update the camper row
+      for (var row = 1; row < values.length; row++) {
+        if (values[row][firstNameCol] === firstName && values[row][lastNameCol] === lastName) {
+          if (amBus) {
+            sheet.getRange(row + 1, amBusCol + 1).setValue(amBus);
+          }
+          if (pmBus) {
+            sheet.getRange(row + 1, pmBusCol + 1).setValue(pmBus);
+          }
+          
+          return ContentService.createTextOutput(JSON.stringify({
+            success: true,
+            message: 'Updated ' + firstName + ' ' + lastName,
+            row: row + 1
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        message: 'Camper not found: ' + firstName + ' ' + lastName
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      message: 'Unknown action'
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      error: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'ok',
+    message: 'Bus Route Sheet Webhook is running'
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Test function - run this to verify the script works
+function testScript() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  
+  Logger.log('Headers found: ' + headers.join(', '));
+  
+  var amBusCol = -1;
+  var pmBusCol = -1;
+  
+  for (var h = 0; h < headers.length; h++) {
+    if (headers[h].toString().indexOf('AM Bus') > -1) {
+      amBusCol = h + 1;
+      Logger.log('AM Bus column: ' + amBusCol + ' (' + headers[h] + ')');
+    }
+    if (headers[h].toString().indexOf('PM Bus') > -1) {
+      pmBusCol = h + 1;
+      Logger.log('PM Bus column: ' + pmBusCol + ' (' + headers[h] + ')');
+    }
+  }
+  
+  Logger.log('Script is ready to use!');
+}
+'''
+    
+    return {
+        "status": "success",
+        "script": script,
+        "instructions": [
+            "1. Open your Google Sheet: https://docs.google.com/spreadsheets/d/1QX0BSUuG889BjOYsTji8kYwT3VomSRE1j2_ZtxLd65k/edit",
+            "2. Go to Extensions > Apps Script",
+            "3. Delete any existing code and paste the script above",
+            "4. Save the project (Ctrl+S)",
+            "5. Click 'Deploy' > 'New deployment'",
+            "6. Select 'Web app' as the type",
+            "7. Set 'Execute as' to 'Me'",
+            "8. Set 'Who has access' to 'Anyone'",
+            "9. Click 'Deploy' and authorize when prompted",
+            "10. Copy the Web App URL",
+            "11. Update GOOGLE_SHEETS_WEBHOOK_URL in the backend .env file with this URL"
+        ]
+    }
+
+
 @api_router.get("/download/bus-assignments")
 async def download_bus_assignments():
     """Download bus assignments as CSV for importing to CampMinder"""
