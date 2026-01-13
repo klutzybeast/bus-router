@@ -818,8 +818,12 @@ async def get_seat_availability_for_sheets():
             "am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}
         }).to_list(None)
         
-        # Use compact Cover Sheet format
-        sheet_data = cover_sheet_generator.generate_cover_sheet(campers)
+        # Get staff configurations from database
+        staff_configs = await db.bus_staff.find({}).to_list(None)
+        staff_dict = {c['bus_number']: c for c in staff_configs}
+        
+        # Use compact Cover Sheet format with staff info
+        sheet_data = cover_sheet_generator.generate_cover_sheet(campers, staff_dict)
         
         return {
             "status": "success",
