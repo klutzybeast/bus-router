@@ -79,7 +79,7 @@ class CampMinderAPI:
     async def get_field_definitions(self) -> Dict[str, Any]:
         """
         Step 2: Retrieve Custom Field Definitions
-        Endpoint: GET /api/entity/customfield/GetFieldDefs
+        Tries multiple endpoint variations for compatibility
         
         Identifies:
         - AM Bus custom field ID
@@ -91,14 +91,40 @@ class CampMinderAPI:
         try:
             headers = await self.get_auth_headers()
             
+            # Try multiple endpoint variations
+            endpoint_variations = [
+                "/entity/customfield/GetFieldDefs",
+                "/customfield/GetFieldDefs",
+                "/api/entity/customfield/GetFieldDefs",
+                "/customfield",
+            ]
+            
+            response = None
             async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.get(
-                    f"{self.api_url}/api/entity/customfield/GetFieldDefs",
-                    headers=headers,
-                    params={
-                        'clientid': self.client_ids or '241'
-                    }
-                )
+                for endpoint in endpoint_variations:
+                    try:
+                        response = await client.get(
+                            f"{self.api_url}{endpoint}",
+                            headers=headers,
+                            params={
+                                'clientid': self.client_ids or '241'
+                            }
+                        )
+                        if response.status_code == 200:
+                            logger.info(f"✓ Found working endpoint: {endpoint}")
+                            break
+                    except Exception:
+                        continue
+                
+                if response is None:
+                    # Fallback - try the original
+                    response = await client.get(
+                        f"{self.api_url}/entity/customfield/GetFieldDefs",
+                        headers=headers,
+                        params={
+                            'clientid': self.client_ids or '241'
+                        }
+                    )
                 
                 if response.status_code == 200:
                     data = response.json()
