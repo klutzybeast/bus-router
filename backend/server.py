@@ -3108,6 +3108,11 @@ async def sync_loop():
     """Continuous sync loop with retry logic"""
     global last_sync_time, db_connected
     
+    # Check if database is configured
+    if db is None:
+        logger.error("Database not configured - sync loop disabled")
+        return
+    
     # Wait longer on startup to let MongoDB Atlas connect (can be slow)
     logger.info("Waiting 30 seconds before first sync to allow MongoDB Atlas connection...")
     await asyncio.sleep(30)
