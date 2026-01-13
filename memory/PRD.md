@@ -98,5 +98,5 @@ Continue using Google Sheets as primary data source for bus assignments until Ca
 
 ## Future Enhancements (Backlog)
 - P1: Refactor server.py into smaller modules
-- P2: Clean up abandoned CampMinder code
+- P2: Upgrade CampMinder API subscription for custom field access
 - P3: Add admin dashboard for bus capacity management
