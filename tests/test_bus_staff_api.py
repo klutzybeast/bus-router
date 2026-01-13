@@ -170,9 +170,13 @@ class TestBusStaffAPI:
         assert data["status"] == "success"
         assert "Deleted" in data["message"]
         
-        # Verify deletion - should return 404
+        # Verify deletion - should return default values (TBD) not the custom config
         get_response = requests.get(f"{BASE_URL}/api/bus-staff/{encoded_bus}")
-        assert get_response.status_code == 404
+        assert get_response.status_code == 200
+        get_data = get_response.json()
+        # After deletion, should return default TBD values
+        assert get_data["driver_name"] == "TBD"
+        assert get_data["counselor_name"] == "TBD"
     
     def test_delete_nonexistent_bus_staff(self):
         """Test DELETE /api/bus-staff/{bus_number} - Returns 404 for nonexistent bus"""
