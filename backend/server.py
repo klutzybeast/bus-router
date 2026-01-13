@@ -29,17 +29,39 @@ load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection with Atlas-compatible settings
 mongo_url = os.environ['MONGO_URL']
-# Add connection parameters for Atlas compatibility
-client = AsyncIOMotorClient(
-    mongo_url,
-    serverSelectionTimeoutMS=30000,  # 30 second timeout for server selection
-    connectTimeoutMS=20000,          # 20 second connection timeout
-    socketTimeoutMS=30000,           # 30 second socket timeout
-    retryWrites=True,
-    retryReads=True,
-    maxPoolSize=10,
-    minPoolSize=1
-)
+
+# Check if this is an Atlas connection (contains mongodb+srv or mongodb.net)
+is_atlas = 'mongodb.net' in mongo_url or 'mongodb+srv' in mongo_url
+
+if is_atlas:
+    # Atlas connection - needs TLS and specific settings
+    client = AsyncIOMotorClient(
+        mongo_url,
+        serverSelectionTimeoutMS=60000,  # 60 second timeout for Atlas
+        connectTimeoutMS=30000,          # 30 second connection timeout
+        socketTimeoutMS=60000,           # 60 second socket timeout
+        retryWrites=True,
+        retryReads=True,
+        maxPoolSize=50,
+        minPoolSize=5,
+        maxIdleTimeMS=45000,
+        waitQueueTimeoutMS=60000,
+        tls=True,
+        tlsAllowInvalidCertificates=False
+    )
+else:
+    # Local MongoDB connection
+    client = AsyncIOMotorClient(
+        mongo_url,
+        serverSelectionTimeoutMS=30000,
+        connectTimeoutMS=20000,
+        socketTimeoutMS=30000,
+        retryWrites=True,
+        retryReads=True,
+        maxPoolSize=10,
+        minPoolSize=1
+    )
+
 db = client[os.environ['DB_NAME']]
 
 # Initialize services
