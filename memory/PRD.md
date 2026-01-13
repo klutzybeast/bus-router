@@ -56,7 +56,21 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - Automatically syncs detected changes to Google Sheet
 - Categorizes changes by type (AM_ADDED, PM_ADDED, AM_CHANGED, PM_CHANGED, etc.)
 
-### Phase 7: Code Refactoring (Foundation Ready)
+### Phase 7: Bus Staff Configuration ✅ (January 2025)
+- Full CRUD operations for bus staff (drivers, counselors)
+- Backend endpoints: GET/POST/DELETE `/api/bus-staff`
+- Configure driver name, counselor name, home address, location name, capacity per bus
+- Staff info displayed in map InfoWindow pop-ups when clicking camper markers
+- Staff info included in Seat Availability CSV downloads
+- Geocoding of driver home addresses for route start/end points
+- UI: "Configure Bus Staff" dialog with form and configured buses list
+
+### Phase 8: Download Buttons Fix ✅ (January 2025)
+- Fixed download buttons using `fetch/blob/createObjectURL` pattern
+- "Download Bus Assignments" and "Download Seat Availability" buttons now work correctly
+- Proper cross-origin file download handling
+
+### Phase 9: Code Refactoring (Foundation Ready)
 - Created modular structure in `/app/backend/`:
   - `models/` - Pydantic schemas
   - `services/` - Database, geocoding, bus utilities
