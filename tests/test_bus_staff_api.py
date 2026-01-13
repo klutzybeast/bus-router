@@ -139,12 +139,20 @@ class TestBusStaffAPI:
         assert "counselor_name" in data
         assert "home_address" in data
     
-    def test_get_nonexistent_bus_staff(self):
-        """Test GET /api/bus-staff/{bus_number} - Returns 404 for nonexistent bus"""
+    def test_get_unconfigured_bus_staff(self):
+        """Test GET /api/bus-staff/{bus_number} - Returns default values for unconfigured bus"""
         import urllib.parse
-        encoded_bus = urllib.parse.quote("Bus #98")  # Non-existent bus
+        encoded_bus = urllib.parse.quote("Bus #98")  # Unconfigured bus
         response = requests.get(f"{BASE_URL}/api/bus-staff/{encoded_bus}")
-        assert response.status_code == 404
+        # API returns 200 with default values from bus_config.py
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert data["status"] == "success"
+        assert data["bus_number"] == "Bus #98"
+        # Default values are TBD for unconfigured buses
+        assert data["driver_name"] == "TBD"
+        assert data["counselor_name"] == "TBD"
     
     def test_delete_bus_staff(self):
         """Test DELETE /api/bus-staff/{bus_number} - Deletes staff configuration"""
