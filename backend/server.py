@@ -1000,13 +1000,182 @@ async def push_seat_availability_to_sheet():
         }
 
 
+# ============================================
+# BUS STAFF CONFIGURATION ENDPOINTS
+# ============================================
+
+class BusStaffConfig(BaseModel):
+    """Model for bus staff configuration"""
+    bus_number: str
+    driver_name: str
+    counselor_name: str
+    home_address: str
+    capacity: Optional[int] = None
+    location_name: Optional[str] = None
+
+
+@api_router.get("/bus-staff")
+async def get_all_bus_staff():
+    """Get all bus staff configurations from database"""
+    try:
+        staff_configs = await db.bus_staff.find({}).to_list(None)
+        
+        # Convert to dict format
+        result = {}
+        for config in staff_configs:
+            bus_num = config.get('bus_number', '')
+            result[bus_num] = {
+                'bus_number': bus_num,
+                'driver_name': config.get('driver_name', 'TBD'),
+                'counselor_name': config.get('counselor_name', 'TBD'),
+                'home_address': config.get('home_address', ''),
+                'capacity': config.get('capacity', get_bus_capacity(bus_num)),
+                'location_name': config.get('location_name', get_bus_location(bus_num)),
+                'lat': config.get('lat'),
+                'lng': config.get('lng'),
+                'last_updated': config.get('last_updated')
+            }
+        
+        return {
+            "status": "success",
+            "staff": result,
+            "count": len(result)
+        }
+    except Exception as e:
+        logging.error(f"Error getting bus staff: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/bus-staff/{bus_number}")
+async def get_bus_staff(bus_number: str):
+    """Get staff configuration for a specific bus"""
+    import urllib.parse
+    try:
+        decoded_bus = urllib.parse.unquote(bus_number)
+        config = await db.bus_staff.find_one({"bus_number": decoded_bus})
+        
+        if config:
+            return {
+                "status": "success",
+                "bus_number": decoded_bus,
+                "driver_name": config.get('driver_name', 'TBD'),
+                "counselor_name": config.get('counselor_name', 'TBD'),
+                "home_address": config.get('home_address', ''),
+                "capacity": config.get('capacity', get_bus_capacity(decoded_bus)),
+                "location_name": config.get('location_name', get_bus_location(decoded_bus)),
+                "lat": config.get('lat'),
+                "lng": config.get('lng')
+            }
+        else:
+            # Return defaults from bus_config
+            return {
+                "status": "success",
+                "bus_number": decoded_bus,
+                "driver_name": get_bus_driver(decoded_bus),
+                "counselor_name": get_bus_counselor(decoded_bus),
+                "home_address": get_bus_home_location(decoded_bus),
+                "capacity": get_bus_capacity(decoded_bus),
+                "location_name": get_bus_location(decoded_bus),
+                "lat": None,
+                "lng": None
+            }
+    except Exception as e:
+        logging.error(f"Error getting bus staff: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/bus-staff")
+async def save_bus_staff(config: BusStaffConfig):
+    """Save or update bus staff configuration"""
+    try:
+        # Geocode the address if provided
+        lat = None
+        lng = None
+        if config.home_address:
+            location = geocode_address(config.home_address, "", "")
+            if location:
+                lat = location.latitude
+                lng = location.longitude
+                logging.info(f"Geocoded {config.home_address} to {lat}, {lng}")
+        
+        # Prepare document
+        staff_doc = {
+            "bus_number": config.bus_number,
+            "driver_name": config.driver_name,
+            "counselor_name": config.counselor_name,
+            "home_address": config.home_address,
+            "capacity": config.capacity or get_bus_capacity(config.bus_number),
+            "location_name": config.location_name or get_bus_location(config.bus_number),
+            "lat": lat,
+            "lng": lng,
+            "last_updated": datetime.now(timezone.utc).isoformat()
+        }
+        
+        # Upsert to database
+        result = await db.bus_staff.replace_one(
+            {"bus_number": config.bus_number},
+            staff_doc,
+            upsert=True
+        )
+        
+        logging.info(f"Saved staff config for {config.bus_number}: Driver={config.driver_name}, Counselor={config.counselor_name}")
+        
+        return {
+            "status": "success",
+            "message": f"Saved configuration for {config.bus_number}",
+            "bus_number": config.bus_number,
+            "driver_name": config.driver_name,
+            "counselor_name": config.counselor_name,
+            "was_update": result.modified_count > 0
+        }
+    except Exception as e:
+        logging.error(f"Error saving bus staff: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.delete("/bus-staff/{bus_number}")
+async def delete_bus_staff(bus_number: str):
+    """Delete bus staff configuration"""
+    import urllib.parse
+    try:
+        decoded_bus = urllib.parse.unquote(bus_number)
+        result = await db.bus_staff.delete_one({"bus_number": decoded_bus})
+        
+        if result.deleted_count > 0:
+            return {
+                "status": "success",
+                "message": f"Deleted configuration for {decoded_bus}"
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Bus staff configuration not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting bus staff: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api_router.get("/buses")
 async def get_buses():
-    """Get all buses with their info including home locations"""
+    """Get all buses with their info including home locations and staff"""
     try:
+        # Get staff configs from database
+        staff_configs = await db.bus_staff.find({}).to_list(None)
+        staff_dict = {c['bus_number']: c for c in staff_configs}
+        
         buses = []
         for bus_number in get_all_buses():
             bus_info = get_bus_info(bus_number)
+            
+            # Override with database values if available
+            if bus_number in staff_dict:
+                db_config = staff_dict[bus_number]
+                bus_info['driver'] = db_config.get('driver_name', bus_info.get('driver', 'TBD'))
+                bus_info['counselor'] = db_config.get('counselor_name', bus_info.get('counselor', 'TBD'))
+                bus_info['home_location'] = db_config.get('home_address', bus_info.get('home_location', ''))
+                if db_config.get('capacity'):
+                    bus_info['capacity'] = db_config['capacity']
+            
             # Get camper count for this bus
             am_count = await db.campers.count_documents({"am_bus_number": bus_number})
             pm_count = await db.campers.count_documents({"pm_bus_number": bus_number})
