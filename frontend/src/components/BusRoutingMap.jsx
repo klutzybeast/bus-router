@@ -812,10 +812,12 @@ const BusRoutingMap = () => {
                   )}
                 </h3>
                 <div className="space-y-2 overflow-y-auto flex-1" style={{maxHeight: '300px'}}>
-                  {uniqueBuses.map((bus) => {
+                  {uniqueBuses.filter(bus => bus.startsWith('Bus')).map((bus) => {
                     const busColor = getBusColor(bus);
+                    // Count only valid bus assignments (not NONE)
                     const busCount = campers.filter(c => 
-                      c.am_bus_number === bus || c.pm_bus_number === bus || c.bus_number === bus
+                      (c.am_bus_number === bus && c.am_bus_number !== 'NONE') || 
+                      (c.pm_bus_number === bus && c.pm_bus_number !== 'NONE')
                     ).length;
                     const isSelected = selectedBusFilter === bus;
                     
