@@ -521,21 +521,24 @@ const BusRoutingMap = () => {
                           </div>
                         </div>
                   
-                  {/* Delete Button */}
-                  <div className="border-t pt-2 mt-2">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="w-full h-8 text-xs"
-                      onClick={() => handleDeleteCamper(
-                        selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}`.replace(' ', '_'),
-                        `${selectedCamper.first_name} ${selectedCamper.last_name}`
-                      )}
-                    >
-                      Delete Camper
-                    </Button>
-                  </div>
-                </div>
+                        {/* Delete Button */}
+                        <div className="border-t pt-2 mt-2">
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="w-full h-8 text-xs"
+                            onClick={() => handleDeleteCamper(
+                              selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}`.replace(' ', '_'),
+                              `${selectedCamper.first_name} ${selectedCamper.last_name}`
+                            )}
+                          >
+                            Delete Camper
+                          </Button>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </InfoWindow>
           )}
