@@ -201,4 +201,4 @@ REACT_APP_GOOGLE_MAPS_API_KEY=<google maps key>
 ---
 
 ## Last Updated
-January 2025 - Bus Staff Configuration feature completed, download buttons fixed
+January 2025 - Dynamic Bus Zones feature implemented
