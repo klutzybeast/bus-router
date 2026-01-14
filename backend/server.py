@@ -1330,8 +1330,8 @@ async def download_seat_availability():
         orange_font = Font(name='Arial', size=10, bold=True, color='9C5700')
         red_font = Font(name='Arial', size=10, bold=True, color='9C0006')
         
-        # Available column indices (0-indexed): 6 (H1 AM Avail), 8 (H1 PM Avail), 10 (H2 AM Avail), 12 (H2 PM Avail), 13 (Available)
-        avail_cols = [7, 9, 11, 13, 14]  # 1-indexed
+        # Available column indices (1-indexed): 7 (H1 AM Avail), 9 (H1 PM Avail), 11 (H2 AM Avail), 13 (H2 PM Avail)
+        avail_cols = [7, 9, 11, 13]  # 1-indexed, removed column 14 (Available)
         
         # Write data with formatting
         for row_idx, row_data in enumerate(sheet_data, 1):
@@ -1394,8 +1394,8 @@ async def download_seat_availability():
                 elif row_data and ('Half' in str(row_data[0]) or 'Available' in str(row_data[0])):
                     cell.font = data_font
         
-        # Set column widths for 14 columns
-        column_widths = [10, 18, 16, 16, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+        # Set column widths for 13 columns
+        column_widths = [10, 18, 16, 16, 7, 10, 10, 10, 10, 10, 10, 10, 10]
         for i, width in enumerate(column_widths, 1):
             ws.column_dimensions[get_column_letter(i)].width = width
         
