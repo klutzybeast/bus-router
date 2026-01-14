@@ -42,7 +42,6 @@ const BusRoutingMap = () => {
   const [campersNeedingAddress, setCampersNeedingAddress] = useState([]);
   const [selectedCamper, setSelectedCamper] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [mapCenter, setMapCenter] = useState({ lat: 40.7128, lng: -73.7949 });
   const [uniqueBuses, setUniqueBuses] = useState([]);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedBusFilter, setSelectedBusFilter] = useState(null);
@@ -61,6 +60,10 @@ const BusRoutingMap = () => {
     am_bus_number: "NONE",
     pm_bus_number: ""
   });
+  
+  // Fixed initial map center (Long Island area) - never changes
+  const INITIAL_MAP_CENTER = { lat: 40.7128, lng: -73.7949 };
+  const INITIAL_ZOOM = 11;
   
   // Bus Staff Configuration State
   const [showStaffConfig, setShowStaffConfig] = useState(false);
