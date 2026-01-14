@@ -2344,23 +2344,30 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
             if webhook_url:
                 try:
                     async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
-                        # Use GET with query parameters - more reliable with Google Apps Script
+                        # Always send BOTH AM and PM bus numbers to keep sheet in sync
+                        # Use updated value if provided, otherwise use existing value
+                        am_bus_to_send = updates.get('am_bus_number') if updates.get('am_bus_number') else camper.get('am_bus_number', '')
+                        pm_bus_to_send = updates.get('pm_bus_number') if updates.get('pm_bus_number') else camper.get('pm_bus_number', '')
+                        
                         params = {
                             "action": "updateBus",
                             "first_name": camper.get('first_name', ''),
                             "last_name": camper.get('last_name', ''),
-                            "am_bus_number": updates.get('am_bus_number') or camper.get('am_bus_number', ''),
-                            "pm_bus_number": updates.get('pm_bus_number') or camper.get('pm_bus_number', '')
+                            "am_bus_number": am_bus_to_send,
+                            "pm_bus_number": pm_bus_to_send
                         }
                         
+                        logger.info(f"Sending to webhook: {params}")
                         response = await client.get(webhook_url, params=params)
                         
                         if response.status_code == 200:
-                            logger.info(f"✓ Google Sheet updated for {camper.get('first_name')} {camper.get('last_name')}: {response.text[:100]}")
+                            logger.info(f"✓ Google Sheet updated for {camper.get('first_name')} {camper.get('last_name')}: {response.text[:200]}")
                         else:
-                            logger.warning(f"Webhook response: {response.status_code} - {response.text[:100]}")
+                            logger.warning(f"Webhook response: {response.status_code} - {response.text[:200]}")
                 except Exception as e:
                     logger.error(f"Webhook error: {str(e)}")
+            else:
+                logger.warning("No GOOGLE_SHEETS_WEBHOOK_URL configured - sheet not updated")
             
             return {
                 "status": "success",
