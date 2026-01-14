@@ -670,10 +670,29 @@ const BusRoutingMap = () => {
       toast.dismiss();
       toast.success(`${type.toUpperCase()} bus updated to ${busToUpdate}`);
       
+      // Update the selected camper locally without closing the popup
+      if (selectedCamper) {
+        const updatedCamper = {
+          ...selectedCamper,
+          ...(type === 'am' ? { am_bus_number: newAmBus, bus_color: getBusColor(newAmBus) } : { pm_bus_number: newPmBus })
+        };
+        setSelectedCamper(updatedCamper);
+        
+        // Update the camper in the local campers array
+        setCampers(prevCampers => 
+          prevCampers.map(c => 
+            c._id === camperId ? updatedCamper : c
+          )
+        );
+      }
+      
+      // Clear the selection dropdowns but keep popup open
       setNewAmBus("");
       setNewPmBus("");
-      setSelectedCamper(null);
-      await fetchCampers();
+      
+      // Fetch updated data in background without resetting selection
+      fetchCampers();
+      fetchSeatAvailability();
     } catch (error) {
       toast.dismiss();
       console.error("Error updating bus:", error);
