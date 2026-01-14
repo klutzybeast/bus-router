@@ -176,8 +176,7 @@ class CoverSheetGenerator:
                 half2_am_count,
                 h2_am_avail,
                 half2_pm_count,
-                h2_pm_avail,
-                available
+                h2_pm_avail
             ])
         
         # Summary totals row
