@@ -1298,6 +1298,38 @@ const BusRoutingMap = () => {
                   <Settings className="w-5 h-5 mr-2" />
                   Configure Bus Staff
                 </Button>
+
+                {/* Bus Zones Toggle */}
+                <Button
+                  variant="outline"
+                  className={`w-full h-12 text-base ${
+                    showBusZones 
+                      ? 'bg-emerald-100 hover:bg-emerald-200 border-emerald-600 text-emerald-700' 
+                      : 'bg-slate-50 hover:bg-slate-100 border-slate-400 text-slate-600'
+                  }`}
+                  onClick={() => {
+                    setShowBusZones(!showBusZones);
+                    if (!showBusZones) {
+                      toast.success("Bus zones enabled - click a zone to highlight all stops");
+                    } else {
+                      setSelectedZoneBus(null);
+                      toast.info("Bus zones hidden");
+                    }
+                  }}
+                  data-testid="toggle-zones-btn"
+                >
+                  {showBusZones ? (
+                    <>
+                      <Eye className="w-5 h-5 mr-2" />
+                      Hide Bus Zones
+                    </>
+                  ) : (
+                    <>
+                      <Layers className="w-5 h-5 mr-2" />
+                      Show Bus Zones
+                    </>
+                  )}
+                </Button>
                 
                 <Button
                   variant="outline"
@@ -1313,7 +1345,10 @@ const BusRoutingMap = () => {
                   <Button
                     variant="outline"
                     className="w-full h-12 text-base border-blue-600 text-blue-600 hover:bg-blue-50"
-                    onClick={() => setSelectedBusFilter(null)}
+                    onClick={() => {
+                      setSelectedBusFilter(null);
+                      setSelectedZoneBus(null);
+                    }}
                   >
                     <MapPin className="w-5 h-5 mr-2" />
                     Show All Buses
