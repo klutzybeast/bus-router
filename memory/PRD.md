@@ -104,6 +104,18 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - Dynamically calculated based on camper session types
 - Bus info fetched from `/api/buses` endpoint including capacity data
 
+### Phase 13: Enhanced Seat Availability Excel Report ✅ (January 2025)
+- Downloadable Excel report now includes **detailed availability columns**:
+  - Half 1 AM, **H1 AM Avail**, Half 1 PM, **H1 PM Avail**
+  - Half 2 AM, **H2 AM Avail**, Half 2 PM, **H2 PM Avail**
+  - Overall **Available** column
+- **Conditional color formatting** on availability columns:
+  - 🟢 Green: >10 seats available
+  - 🟠 Orange: 5-10 seats available  
+  - 🔴 Red: <5 seats available (includes overbooked buses)
+- Summary section at bottom with totals by half session
+- Professional formatting with headers, alternating row colors, frozen header row
+
 ### Phase 9: Code Refactoring (Foundation Ready)
 - Created modular structure in `/app/backend/`:
   - `models/` - Pydantic schemas
@@ -219,4 +231,4 @@ REACT_APP_GOOGLE_MAPS_API_KEY=<google maps key>
 ---
 
 ## Last Updated
-January 2025 - Dynamic Bus Zones with Legend + Seat Availability in Bus List
+January 2025 - Enhanced Seat Availability Excel Report with per-session availability columns and conditional formatting
