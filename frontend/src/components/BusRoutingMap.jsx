@@ -748,8 +748,8 @@ const BusRoutingMap = () => {
 
         <Map
           style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }}
-          defaultCenter={mapCenter}
-          defaultZoom={11}
+          defaultCenter={INITIAL_MAP_CENTER}
+          defaultZoom={INITIAL_ZOOM}
           mapId="bus-routing-map"
           gestureHandling="greedy"
           disableDefaultUI={false}
