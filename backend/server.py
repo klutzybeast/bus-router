@@ -3198,7 +3198,7 @@ async def auto_sync_campminder():
                             except (ValueError, IndexError):
                                 pass
                 
-                location_temp = geocode_address(am_address, am_town, am_zip)
+                location_temp = await geocode_address_cached(am_address, am_town, am_zip)
                 if location_temp:
                     optimal_bus = route_optimizer.find_optimal_bus(
                         {'lat': location_temp.latitude, 'lng': location_temp.longitude},
