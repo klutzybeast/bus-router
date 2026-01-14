@@ -225,6 +225,7 @@ const BusRoutingMap = () => {
     fetchCampers();
     fetchBusStaff();
     fetchBusInfo();
+    fetchSeatAvailability();
     
     const now = new Date();
     const tomorrow = new Date(now);
@@ -235,16 +236,18 @@ const BusRoutingMap = () => {
     
     const timeout = setTimeout(() => {
       fetchCampers();
+      fetchSeatAvailability();
       
       const interval = setInterval(() => {
         fetchCampers();
+        fetchSeatAvailability();
       }, 24 * 60 * 60 * 1000);
       
       return () => clearInterval(interval);
     }, timeUntilMorning);
     
     return () => clearTimeout(timeout);
-  }, [fetchCampers, fetchBusInfo]);
+  }, [fetchCampers, fetchBusInfo, fetchSeatAvailability]);
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
