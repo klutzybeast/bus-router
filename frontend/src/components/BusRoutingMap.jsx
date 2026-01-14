@@ -702,9 +702,10 @@ const BusRoutingMap = () => {
           )
         );
         
-        // Update bus filter/zone to follow the camper to their new bus
+        // Update zone filter WITHOUT panning the map
         if (showBusZones) {
           const newBus = type === 'am' ? newAmBus : newPmBus;
+          // Just update the filter state, don't trigger pan
           setSelectedBusFilter(newBus);
           setSelectedZoneBus(newBus);
         }
