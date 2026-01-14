@@ -967,6 +967,103 @@ async def get_compact_availability():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@api_router.get("/seat-availability-json")
+async def get_seat_availability_json():
+    """Get seat availability data as JSON for frontend display"""
+    try:
+        # Get ALL campers with bus assignments (including those without addresses)
+        campers = await db.campers.find({
+            "$or": [
+                {"am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}},
+                {"pm_bus_number": {"$exists": True, "$nin": ["NONE", ""]}}
+            ]
+        }).to_list(None)
+        
+        # Get staff configurations from database
+        staff_configs = await db.bus_staff.find({}).to_list(None)
+        staff_dict = {c['bus_number']: c for c in staff_configs}
+        
+        # Group and count by bus
+        from collections import defaultdict
+        bus_data = defaultdict(lambda: {
+            'h1_am': 0, 'h1_pm': 0, 'h2_am': 0, 'h2_pm': 0,
+            'capacity': 30, 'location': '', 'driver': 'TBD', 'counselor': 'TBD'
+        })
+        
+        def parse_session(session):
+            """Parse session to determine which halves the camper attends"""
+            session_lower = (session or '').lower()
+            is_full = 'full season' in session_lower or 'full' in session_lower
+            is_half1 = 'half season 1' in session_lower or 'half 1' in session_lower or 'first half' in session_lower
+            is_half2 = 'half season 2' in session_lower or 'half 2' in session_lower or 'second half' in session_lower
+            is_flex = '6 week' in session_lower or 'flex' in session_lower
+            
+            # Default to full if no session specified
+            if not is_full and not is_half1 and not is_half2 and not is_flex:
+                is_full = True
+            
+            return {
+                'h1': is_full or is_half1 or is_flex,
+                'h2': is_full or is_half2 or is_flex
+            }
+        
+        # Process each camper
+        for camper in campers:
+            am_bus = camper.get('am_bus_number', '')
+            pm_bus = camper.get('pm_bus_number', '')
+            session = camper.get('session', '')
+            halves = parse_session(session)
+            
+            # Count for AM bus
+            if am_bus and am_bus != 'NONE' and am_bus.startswith('Bus'):
+                if halves['h1']:
+                    bus_data[am_bus]['h1_am'] += 1
+                if halves['h2']:
+                    bus_data[am_bus]['h2_am'] += 1
+            
+            # Count for PM bus
+            if pm_bus and pm_bus != 'NONE' and pm_bus.startswith('Bus'):
+                if halves['h1']:
+                    bus_data[pm_bus]['h1_pm'] += 1
+                if halves['h2']:
+                    bus_data[pm_bus]['h2_pm'] += 1
+        
+        # Add capacity and staff info
+        result = {}
+        for bus_number in bus_data:
+            data = bus_data[bus_number]
+            
+            # Get staff info
+            if bus_number in staff_dict:
+                staff = staff_dict[bus_number]
+                data['capacity'] = staff.get('capacity', get_bus_capacity(bus_number))
+                data['location'] = staff.get('location_name', get_bus_location(bus_number))
+                data['driver'] = staff.get('driver_name', get_bus_driver(bus_number))
+                data['counselor'] = staff.get('counselor_name', get_bus_counselor(bus_number))
+            else:
+                data['capacity'] = get_bus_capacity(bus_number)
+                data['location'] = get_bus_location(bus_number)
+                data['driver'] = get_bus_driver(bus_number)
+                data['counselor'] = get_bus_counselor(bus_number)
+            
+            # Calculate available seats
+            cap = data['capacity']
+            data['h1_am_available'] = cap - data['h1_am']
+            data['h1_pm_available'] = cap - data['h1_pm']
+            data['h2_am_available'] = cap - data['h2_am']
+            data['h2_pm_available'] = cap - data['h2_pm']
+            
+            result[bus_number] = data
+        
+        return {
+            "status": "success",
+            "buses": result
+        }
+    except Exception as e:
+        logging.error(f"Error getting seat availability JSON: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api_router.get("/download/seat-availability")
 async def download_seat_availability():
     """Download seat availability as formatted Excel file matching the Google Sheet"""
