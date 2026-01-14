@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
+/* global google */
+import { useEffect, useRef, useMemo } from 'react';
+import { useMap } from '@vis.gl/react-google-maps';
 
 /**
  * Calculate convex hull using Graham scan algorithm
@@ -55,8 +56,6 @@ function expandHull(hull, paddingMeters = 200) {
   if (hull.length < 3) return hull;
   
   // Convert meters to approximate degrees (at equator, 1 degree ≈ 111km)
-  // For latitude, this is fairly accurate
-  // For longitude, it varies with latitude, but for small areas it's close enough
   const avgLat = hull.reduce((sum, p) => sum + p.lat, 0) / hull.length;
   const latPadding = paddingMeters / 111000;
   const lngPadding = paddingMeters / (111000 * Math.cos(avgLat * Math.PI / 180));
@@ -94,8 +93,7 @@ const BusZonePolygon = ({
   showZone = true
 }) => {
   const map = useMap();
-  const geometryLibrary = useMapsLibrary('geometry');
-  const [polygon, setPolygon] = useState(null);
+  const polygonRef = useRef(null);
 
   // Calculate zone path from campers
   const zonePath = useMemo(() => {
@@ -133,6 +131,7 @@ const BusZonePolygon = ({
       const dx = p2.lng - p1.lng;
       const dy = p2.lat - p1.lat;
       const len = Math.sqrt(dx * dx + dy * dy);
+      if (len === 0) return [];
       const nx = -dy / len * offset;
       const ny = dx / len * offset;
       return [
@@ -148,27 +147,35 @@ const BusZonePolygon = ({
     return expandHull(hull, 250); // 250m padding
   }, [campers]);
 
-  // Create and manage polygon
+  // Create, update or remove polygon
   useEffect(() => {
-    if (!map || !showZone || zonePath.length < 3) {
-      if (polygon) {
-        polygon.setMap(null);
-        setPolygon(null);
+    // Cleanup function to remove polygon
+    const cleanup = () => {
+      if (polygonRef.current) {
+        polygonRef.current.setMap(null);
+        polygonRef.current = null;
       }
-      return;
+    };
+
+    // If conditions not met, cleanup and return
+    if (!map || !showZone || zonePath.length < 3) {
+      cleanup();
+      return cleanup;
     }
 
-    // Create new polygon or update existing
-    if (polygon) {
-      polygon.setPath(zonePath);
-      polygon.setOptions({
+    // If polygon exists, update it
+    if (polygonRef.current) {
+      polygonRef.current.setPath(zonePath);
+      polygonRef.current.setOptions({
         fillColor: color,
         fillOpacity: isSelected ? 0.35 : 0.15,
         strokeColor: color,
         strokeOpacity: isSelected ? 1 : 0.6,
         strokeWeight: isSelected ? 3 : 2,
+        zIndex: isSelected ? 2 : 1,
       });
     } else {
+      // Create new polygon
       const newPolygon = new google.maps.Polygon({
         paths: zonePath,
         fillColor: color,
@@ -189,36 +196,11 @@ const BusZonePolygon = ({
         }
       });
       
-      setPolygon(newPolygon);
+      polygonRef.current = newPolygon;
     }
 
-    return () => {
-      if (polygon) {
-        polygon.setMap(null);
-      }
-    };
+    return cleanup;
   }, [map, zonePath, showZone, color, isSelected, onZoneClick, busNumber]);
-
-  // Update polygon appearance when selection changes
-  useEffect(() => {
-    if (polygon) {
-      polygon.setOptions({
-        fillOpacity: isSelected ? 0.35 : 0.15,
-        strokeOpacity: isSelected ? 1 : 0.6,
-        strokeWeight: isSelected ? 3 : 2,
-        zIndex: isSelected ? 2 : 1,
-      });
-    }
-  }, [polygon, isSelected]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (polygon) {
-        polygon.setMap(null);
-      }
-    };
-  }, []);
 
   return null; // Polygon is rendered directly on the map, not as React component
 };
