@@ -185,6 +185,21 @@ const BusRoutingMap = () => {
     }
   }, []);
 
+  const fetchBusInfo = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/buses`);
+      if (response.data.status === 'success' && response.data.buses) {
+        const infoMap = {};
+        response.data.buses.forEach(bus => {
+          infoMap[bus.bus_number] = bus;
+        });
+        setBusInfoMap(infoMap);
+      }
+    } catch (error) {
+      console.error("Error fetching bus info:", error);
+    }
+  }, []);
+
   const fetchCampers = useCallback(async () => {
     try {
       setLoading(true);
