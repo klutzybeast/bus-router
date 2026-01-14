@@ -108,13 +108,13 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - Downloadable Excel report now includes **detailed availability columns**:
   - Half 1 AM, **H1 AM Avail**, Half 1 PM, **H1 PM Avail**
   - Half 2 AM, **H2 AM Avail**, Half 2 PM, **H2 PM Avail**
-  - Overall **Available** column
 - **Conditional color formatting** on availability columns:
   - 🟢 Green: >10 seats available
   - 🟠 Orange: 5-10 seats available  
   - 🔴 Red: <5 seats available (includes overbooked buses)
 - Summary section at bottom with totals by half session
 - Professional formatting with headers, alternating row colors, frozen header row
+- **Separate webhook** for Seat Availability Google Sheet updates (`SEAT_AVAILABILITY_WEBHOOK_URL`)
 
 ### Phase 9: Code Refactoring (Foundation Ready)
 - Created modular structure in `/app/backend/`:
