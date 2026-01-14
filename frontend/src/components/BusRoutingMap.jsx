@@ -479,9 +479,11 @@ const BusRoutingMap = () => {
   const handleBusFilter = (busNumber) => {
     if (selectedBusFilter === busNumber) {
       setSelectedBusFilter(null);
+      setSelectedZoneBus(null);
     } else {
       setSelectedBusFilter(busNumber);
-      const busStop = campers.find(c => c.bus_number === busNumber);
+      setSelectedZoneBus(busNumber);
+      const busStop = campers.find(c => c.bus_number === busNumber || c.am_bus_number === busNumber);
       if (busStop && mapInstance) {
         mapInstance.panTo({
           lat: busStop.location.latitude,
