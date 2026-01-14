@@ -973,6 +973,42 @@ const BusRoutingMap = () => {
           ))}
         </Map>
 
+        {/* Zone Legend - Shows when zones are enabled */}
+        {showBusZones && (
+          <div 
+            className="absolute bottom-20 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 z-10 max-h-64 overflow-y-auto"
+            style={{ maxWidth: '200px' }}
+          >
+            <h4 className="font-semibold text-xs text-gray-700 mb-2 border-b pb-1">Bus Zone Legend</h4>
+            <div className="space-y-1">
+              {uniqueBuses.filter(bus => bus.startsWith('Bus')).slice(0, 20).map((bus) => {
+                const busColor = getBusColor(bus);
+                const isActive = selectedBusFilter === bus || selectedZoneBus === bus;
+                return (
+                  <button
+                    key={bus}
+                    onClick={() => handleZoneClick(bus)}
+                    className={`flex items-center gap-2 w-full text-left px-1 py-0.5 rounded hover:bg-gray-100 transition-colors ${isActive ? 'bg-blue-50' : ''}`}
+                  >
+                    <div
+                      className="w-3 h-3 rounded-sm border border-white shadow-sm flex-shrink-0"
+                      style={{ backgroundColor: busColor, opacity: isActive ? 1 : 0.6 }}
+                    />
+                    <span className={`text-xs ${isActive ? 'font-bold text-blue-700' : 'text-gray-600'}`}>
+                      {bus.replace('Bus #', '#')}
+                    </span>
+                  </button>
+                );
+              })}
+              {uniqueBuses.length > 20 && (
+                <div className="text-xs text-gray-400 text-center pt-1">
+                  +{uniqueBuses.length - 20} more
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Control Panel - Responsive */}
         <Card 
           className={`
