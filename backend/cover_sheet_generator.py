@@ -73,7 +73,7 @@ class CoverSheetGenerator:
         sheet_data.append(['Rolling River Day Camp'])
         sheet_data.append([])
         
-        # Column headers - UPDATED with Available columns after each count
+        # Column headers - 13 columns with Available after each session count
         sheet_data.append([
             'Bus #',
             'Location',
@@ -87,8 +87,7 @@ class CoverSheetGenerator:
             'Half 2 AM',
             'H2 AM Avail',
             'Half 2 PM',
-            'H2 PM Avail',
-            'Available'
+            'H2 PM Avail'
         ])
         
         # Calculate totals across all buses
