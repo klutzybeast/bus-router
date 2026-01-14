@@ -3341,7 +3341,7 @@ async def auto_sync_campminder():
                 camper_id_pm = f"{last_name}_{first_name}_{pm_zip}_PM".replace(' ', '_')
                 sheet_camper_ids.add(camper_id_pm)
                 
-                pm_location = geocode_address(pm_final_address, pm_final_town, pm_final_zip)
+                pm_location = await geocode_address_cached(pm_final_address, pm_final_town, pm_final_zip)
                 if not pm_location:
                     pm_location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {pm_final_address}")
                     logger.warning(f"PM geocoding failed: {first_name} {last_name} - {pm_final_address}")
