@@ -1544,16 +1544,28 @@ const BusRoutingMap = () => {
                               {bus}
                             </div>
                             <div className="text-xs space-y-0.5">
-                              <div className="flex gap-2">
-                                <span className="text-gray-500">H1:</span>
-                                <span className={getAvailColor(availability.half1Available)}>
-                                  {availability.half1Available ?? '?'} left
+                              {/* Half 1 Row */}
+                              <div className="flex gap-1 items-center">
+                                <span className="text-gray-500 w-6">H1:</span>
+                                <span className="text-gray-400">AM</span>
+                                <span className={`w-8 ${getAvailColor(availability.h1AmAvailable)}`}>
+                                  {availability.h1AmAvailable ?? '?'}
+                                </span>
+                                <span className="text-gray-400">PM</span>
+                                <span className={`w-8 ${getAvailColor(availability.h1PmAvailable)}`}>
+                                  {availability.h1PmAvailable ?? '?'}
                                 </span>
                               </div>
-                              <div className="flex gap-2">
-                                <span className="text-gray-500">H2:</span>
-                                <span className={getAvailColor(availability.half2Available)}>
-                                  {availability.half2Available ?? '?'} left
+                              {/* Half 2 Row */}
+                              <div className="flex gap-1 items-center">
+                                <span className="text-gray-500 w-6">H2:</span>
+                                <span className="text-gray-400">AM</span>
+                                <span className={`w-8 ${getAvailColor(availability.h2AmAvailable)}`}>
+                                  {availability.h2AmAvailable ?? '?'}
+                                </span>
+                                <span className="text-gray-400">PM</span>
+                                <span className={`w-8 ${getAvailColor(availability.h2PmAvailable)}`}>
+                                  {availability.h2PmAvailable ?? '?'}
                                 </span>
                               </div>
                               <div className="text-gray-400 text-[10px]">
