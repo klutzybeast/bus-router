@@ -1019,8 +1019,8 @@ async def sync_from_campminder_api():
                 skipped_count += 1
                 continue
             
-            # Geocode address
-            location = geocode_address(
+            # Geocode address (using cached version)
+            location = await geocode_address_cached(
                 camper['address'],
                 camper.get('town', ''),
                 camper.get('zip_code', '')
