@@ -401,6 +401,18 @@ async def get_geocode_cache_stats():
     except Exception as e:
         return {"status": "error", "error": str(e)}
 
+# Config check endpoint (for debugging deployment issues)
+@api_router.get("/config-check")
+async def config_check():
+    """Check if critical environment variables are configured"""
+    webhook_url = os.environ.get('GOOGLE_SHEETS_WEBHOOK_URL', '')
+    return {
+        "webhook_configured": bool(webhook_url),
+        "webhook_url_preview": webhook_url[:50] + "..." if len(webhook_url) > 50 else webhook_url if webhook_url else "NOT SET",
+        "positionstack_configured": bool(os.environ.get('POSITIONSTACK_API_KEY', '')),
+        "google_maps_configured": bool(os.environ.get('GOOGLE_MAPS_API_KEY', ''))
+    }
+
 # Database status endpoint on API router
 @api_router.get("/db-status")
 async def api_db_status():
