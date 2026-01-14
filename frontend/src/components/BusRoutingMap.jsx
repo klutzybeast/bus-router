@@ -234,7 +234,7 @@ const BusRoutingMap = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedCamper]);
+  }, []);
 
   useEffect(() => {
     fetchCampers();
