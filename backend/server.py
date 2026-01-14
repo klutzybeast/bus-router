@@ -1445,12 +1445,12 @@ async def update_seat_availability_sheet():
         # Generate cover sheet data in 10-column format for Google Sheets
         sheet_data = cover_sheet_generator.generate_cover_sheet_simple(campers, staff_dict)
         
-        # Use webhook to update the sheet
-        webhook_url = os.environ.get('GOOGLE_SHEETS_WEBHOOK_URL', '')
+        # Use dedicated seat availability webhook
+        webhook_url = os.environ.get('SEAT_AVAILABILITY_WEBHOOK_URL', '')
         if not webhook_url:
             return {
                 "status": "error",
-                "message": "GOOGLE_SHEETS_WEBHOOK_URL not configured"
+                "message": "SEAT_AVAILABILITY_WEBHOOK_URL not configured"
             }
         
         payload = {
