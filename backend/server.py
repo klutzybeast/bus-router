@@ -513,8 +513,8 @@ class ManualCamperInput(BaseModel):
 async def add_camper_manually(camper: ManualCamperInput):
     """Manually add a camper to the map"""
     try:
-        # Geocode the address
-        location = geocode_address(camper.address, camper.town, camper.zip_code)
+        # Geocode the address (using cached version)
+        location = await geocode_address_cached(camper.address, camper.town, camper.zip_code)
         if not location:
             raise HTTPException(status_code=400, detail=f"Could not geocode address: {camper.address}, {camper.town}, {camper.zip_code}")
         
