@@ -110,6 +110,7 @@ A web application that displays camper bus routes on a Google Map, using Google 
 | `/app/backend/bus_config.py` | Bus info and home locations |
 | `/app/backend/sibling_offset.py` | Pin offset for siblings |
 | `/app/frontend/src/components/BusRoutingMap.jsx` | Main React map component |
+| `/app/frontend/src/components/BusZonePolygon.jsx` | Bus zone polygon component (new) |
 | `/app/backend/models/schemas.py` | Pydantic models (new) |
 | `/app/backend/routers/*.py` | Modular route handlers (new) |
 
