@@ -1461,12 +1461,15 @@ const BusRoutingMap = () => {
                 <div className="space-y-2 overflow-y-auto flex-1" style={{maxHeight: '300px'}}>
                   {uniqueBuses.filter(bus => bus.startsWith('Bus')).map((bus) => {
                     const busColor = getBusColor(bus);
-                    // Count only valid bus assignments (not NONE)
-                    const busCount = campers.filter(c => 
-                      (c.am_bus_number === bus && c.am_bus_number !== 'NONE') || 
-                      (c.pm_bus_number === bus && c.pm_bus_number !== 'NONE')
-                    ).length;
+                    const availability = busSeatAvailability[bus] || {};
                     const isSelected = selectedBusFilter === bus;
+                    
+                    // Determine color for availability numbers
+                    const getAvailColor = (avail) => {
+                      if (avail < 0) return 'text-red-600 font-bold';
+                      if (avail <= 3) return 'text-orange-500';
+                      return 'text-green-600';
+                    };
                     
                     return (
                       <div
@@ -1489,11 +1492,27 @@ const BusRoutingMap = () => {
                             className="w-6 h-6 md:w-5 md:h-5 rounded-full border-2 border-white shadow flex-shrink-0"
                             style={{ backgroundColor: busColor }}
                           />
-                          <div>
+                          <div className="flex-1">
                             <div className={`font-medium text-sm md:text-base ${isSelected ? 'text-blue-700 font-bold' : ''}`}>
                               {bus}
                             </div>
-                            <div className="text-xs text-gray-500">{busCount} stops</div>
+                            <div className="text-xs space-y-0.5">
+                              <div className="flex gap-2">
+                                <span className="text-gray-500">H1:</span>
+                                <span className={getAvailColor(availability.half1Available)}>
+                                  {availability.half1Available ?? '?'} left
+                                </span>
+                              </div>
+                              <div className="flex gap-2">
+                                <span className="text-gray-500">H2:</span>
+                                <span className={getAvailColor(availability.half2Available)}>
+                                  {availability.half2Available ?? '?'} left
+                                </span>
+                              </div>
+                              <div className="text-gray-400 text-[10px]">
+                                Cap: {availability.capacity ?? '?'}
+                              </div>
+                            </div>
                           </div>
                         </button>
                         <Button
