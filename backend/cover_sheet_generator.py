@@ -194,8 +194,7 @@ class CoverSheetGenerator:
             total_half2_am,
             total_capacity - total_half2_am,
             total_half2_pm,
-            total_capacity - total_half2_pm,
-            total_available
+            total_capacity - total_half2_pm
         ])
         
         # Available seats summary
