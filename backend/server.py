@@ -3253,7 +3253,7 @@ async def auto_sync_campminder():
             sheet_camper_ids.add(camper_id)
             
             if effective_address:
-                location = geocode_address(effective_address, effective_town, effective_zip)
+                location = await geocode_address_cached(effective_address, effective_town, effective_zip)
                 if not location:
                     location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {effective_address}")
                     logger.warning(f"Geocoding failed: {first_name} {last_name} - {effective_address}")
