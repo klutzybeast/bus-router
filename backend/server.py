@@ -28,13 +28,16 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection with Atlas-compatible settings
-mongo_url = os.environ.get('MONGO_URL', '')
-db_name = os.environ.get('DB_NAME', 'bus_routing')
+mongo_url = os.environ.get('MONGO_URL')
+db_name = os.environ.get('DB_NAME')
 
 if not mongo_url:
     logging.error("MONGO_URL environment variable not set!")
-    # Use a dummy URL that will fail gracefully
-    mongo_url = "mongodb://localhost:27017"
+    raise ValueError("MONGO_URL environment variable is required")
+
+if not db_name:
+    logging.error("DB_NAME environment variable not set!")
+    raise ValueError("DB_NAME environment variable is required")
 
 # Check if this is an Atlas connection (contains mongodb+srv or mongodb.net)
 is_atlas = 'mongodb.net' in mongo_url or 'mongodb+srv' in mongo_url
