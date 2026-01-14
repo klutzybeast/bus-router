@@ -95,6 +95,13 @@ except Exception as e:
     gmaps = None
     logging.error(f"Failed to initialize Google Maps client: {e}")
 
+# PositionStack API key (free backup geocoding)
+POSITIONSTACK_API_KEY = os.environ.get('POSITIONSTACK_API_KEY', '')
+if POSITIONSTACK_API_KEY:
+    logging.info("PositionStack API key configured as backup geocoder")
+else:
+    logging.warning("POSITIONSTACK_API_KEY not set - no backup geocoding available")
+
 route_optimizer = RouteOptimizer(num_buses=34)
 sheets_generator = SheetsDataGenerator()
 cover_sheet_generator = CoverSheetGenerator()
