@@ -375,6 +375,29 @@ async def api_health_check():
     """Health check endpoint for API"""
     return {"status": "healthy", "service": "bus-routing-api"}
 
+# Geocode cache stats endpoint
+@api_router.get("/geocode-cache-stats")
+async def get_geocode_cache_stats():
+    """Get statistics about the geocoding cache"""
+    try:
+        total_cached = await db.geocode_cache.count_documents({})
+        google_cached = await db.geocode_cache.count_documents({"source": "google"})
+        positionstack_cached = await db.geocode_cache.count_documents({"source": "positionstack"})
+        memory_cache_size = len(_geocode_memory_cache)
+        
+        return {
+            "status": "success",
+            "total_cached_addresses": total_cached,
+            "by_source": {
+                "google": google_cached,
+                "positionstack": positionstack_cached
+            },
+            "memory_cache_size": memory_cache_size,
+            "message": f"Cache has {total_cached} addresses. New addresses will use Google first, PositionStack as backup."
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
 # Database status endpoint on API router
 @api_router.get("/db-status")
 async def api_db_status():
