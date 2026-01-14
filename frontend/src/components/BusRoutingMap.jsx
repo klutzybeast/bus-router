@@ -180,9 +180,12 @@ const BusRoutingMap = () => {
     }
   }, []);
 
-  const fetchCampers = useCallback(async () => {
+  const fetchCampers = useCallback(async (preserveSelection = false) => {
     try {
-      setLoading(true);
+      // Only show loading spinner on initial load, not on refresh
+      if (!preserveSelection) {
+        setLoading(true);
+      }
       const [campersResponse, needsAddressResponse] = await Promise.all([
         axios.get(`${API}/campers`),
         axios.get(`${API}/campers/needs-address`)
@@ -190,6 +193,16 @@ const BusRoutingMap = () => {
       
       setCampers(campersResponse.data);
       setCampersNeedingAddress(needsAddressResponse.data);
+      
+      // If we have a selected camper, update it with fresh data
+      if (preserveSelection && selectedCamper) {
+        const updatedSelectedCamper = campersResponse.data.find(
+          c => c._id === selectedCamper._id
+        );
+        if (updatedSelectedCamper) {
+          setSelectedCamper(updatedSelectedCamper);
+        }
+      }
       
       // Calculate unique buses from am_bus_number and pm_bus_number
       // Only include valid bus assignments (not NONE or empty)
