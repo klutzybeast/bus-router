@@ -1283,7 +1283,10 @@ async def download_seat_availability():
     try:
         # Get all campers with bus assignments
         campers = await db.campers.find({
-            "am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}
+            "$or": [
+                {"am_bus_number": {"$exists": True, "$nin": ["NONE", ""]}},
+                {"pm_bus_number": {"$exists": True, "$nin": ["NONE", ""]}}
+            ]
         }).to_list(None)
         
         # Get staff configurations from database
@@ -1301,7 +1304,7 @@ async def download_seat_availability():
         # Define styles
         title_font = Font(name='Arial', size=16, bold=True, color='1F4E79')
         subtitle_font = Font(name='Arial', size=12, bold=True, color='1F4E79')
-        header_font = Font(name='Arial', size=11, bold=True, color='FFFFFF')
+        header_font = Font(name='Arial', size=10, bold=True, color='FFFFFF')
         header_fill = PatternFill(start_color='1F4E79', end_color='1F4E79', fill_type='solid')
         data_font = Font(name='Arial', size=10)
         totals_font = Font(name='Arial', size=11, bold=True)
@@ -1319,11 +1322,16 @@ async def download_seat_availability():
         light_fill = PatternFill(start_color='F2F2F2', end_color='F2F2F2', fill_type='solid')
         white_fill = PatternFill(start_color='FFFFFF', end_color='FFFFFF', fill_type='solid')
         
-        # Available column colors (green for positive, red for negative)
+        # Available column colors based on seat count
         green_fill = PatternFill(start_color='C6EFCE', end_color='C6EFCE', fill_type='solid')
+        orange_fill = PatternFill(start_color='FFEB9C', end_color='FFEB9C', fill_type='solid')
         red_fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')
-        green_font = Font(name='Arial', size=10, color='006100')
-        red_font = Font(name='Arial', size=10, color='9C0006')
+        green_font = Font(name='Arial', size=10, bold=True, color='006100')
+        orange_font = Font(name='Arial', size=10, bold=True, color='9C5700')
+        red_font = Font(name='Arial', size=10, bold=True, color='9C0006')
+        
+        # Available column indices (0-indexed): 6 (H1 AM Avail), 8 (H1 PM Avail), 10 (H2 AM Avail), 12 (H2 PM Avail), 13 (Available)
+        avail_cols = [7, 9, 11, 13, 14]  # 1-indexed
         
         # Write data with formatting
         for row_idx, row_data in enumerate(sheet_data, 1):
@@ -1343,7 +1351,7 @@ async def download_seat_availability():
                     cell.font = header_font
                     cell.fill = header_fill
                     cell.border = thin_border
-                    cell.alignment = Alignment(horizontal='center', vertical='center')
+                    cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
                 # TOTALS row
                 elif row_data and row_data[0] == 'TOTALS':
                     cell.font = totals_font
@@ -1367,24 +1375,27 @@ async def download_seat_availability():
                     if col_idx >= 5:
                         cell.alignment = Alignment(horizontal='center')
                     
-                    # Color the Available column (last column)
-                    if col_idx == 10:  # Available column
+                    # Color the Available columns based on value
+                    if col_idx in avail_cols:
                         try:
-                            avail = int(value) if value else 0
-                            if avail >= 0:
-                                cell.fill = green_fill
-                                cell.font = green_font
-                            else:
+                            avail = int(value) if value is not None else 0
+                            if avail < 5:
                                 cell.fill = red_fill
                                 cell.font = red_font
+                            elif avail <= 10:
+                                cell.fill = orange_fill
+                                cell.font = orange_font
+                            else:
+                                cell.fill = green_fill
+                                cell.font = green_font
                         except:
                             pass
                 # Summary rows at bottom
                 elif row_data and ('Half' in str(row_data[0]) or 'Available' in str(row_data[0])):
                     cell.font = data_font
         
-        # Set column widths
-        column_widths = [10, 20, 20, 20, 8, 12, 12, 12, 12, 12]
+        # Set column widths for 14 columns
+        column_widths = [10, 18, 16, 16, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10]
         for i, width in enumerate(column_widths, 1):
             ws.column_dimensions[get_column_letter(i)].width = width
         
