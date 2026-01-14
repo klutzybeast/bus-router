@@ -1583,11 +1583,11 @@ async def get_bus_staff(bus_number: str):
 async def save_bus_staff(config: BusStaffConfig):
     """Save or update bus staff configuration"""
     try:
-        # Geocode the address if provided
+        # Geocode the address if provided (using cached version)
         lat = None
         lng = None
         if config.home_address:
-            location = geocode_address(config.home_address, "", "")
+            location = await geocode_address_cached(config.home_address, "", "")
             if location:
                 lat = location.latitude
                 lng = location.longitude
