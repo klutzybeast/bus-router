@@ -75,6 +75,17 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - Toast notifications show download status
 - Fallback to opening in new tab if primary method fails
 
+### Phase 10: Dynamic Bus Zones ✅ (January 2025)
+- Convex hull polygon zones drawn around pins grouped by bus number
+- Dynamic expansion/retraction as pins are added or removed
+- Zones can overlap (different buses serving same geographic areas)
+- Click a zone to highlight all stops for that bus
+- Toggle button to show/hide bus zones
+- Color-coded zones matching bus colors
+- Visual feedback: selected zone has thicker border and higher opacity
+- Files added:
+  - `/app/frontend/src/components/BusZonePolygon.jsx` - Polygon component with convex hull algorithm
+
 ### Phase 9: Code Refactoring (Foundation Ready)
 - Created modular structure in `/app/backend/`:
   - `models/` - Pydantic schemas
