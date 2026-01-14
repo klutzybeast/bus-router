@@ -223,14 +223,6 @@ const BusRoutingMap = () => {
       const buses = Array.from(busSet).sort();
       setUniqueBuses(buses);
       
-      // Only set initial map center on first load (when no campers exist yet)
-      if (campersResponse.data.length > 0 && !preserveSelection && campers.length === 0) {
-        setMapCenter({
-          lat: campersResponse.data[0].location.latitude,
-          lng: campersResponse.data[0].location.longitude
-        });
-      }
-      
       if (!preserveSelection) {
         toast.success(`Loaded ${campersResponse.data.length} campers (${needsAddressResponse.data.length} need addresses)`);
       }
