@@ -1430,7 +1430,7 @@ async def update_seat_availability_sheet():
     """
     Update the seat availability Google Sheet (1ZK58gjF4BO0HF_2y6oovrjzRH3qV5zAs8H-7CeKOSGE)
     with current bus assignments.
-    Uses 10-column format for Google Sheet compatibility.
+    Uses 14-column format with availability columns.
     """
     try:
         # Get all campers with bus assignments
@@ -1442,8 +1442,8 @@ async def update_seat_availability_sheet():
         staff_configs = await db.bus_staff.find({}).to_list(None)
         staff_dict = {c['bus_number']: c for c in staff_configs}
         
-        # Generate cover sheet data in 10-column format for Google Sheets
-        sheet_data = cover_sheet_generator.generate_cover_sheet_simple(campers, staff_dict)
+        # Generate cover sheet data in 14-column format with availability columns
+        sheet_data = cover_sheet_generator.generate_cover_sheet(campers, staff_dict)
         
         # Use dedicated seat availability webhook
         webhook_url = os.environ.get('SEAT_AVAILABILITY_WEBHOOK_URL', '')
