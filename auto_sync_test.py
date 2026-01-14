@@ -1,7 +1,7 @@
 import requests
 import time
 
-base_url = "https://campbus.preview.emergentagent.com/api"
+base_url = "https://routemanager-3.preview.emergentagent.com/api"
 
 print("="*60)
 print("AUTO-SYNC DETAILED TEST")
