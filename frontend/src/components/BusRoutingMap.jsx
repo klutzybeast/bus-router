@@ -81,65 +81,8 @@ const BusRoutingMap = () => {
   // Bus Info State (capacities)
   const [busInfoMap, setBusInfoMap] = useState({});
 
-  // Calculate seat availability by bus, session, and AM/PM
-  const busSeatAvailability = useMemo(() => {
-    const availability = {};
-    
-    uniqueBuses.forEach(bus => {
-      const busInfo = busInfoMap[bus] || {};
-      const capacity = busInfo.capacity || 30; // Default to 30 if not found
-      
-      // Count campers by session type and AM/PM for this bus
-      let h1AmFull = 0, h1PmFull = 0;  // Full season counts for H1
-      let h2AmFull = 0, h2PmFull = 0;  // Full season counts for H2
-      let h1AmOnly = 0, h1PmOnly = 0;  // Half 1 only
-      let h2AmOnly = 0, h2PmOnly = 0;  // Half 2 only
-      
-      campers.forEach(c => {
-        const isAmBus = c.am_bus_number === bus;
-        const isPmBus = c.pm_bus_number === bus;
-        if (!isAmBus && !isPmBus) return;
-        
-        const session = (c.session || '').toLowerCase();
-        const isFull = session.includes('full season') || session.includes('full') || 
-                      (!session.includes('half') && !session.includes('flex'));
-        const isHalf1 = session.includes('half season 1') || session.includes('half 1') || session.includes('first half');
-        const isHalf2 = session.includes('half season 2') || session.includes('half 2') || session.includes('second half');
-        
-        if (isFull) {
-          // Full season campers count for both halves
-          if (isAmBus) { h1AmFull++; h2AmFull++; }
-          if (isPmBus) { h1PmFull++; h2PmFull++; }
-        } else if (isHalf1) {
-          if (isAmBus) h1AmOnly++;
-          if (isPmBus) h1PmOnly++;
-        } else if (isHalf2) {
-          if (isAmBus) h2AmOnly++;
-          if (isPmBus) h2PmOnly++;
-        }
-      });
-      
-      // Calculate availability for each combination
-      const h1AmTotal = h1AmFull + h1AmOnly;
-      const h1PmTotal = h1PmFull + h1PmOnly;
-      const h2AmTotal = h2AmFull + h2AmOnly;
-      const h2PmTotal = h2PmFull + h2PmOnly;
-      
-      availability[bus] = {
-        capacity,
-        h1AmAvailable: capacity - h1AmTotal,
-        h1PmAvailable: capacity - h1PmTotal,
-        h2AmAvailable: capacity - h2AmTotal,
-        h2PmAvailable: capacity - h2PmTotal,
-        h1AmCount: h1AmTotal,
-        h1PmCount: h1PmTotal,
-        h2AmCount: h2AmTotal,
-        h2PmCount: h2PmTotal,
-      };
-    });
-    
-    return availability;
-  }, [campers, uniqueBuses, busInfoMap]);
+  // Seat availability from backend (accurate counts including campers without addresses)
+  const [busSeatAvailability, setBusSeatAvailability] = useState({});
 
   // Group campers by bus number for zones
   const campersByBus = useMemo(() => {
