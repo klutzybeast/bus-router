@@ -817,6 +817,7 @@ const BusRoutingMap = () => {
                 lng: selectedCamper.location.longitude
               }}
               onCloseClick={() => setSelectedCamper(null)}
+              disableAutoPan={true}
             >
               <div className="p-2 max-w-xs" data-testid="camper-info-window">
                 {/* Helper function to check valid bus */}
