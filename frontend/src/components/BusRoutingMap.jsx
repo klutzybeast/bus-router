@@ -110,20 +110,22 @@ const BusRoutingMap = () => {
     return grouped;
   }, [campers]);
 
-  // Handle zone click - select/deselect bus
-  const handleZoneClick = useCallback((busNumber) => {
+  // Handle zone click - select/deselect bus (with optional pan)
+  const handleZoneClick = useCallback((busNumber, shouldPan = true) => {
     if (selectedZoneBus === busNumber) {
       setSelectedZoneBus(null);
       setSelectedBusFilter(null);
     } else {
       setSelectedZoneBus(busNumber);
       setSelectedBusFilter(busNumber);
-      // Pan to the zone
-      const busCampers = campersByBus[busNumber];
-      if (busCampers && busCampers.length > 0 && mapInstance) {
-        const avgLat = busCampers.reduce((sum, c) => sum + c.location.latitude, 0) / busCampers.length;
-        const avgLng = busCampers.reduce((sum, c) => sum + c.location.longitude, 0) / busCampers.length;
-        mapInstance.panTo({ lat: avgLat, lng: avgLng });
+      // Only pan to the zone if explicitly requested
+      if (shouldPan) {
+        const busCampers = campersByBus[busNumber];
+        if (busCampers && busCampers.length > 0 && mapInstance) {
+          const avgLat = busCampers.reduce((sum, c) => sum + c.location.latitude, 0) / busCampers.length;
+          const avgLng = busCampers.reduce((sum, c) => sum + c.location.longitude, 0) / busCampers.length;
+          mapInstance.panTo({ lat: avgLat, lng: avgLng });
+        }
       }
     }
   }, [selectedZoneBus, campersByBus, mapInstance]);
