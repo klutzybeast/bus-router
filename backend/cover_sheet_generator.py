@@ -42,22 +42,28 @@ class CoverSheetGenerator:
         if staff_dict is None:
             staff_dict = {}
         
-        # Group campers by bus
-        bus_groups = defaultdict(list)
+        # Group campers by bus - track AM and PM separately
+        bus_am_campers = defaultdict(set)
+        bus_pm_campers = defaultdict(set)
+        
         for camper in campers:
+            camper_id = f"{camper.get('first_name', '')}_{camper.get('last_name', '')}_{camper.get('_id', '')}"
             am_bus = camper.get('am_bus_number', '')
             pm_bus = camper.get('pm_bus_number', '')
+            session = camper.get('session', '')
+            halves = self.parse_session_to_halves(session)
             
-            # Add to AM bus group
+            # Track AM bus assignments
             if am_bus and am_bus != 'NONE' and 'NONE' not in am_bus.upper():
-                bus_groups[am_bus].append(camper)
+                bus_am_campers[am_bus].add((camper_id, session, 'am'))
             
-            # Also add to PM bus group if different
-            if pm_bus and pm_bus != am_bus and pm_bus != 'NONE' and 'NONE' not in pm_bus.upper():
-                if camper not in bus_groups[pm_bus]:
-                    bus_groups[pm_bus].append(camper)
+            # Track PM bus assignments
+            if pm_bus and pm_bus != 'NONE' and 'NONE' not in pm_bus.upper():
+                bus_pm_campers[pm_bus].add((camper_id, session, 'pm'))
         
-        sorted_buses = sorted(bus_groups.keys(), key=lambda x: int(''.join(filter(str.isdigit, x)) or '0'))
+        # Get all unique buses
+        all_buses = set(bus_am_campers.keys()) | set(bus_pm_campers.keys())
+        sorted_buses = sorted(all_buses, key=lambda x: int(''.join(filter(str.isdigit, x)) or '0'))
         
         # Start building sheet
         sheet_data = []
@@ -67,7 +73,7 @@ class CoverSheetGenerator:
         sheet_data.append(['Rolling River Day Camp'])
         sheet_data.append([])
         
-        # Column headers - EXACT format from Excel
+        # Column headers - UPDATED with Available columns after each count
         sheet_data.append([
             'Bus #',
             'Location',
@@ -75,9 +81,13 @@ class CoverSheetGenerator:
             'Counselor',
             'Seats',
             'Half 1 AM',
+            'H1 AM Avail',
             'Half 1 PM',
+            'H1 PM Avail',
             'Half 2 AM',
+            'H2 AM Avail',
             'Half 2 PM',
+            'H2 PM Avail',
             'Available'
         ])
         
@@ -91,8 +101,6 @@ class CoverSheetGenerator:
         
         # Data rows for each bus
         for bus_number in sorted_buses:
-            bus_campers = bus_groups[bus_number]
-            
             # Get staff info from database if available, else use defaults
             if bus_number in staff_dict:
                 staff = staff_dict[bus_number]
@@ -106,30 +114,37 @@ class CoverSheetGenerator:
                 counselor = get_bus_counselor(bus_number)
                 location = get_bus_location(bus_number)
             
-            # Fallback location to first camper's town
-            if not location and bus_campers:
-                location = bus_campers[0].get('town', '')
-            
-            # Count campers per half session
+            # Count campers per half session - separate AM and PM tracking
             half1_am_count = 0
             half1_pm_count = 0
             half2_am_count = 0
             half2_pm_count = 0
             
-            for camper in bus_campers:
-                session = camper.get('session', '')
+            # Count AM bus campers
+            for camper_id, session, bus_type in bus_am_campers.get(bus_number, set()):
                 halves = self.parse_session_to_halves(session)
-                
                 if halves['half1_am']:
                     half1_am_count += 1
-                if halves['half1_pm']:
-                    half1_pm_count += 1
                 if halves['half2_am']:
                     half2_am_count += 1
+            
+            # Count PM bus campers
+            for camper_id, session, bus_type in bus_pm_campers.get(bus_number, set()):
+                halves = self.parse_session_to_halves(session)
+                if halves['half1_pm']:
+                    half1_pm_count += 1
                 if halves['half2_pm']:
                     half2_pm_count += 1
             
-            available = capacity - len(bus_campers)
+            # Calculate available seats for each session
+            h1_am_avail = capacity - half1_am_count
+            h1_pm_avail = capacity - half1_pm_count
+            h2_am_avail = capacity - half2_am_count
+            h2_pm_avail = capacity - half2_pm_count
+            
+            # Overall available = capacity - max usage
+            max_usage = max(half1_am_count, half1_pm_count, half2_am_count, half2_pm_count)
+            available = capacity - max_usage
             
             # Add totals
             total_capacity += capacity
@@ -139,16 +154,30 @@ class CoverSheetGenerator:
             total_half2_am += half2_am_count
             total_half2_pm += half2_pm_count
             
+            # Fallback location to first camper's town if not set
+            if not location:
+                am_campers = list(bus_am_campers.get(bus_number, set()))
+                if am_campers:
+                    # Get the actual camper data
+                    for c in campers:
+                        if c.get('am_bus_number') == bus_number:
+                            location = c.get('town', '')
+                            break
+            
             sheet_data.append([
                 bus_number,
-                location,
+                location or '',
                 driver,
                 counselor,
                 capacity,
                 half1_am_count,
+                h1_am_avail,
                 half1_pm_count,
+                h1_pm_avail,
                 half2_am_count,
+                h2_am_avail,
                 half2_pm_count,
+                h2_pm_avail,
                 available
             ])
         
@@ -161,9 +190,13 @@ class CoverSheetGenerator:
             '',
             total_capacity,
             total_half1_am,
+            total_capacity - total_half1_am,
             total_half1_pm,
+            total_capacity - total_half1_pm,
             total_half2_am,
+            total_capacity - total_half2_am,
             total_half2_pm,
+            total_capacity - total_half2_pm,
             total_available
         ])
         
