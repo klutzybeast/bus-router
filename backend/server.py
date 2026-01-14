@@ -2355,29 +2355,28 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
         
         if result.modified_count > 0:
             # INSTANTLY update Google Sheet via webhook (using GET with query params)
-            webhook_url = os.environ.get('GOOGLE_SHEETS_WEBHOOK_URL', '')
+            # HARDCODED URL to avoid environment variable caching issues in production
+            webhook_url = "https://script.google.com/macros/s/AKfycbxe-hb_qNzIfhdAS84mBRZzcWRCfORto_y2sxuPLY01yjMqzWFihwCW-dzRcqXk_Lqq/exec"
             print(f"=== WEBHOOK DEBUG ===")
-            print(f"Webhook URL configured: {bool(webhook_url)}")
-            print(f"URL: {webhook_url[:50]}..." if webhook_url else "NO URL")
+            print(f"Using hardcoded webhook URL")
             
-            if webhook_url:
-                try:
-                    async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
-                        # Always send BOTH AM and PM bus numbers to keep sheet in sync
-                        am_bus_to_send = updates.get('am_bus_number') if updates.get('am_bus_number') else camper.get('am_bus_number', '')
-                        pm_bus_to_send = updates.get('pm_bus_number') if updates.get('pm_bus_number') else camper.get('pm_bus_number', '')
-                        
-                        params = {
-                            "action": "updateBus",
-                            "first_name": camper.get('first_name', ''),
-                            "last_name": camper.get('last_name', ''),
-                            "am_bus_number": am_bus_to_send,
-                            "pm_bus_number": pm_bus_to_send
-                        }
-                        
-                        print(f"Sending webhook with params: {params}")
-                        response = await client.get(webhook_url, params=params)
-                        print(f"Webhook response: {response.status_code} - {response.text[:300]}")
+            try:
+                async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+                    # Always send BOTH AM and PM bus numbers to keep sheet in sync
+                    am_bus_to_send = updates.get('am_bus_number') if updates.get('am_bus_number') else camper.get('am_bus_number', '')
+                    pm_bus_to_send = updates.get('pm_bus_number') if updates.get('pm_bus_number') else camper.get('pm_bus_number', '')
+                    
+                    params = {
+                        "action": "updateBus",
+                        "first_name": camper.get('first_name', ''),
+                        "last_name": camper.get('last_name', ''),
+                        "am_bus_number": am_bus_to_send,
+                        "pm_bus_number": pm_bus_to_send
+                    }
+                    
+                    print(f"Sending webhook with params: {params}")
+                    response = await client.get(webhook_url, params=params)
+                    print(f"Webhook response: {response.status_code} - {response.text[:300]}")
                         
                         if response.status_code == 200:
                             logger.info(f"✓ Google Sheet updated for {camper.get('first_name')} {camper.get('last_name')}: {response.text[:200]}")
