@@ -154,6 +154,32 @@ const BusRoutingMap = () => {
     }
   }, []);
 
+  const fetchSeatAvailability = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/seat-availability-json`);
+      if (response.data.status === 'success' && response.data.buses) {
+        // Transform backend data to frontend format
+        const availability = {};
+        Object.entries(response.data.buses).forEach(([busNumber, data]) => {
+          availability[busNumber] = {
+            capacity: data.capacity,
+            h1AmAvailable: data.h1_am_available,
+            h1PmAvailable: data.h1_pm_available,
+            h2AmAvailable: data.h2_am_available,
+            h2PmAvailable: data.h2_pm_available,
+            h1AmCount: data.h1_am,
+            h1PmCount: data.h1_pm,
+            h2AmCount: data.h2_am,
+            h2PmCount: data.h2_pm,
+          };
+        });
+        setBusSeatAvailability(availability);
+      }
+    } catch (error) {
+      console.error("Error fetching seat availability:", error);
+    }
+  }, []);
+
   const fetchCampers = useCallback(async () => {
     try {
       setLoading(true);
