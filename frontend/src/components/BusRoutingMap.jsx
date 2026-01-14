@@ -695,12 +695,19 @@ const BusRoutingMap = () => {
         };
         setSelectedCamper(updatedCamper);
         
-        // Update the camper in the local campers array
+        // Update the camper in the local campers array - this triggers zone recalculation
         setCampers(prevCampers => 
           prevCampers.map(c => 
             c._id === camperId ? updatedCamper : c
           )
         );
+        
+        // Update bus filter/zone to follow the camper to their new bus
+        if (showBusZones) {
+          const newBus = type === 'am' ? newAmBus : newPmBus;
+          setSelectedBusFilter(newBus);
+          setSelectedZoneBus(newBus);
+        }
       }
       
       // Clear the selection dropdowns but keep popup open
