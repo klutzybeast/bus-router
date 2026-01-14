@@ -704,7 +704,7 @@ const BusRoutingMap = () => {
       setNewPmBus("");
       
       // Fetch updated data in background without resetting selection
-      fetchCampers();
+      fetchCampers(true);
       fetchSeatAvailability();
     } catch (error) {
       toast.dismiss();
