@@ -211,4 +211,4 @@ REACT_APP_GOOGLE_MAPS_API_KEY=<google maps key>
 ---
 
 ## Last Updated
-January 2025 - Dynamic Bus Zones feature implemented
+January 2025 - Dynamic Bus Zones with Legend + Seat Availability in Bus List
