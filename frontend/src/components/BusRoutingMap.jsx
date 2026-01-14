@@ -218,21 +218,25 @@ const BusRoutingMap = () => {
       const buses = Array.from(busSet).sort();
       setUniqueBuses(buses);
       
-      if (campersResponse.data.length > 0) {
+      if (campersResponse.data.length > 0 && !preserveSelection) {
         setMapCenter({
           lat: campersResponse.data[0].location.latitude,
           lng: campersResponse.data[0].location.longitude
         });
       }
       
-      toast.success(`Loaded ${campersResponse.data.length} campers (${needsAddressResponse.data.length} need addresses)`);
+      if (!preserveSelection) {
+        toast.success(`Loaded ${campersResponse.data.length} campers (${needsAddressResponse.data.length} need addresses)`);
+      }
     } catch (error) {
       console.error("Error fetching campers:", error);
-      toast.error("Failed to load camper data");
+      if (!preserveSelection) {
+        toast.error("Failed to load camper data");
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedCamper]);
 
   useEffect(() => {
     fetchCampers();
