@@ -2339,26 +2339,24 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
         )
         
         if result.modified_count > 0:
-            # INSTANTLY update Google Sheet via webhook
+            # INSTANTLY update Google Sheet via webhook (using GET with query params)
             webhook_url = os.environ.get('GOOGLE_SHEETS_WEBHOOK_URL', '')
             if webhook_url:
                 try:
-                    async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
-                        webhook_data = {
-                            "first_name": camper.get('first_name'),
-                            "last_name": camper.get('last_name'),
-                            "am_bus_number": updates.get('am_bus_number') or camper.get('am_bus_number'),
-                            "pm_bus_number": updates.get('pm_bus_number') or camper.get('pm_bus_number')
+                    async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+                        # Use GET with query parameters - more reliable with Google Apps Script
+                        params = {
+                            "action": "updateBus",
+                            "first_name": camper.get('first_name', ''),
+                            "last_name": camper.get('last_name', ''),
+                            "am_bus_number": updates.get('am_bus_number') or camper.get('am_bus_number', ''),
+                            "pm_bus_number": updates.get('pm_bus_number') or camper.get('pm_bus_number', '')
                         }
                         
-                        response = await client.post(
-                            webhook_url,
-                            json=webhook_data,
-                            headers={"Content-Type": "application/json"}
-                        )
+                        response = await client.get(webhook_url, params=params)
                         
                         if response.status_code == 200:
-                            logger.info(f"✓ Google Sheet updated instantly for {camper.get('first_name')} {camper.get('last_name')}")
+                            logger.info(f"✓ Google Sheet updated for {camper.get('first_name')} {camper.get('last_name')}: {response.text[:100]}")
                         else:
                             logger.warning(f"Webhook response: {response.status_code} - {response.text[:100]}")
                 except Exception as e:
