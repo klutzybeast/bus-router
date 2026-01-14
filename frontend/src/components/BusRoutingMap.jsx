@@ -244,6 +244,7 @@ const BusRoutingMap = () => {
   useEffect(() => {
     fetchCampers();
     fetchBusStaff();
+    fetchBusInfo();
     
     const now = new Date();
     const tomorrow = new Date(now);
@@ -263,7 +264,7 @@ const BusRoutingMap = () => {
     }, timeUntilMorning);
     
     return () => clearTimeout(timeout);
-  }, [fetchCampers]);
+  }, [fetchCampers, fetchBusInfo]);
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
