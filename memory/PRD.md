@@ -48,6 +48,14 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - "Needs Address" section showing campers without addresses
 - Filter by session type
 - Download bus assignments CSV
+
+### Phase 12: Geocoding Cache + PositionStack Backup ✅ (January 2025)
+- **MongoDB geocoding cache** - addresses geocoded once, never re-geocoded
+- **Eliminated $547/3-day billing issue** - cache prevents repeated API calls
+- **PositionStack as backup** - free tier (100/month) for new addresses when Google fails
+- **Cache stats endpoint**: `/api/geocode-cache-stats`
+- **Current cache**: 367+ addresses stored
+- **Memory + DB cache** - fast lookups with persistence
 - Scrollable bus list in sidebar
 
 ### Phase 6: Change Detection System ✅ (December 2024)
