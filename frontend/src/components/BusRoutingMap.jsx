@@ -988,7 +988,7 @@ const BusRoutingMap = () => {
           {/* Bus Zone Polygons */}
           {showBusZones && Object.entries(campersByBus).map(([busNumber, busCampers]) => (
             <BusZonePolygon
-              key={`zone-${busNumber}`}
+              key={`zone-${busNumber}-${busCampers.length}`}
               busNumber={busNumber}
               campers={busCampers}
               color={getBusColor(busNumber)}
