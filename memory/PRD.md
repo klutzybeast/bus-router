@@ -83,8 +83,18 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - Toggle button to show/hide bus zones
 - Color-coded zones matching bus colors
 - Visual feedback: selected zone has thicker border and higher opacity
+- **Zone Legend** - Shows all bus colors in bottom-right when zones enabled
 - Files added:
   - `/app/frontend/src/components/BusZonePolygon.jsx` - Polygon component with convex hull algorithm
+
+### Phase 11: Seat Availability in Bus List ✅ (January 2025)
+- Each bus in the sidebar now shows:
+  - **H1** (Half Season 1) seats remaining
+  - **H2** (Half Season 2) seats remaining
+  - **Cap** (Capacity) of the bus
+- Color-coded availability: green (available), orange (≤3 left), red (overbooked)
+- Dynamically calculated based on camper session types
+- Bus info fetched from `/api/buses` endpoint including capacity data
 
 ### Phase 9: Code Refactoring (Foundation Ready)
 - Created modular structure in `/app/backend/`:
