@@ -78,6 +78,58 @@ const BusRoutingMap = () => {
   const [showBusZones, setShowBusZones] = useState(false);
   const [selectedZoneBus, setSelectedZoneBus] = useState(null);
 
+  // Bus Info State (capacities)
+  const [busInfoMap, setBusInfoMap] = useState({});
+
+  // Calculate seat availability by bus and session
+  const busSeatAvailability = useMemo(() => {
+    const availability = {};
+    
+    uniqueBuses.forEach(bus => {
+      const busInfo = busInfoMap[bus] || {};
+      const capacity = busInfo.capacity || 30; // Default to 30 if not found
+      
+      // Count campers by session type for this bus
+      let half1Count = 0;
+      let half2Count = 0;
+      let fullCount = 0;
+      
+      campers.forEach(c => {
+        const isOnBus = c.am_bus_number === bus || c.pm_bus_number === bus;
+        if (!isOnBus) return;
+        
+        const session = (c.session || '').toLowerCase();
+        if (session.includes('full season') || session.includes('full')) {
+          fullCount++;
+        } else if (session.includes('half season 1') || session.includes('half 1') || session.includes('first half')) {
+          half1Count++;
+        } else if (session.includes('half season 2') || session.includes('half 2') || session.includes('second half')) {
+          half2Count++;
+        } else {
+          // Default to full if unspecified
+          fullCount++;
+        }
+      });
+      
+      // Half 1 availability = capacity - (full season + half 1)
+      // Half 2 availability = capacity - (full season + half 2)
+      // Total is max occupancy at any point
+      const half1Total = fullCount + half1Count;
+      const half2Total = fullCount + half2Count;
+      
+      availability[bus] = {
+        capacity,
+        half1Available: capacity - half1Total,
+        half2Available: capacity - half2Total,
+        half1Count: half1Total,
+        half2Count: half2Total,
+        fullCount,
+      };
+    });
+    
+    return availability;
+  }, [campers, uniqueBuses, busInfoMap]);
+
   // Group campers by bus number for zones
   const campersByBus = useMemo(() => {
     const grouped = {};
