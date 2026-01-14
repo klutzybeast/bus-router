@@ -74,6 +74,54 @@ const BusRoutingMap = () => {
     location_name: ""
   });
 
+  // Bus Zone State
+  const [showBusZones, setShowBusZones] = useState(false);
+  const [selectedZoneBus, setSelectedZoneBus] = useState(null);
+
+  // Group campers by bus number for zones
+  const campersByBus = useMemo(() => {
+    const grouped = {};
+    campers.forEach(camper => {
+      // Group by AM bus
+      if (camper.am_bus_number && camper.am_bus_number !== 'NONE' && camper.am_bus_number.startsWith('Bus')) {
+        if (!grouped[camper.am_bus_number]) {
+          grouped[camper.am_bus_number] = [];
+        }
+        grouped[camper.am_bus_number].push(camper);
+      }
+      // Also consider PM bus if different (for overlapping zones)
+      if (camper.pm_bus_number && camper.pm_bus_number !== 'NONE' && 
+          camper.pm_bus_number.startsWith('Bus') && camper.pm_bus_number !== camper.am_bus_number) {
+        if (!grouped[camper.pm_bus_number]) {
+          grouped[camper.pm_bus_number] = [];
+        }
+        // Only add if not already in this bus group
+        if (!grouped[camper.pm_bus_number].some(c => c._id === camper._id)) {
+          grouped[camper.pm_bus_number].push(camper);
+        }
+      }
+    });
+    return grouped;
+  }, [campers]);
+
+  // Handle zone click - select/deselect bus
+  const handleZoneClick = useCallback((busNumber) => {
+    if (selectedZoneBus === busNumber) {
+      setSelectedZoneBus(null);
+      setSelectedBusFilter(null);
+    } else {
+      setSelectedZoneBus(busNumber);
+      setSelectedBusFilter(busNumber);
+      // Pan to the zone
+      const busCampers = campersByBus[busNumber];
+      if (busCampers && busCampers.length > 0 && mapInstance) {
+        const avgLat = busCampers.reduce((sum, c) => sum + c.location.latitude, 0) / busCampers.length;
+        const avgLng = busCampers.reduce((sum, c) => sum + c.location.longitude, 0) / busCampers.length;
+        mapInstance.panTo({ lat: avgLat, lng: avgLng });
+      }
+    }
+  }, [selectedZoneBus, campersByBus, mapInstance]);
+
   const fetchBusStaff = useCallback(async () => {
     try {
       const response = await axios.get(`${API}/bus-staff`);
