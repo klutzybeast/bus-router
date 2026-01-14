@@ -81,7 +81,7 @@ const BusRoutingMap = () => {
   // Bus Info State (capacities)
   const [busInfoMap, setBusInfoMap] = useState({});
 
-  // Calculate seat availability by bus and session
+  // Calculate seat availability by bus, session, and AM/PM
   const busSeatAvailability = useMemo(() => {
     const availability = {};
     
@@ -89,41 +89,52 @@ const BusRoutingMap = () => {
       const busInfo = busInfoMap[bus] || {};
       const capacity = busInfo.capacity || 30; // Default to 30 if not found
       
-      // Count campers by session type for this bus
-      let half1Count = 0;
-      let half2Count = 0;
-      let fullCount = 0;
+      // Count campers by session type and AM/PM for this bus
+      let h1AmFull = 0, h1PmFull = 0;  // Full season counts for H1
+      let h2AmFull = 0, h2PmFull = 0;  // Full season counts for H2
+      let h1AmOnly = 0, h1PmOnly = 0;  // Half 1 only
+      let h2AmOnly = 0, h2PmOnly = 0;  // Half 2 only
       
       campers.forEach(c => {
-        const isOnBus = c.am_bus_number === bus || c.pm_bus_number === bus;
-        if (!isOnBus) return;
+        const isAmBus = c.am_bus_number === bus;
+        const isPmBus = c.pm_bus_number === bus;
+        if (!isAmBus && !isPmBus) return;
         
         const session = (c.session || '').toLowerCase();
-        if (session.includes('full season') || session.includes('full')) {
-          fullCount++;
-        } else if (session.includes('half season 1') || session.includes('half 1') || session.includes('first half')) {
-          half1Count++;
-        } else if (session.includes('half season 2') || session.includes('half 2') || session.includes('second half')) {
-          half2Count++;
-        } else {
-          // Default to full if unspecified
-          fullCount++;
+        const isFull = session.includes('full season') || session.includes('full') || 
+                      (!session.includes('half') && !session.includes('flex'));
+        const isHalf1 = session.includes('half season 1') || session.includes('half 1') || session.includes('first half');
+        const isHalf2 = session.includes('half season 2') || session.includes('half 2') || session.includes('second half');
+        
+        if (isFull) {
+          // Full season campers count for both halves
+          if (isAmBus) { h1AmFull++; h2AmFull++; }
+          if (isPmBus) { h1PmFull++; h2PmFull++; }
+        } else if (isHalf1) {
+          if (isAmBus) h1AmOnly++;
+          if (isPmBus) h1PmOnly++;
+        } else if (isHalf2) {
+          if (isAmBus) h2AmOnly++;
+          if (isPmBus) h2PmOnly++;
         }
       });
       
-      // Half 1 availability = capacity - (full season + half 1)
-      // Half 2 availability = capacity - (full season + half 2)
-      // Total is max occupancy at any point
-      const half1Total = fullCount + half1Count;
-      const half2Total = fullCount + half2Count;
+      // Calculate availability for each combination
+      const h1AmTotal = h1AmFull + h1AmOnly;
+      const h1PmTotal = h1PmFull + h1PmOnly;
+      const h2AmTotal = h2AmFull + h2AmOnly;
+      const h2PmTotal = h2PmFull + h2PmOnly;
       
       availability[bus] = {
         capacity,
-        half1Available: capacity - half1Total,
-        half2Available: capacity - half2Total,
-        half1Count: half1Total,
-        half2Count: half2Total,
-        fullCount,
+        h1AmAvailable: capacity - h1AmTotal,
+        h1PmAvailable: capacity - h1PmTotal,
+        h2AmAvailable: capacity - h2AmTotal,
+        h2PmAvailable: capacity - h2PmTotal,
+        h1AmCount: h1AmTotal,
+        h1PmCount: h1PmTotal,
+        h2AmCount: h2AmTotal,
+        h2PmCount: h2PmTotal,
       };
     });
     
