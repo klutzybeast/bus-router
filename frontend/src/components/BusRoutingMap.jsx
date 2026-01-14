@@ -888,6 +888,19 @@ const BusRoutingMap = () => {
               </div>
             </InfoWindow>
           )}
+
+          {/* Bus Zone Polygons */}
+          {showBusZones && Object.entries(campersByBus).map(([busNumber, busCampers]) => (
+            <BusZonePolygon
+              key={`zone-${busNumber}`}
+              busNumber={busNumber}
+              campers={busCampers}
+              color={getBusColor(busNumber)}
+              isSelected={selectedBusFilter === busNumber || selectedZoneBus === busNumber}
+              onZoneClick={handleZoneClick}
+              showZone={!selectedBusFilter || selectedBusFilter === busNumber}
+            />
+          ))}
         </Map>
 
         {/* Control Panel - Responsive */}
