@@ -671,7 +671,7 @@ async def sync_campers(csv_data: Dict[str, Any]):
             
             # Process ALL campers (including those with NONE bus)
             if am_address.strip():
-                location = geocode_address(am_address, am_town, am_zip)
+                location = await geocode_address_cached(am_address, am_town, am_zip)
                 if not location:
                     location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {am_address}")
                     logger.warning(f"Geocoding failed for {first_name} {last_name}: {am_address}")
@@ -720,7 +720,7 @@ async def sync_campers(csv_data: Dict[str, Any]):
             
             # Add separate PM pin only if has assigned bus and address is different
             if am_bus != "NONE" and pm_final_address != am_address and pm_final_address.strip():
-                    location_pm = geocode_address(pm_final_address, pm_final_town, pm_final_zip)
+                    location_pm = await geocode_address_cached(pm_final_address, pm_final_town, pm_final_zip)
                     if not location_pm:
                         # Geocoding failed - use placeholder
                         location_pm = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {pm_final_address}")
