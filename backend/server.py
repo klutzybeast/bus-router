@@ -2377,17 +2377,14 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
                     print(f"Sending webhook with params: {params}")
                     response = await client.get(webhook_url, params=params)
                     print(f"Webhook response: {response.status_code} - {response.text[:300]}")
-                        
-                        if response.status_code == 200:
-                            logger.info(f"✓ Google Sheet updated for {camper.get('first_name')} {camper.get('last_name')}: {response.text[:200]}")
-                        else:
-                            logger.warning(f"Webhook response: {response.status_code} - {response.text[:200]}")
-                except Exception as e:
-                    print(f"WEBHOOK ERROR: {str(e)}")
-                    logger.error(f"Webhook error: {str(e)}")
-            else:
-                print("NO WEBHOOK URL - SHEET NOT UPDATED")
-                logger.warning("No GOOGLE_SHEETS_WEBHOOK_URL configured - sheet not updated")
+                    
+                    if response.status_code == 200:
+                        logger.info(f"✓ Google Sheet updated for {camper.get('first_name')} {camper.get('last_name')}: {response.text[:200]}")
+                    else:
+                        logger.warning(f"Webhook response: {response.status_code} - {response.text[:200]}")
+            except Exception as e:
+                print(f"WEBHOOK ERROR: {str(e)}")
+                logger.error(f"Webhook error: {str(e)}")
             
             return {
                 "status": "success",
