@@ -1085,50 +1085,199 @@ const BusRoutingMap = () => {
             </InfoWindow>
           )}
 
-          {/* Bus Zone Polygons */}
-          {showBusZones && Object.entries(campersByBus).map(([busNumber, busCampers]) => (
-            <BusZonePolygon
-              key={`zone-${busNumber}-${busCampers.length}`}
+          {/* User-Defined Bus Zone Polygons */}
+          {showBusZones && Object.entries(userZones).map(([busNumber, zone]) => (
+            <EditableBusZone
+              key={`zone-${busNumber}`}
               busNumber={busNumber}
-              campers={busCampers}
-              color={getBusColor(busNumber)}
+              points={zone.points}
+              color={zone.color || getBusColor(busNumber)}
+              isEditing={editingZoneBus === busNumber}
               isSelected={selectedBusFilter === busNumber || selectedZoneBus === busNumber}
-              onZoneClick={handleZoneClick}
               showZone={!selectedBusFilter || selectedBusFilter === busNumber}
+              onPointsChange={(newPoints) => {
+                setUserZones(prev => ({
+                  ...prev,
+                  [busNumber]: { ...prev[busNumber], points: newPoints }
+                }));
+              }}
+              onZoneClick={handleZoneClick}
             />
           ))}
+
+          {/* Zone Creator - Active when creating a new zone */}
+          {isCreatingZone && creatingZoneBus && (
+            <ZoneCreator
+              isActive={isCreatingZone}
+              points={newZonePoints}
+              color={getBusColor(creatingZoneBus)}
+              onPointsChange={setNewZonePoints}
+              onComplete={() => {
+                if (newZonePoints.length >= 3) {
+                  saveZone(creatingZoneBus, newZonePoints, true);
+                  setIsCreatingZone(false);
+                  setCreatingZoneBus(null);
+                  setNewZonePoints([]);
+                }
+              }}
+            />
+          )}
         </Map>
 
-        {/* Zone Legend - Shows when zones are enabled */}
+        {/* Zone Control Panel - Shows when zones are enabled */}
         {showBusZones && (
           <div 
-            className="absolute bottom-20 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 z-10 max-h-64 overflow-y-auto"
-            style={{ maxWidth: '200px' }}
+            className="absolute bottom-20 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 z-10 max-h-80 overflow-y-auto"
+            style={{ maxWidth: '240px' }}
           >
-            <h4 className="font-semibold text-xs text-gray-700 mb-2 border-b pb-1">Bus Zone Legend</h4>
-            <div className="space-y-1">
-              {uniqueBuses.filter(bus => bus.startsWith('Bus')).slice(0, 20).map((bus) => {
-                const busColor = getBusColor(bus);
-                const isActive = selectedBusFilter === bus || selectedZoneBus === bus;
-                return (
+            <h4 className="font-semibold text-sm text-gray-700 mb-2 border-b pb-1">Bus Zones</h4>
+            
+            {/* Zone Creation Mode Indicator */}
+            {isCreatingZone && (
+              <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+                <div className="font-semibold text-blue-700 mb-1">Creating Zone for {creatingZoneBus}</div>
+                <div className="text-blue-600">Click on map to add points ({newZonePoints.length} points)</div>
+                {newZonePoints.length >= 3 && (
+                  <div className="text-green-600 mt-1">Click the green start point to complete</div>
+                )}
+                <div className="flex gap-2 mt-2">
                   <button
+                    onClick={() => {
+                      if (newZonePoints.length >= 3) {
+                        saveZone(creatingZoneBus, newZonePoints, true);
+                      }
+                      setIsCreatingZone(false);
+                      setCreatingZoneBus(null);
+                      setNewZonePoints([]);
+                    }}
+                    disabled={newZonePoints.length < 3}
+                    className={`flex-1 px-2 py-1 rounded text-xs ${
+                      newZonePoints.length >= 3 
+                        ? 'bg-green-500 text-white hover:bg-green-600' 
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Save Zone
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsCreatingZone(false);
+                      setCreatingZoneBus(null);
+                      setNewZonePoints([]);
+                    }}
+                    className="flex-1 px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Edit Mode Indicator */}
+            {editingZoneBus && (
+              <div className="mb-3 p-2 bg-amber-50 border border-amber-200 rounded text-xs">
+                <div className="font-semibold text-amber-700 mb-1">Editing Zone for {editingZoneBus}</div>
+                <div className="text-amber-600">Drag points to adjust. Right-click to delete point.</div>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => {
+                      const zone = userZones[editingZoneBus];
+                      if (zone && zone.points.length >= 3) {
+                        saveZone(editingZoneBus, zone.points, false);
+                      }
+                      setEditingZoneBus(null);
+                    }}
+                    className="flex-1 px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={() => {
+                      fetchUserZones(); // Revert changes
+                      setEditingZoneBus(null);
+                    }}
+                    className="flex-1 px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            <div className="space-y-1">
+              {uniqueBuses.filter(bus => bus.startsWith('Bus')).slice(0, 25).map((bus) => {
+                const busColor = getBusColor(bus);
+                const hasZone = !!userZones[bus];
+                const isActive = selectedBusFilter === bus || selectedZoneBus === bus;
+                const isEditing = editingZoneBus === bus;
+                
+                return (
+                  <div
                     key={bus}
-                    onClick={() => handleZoneClick(bus)}
-                    className={`flex items-center gap-2 w-full text-left px-1 py-0.5 rounded hover:bg-gray-100 transition-colors ${isActive ? 'bg-blue-50' : ''}`}
+                    className={`flex items-center gap-2 px-1 py-1 rounded transition-colors ${
+                      isActive ? 'bg-blue-50' : 'hover:bg-gray-50'
+                    } ${isEditing ? 'bg-amber-50' : ''}`}
                   >
                     <div
                       className="w-3 h-3 rounded-sm border border-white shadow-sm flex-shrink-0"
-                      style={{ backgroundColor: busColor, opacity: isActive ? 1 : 0.6 }}
+                      style={{ backgroundColor: busColor, opacity: hasZone ? 1 : 0.3 }}
                     />
-                    <span className={`text-xs ${isActive ? 'font-bold text-blue-700' : 'text-gray-600'}`}>
+                    <span className={`text-xs flex-1 ${isActive ? 'font-bold text-blue-700' : 'text-gray-600'}`}>
                       {bus.replace('Bus #', '#')}
                     </span>
-                  </button>
+                    
+                    {/* Zone Actions */}
+                    {hasZone ? (
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setEditingZoneBus(editingZoneBus === bus ? null : bus)}
+                          className={`px-1.5 py-0.5 text-xs rounded ${
+                            isEditing 
+                              ? 'bg-amber-500 text-white' 
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                          title="Edit zone"
+                        >
+                          ✎
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Delete zone for ${bus}?`)) {
+                              deleteZone(bus);
+                            }
+                          }}
+                          className="px-1.5 py-0.5 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
+                          title="Delete zone"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setIsCreatingZone(true);
+                          setCreatingZoneBus(bus);
+                          setNewZonePoints([]);
+                          setEditingZoneBus(null);
+                          toast.info(`Click on the map to draw zone for ${bus}`);
+                        }}
+                        disabled={isCreatingZone}
+                        className={`px-2 py-0.5 text-xs rounded ${
+                          isCreatingZone 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                        }`}
+                        title="Create zone"
+                      >
+                        + Zone
+                      </button>
+                    )}
+                  </div>
                 );
               })}
-              {uniqueBuses.length > 20 && (
+              {uniqueBuses.length > 25 && (
                 <div className="text-xs text-gray-400 text-center pt-1">
-                  +{uniqueBuses.length - 20} more
+                  +{uniqueBuses.length - 25} more
                 </div>
               )}
             </div>
