@@ -680,16 +680,24 @@ const BusRoutingMap = () => {
 
   const handleSearchCamper = (query) => {
     setSearchQuery(query);
-    if (query.trim() && searchFilteredCampers.length > 0) {
+    // Only filter the list, don't pan to pin until Enter is pressed
+  };
+
+  const handleSearchSubmit = () => {
+    // Pan to the first matching camper when Enter is pressed
+    if (searchQuery.trim() && searchFilteredCampers.length > 0) {
       const firstMatch = searchFilteredCampers[0];
       if (mapInstance && firstMatch.location) {
         mapInstance.panTo({
           lat: firstMatch.location.latitude,
           lng: firstMatch.location.longitude
         });
-        mapInstance.setZoom(15);
+        mapInstance.setZoom(17);
         setSelectedCamper(firstMatch);
+        toast.success(`Found: ${firstMatch.first_name} ${firstMatch.last_name}`);
       }
+    } else if (searchQuery.trim()) {
+      toast.error("No campers found matching your search");
     }
   };
 
