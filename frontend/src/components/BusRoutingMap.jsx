@@ -1005,11 +1005,7 @@ const BusRoutingMap = () => {
                 lat: selectedCamper.location.latitude,
                 lng: selectedCamper.location.longitude
               }}
-              onCloseClick={() => {
-                setSelectedCamper(null);
-                setShowShadowForm(false);
-                setShadowName("");
-              }}
+              onCloseClick={() => setSelectedCamper(null)}
               disableAutoPan={false}
               options={{
                 pixelOffset: new window.google.maps.Size(0, -5),
