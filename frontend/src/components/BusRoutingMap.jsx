@@ -390,6 +390,7 @@ const BusRoutingMap = () => {
     fetchBusInfo();
     fetchSeatAvailability();
     fetchUserZones(); // Fetch user-defined zones
+    fetchShadows(); // Fetch shadow staff
     
     const now = new Date();
     const tomorrow = new Date(now);
