@@ -236,4 +236,4 @@ REACT_APP_GOOGLE_MAPS_API_KEY=<google maps key>
 ---
 
 ## Last Updated
-January 2025 - Enhanced Seat Availability Excel Report with per-session availability columns and conditional formatting
+January 2025 - Map UX improvements: Added "Reset Map on Search Clear" feature, deleted obsolete BusZonePolygon.jsx component (replaced by user-drawn zones)
