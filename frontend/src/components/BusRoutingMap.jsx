@@ -1333,9 +1333,15 @@ const BusRoutingMap = () => {
                 <div className="relative">
                   <Input
                     type="text"
-                    placeholder="Search camper, address, town..."
+                    placeholder="Search camper, address... (Enter to find)"
                     value={searchQuery}
                     onChange={(e) => handleSearchCamper(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSearchSubmit();
+                      }
+                    }}
                     className="w-full h-12 pl-10"
                     data-testid="search-camper"
                   />
