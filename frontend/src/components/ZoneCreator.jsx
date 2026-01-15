@@ -23,6 +23,12 @@ const ZoneCreator = ({
   const polylineRef = useRef(null);
   const markersRef = useRef([]);
   const clickListenerRef = useRef(null);
+  const pointsRef = useRef(points);
+
+  // Keep pointsRef in sync
+  useEffect(() => {
+    pointsRef.current = points;
+  }, [points]);
 
   // Clear all map objects
   const clearAll = useCallback(() => {
@@ -53,75 +59,40 @@ const ZoneCreator = ({
     }
   }, []);
 
-  // Create vertex marker
-  const createMarker = useCallback((point, index) => {
-    if (!map) return null;
-
-    const marker = new google.maps.Marker({
-      position: point,
-      map: map,
-      draggable: true,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: index === 0 ? 10 : 8,
-        fillColor: index === 0 ? '#00FF00' : '#FFFFFF',
-        fillOpacity: 1,
-        strokeColor: color,
-        strokeWeight: 3,
-      },
-      zIndex: 2000 + index,
-      title: index === 0 ? 'Start point (click to close polygon)' : `Point ${index + 1}`,
-    });
-
-    // Drag updates
-    marker.addListener('drag', () => {
-      const newPoints = points.map((p, i) => {
-        if (i === index) {
-          return { lat: marker.getPosition().lat(), lng: marker.getPosition().lng() };
-        }
-        return p;
-      });
-      onPointsChange(newPoints);
-    });
-
-    // Click on first marker to close polygon (if 3+ points)
-    if (index === 0 && points.length >= 3) {
-      marker.addListener('click', () => {
-        if (onComplete) {
-          onComplete();
-        }
-      });
-    }
-
-    // Right-click to remove point
-    marker.addListener('rightclick', () => {
-      const newPoints = points.filter((_, i) => i !== index);
-      onPointsChange(newPoints);
-    });
-
-    return marker;
-  }, [map, points, color, onPointsChange, onComplete]);
-
-  // Main effect
+  // Set up map click listener
   useEffect(() => {
-    if (!map) return;
-
-    if (!isActive) {
-      clearAll();
+    if (!map || !isActive) {
+      if (clickListenerRef.current) {
+        google.maps.event.removeListener(clickListenerRef.current);
+        clickListenerRef.current = null;
+      }
       return;
     }
 
-    // Set up click listener for adding points
+    // Set up click listener using ref to get latest points
     if (!clickListenerRef.current) {
       clickListenerRef.current = map.addListener('click', (e) => {
         if (e.latLng) {
           const newPoint = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-          onPointsChange([...points, newPoint]);
+          const currentPoints = pointsRef.current;
+          onPointsChange([...currentPoints, newPoint]);
         }
       });
     }
 
-    // Clear existing markers and recreate
+    return () => {
+      if (clickListenerRef.current) {
+        google.maps.event.removeListener(clickListenerRef.current);
+        clickListenerRef.current = null;
+      }
+    };
+  }, [map, isActive, onPointsChange]);
+
+  // Update markers and shapes when points change
+  useEffect(() => {
+    if (!map || !isActive) return;
+
+    // Clear existing markers
     markersRef.current.forEach(m => {
       google.maps.event.clearInstanceListeners(m);
       m.setMap(null);
@@ -130,10 +101,51 @@ const ZoneCreator = ({
 
     // Create markers for each point
     points.forEach((point, index) => {
-      const marker = createMarker(point, index);
-      if (marker) {
-        markersRef.current.push(marker);
+      const marker = new google.maps.Marker({
+        position: point,
+        map: map,
+        draggable: true,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: index === 0 ? 10 : 8,
+          fillColor: index === 0 ? '#00FF00' : '#FFFFFF',
+          fillOpacity: 1,
+          strokeColor: color,
+          strokeWeight: 3,
+        },
+        zIndex: 2000 + index,
+        title: index === 0 ? 'Click to complete zone' : `Point ${index + 1} (drag to move)`,
+      });
+
+      // Handle drag end
+      marker.addListener('dragend', () => {
+        const newPoints = pointsRef.current.map((p, i) => {
+          if (i === index) {
+            return { lat: marker.getPosition().lat(), lng: marker.getPosition().lng() };
+          }
+          return p;
+        });
+        onPointsChange(newPoints);
+      });
+
+      // Click on first marker to close polygon (if 3+ points)
+      if (index === 0 && points.length >= 3) {
+        marker.addListener('click', (e) => {
+          e.stop(); // Prevent map click
+          if (onComplete) {
+            onComplete();
+          }
+        });
       }
+
+      // Right-click to remove point
+      marker.addListener('rightclick', (e) => {
+        e.stop();
+        const newPoints = pointsRef.current.filter((_, i) => i !== index);
+        onPointsChange(newPoints);
+      });
+
+      markersRef.current.push(marker);
     });
 
     // Update polygon/polyline preview
@@ -154,6 +166,7 @@ const ZoneCreator = ({
           strokeColor: color,
           strokeOpacity: 0.8,
           strokeWeight: 2,
+          clickable: false,
           zIndex: 1000,
         });
         polygonRef.current.setMap(map);
@@ -177,25 +190,27 @@ const ZoneCreator = ({
         });
         polylineRef.current.setMap(map);
       }
+    } else {
+      // No points - clear shapes
+      if (polygonRef.current) {
+        polygonRef.current.setMap(null);
+        polygonRef.current = null;
+      }
+      if (polylineRef.current) {
+        polylineRef.current.setMap(null);
+        polylineRef.current = null;
+      }
     }
-
-    return () => {
-      // Don't clean up on re-render, only when deactivated
-    };
-  }, [map, isActive, points, color, createMarker, onPointsChange, clearAll]);
+  }, [map, isActive, points, color, onPointsChange, onComplete]);
 
   // Cleanup on unmount or deactivation
-  useEffect(() => {
-    return () => {
-      clearAll();
-    };
-  }, [clearAll]);
-
-  // Clean up when deactivated
   useEffect(() => {
     if (!isActive) {
       clearAll();
     }
+    return () => {
+      clearAll();
+    };
   }, [isActive, clearAll]);
 
   return null;
