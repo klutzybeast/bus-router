@@ -1352,13 +1352,14 @@ const BusRoutingMap = () => {
                       variant="ghost"
                       size="sm"
                       className="absolute right-2 top-2 h-8 w-8 p-0"
+                      data-testid="clear-search-btn"
                       onClick={() => {
                         setSearchQuery("");
                         setSelectedCamper(null);
                         // Reset map to initial view
                         if (mapInstance) {
-                          mapInstance.panTo({ lat: 40.7128, lng: -73.7949 });
-                          mapInstance.setZoom(11);
+                          mapInstance.panTo(INITIAL_MAP_CENTER);
+                          mapInstance.setZoom(INITIAL_ZOOM);
                         }
                       }}
                     >
