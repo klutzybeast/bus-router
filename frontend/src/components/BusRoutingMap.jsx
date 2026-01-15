@@ -1801,6 +1801,17 @@ const BusRoutingMap = () => {
                   Configure Bus Staff
                 </Button>
 
+                {/* Add Shadow Button */}
+                <Button
+                  variant="outline"
+                  className="w-full h-12 text-base bg-purple-50 hover:bg-purple-100 border-purple-600 text-purple-700"
+                  onClick={() => setShowShadowDialog(true)}
+                  data-testid="add-shadow-btn"
+                >
+                  <UserPlus className="w-5 h-5 mr-2" />
+                  Add Shadow Staff
+                </Button>
+
                 {/* Bus Zones Toggle */}
                 <Button
                   variant="outline"
