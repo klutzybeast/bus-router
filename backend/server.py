@@ -3359,11 +3359,17 @@ async def auto_sync_campminder():
             am_method = row.get('Trans-AMDropOffMethod', '')
             pm_bus_raw = row.get('2026Transportation M PM Bus', '').strip()
             
+            # Debug: log Brian
+            if 'brian' in row.get('First Name', '').lower() and 'stein' in row.get('Last Name', '').lower():
+                logger.info(f"DEBUG Brian Stein: AM method='{am_method}', PM bus='{pm_bus_raw}'")
+            
             # Include if: AM Bus method OR has valid PM bus (for car drop-off AM cases)
             # Case-insensitive check for AM Bus
             has_pm_bus = pm_bus_raw and 'NONE' not in pm_bus_raw.upper() and not any(x in pm_bus_raw.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM'])
             
             if 'am bus' not in am_method.lower() and not has_pm_bus:
+                if 'brian' in row.get('First Name', '').lower():
+                    logger.info(f"DEBUG Brian filtered out: am_method='{am_method}', has_pm_bus={has_pm_bus}")
                 continue
             
             # Get all required fields first
