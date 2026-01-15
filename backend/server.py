@@ -2525,7 +2525,7 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
         if result.modified_count > 0:
             # INSTANTLY update Google Sheet via webhook (using GET with query params)
             # HARDCODED URL to avoid environment variable caching issues in production
-            webhook_url = "https://script.google.com/macros/s/AKfycbwKkqq4krzHO0iykAo6eXBQOgVH9ovWpyMIaW4c_5FNrGmTaz8kZ0-igKvOukyOu1FA/exec"
+            webhook_url = "https://script.google.com/macros/s/AKfycbw8JoFhHDgyigOLy8Y6jbKxC-dB-x_FivZHVTsI29fUzcRZmJ--dz3EmpVkTOEWXSkn/exec"
             print(f"=== WEBHOOK DEBUG ===")
             print(f"Using hardcoded webhook URL")
             
