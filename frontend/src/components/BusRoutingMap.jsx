@@ -1137,8 +1137,13 @@ const BusRoutingMap = () => {
               <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
                 <div className="font-semibold text-blue-700 mb-1">Creating Zone for {creatingZoneBus}</div>
                 <div className="text-blue-600">Click on map to add points ({newZonePoints.length} points)</div>
+                <div className="text-gray-500 text-xs mt-1">
+                  • Drag points to adjust position
+                  • Right-click to delete a point
+                  • Need at least 3 points
+                </div>
                 {newZonePoints.length >= 3 && (
-                  <div className="text-green-600 mt-1">Click the green start point to complete</div>
+                  <div className="text-green-600 mt-1 font-medium">Ready to save! Click "Save Zone" to complete.</div>
                 )}
                 <div className="flex gap-2 mt-2">
                   <button
