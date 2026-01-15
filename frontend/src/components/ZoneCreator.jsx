@@ -5,27 +5,26 @@ import { useMap } from '@vis.gl/react-google-maps';
 /**
  * ZoneCreator - Allows users to create new zones by clicking on the map
  * 
- * Usage:
- * - Click on map to add polygon vertices
- * - Points appear as markers that can be dragged
- * - Minimum 3 points required to form a zone
- * - Preview polygon shown while creating
+ * Flow:
+ * - Click on map to add vertices (shown as draggable markers)
+ * - Lines connect the points as you add them (NOT auto-closing)
+ * - Drag points to adjust position while creating
+ * - Click "Save Zone" to complete and close the polygon
+ * - Right-click on a point to delete it
  */
 const ZoneCreator = ({ 
   isActive = false,
   points = [],
   color = '#FF0000',
   onPointsChange,
-  onComplete,
 }) => {
   const map = useMap();
-  const polygonRef = useRef(null);
   const polylineRef = useRef(null);
   const markersRef = useRef([]);
   const clickListenerRef = useRef(null);
   const pointsRef = useRef(points);
 
-  // Keep pointsRef in sync
+  // Keep pointsRef in sync with props
   useEffect(() => {
     pointsRef.current = points;
   }, [points]);
@@ -38,13 +37,6 @@ const ZoneCreator = ({
       marker.setMap(null);
     });
     markersRef.current = [];
-
-    // Clear polygon
-    if (polygonRef.current) {
-      google.maps.event.clearInstanceListeners(polygonRef.current);
-      polygonRef.current.setMap(null);
-      polygonRef.current = null;
-    }
 
     // Clear polyline
     if (polylineRef.current) {
@@ -88,7 +80,7 @@ const ZoneCreator = ({
     };
   }, [map, isActive, onPointsChange]);
 
-  // Update markers and shapes when points change
+  // Update markers and polyline when points change
   useEffect(() => {
     if (!map || !isActive) return;
 
@@ -99,25 +91,28 @@ const ZoneCreator = ({
     });
     markersRef.current = [];
 
-    // Create markers for each point
+    // Create markers for each point - all draggable
     points.forEach((point, index) => {
+      const isFirst = index === 0;
+      const isLast = index === points.length - 1;
+      
       const marker = new google.maps.Marker({
         position: point,
         map: map,
         draggable: true,
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
-          scale: index === 0 ? 10 : 8,
-          fillColor: index === 0 ? '#00FF00' : '#FFFFFF',
+          scale: isFirst ? 10 : 8,
+          fillColor: isFirst ? '#00FF00' : (isLast ? '#FFD700' : '#FFFFFF'),
           fillOpacity: 1,
           strokeColor: color,
           strokeWeight: 3,
         },
         zIndex: 2000 + index,
-        title: index === 0 ? 'Click to complete zone' : `Point ${index + 1} (drag to move)`,
+        title: isFirst ? 'Start point' : (isLast ? 'Last point (drag to adjust)' : `Point ${index + 1}`),
       });
 
-      // Handle drag end
+      // Handle drag end - update points
       marker.addListener('dragend', () => {
         const newPoints = pointsRef.current.map((p, i) => {
           if (i === index) {
@@ -127,16 +122,6 @@ const ZoneCreator = ({
         });
         onPointsChange(newPoints);
       });
-
-      // Click on first marker to close polygon (if 3+ points)
-      if (index === 0 && points.length >= 3) {
-        marker.addListener('click', (e) => {
-          e.stop(); // Prevent map click
-          if (onComplete) {
-            onComplete();
-          }
-        });
-      }
 
       // Right-click to remove point
       marker.addListener('rightclick', (e) => {
@@ -148,60 +133,28 @@ const ZoneCreator = ({
       markersRef.current.push(marker);
     });
 
-    // Update polygon/polyline preview
-    if (points.length >= 3) {
-      // Show closed polygon
-      if (polylineRef.current) {
-        polylineRef.current.setMap(null);
-        polylineRef.current = null;
-      }
-
-      if (polygonRef.current) {
-        polygonRef.current.setPath(points);
-      } else {
-        polygonRef.current = new google.maps.Polygon({
-          paths: points,
-          fillColor: color,
-          fillOpacity: 0.2,
-          strokeColor: color,
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          clickable: false,
-          zIndex: 1000,
-        });
-        polygonRef.current.setMap(map);
-      }
-    } else if (points.length >= 1) {
-      // Show polyline for < 3 points
-      if (polygonRef.current) {
-        polygonRef.current.setMap(null);
-        polygonRef.current = null;
-      }
-
+    // Update polyline - show OPEN path (not closed)
+    if (points.length >= 1) {
       if (polylineRef.current) {
         polylineRef.current.setPath(points);
       } else {
         polylineRef.current = new google.maps.Polyline({
           path: points,
           strokeColor: color,
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
+          strokeOpacity: 0.9,
+          strokeWeight: 3,
           zIndex: 1000,
         });
         polylineRef.current.setMap(map);
       }
     } else {
-      // No points - clear shapes
-      if (polygonRef.current) {
-        polygonRef.current.setMap(null);
-        polygonRef.current = null;
-      }
+      // No points - clear polyline
       if (polylineRef.current) {
         polylineRef.current.setMap(null);
         polylineRef.current = null;
       }
     }
-  }, [map, isActive, points, color, onPointsChange, onComplete]);
+  }, [map, isActive, points, color, onPointsChange]);
 
   // Cleanup on unmount or deactivation
   useEffect(() => {
