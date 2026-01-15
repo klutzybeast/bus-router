@@ -106,9 +106,14 @@ const BusRoutingMap = () => {
     location_name: ""
   });
 
-  // Bus Zone State
+  // Bus Zone State - User-defined zones
   const [showBusZones, setShowBusZones] = useState(false);
   const [selectedZoneBus, setSelectedZoneBus] = useState(null);
+  const [userZones, setUserZones] = useState({}); // { busNumber: { points: [], color, name } }
+  const [isCreatingZone, setIsCreatingZone] = useState(false);
+  const [creatingZoneBus, setCreatingZoneBus] = useState(null);
+  const [newZonePoints, setNewZonePoints] = useState([]);
+  const [editingZoneBus, setEditingZoneBus] = useState(null);
 
   // Bus Info State (capacities)
   const [busInfoMap, setBusInfoMap] = useState({});
@@ -116,7 +121,64 @@ const BusRoutingMap = () => {
   // Seat availability from backend (accurate counts including campers without addresses)
   const [busSeatAvailability, setBusSeatAvailability] = useState({});
 
-  // Group campers by bus number for zones
+  // Fetch user-defined zones from backend
+  const fetchUserZones = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/bus-zones`);
+      const zonesArray = response.data.zones || [];
+      const zonesMap = {};
+      zonesArray.forEach(zone => {
+        zonesMap[zone.bus_number] = {
+          points: zone.points || [],
+          color: zone.color || getBusColor(zone.bus_number),
+          name: zone.name || `${zone.bus_number} Zone`
+        };
+      });
+      setUserZones(zonesMap);
+    } catch (error) {
+      console.error("Error fetching user zones:", error);
+    }
+  }, []);
+
+  // Save a zone to the backend
+  const saveZone = useCallback(async (busNumber, points, isNew = false) => {
+    try {
+      const color = getBusColor(busNumber);
+      if (isNew) {
+        await axios.post(`${API_BASE_URL}/bus-zones`, {
+          bus_number: busNumber,
+          points: points,
+          color: color,
+          name: `${busNumber} Zone`
+        });
+        toast.success(`Zone created for ${busNumber}`);
+      } else {
+        await axios.put(`${API_BASE_URL}/bus-zones/${encodeURIComponent(busNumber)}`, {
+          points: points
+        });
+        toast.success(`Zone updated for ${busNumber}`);
+      }
+      // Refresh zones
+      await fetchUserZones();
+    } catch (error) {
+      console.error("Error saving zone:", error);
+      toast.error(`Failed to save zone: ${error.response?.data?.detail || error.message}`);
+    }
+  }, [fetchUserZones]);
+
+  // Delete a zone
+  const deleteZone = useCallback(async (busNumber) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/bus-zones/${encodeURIComponent(busNumber)}`);
+      toast.success(`Zone deleted for ${busNumber}`);
+      await fetchUserZones();
+    } catch (error) {
+      console.error("Error deleting zone:", error);
+      toast.error(`Failed to delete zone: ${error.response?.data?.detail || error.message}`);
+    }
+  }, [fetchUserZones]);
+
+  // Group campers by bus number (for reference, not for auto-zones anymore)
   const campersByBus = useMemo(() => {
     const grouped = {};
     campers.forEach(camper => {
