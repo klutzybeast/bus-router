@@ -1186,6 +1186,9 @@ async def get_seat_availability_json():
             ]
         }).to_list(None)
         
+        # Get all shadows (they take bus seats too)
+        shadows = await db.shadows.find({}).to_list(None)
+        
         # Get staff configurations from database
         staff_configs = await db.bus_staff.find({}).to_list(None)
         staff_dict = {c['bus_number']: c for c in staff_configs}
@@ -1194,6 +1197,7 @@ async def get_seat_availability_json():
         from collections import defaultdict
         bus_data = defaultdict(lambda: {
             'h1_am': 0, 'h1_pm': 0, 'h2_am': 0, 'h2_pm': 0,
+            'shadows': 0,
             'capacity': 30, 'location': '', 'driver': 'TBD', 'counselor': 'TBD'
         })
         
@@ -1234,6 +1238,22 @@ async def get_seat_availability_json():
                     bus_data[pm_bus]['h1_pm'] += 1
                 if halves['h2']:
                     bus_data[pm_bus]['h2_pm'] += 1
+        
+        # Process shadows - they inherit the session from their linked camper
+        for shadow in shadows:
+            bus_number = shadow.get('bus_number', '')
+            session = shadow.get('session', '')
+            halves = parse_session(session)
+            
+            if bus_number and bus_number.startswith('Bus'):
+                bus_data[bus_number]['shadows'] += 1
+                # Shadows take both AM and PM seats (same as their linked camper)
+                if halves['h1']:
+                    bus_data[bus_number]['h1_am'] += 1
+                    bus_data[bus_number]['h1_pm'] += 1
+                if halves['h2']:
+                    bus_data[bus_number]['h2_am'] += 1
+                    bus_data[bus_number]['h2_pm'] += 1
         
         # Add capacity and staff info
         result = {}
