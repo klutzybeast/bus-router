@@ -562,25 +562,10 @@ const BusRoutingMap = () => {
   const handleMarkerClick = useCallback((camper) => {
     setSelectedCamper(camper);
     
-    // Zoom in and center on the clicked pin with InfoWindow in middle of screen
-    if (mapInstance && camper.location) {
-      // First zoom in
-      mapInstance.setZoom(18);
-      
-      // Then pan to center the pin in the visible area
-      // Account for InfoWindow appearing above the pin by shifting center south slightly
-      setTimeout(() => {
-        mapInstance.panTo({
-          lat: camper.location.latitude,
-          lng: camper.location.longitude
-        });
-      }, 100);
-    }
-    
     if (window.innerWidth < 768) {
       setIsPanelOpen(false);
     }
-  }, [mapInstance]);
+  }, []);
 
   const handleBusFilter = (busNumber) => {
     if (selectedBusFilter === busNumber) {
