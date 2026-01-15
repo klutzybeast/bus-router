@@ -17,7 +17,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import BusZonePolygon from "./BusZonePolygon";
 import EditableBusZone from "./EditableBusZone";
 import ZoneCreator from "./ZoneCreator";
 
