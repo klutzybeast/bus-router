@@ -50,9 +50,10 @@ const MapController = ({ selectedCamper, onMapReady }) => {
   useEffect(() => {
     if (map && selectedCamper && selectedCamper.location) {
       // Zoom in and center on the selected pin
-      // Offset the center south so the pin and InfoWindow are both visible and centered
-      const latOffset = -0.0005; // Shift center south to account for InfoWindow above pin
-      map.setZoom(18);
+      // Use zoom 17 to show more surrounding area while still readable
+      // Offset center south so the pin and InfoWindow are both visible
+      const latOffset = -0.001; // Shift center south to show pin below InfoWindow
+      map.setZoom(17);
       map.panTo({
         lat: selectedCamper.location.latitude + latOffset,
         lng: selectedCamper.location.longitude
