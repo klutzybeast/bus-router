@@ -1112,14 +1112,6 @@ const BusRoutingMap = () => {
               points={newZonePoints}
               color={getBusColor(creatingZoneBus)}
               onPointsChange={setNewZonePoints}
-              onComplete={() => {
-                if (newZonePoints.length >= 3) {
-                  saveZone(creatingZoneBus, newZonePoints, true);
-                  setIsCreatingZone(false);
-                  setCreatingZoneBus(null);
-                  setNewZonePoints([]);
-                }
-              }}
             />
           )}
         </Map>
