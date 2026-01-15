@@ -538,20 +538,18 @@ const BusRoutingMap = () => {
   const handleMarkerClick = useCallback((camper) => {
     setSelectedCamper(camper);
     
-    // Zoom in and center on the clicked pin
+    // Zoom in and center on the clicked pin with InfoWindow in middle of screen
     if (mapInstance && camper.location) {
-      // Center the map so the InfoWindow appears in the middle of the screen
-      // Offset latitude north so the pin + InfoWindow are centered
-      const offsetLat = camper.location.latitude + 0.002;
+      // Calculate offset to position the InfoWindow in center of visible map area
+      // The InfoWindow opens above the pin, so we need to shift the center down
+      // so that the pin + InfoWindow combo appears centered
+      const latOffset = 0.0008; // Shift center slightly south so InfoWindow appears centered
       
-      // Smooth transition: first pan, then zoom
+      mapInstance.setZoom(18); // Zoom in very close to see the address
       mapInstance.panTo({
-        lat: offsetLat,
+        lat: camper.location.latitude - latOffset,
         lng: camper.location.longitude
       });
-      
-      // Zoom in close enough to see the address clearly but still show surrounding pins
-      mapInstance.setZoom(17);
     }
     
     if (window.innerWidth < 768) {
