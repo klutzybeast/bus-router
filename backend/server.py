@@ -2537,8 +2537,8 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
                     
                     params = {
                         "action": "updateBus",
-                        "first_name": camper.get('first_name', ''),
-                        "last_name": camper.get('last_name', ''),
+                        "first_name": camper.get('first_name', '').strip(),
+                        "last_name": camper.get('last_name', '').strip(),
                         "am_bus_number": am_bus_to_send,
                         "pm_bus_number": pm_bus_to_send
                     }
