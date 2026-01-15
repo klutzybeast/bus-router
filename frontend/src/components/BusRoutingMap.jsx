@@ -122,8 +122,10 @@ const BusRoutingMap = () => {
 
   // Shadow staff state
   const [shadows, setShadows] = useState({}); // { camper_id: shadow_info }
-  const [showShadowForm, setShowShadowForm] = useState(false);
+  const [shadowsList, setShadowsList] = useState([]); // Array of all shadows
+  const [showShadowDialog, setShowShadowDialog] = useState(false);
   const [shadowName, setShadowName] = useState("");
+  const [selectedShadowBus, setSelectedShadowBus] = useState("");
   const [selectedShadowCamper, setSelectedShadowCamper] = useState("");
 
   // Fetch shadows from backend
@@ -136,28 +138,51 @@ const BusRoutingMap = () => {
         shadowsMap[shadow.camper_id] = shadow;
       });
       setShadows(shadowsMap);
+      setShadowsList(shadowsArray);
     } catch (error) {
       console.error("Error fetching shadows:", error);
     }
   }, []);
 
-  // Save shadow
-  const handleSaveShadow = async (camperId) => {
+  // Get campers on a specific bus (for shadow dropdown)
+  const getCampersOnBus = useCallback((busNumber) => {
+    if (!busNumber) return [];
+    return campers.filter(c => 
+      c.am_bus_number === busNumber || c.pm_bus_number === busNumber
+    ).sort((a, b) => 
+      `${a.last_name} ${a.first_name}`.localeCompare(`${b.last_name} ${b.first_name}`)
+    );
+  }, [campers]);
+
+  // Save shadow from dialog
+  const handleSaveShadowDialog = async () => {
     if (!shadowName.trim()) {
       toast.error("Please enter a shadow name");
+      return;
+    }
+    if (!selectedShadowBus) {
+      toast.error("Please select a bus");
+      return;
+    }
+    if (!selectedShadowCamper) {
+      toast.error("Please select a child to link");
       return;
     }
     try {
       toast.loading("Saving shadow...");
       await axios.post(`${API}/shadows`, {
         shadow_name: shadowName.trim(),
-        camper_id: camperId
+        camper_id: selectedShadowCamper
       });
       toast.dismiss();
       toast.success("Shadow saved successfully");
+      // Reset form
       setShadowName("");
-      setShowShadowForm(false);
+      setSelectedShadowBus("");
+      setSelectedShadowCamper("");
+      // Refresh data
       await fetchShadows();
+      await fetchSeatAvailability(); // Update seat counts
     } catch (error) {
       toast.dismiss();
       toast.error(error.response?.data?.detail || "Failed to save shadow");
@@ -172,6 +197,7 @@ const BusRoutingMap = () => {
       toast.dismiss();
       toast.success("Shadow removed");
       await fetchShadows();
+      await fetchSeatAvailability(); // Update seat counts
     } catch (error) {
       toast.dismiss();
       toast.error("Failed to remove shadow");
