@@ -3422,19 +3422,20 @@ async def auto_sync_campminder():
                     logger.info(f"AUTO-ASSIGNED (new): {first_name} {last_name} → {final_am_bus}")
                     
                     # SYNC AUTO-ASSIGNMENT BACK TO GOOGLE SHEET
+                    # Trim names to match sheet lookup (handles trailing spaces)
                     try:
                         webhook_url = "https://script.google.com/macros/s/AKfycbw8JoFhHDgyigOLy8Y6jbKxC-dB-x_FivZHVTsI29fUzcRZmJ--dz3EmpVkTOEWXSkn/exec"
                         async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as webhook_client:
                             params = {
                                 "action": "updateBus",
-                                "first_name": first_name,
-                                "last_name": last_name,
+                                "first_name": first_name.strip(),
+                                "last_name": last_name.strip(),
                                 "am_bus_number": final_am_bus,
                                 "pm_bus_number": final_am_bus  # Use same for PM initially
                             }
                             webhook_response = await webhook_client.get(webhook_url, params=params)
                             if webhook_response.status_code == 200:
-                                logger.info(f"✓ Auto-assignment synced to sheet: {first_name} {last_name} → {final_am_bus}")
+                                logger.info(f"✓ Auto-assignment synced to sheet: {first_name.strip()} {last_name.strip()} → {final_am_bus}")
                             else:
                                 logger.warning(f"Sheet sync failed for {first_name} {last_name}: {webhook_response.status_code}")
                     except Exception as we:
