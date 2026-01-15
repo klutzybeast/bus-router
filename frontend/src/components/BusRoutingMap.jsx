@@ -37,6 +37,30 @@ const BUS_COLORS = {
 
 const getBusColor = (busNumber) => BUS_COLORS[busNumber] || '#000000';
 
+// Component to handle map controls using the useMap hook
+const MapController = ({ selectedCamper, onMapReady }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (map) {
+      onMapReady(map);
+    }
+  }, [map, onMapReady]);
+  
+  useEffect(() => {
+    if (map && selectedCamper && selectedCamper.location) {
+      // Zoom in and center on the selected pin
+      map.setZoom(18);
+      map.panTo({
+        lat: selectedCamper.location.latitude,
+        lng: selectedCamper.location.longitude
+      });
+    }
+  }, [map, selectedCamper]);
+  
+  return null;
+};
+
 const BusRoutingMap = () => {
   const [campers, setCampers] = useState([]);
   const [campersNeedingAddress, setCampersNeedingAddress] = useState([]);
