@@ -124,7 +124,7 @@ const BusRoutingMap = () => {
   // Fetch user-defined zones from backend
   const fetchUserZones = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/bus-zones`);
+      const response = await axios.get(`${BACKEND_URL}/api/bus-zones`);
       const zonesArray = response.data.zones || [];
       const zonesMap = {};
       zonesArray.forEach(zone => {
@@ -145,7 +145,7 @@ const BusRoutingMap = () => {
     try {
       const color = getBusColor(busNumber);
       if (isNew) {
-        await axios.post(`${API_BASE_URL}/bus-zones`, {
+        await axios.post(`${BACKEND_URL}/api/bus-zones`, {
           bus_number: busNumber,
           points: points,
           color: color,
@@ -153,7 +153,7 @@ const BusRoutingMap = () => {
         });
         toast.success(`Zone created for ${busNumber}`);
       } else {
-        await axios.put(`${API_BASE_URL}/bus-zones/${encodeURIComponent(busNumber)}`, {
+        await axios.put(`${BACKEND_URL}/api/bus-zones/${encodeURIComponent(busNumber)}`, {
           points: points
         });
         toast.success(`Zone updated for ${busNumber}`);
@@ -169,7 +169,7 @@ const BusRoutingMap = () => {
   // Delete a zone
   const deleteZone = useCallback(async (busNumber) => {
     try {
-      await axios.delete(`${API_BASE_URL}/bus-zones/${encodeURIComponent(busNumber)}`);
+      await axios.delete(`${BACKEND_URL}/api/bus-zones/${encodeURIComponent(busNumber)}`);
       toast.success(`Zone deleted for ${busNumber}`);
       await fetchUserZones();
     } catch (error) {
