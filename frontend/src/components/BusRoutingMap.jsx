@@ -1691,9 +1691,11 @@ const BusRoutingMap = () => {
                   onClick={() => {
                     setShowBusZones(!showBusZones);
                     if (!showBusZones) {
-                      toast.success("Bus zones enabled - click a zone to highlight all stops");
+                      toast.success("Bus zones panel opened - create or edit zones for each bus");
                     } else {
                       setSelectedZoneBus(null);
+                      setIsCreatingZone(false);
+                      setEditingZoneBus(null);
                       toast.info("Bus zones hidden");
                     }
                   }}
@@ -1707,7 +1709,7 @@ const BusRoutingMap = () => {
                   ) : (
                     <>
                       <Layers className="w-5 h-5 mr-2" />
-                      Show Bus Zones
+                      Manage Bus Zones
                     </>
                   )}
                 </Button>
