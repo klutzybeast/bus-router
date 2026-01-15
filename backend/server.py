@@ -1701,6 +1701,161 @@ async def delete_bus_staff(bus_number: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ============================================
+# BUS ZONES ENDPOINTS (User-defined zones)
+# ============================================
+
+class ZonePoint(BaseModel):
+    lat: float
+    lng: float
+
+class BusZoneCreate(BaseModel):
+    bus_number: str
+    points: List[ZonePoint]
+    name: Optional[str] = None
+    color: Optional[str] = None
+
+class BusZoneUpdate(BaseModel):
+    points: Optional[List[ZonePoint]] = None
+    name: Optional[str] = None
+    color: Optional[str] = None
+
+@api_router.get("/bus-zones")
+async def get_bus_zones():
+    """Get all user-defined bus zones"""
+    try:
+        zones = await db.bus_zones.find({}).to_list(None)
+        # Convert ObjectId to string and return
+        result = []
+        for zone in zones:
+            result.append({
+                "id": str(zone.get("_id", "")),
+                "bus_number": zone.get("bus_number"),
+                "points": zone.get("points", []),
+                "name": zone.get("name", ""),
+                "color": zone.get("color", ""),
+                "created_at": zone.get("created_at"),
+                "updated_at": zone.get("updated_at")
+            })
+        return {"zones": result}
+    except Exception as e:
+        logging.error(f"Error getting bus zones: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/bus-zones/{bus_number}")
+async def get_bus_zone(bus_number: str):
+    """Get zone for a specific bus"""
+    try:
+        zone = await db.bus_zones.find_one({"bus_number": bus_number})
+        if not zone:
+            return {"zone": None}
+        return {
+            "zone": {
+                "id": str(zone.get("_id", "")),
+                "bus_number": zone.get("bus_number"),
+                "points": zone.get("points", []),
+                "name": zone.get("name", ""),
+                "color": zone.get("color", ""),
+                "created_at": zone.get("created_at"),
+                "updated_at": zone.get("updated_at")
+            }
+        }
+    except Exception as e:
+        logging.error(f"Error getting bus zone: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/bus-zones")
+async def create_bus_zone(zone_data: BusZoneCreate):
+    """Create a new bus zone (one zone per bus)"""
+    try:
+        # Check if zone already exists for this bus
+        existing = await db.bus_zones.find_one({"bus_number": zone_data.bus_number})
+        if existing:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Zone already exists for {zone_data.bus_number}. Use PUT to update."
+            )
+        
+        # Create new zone
+        zone_doc = {
+            "bus_number": zone_data.bus_number,
+            "points": [{"lat": p.lat, "lng": p.lng} for p in zone_data.points],
+            "name": zone_data.name or f"{zone_data.bus_number} Zone",
+            "color": zone_data.color or "",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        result = await db.bus_zones.insert_one(zone_doc)
+        zone_doc["id"] = str(result.inserted_id)
+        del zone_doc["_id"] if "_id" in zone_doc else None
+        
+        return {"status": "success", "zone": zone_doc}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating bus zone: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/bus-zones/{bus_number}")
+async def update_bus_zone(bus_number: str, zone_data: BusZoneUpdate):
+    """Update an existing bus zone"""
+    try:
+        # Find existing zone
+        existing = await db.bus_zones.find_one({"bus_number": bus_number})
+        if not existing:
+            raise HTTPException(status_code=404, detail=f"No zone found for {bus_number}")
+        
+        # Build update document
+        update_doc = {"updated_at": datetime.now(timezone.utc).isoformat()}
+        
+        if zone_data.points is not None:
+            update_doc["points"] = [{"lat": p.lat, "lng": p.lng} for p in zone_data.points]
+        if zone_data.name is not None:
+            update_doc["name"] = zone_data.name
+        if zone_data.color is not None:
+            update_doc["color"] = zone_data.color
+        
+        await db.bus_zones.update_one(
+            {"bus_number": bus_number},
+            {"$set": update_doc}
+        )
+        
+        # Fetch updated zone
+        updated = await db.bus_zones.find_one({"bus_number": bus_number})
+        return {
+            "status": "success",
+            "zone": {
+                "id": str(updated.get("_id", "")),
+                "bus_number": updated.get("bus_number"),
+                "points": updated.get("points", []),
+                "name": updated.get("name", ""),
+                "color": updated.get("color", ""),
+                "created_at": updated.get("created_at"),
+                "updated_at": updated.get("updated_at")
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating bus zone: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/bus-zones/{bus_number}")
+async def delete_bus_zone(bus_number: str):
+    """Delete a bus zone"""
+    try:
+        result = await db.bus_zones.delete_one({"bus_number": bus_number})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail=f"No zone found for {bus_number}")
+        return {"status": "success", "message": f"Zone for {bus_number} deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting bus zone: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api_router.get("/buses")
 async def get_buses():
     """Get all buses with their info including home locations and staff"""
