@@ -713,9 +713,6 @@ const BusRoutingMap = () => {
 
   const handleMarkerClick = useCallback((camper) => {
     setSelectedCamper(camper);
-    // Reset shadow form when switching campers
-    setShowShadowForm(false);
-    setShadowName("");
     
     if (window.innerWidth < 768) {
       setIsPanelOpen(false);
