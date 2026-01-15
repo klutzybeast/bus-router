@@ -120,6 +120,64 @@ const BusRoutingMap = () => {
   // Seat availability from backend (accurate counts including campers without addresses)
   const [busSeatAvailability, setBusSeatAvailability] = useState({});
 
+  // Shadow staff state
+  const [shadows, setShadows] = useState({}); // { camper_id: shadow_info }
+  const [showShadowForm, setShowShadowForm] = useState(false);
+  const [shadowName, setShadowName] = useState("");
+  const [selectedShadowCamper, setSelectedShadowCamper] = useState("");
+
+  // Fetch shadows from backend
+  const fetchShadows = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/shadows`);
+      const shadowsArray = response.data.shadows || [];
+      const shadowsMap = {};
+      shadowsArray.forEach(shadow => {
+        shadowsMap[shadow.camper_id] = shadow;
+      });
+      setShadows(shadowsMap);
+    } catch (error) {
+      console.error("Error fetching shadows:", error);
+    }
+  }, []);
+
+  // Save shadow
+  const handleSaveShadow = async (camperId) => {
+    if (!shadowName.trim()) {
+      toast.error("Please enter a shadow name");
+      return;
+    }
+    try {
+      toast.loading("Saving shadow...");
+      await axios.post(`${API}/shadows`, {
+        shadow_name: shadowName.trim(),
+        camper_id: camperId
+      });
+      toast.dismiss();
+      toast.success("Shadow saved successfully");
+      setShadowName("");
+      setShowShadowForm(false);
+      await fetchShadows();
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error.response?.data?.detail || "Failed to save shadow");
+    }
+  };
+
+  // Delete shadow
+  const handleDeleteShadow = async (shadowId) => {
+    try {
+      toast.loading("Removing shadow...");
+      await axios.delete(`${API}/shadows/${shadowId}`);
+      toast.dismiss();
+      toast.success("Shadow removed");
+      await fetchShadows();
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Failed to remove shadow");
+    }
+  };
+
   // Fetch user-defined zones from backend
   const fetchUserZones = useCallback(async () => {
     try {
