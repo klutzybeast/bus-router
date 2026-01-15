@@ -1,4 +1,4 @@
-const API_URL = 'https://routemanager-3.preview.emergentagent.com/api/sheets/seat-availability';
+const API_URL = 'https://busroutes-6.preview.emergentagent.com/api/sheets/seat-availability';
 
 function updateSeatAvailability() {
   try {
