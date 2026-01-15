@@ -3395,7 +3395,6 @@ async def auto_sync_campminder():
                 final_am_bus = am_bus.strip()
             elif am_address.strip() and not is_pm_only_camper:
                 # Bus is empty/NONE but has address AND not a PM-only camper - AUTO-ASSIGN
-                logger.info(f"AUTO-ASSIGN TRIGGERED for {first_name} {last_name} (no bus in sheet, has address)")
                 if 'existing_routes' not in locals():
                     all_db_campers = await db.campers.find({"am_bus_number": {"$exists": True}}).to_list(None)
                     existing_routes = {}
