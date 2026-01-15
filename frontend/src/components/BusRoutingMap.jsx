@@ -668,8 +668,9 @@ const BusRoutingMap = () => {
         return true;
       });
 
-  const searchFilteredCampers = searchQuery.trim() === ""
-    ? sessionFilteredCampers
+  // Search matches - used only for navigation, NOT for filtering map pins
+  const searchMatches = searchQuery.trim() === ""
+    ? []
     : sessionFilteredCampers.filter(c => {
         const query = searchQuery.toLowerCase();
         const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
@@ -680,13 +681,13 @@ const BusRoutingMap = () => {
 
   const handleSearchCamper = (query) => {
     setSearchQuery(query);
-    // Only filter the list, don't pan to pin until Enter is pressed
+    // Just update search text, don't filter pins
   };
 
   const handleSearchSubmit = () => {
     // Pan to the first matching camper when Enter is pressed
-    if (searchQuery.trim() && searchFilteredCampers.length > 0) {
-      const firstMatch = searchFilteredCampers[0];
+    if (searchQuery.trim() && searchMatches.length > 0) {
+      const firstMatch = searchMatches[0];
       if (mapInstance && firstMatch.location) {
         mapInstance.panTo({
           lat: firstMatch.location.latitude,
