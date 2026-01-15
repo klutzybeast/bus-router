@@ -84,16 +84,20 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - Fallback to opening in new tab if primary method fails
 
 ### Phase 10: Dynamic Bus Zones ✅ (January 2025)
-- Convex hull polygon zones drawn around pins grouped by bus number
-- Dynamic expansion/retraction as pins are added or removed
-- Zones can overlap (different buses serving same geographic areas)
-- Click a zone to highlight all stops for that bus
-- Toggle button to show/hide bus zones
+- **USER-DEFINED ZONES** - replaced auto-calculated convex hull zones
+- Users can now create custom polygon zones for each bus:
+  - Click on map to place polygon vertices
+  - Drag vertices to adjust zone shape
+  - Right-click vertices to delete them
+  - Zones saved to database and persist between sessions
+- **Zone Management Panel**:
+  - "+ Zone" button to create new zone for a bus
+  - Edit button (✎) to modify existing zones
+  - Delete button (×) to remove zones
+  - Visual indicators showing which buses have zones
+- One zone per bus (user-controlled, not auto-generated)
 - Color-coded zones matching bus colors
-- Visual feedback: selected zone has thicker border and higher opacity
-- **Zone Legend** - Shows all bus colors in bottom-right when zones enabled
-- Files added:
-  - `/app/frontend/src/components/BusZonePolygon.jsx` - Polygon component with convex hull algorithm
+- Toggle to show/hide all zones
 
 ### Phase 11: Seat Availability in Bus List ✅ (January 2025)
 - Each bus in the sidebar now shows:
