@@ -794,8 +794,11 @@ const BusRoutingMap = () => {
           gestureHandling="greedy"
           disableDefaultUI={false}
           clickableIcons={true}
-          onLoad={(map) => setMapInstance(map)}
         >
+          <MapController 
+            selectedCamper={selectedCamper} 
+            onMapReady={setMapInstance}
+          />
           {searchFilteredCampers.map((camper, index) => {
             // Determine which bus to display on the pin
             // Rule: Show AM bus if valid, otherwise show PM bus if valid
