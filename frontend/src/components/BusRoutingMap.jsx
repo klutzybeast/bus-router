@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import BusZonePolygon from "./BusZonePolygon";
+import EditableBusZone from "./EditableBusZone";
+import ZoneCreator from "./ZoneCreator";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 const API = `${BACKEND_URL}/api`;
