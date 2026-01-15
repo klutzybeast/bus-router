@@ -861,7 +861,7 @@ const BusRoutingMap = () => {
             selectedCamper={selectedCamper} 
             onMapReady={setMapInstance}
           />
-          {searchFilteredCampers.map((camper, index) => {
+          {sessionFilteredCampers.map((camper, index) => {
             // Determine which bus to display on the pin
             // Rule: Show AM bus if valid, otherwise show PM bus if valid
             const hasValidAmBus = camper.am_bus_number && camper.am_bus_number !== 'NONE' && camper.am_bus_number.startsWith('Bus');
