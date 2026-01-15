@@ -202,6 +202,15 @@ A web application that displays camper bus routes on a Google Map, using Google 
 | `/api/bus-staff/{bus_number}` | GET | Get staff for specific bus |
 | `/api/bus-staff/{bus_number}` | DELETE | Delete staff configuration |
 
+### Shadow Staff Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/shadows` | GET | Get all shadow staff |
+| `/api/shadows` | POST | Create shadow (requires shadow_name, camper_id) |
+| `/api/shadows/{shadow_id}` | DELETE | Delete shadow |
+| `/api/shadows/by-bus/{bus_number}` | GET | Get shadows on specific bus |
+| `/api/shadows/by-camper/{camper_id}` | GET | Get shadow for specific camper |
+
 ### Audit Endpoints
 | Endpoint | Method | Description |
 |----------|--------|-------------|
