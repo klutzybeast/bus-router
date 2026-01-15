@@ -120,6 +120,21 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - Professional formatting with headers, alternating row colors, frozen header row
 - **Separate webhook** for Seat Availability Google Sheet updates (`SEAT_AVAILABILITY_WEBHOOK_URL`)
 
+### Phase 14: Shadow Staff Feature ✅ (January 2025)
+- **Shadow = 1:1 staff member** assigned to accompany a specific camper
+- Shadows take a bus seat and are counted in seat availability
+- Shadow inherits the bus number and session from their linked camper
+- **UI**: "Add Shadow" button in camper InfoWindow popup
+  - Click to expand input form for shadow name
+  - Saved shadow shows in purple background with delete (X) button
+- **Backend CRUD endpoints**:
+  - `GET /api/shadows` - Get all shadows
+  - `GET /api/shadows/by-bus/{bus_number}` - Get shadows on a specific bus
+  - `GET /api/shadows/by-camper/{camper_id}` - Get shadow for a specific camper
+  - `POST /api/shadows` - Create shadow (requires shadow_name and camper_id)
+  - `DELETE /api/shadows/{shadow_id}` - Delete shadow
+- Shadows stored in MongoDB `shadows` collection
+
 ### Phase 9: Code Refactoring (Foundation Ready)
 - Created modular structure in `/app/backend/`:
   - `models/` - Pydantic schemas
@@ -129,10 +144,11 @@ A web application that displays camper bus routes on a Google Map, using Google 
 
 ---
 
-## Current Stats (as of December 2024)
+## Current Stats (as of January 2025)
 - **492 campers** on map
 - **34 buses** configured
 - **33 active buses** with campers
+- **1 shadow staff** assigned
 
 ---
 
