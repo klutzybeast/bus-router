@@ -1355,6 +1355,11 @@ const BusRoutingMap = () => {
                       onClick={() => {
                         setSearchQuery("");
                         setSelectedCamper(null);
+                        // Reset map to initial view
+                        if (mapInstance) {
+                          mapInstance.panTo({ lat: 40.7128, lng: -73.7949 });
+                          mapInstance.setZoom(11);
+                        }
                       }}
                     >
                       <X className="w-4 h-4" />
