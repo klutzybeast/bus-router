@@ -1156,81 +1156,24 @@ const BusRoutingMap = () => {
                           </div>
                         </div>
                         
-                        {/* Shadow Staff Section */}
-                        <div className="mt-3 pt-3 border-t">
-                          <div className="text-xs font-semibold mb-2">Shadow Staff:</div>
-                          {(() => {
-                            const camperId = selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}`.replace(' ', '_');
-                            const existingShadow = shadows[camperId];
-                            
-                            if (existingShadow) {
-                              return (
+                        {/* Shadow Staff Display (read-only in InfoWindow) */}
+                        {(() => {
+                          const camperId = selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}`.replace(' ', '_');
+                          const existingShadow = shadows[camperId];
+                          if (existingShadow) {
+                            return (
+                              <div className="mt-3 pt-3 border-t">
                                 <div className="flex items-center justify-between bg-purple-50 p-2 rounded">
                                   <div className="text-xs">
-                                    <span className="font-medium text-purple-700">👤 {existingShadow.shadow_name}</span>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                                    onClick={() => handleDeleteShadow(existingShadow.id)}
-                                    title="Remove shadow"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </Button>
-                                </div>
-                              );
-                            }
-                            
-                            if (showShadowForm) {
-                              return (
-                                <div className="space-y-2">
-                                  <Input
-                                    type="text"
-                                    placeholder="Shadow name..."
-                                    value={shadowName}
-                                    onChange={(e) => setShadowName(e.target.value)}
-                                    className="h-8 text-xs"
-                                    data-testid="shadow-name-input"
-                                  />
-                                  <div className="flex gap-1">
-                                    <Button
-                                      size="sm"
-                                      className="h-7 text-xs flex-1 bg-purple-600 hover:bg-purple-700"
-                                      onClick={() => handleSaveShadow(camperId)}
-                                    >
-                                      Save
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="h-7 text-xs"
-                                      onClick={() => {
-                                        setShowShadowForm(false);
-                                        setShadowName("");
-                                      }}
-                                    >
-                                      Cancel
-                                    </Button>
+                                    <span className="text-gray-500">Shadow: </span>
+                                    <span className="font-medium text-purple-700">{existingShadow.shadow_name}</span>
                                   </div>
                                 </div>
-                              );
-                            }
-                            
-                            return (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full h-8 text-xs border-purple-300 text-purple-700 hover:bg-purple-50"
-                                onClick={() => setShowShadowForm(true)}
-                                data-testid="add-shadow-btn"
-                              >
-                                <UserPlus className="w-3 h-3 mr-1" />
-                                Add Shadow
-                              </Button>
+                              </div>
                             );
-                          })()}
-                        </div>
+                          }
+                          return null;
+                        })()}
                   
                         {/* Delete Button */}
                         <div className="border-t pt-2 mt-2">
