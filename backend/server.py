@@ -1788,7 +1788,8 @@ async def create_bus_zone(zone_data: BusZoneCreate):
         
         result = await db.bus_zones.insert_one(zone_doc)
         zone_doc["id"] = str(result.inserted_id)
-        del zone_doc["_id"] if "_id" in zone_doc else None
+        if "_id" in zone_doc:
+            del zone_doc["_id"]
         
         return {"status": "success", "zone": zone_doc}
     except HTTPException:
