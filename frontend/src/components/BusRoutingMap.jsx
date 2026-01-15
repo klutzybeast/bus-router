@@ -1760,6 +1760,136 @@ const BusRoutingMap = () => {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
+
+                {/* Shadow Staff Dialog */}
+                <Dialog open={showShadowDialog} onOpenChange={setShowShadowDialog}>
+                  <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl">Add Shadow Staff</DialogTitle>
+                      <DialogDescription>
+                        Add a 1:1 shadow staff member for a specific camper. Shadows take a bus seat.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      {/* Shadow Name */}
+                      <div className="space-y-2">
+                        <Label htmlFor="shadow_name">Shadow Name</Label>
+                        <Input
+                          id="shadow_name"
+                          placeholder="Enter shadow staff name"
+                          value={shadowName}
+                          onChange={(e) => setShadowName(e.target.value)}
+                          data-testid="shadow-name-input"
+                        />
+                      </div>
+
+                      {/* Bus Selection */}
+                      <div className="space-y-2">
+                        <Label htmlFor="shadow_bus">Select Bus</Label>
+                        <Select
+                          value={selectedShadowBus}
+                          onValueChange={(value) => {
+                            setSelectedShadowBus(value);
+                            setSelectedShadowCamper(""); // Reset camper when bus changes
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="-- Select Bus --" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {uniqueBuses.filter(b => b.startsWith('Bus')).map(bus => (
+                              <SelectItem key={bus} value={bus}>{bus}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Child Selection (filtered by bus) */}
+                      <div className="space-y-2">
+                        <Label htmlFor="shadow_camper">Link to Child</Label>
+                        <Select
+                          value={selectedShadowCamper}
+                          onValueChange={setSelectedShadowCamper}
+                          disabled={!selectedShadowBus}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={selectedShadowBus ? "-- Select Child --" : "Select a bus first"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getCampersOnBus(selectedShadowBus).map(camper => {
+                              const camperId = camper._id || `${camper.last_name}_${camper.first_name}_${camper.zip_code}`.replace(' ', '_');
+                              const hasExistingShadow = shadows[camperId];
+                              return (
+                                <SelectItem 
+                                  key={camperId} 
+                                  value={camperId}
+                                  disabled={hasExistingShadow}
+                                >
+                                  {camper.last_name}, {camper.first_name}
+                                  {hasExistingShadow && " (has shadow)"}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        {selectedShadowBus && getCampersOnBus(selectedShadowBus).length === 0 && (
+                          <p className="text-xs text-gray-500">No campers on this bus</p>
+                        )}
+                      </div>
+
+                      {/* Save Button */}
+                      <Button 
+                        className="w-full bg-purple-600 hover:bg-purple-700"
+                        onClick={handleSaveShadowDialog}
+                        disabled={!shadowName.trim() || !selectedShadowBus || !selectedShadowCamper}
+                      >
+                        Save Shadow
+                      </Button>
+
+                      {/* Existing Shadows List */}
+                      <div className="border-t pt-4 mt-4">
+                        <h3 className="font-semibold mb-3">Current Shadows ({shadowsList.length}):</h3>
+                        <div className="max-h-60 overflow-y-auto space-y-2">
+                          {shadowsList.length === 0 ? (
+                            <p className="text-gray-500 text-sm">No shadows assigned yet.</p>
+                          ) : (
+                            shadowsList.map((shadow) => (
+                              <div 
+                                key={shadow.id}
+                                className="flex items-center justify-between p-3 bg-purple-50 rounded-lg"
+                              >
+                                <div className="flex-1">
+                                  <div className="font-medium text-purple-800">{shadow.shadow_name}</div>
+                                  <div className="text-xs text-gray-600">
+                                    For: {shadow.camper_name} • {shadow.bus_number}
+                                  </div>
+                                  <div className="text-xs text-gray-500">{shadow.session}</div>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                  onClick={() => handleDeleteShadow(shadow.id)}
+                                  title="Remove shadow"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => {
+                        setShowShadowDialog(false);
+                        setShadowName("");
+                        setSelectedShadowBus("");
+                        setSelectedShadowCamper("");
+                      }}>Close</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
                 
                 <Button
                   variant="outline"
