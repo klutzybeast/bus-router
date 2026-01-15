@@ -33,11 +33,15 @@ class RouteOptimizer:
         return clustering.labels_
     
     def find_optimal_bus(self, camper_address: Dict, existing_routes: Dict[int, List[Dict]]) -> int:
-        """Find the optimal bus for a new camper based on route proximity and capacity"""
+        """Find the optimal bus for a new camper based on route proximity and capacity.
+        
+        Uses MINIMUM distance to any stop on a route, not average distance.
+        This ensures campers at the same address get the same bus.
+        """
         camper_coords = (camper_address['lat'], camper_address['lng'])
         
         best_bus = None
-        min_avg_distance = float('inf')
+        min_distance = float('inf')
         
         for bus_num, route in existing_routes.items():
             bus_number_str = f"Bus #{bus_num:02d}"
@@ -47,18 +51,18 @@ class RouteOptimizer:
             if len(route) >= max_capacity:
                 continue
             
-            # Calculate average distance to all stops on this route
+            # Find the MINIMUM distance to any stop on this route
             if route:
-                distances = [
-                    self.calculate_distance(camper_coords, (stop['lat'], stop['lng']))
-                    for stop in route
-                ]
-                avg_distance = sum(distances) / len(distances)
-                
-                # Prefer buses with closer average distance
-                if avg_distance < min_avg_distance:
-                    min_avg_distance = avg_distance
-                    best_bus = bus_num
+                for stop in route:
+                    distance = self.calculate_distance(camper_coords, (stop['lat'], stop['lng']))
+                    
+                    # If exact same location (within ~50 feet), this is the bus
+                    if distance < 0.01:  # ~50 feet
+                        return bus_num
+                    
+                    if distance < min_distance:
+                        min_distance = distance
+                        best_bus = bus_num
         
         # If no suitable bus found, assign to first available bus
         if best_bus is None:
