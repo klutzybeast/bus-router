@@ -1968,11 +1968,16 @@ async def save_bus_staff(config: BusStaffConfig):
 
 @api_router.delete("/bus-staff/{bus_number}")
 async def delete_bus_staff(bus_number: str):
-    """Delete bus staff configuration"""
+    """Delete bus staff configuration from the active season"""
     import urllib.parse
     try:
         decoded_bus = urllib.parse.unquote(bus_number)
-        result = await db.bus_staff.delete_one({"bus_number": decoded_bus})
+        query = {"bus_number": decoded_bus}
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        result = await db.bus_staff.delete_one(query)
         
         if result.deleted_count > 0:
             return {
