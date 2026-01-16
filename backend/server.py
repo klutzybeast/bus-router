@@ -3761,17 +3761,13 @@ async def auto_sync_campminder():
                 
                 offset = existing_at_address * 0.00002  # ~6 feet per existing camper
                 
-                # Determine bus color and pickup type
-                if is_pm_only:
-                    # PM-only camper (car drop-off in AM)
+                # Determine bus color based on pickup type
+                if pickup_type_val == "PM Drop-off Only":
                     bus_color = get_bus_color(final_pm_bus) if final_pm_bus != "NONE" else "#808080"
-                    pickup_type_val = "PM Drop-off Only"
                 elif final_am_bus == "NONE":
                     bus_color = "#808080"
-                    pickup_type_val = "NEEDS BUS"
                 else:
                     bus_color = get_bus_color(final_am_bus)
-                    pickup_type_val = "AM Pickup" if (pm_final_address.strip() and pm_final_address != am_address) else "AM & PM"
                 
                 camper_doc = {
                     "_id": camper_id,
