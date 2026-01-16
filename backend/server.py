@@ -3610,14 +3610,14 @@ async def auto_sync_campminder():
             # Determine if camper needs PM bus based on transport method
             pm_needs_bus = 'pm bus' in pm_method.lower()
             
-            # Log for debugging
-            first_name_temp = row.get('First Name', '')
-            last_name_temp = row.get('Last Name', '')
-            if 'carrol' in last_name_temp.lower():
-                logger.info(f"DEBUG Charlie: AM Method='{am_method}', PM Method='{pm_method}', AM needs bus={am_needs_bus}, PM needs bus={pm_needs_bus}")
+            # Debug for Carroll
+            if 'carrol' in last_name_check.lower():
+                print(f"  am_needs_bus={am_needs_bus}, pm_needs_bus={pm_needs_bus}")
             
             # Skip campers who don't need any bus transport
             if not am_needs_bus and not pm_needs_bus:
+                if 'carrol' in last_name_check.lower():
+                    print(f"  SKIPPING Charlie - no bus needed")
                 continue
             
             # Get all required fields first
