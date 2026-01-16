@@ -3371,32 +3371,364 @@ async def get_route_sheet(bus_number: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/route-sheet/{bus_number}/print")
-async def get_printable_route_sheet(bus_number: str):
-    """Get printable HTML route sheet"""
+async def get_printable_route_sheet(bus_number: str, edit: bool = False):
+    """Get printable HTML route sheet with optional edit mode for drag-and-drop reordering"""
     try:
         from fastapi.responses import HTMLResponse
+        import urllib.parse
+        decoded_bus = urllib.parse.unquote(bus_number)
         
         # Get campers for this bus
         campers = await db.campers.find({
             "$or": [
-                {"am_bus_number": bus_number},
-                {"pm_bus_number": bus_number}
+                {"am_bus_number": decoded_bus},
+                {"pm_bus_number": decoded_bus}
             ]
         }).to_list(None)
         
         if not campers:
-            return HTMLResponse(content=f"<h1>No campers found for {bus_number}</h1>", status_code=404)
+            return HTMLResponse(content=f"<h1>No campers found for {decoded_bus}</h1>", status_code=404)
+        
+        # Check for custom route order
+        season_id = await get_active_season_id()
+        route_order = None
+        if season_id:
+            route_order = await db.route_orders.find_one({
+                "bus_number": decoded_bus,
+                "season_id": season_id
+            })
         
         # Generate route sheet
-        route_sheet = route_printer.generate_route_sheet(bus_number, campers)
+        route_sheet = route_printer.generate_route_sheet(decoded_bus, campers)
         
-        # Generate HTML
-        html = route_printer.generate_printable_html(route_sheet)
+        # Apply custom order if exists
+        if route_order:
+            am_order = route_order.get("am_order", [])
+            pm_order = route_order.get("pm_order", [])
+            
+            if am_order and route_sheet.get("am_stops"):
+                route_sheet["am_stops"] = reorder_stops(route_sheet["am_stops"], am_order)
+                route_sheet["custom_am_order"] = True
+            
+            if pm_order and route_sheet.get("pm_stops"):
+                route_sheet["pm_stops"] = reorder_stops(route_sheet["pm_stops"], pm_order)
+                route_sheet["custom_pm_order"] = True
+        
+        # Generate HTML (with edit mode if requested)
+        if edit:
+            html = generate_editable_route_html(route_sheet, decoded_bus)
+        else:
+            html = route_printer.generate_printable_html(route_sheet)
         
         return HTMLResponse(content=html)
     except Exception as e:
         logging.error(f"Error generating printable route: {str(e)}")
         return HTMLResponse(content=f"<h1>Error: {str(e)}</h1>", status_code=500)
+
+def reorder_stops(stops: List[Dict], order: List[str]) -> List[Dict]:
+    """Reorder stops based on custom order list"""
+    if not order or not stops:
+        return stops
+    
+    # Create lookup by address (since order contains addresses)
+    stop_lookup = {}
+    for stop in stops:
+        addr = stop.get("address", "").strip().lower()
+        stop_lookup[addr] = stop
+    
+    # Reorder based on custom order
+    reordered = []
+    used_addresses = set()
+    
+    for addr in order:
+        addr_lower = addr.strip().lower()
+        if addr_lower in stop_lookup and addr_lower not in used_addresses:
+            stop = stop_lookup[addr_lower].copy()
+            stop["stop_number"] = len(reordered) + 1
+            reordered.append(stop)
+            used_addresses.add(addr_lower)
+    
+    # Add any remaining stops not in the custom order
+    for stop in stops:
+        addr = stop.get("address", "").strip().lower()
+        if addr not in used_addresses:
+            stop_copy = stop.copy()
+            stop_copy["stop_number"] = len(reordered) + 1
+            reordered.append(stop_copy)
+    
+    return reordered
+
+def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -> str:
+    """Generate editable HTML route sheet with drag-and-drop"""
+    
+    home_label = route_sheet.get('home_label', 'Home')
+    
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Edit Route - {route_sheet['bus_number']}</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; max-width: 1200px; margin: 20px auto; padding: 0 20px; }}
+            .header {{ background: #1e40af; color: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; }}
+            .header h1 {{ margin: 0; }}
+            .edit-notice {{ background: #fef3c7; border: 2px solid #f59e0b; padding: 15px; border-radius: 8px; margin-bottom: 20px; }}
+            .routes-container {{ display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }}
+            .route-section {{ background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; }}
+            .route-section h2 {{ color: #1e40af; margin-top: 0; }}
+            .stop-list {{ min-height: 100px; }}
+            .stop-item {{ 
+                background: white; 
+                border: 1px solid #d1d5db; 
+                padding: 12px 15px; 
+                margin: 8px 0; 
+                border-radius: 6px;
+                cursor: grab;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                transition: all 0.2s;
+            }}
+            .stop-item:hover {{ background: #f0f9ff; border-color: #3b82f6; }}
+            .stop-item.dragging {{ opacity: 0.5; transform: scale(1.02); }}
+            .stop-item.drag-over {{ border: 2px dashed #3b82f6; background: #dbeafe; }}
+            .stop-number {{ 
+                background: #3b82f6; 
+                color: white; 
+                width: 28px; 
+                height: 28px; 
+                border-radius: 50%; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center;
+                font-weight: bold;
+                font-size: 14px;
+                flex-shrink: 0;
+            }}
+            .drag-handle {{ cursor: grab; color: #9ca3af; font-size: 20px; }}
+            .stop-info {{ flex-grow: 1; }}
+            .stop-name {{ font-weight: bold; color: #1f2937; }}
+            .stop-address {{ color: #6b7280; font-size: 0.9em; margin-top: 2px; }}
+            .buttons {{ display: flex; gap: 10px; margin: 20px 0; justify-content: center; }}
+            .btn {{ padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }}
+            .btn-primary {{ background: #2563eb; color: white; }}
+            .btn-primary:hover {{ background: #1d4ed8; }}
+            .btn-success {{ background: #16a34a; color: white; }}
+            .btn-success:hover {{ background: #15803d; }}
+            .btn-secondary {{ background: #6b7280; color: white; }}
+            .btn-secondary:hover {{ background: #4b5563; }}
+            .btn-danger {{ background: #dc2626; color: white; }}
+            .btn-danger:hover {{ background: #b91c1c; }}
+            .save-status {{ text-align: center; padding: 10px; margin: 10px 0; border-radius: 6px; display: none; }}
+            .save-status.success {{ display: block; background: #d1fae5; color: #065f46; }}
+            .save-status.error {{ display: block; background: #fee2e2; color: #991b1b; }}
+            .save-status.loading {{ display: block; background: #dbeafe; color: #1e40af; }}
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>✏️ Edit Route Order - {route_sheet['bus_number']}</h1>
+            <p>Drag and drop stops to reorder the route</p>
+        </div>
+        
+        <div class="edit-notice">
+            <strong>⚠️ Edit Mode:</strong> Drag stops to reorder them. Click "Save Order" when done, then "Print" to generate the route sheet.
+        </div>
+        
+        <div id="saveStatus" class="save-status"></div>
+        
+        <div class="buttons">
+            <button class="btn btn-success" onclick="saveOrder()">💾 Save Order</button>
+            <button class="btn btn-primary" onclick="printRoute()">🖨️ Print Route Sheet</button>
+            <button class="btn btn-danger" onclick="resetOrder()">🔄 Reset to Auto-Generated</button>
+            <button class="btn btn-secondary" onclick="window.close()">✕ Close</button>
+        </div>
+        
+        <div class="routes-container">
+            <div class="route-section">
+                <h2>🌅 AM Route - Morning Pickups</h2>
+                <p><strong>Start:</strong> {home_label} → <strong>End:</strong> Camp</p>
+                <div class="stop-list" id="amStops">
+    """
+    
+    for stop in route_sheet.get("am_stops", []):
+        camper_names = stop.get("camper_name", "Unknown")
+        address = stop.get("address", "")
+        html += f"""
+                    <div class="stop-item" draggable="true" data-address="{address}">
+                        <span class="drag-handle">⋮⋮</span>
+                        <span class="stop-number">{stop['stop_number']}</span>
+                        <div class="stop-info">
+                            <div class="stop-name">{camper_names}</div>
+                            <div class="stop-address">{address}</div>
+                        </div>
+                    </div>
+        """
+    
+    html += f"""
+                </div>
+            </div>
+            
+            <div class="route-section">
+                <h2>🌆 PM Route - Afternoon Drop-offs</h2>
+                <p><strong>Start:</strong> Camp → <strong>End:</strong> {home_label}</p>
+                <div class="stop-list" id="pmStops">
+    """
+    
+    for stop in route_sheet.get("pm_stops", []):
+        camper_names = stop.get("camper_name", "Unknown")
+        address = stop.get("address", "")
+        html += f"""
+                    <div class="stop-item" draggable="true" data-address="{address}">
+                        <span class="drag-handle">⋮⋮</span>
+                        <span class="stop-number">{stop['stop_number']}</span>
+                        <div class="stop-info">
+                            <div class="stop-name">{camper_names}</div>
+                            <div class="stop-address">{address}</div>
+                        </div>
+                    </div>
+        """
+    
+    html += f"""
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            const API_URL = window.location.origin + '/api';
+            const BUS_NUMBER = '{bus_number}';
+            
+            // Drag and drop functionality
+            function initDragDrop(containerId) {{
+                const container = document.getElementById(containerId);
+                let draggedItem = null;
+                
+                container.querySelectorAll('.stop-item').forEach(item => {{
+                    item.addEventListener('dragstart', function(e) {{
+                        draggedItem = this;
+                        this.classList.add('dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                    }});
+                    
+                    item.addEventListener('dragend', function() {{
+                        this.classList.remove('dragging');
+                        container.querySelectorAll('.stop-item').forEach(i => i.classList.remove('drag-over'));
+                        updateStopNumbers(containerId);
+                    }});
+                    
+                    item.addEventListener('dragover', function(e) {{
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        if (this !== draggedItem) {{
+                            this.classList.add('drag-over');
+                        }}
+                    }});
+                    
+                    item.addEventListener('dragleave', function() {{
+                        this.classList.remove('drag-over');
+                    }});
+                    
+                    item.addEventListener('drop', function(e) {{
+                        e.preventDefault();
+                        this.classList.remove('drag-over');
+                        if (draggedItem && this !== draggedItem) {{
+                            const allItems = [...container.querySelectorAll('.stop-item')];
+                            const draggedIndex = allItems.indexOf(draggedItem);
+                            const dropIndex = allItems.indexOf(this);
+                            
+                            if (draggedIndex < dropIndex) {{
+                                this.parentNode.insertBefore(draggedItem, this.nextSibling);
+                            }} else {{
+                                this.parentNode.insertBefore(draggedItem, this);
+                            }}
+                        }}
+                    }});
+                }});
+            }}
+            
+            function updateStopNumbers(containerId) {{
+                const container = document.getElementById(containerId);
+                container.querySelectorAll('.stop-item').forEach((item, index) => {{
+                    item.querySelector('.stop-number').textContent = index + 1;
+                }});
+            }}
+            
+            function getStopOrder(containerId) {{
+                const container = document.getElementById(containerId);
+                return [...container.querySelectorAll('.stop-item')].map(item => item.dataset.address);
+            }}
+            
+            function showStatus(message, type) {{
+                const status = document.getElementById('saveStatus');
+                status.textContent = message;
+                status.className = 'save-status ' + type;
+            }}
+            
+            async function saveOrder() {{
+                showStatus('Saving...', 'loading');
+                
+                try {{
+                    // Save AM order
+                    const amOrder = getStopOrder('amStops');
+                    await fetch(API_URL + '/route-order', {{
+                        method: 'POST',
+                        headers: {{ 'Content-Type': 'application/json' }},
+                        body: JSON.stringify({{
+                            bus_number: BUS_NUMBER,
+                            route_type: 'am',
+                            stop_order: amOrder
+                        }})
+                    }});
+                    
+                    // Save PM order
+                    const pmOrder = getStopOrder('pmStops');
+                    await fetch(API_URL + '/route-order', {{
+                        method: 'POST',
+                        headers: {{ 'Content-Type': 'application/json' }},
+                        body: JSON.stringify({{
+                            bus_number: BUS_NUMBER,
+                            route_type: 'pm',
+                            stop_order: pmOrder
+                        }})
+                    }});
+                    
+                    showStatus('✓ Route order saved successfully!', 'success');
+                }} catch (error) {{
+                    showStatus('✕ Error saving order: ' + error.message, 'error');
+                }}
+            }}
+            
+            async function resetOrder() {{
+                if (!confirm('Reset to auto-generated order? This will delete your custom order.')) return;
+                
+                showStatus('Resetting...', 'loading');
+                
+                try {{
+                    await fetch(API_URL + '/route-order/' + encodeURIComponent(BUS_NUMBER), {{
+                        method: 'DELETE'
+                    }});
+                    
+                    showStatus('✓ Order reset. Reloading...', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                }} catch (error) {{
+                    showStatus('✕ Error: ' + error.message, 'error');
+                }}
+            }}
+            
+            function printRoute() {{
+                window.open(API_URL + '/route-sheet/' + encodeURIComponent(BUS_NUMBER) + '/print', '_blank');
+            }}
+            
+            // Initialize drag and drop
+            initDragDrop('amStops');
+            initDragDrop('pmStops');
+        </script>
+    </body>
+    </html>
+    """
+    
+    return html
+
 
 @api_router.get("/campers/filter")
 async def filter_campers(bus_number: str = None, session: str = None, pickup_type: str = None):
