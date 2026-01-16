@@ -3876,10 +3876,20 @@ def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -
                 showStatus('🔄 Resetting...', 'loading');
                 
                 try {{
-                    await fetch(API_URL + '/route-order/' + encodeURIComponent(BUS_NUMBER), {{ method: 'DELETE' }});
-                    showStatus('✅ Reset complete. Reloading...', 'success');
-                    setTimeout(() => location.reload(), 800);
+                    const response = await fetch(API_URL + '/route-order/' + encodeURIComponent(BUS_NUMBER), {{ 
+                        method: 'DELETE',
+                        headers: {{ 'Content-Type': 'application/json' }}
+                    }});
+                    const data = await response.json();
+                    
+                    if (response.ok && data.status === 'success') {{
+                        showStatus('✅ Reset complete. Reloading...', 'success');
+                        setTimeout(() => location.reload(), 800);
+                    }} else {{
+                        showStatus('❌ Error: ' + (data.message || 'Unknown error'), 'error');
+                    }}
                 }} catch (error) {{
+                    console.error('Reset error:', error);
                     showStatus('❌ Error: ' + error.message, 'error');
                 }}
             }}
