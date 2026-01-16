@@ -3665,6 +3665,10 @@ async def auto_sync_campminder():
                         
                         # SYNC AUTO-ASSIGNMENT BACK TO GOOGLE SHEET
                         # Trim names to match sheet lookup (handles trailing spaces)
+                        # For AM-only campers, set PM to NONE; for both AM+PM, set PM same as AM
+                        is_am_only = am_needs_bus and not pm_needs_bus
+                        sync_pm_bus = "NONE" if is_am_only else final_am_bus
+                        
                         try:
                             webhook_url = "https://script.google.com/macros/s/AKfycbw8JoFhHDgyigOLy8Y6jbKxC-dB-x_FivZHVTsI29fUzcRZmJ--dz3EmpVkTOEWXSkn/exec"
                             async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as webhook_client:
@@ -3673,11 +3677,12 @@ async def auto_sync_campminder():
                                     "first_name": first_name.strip(),
                                     "last_name": last_name.strip(),
                                     "am_bus_number": final_am_bus,
-                                    "pm_bus_number": final_am_bus if pm_needs_bus else "NONE"
+                                    "pm_bus_number": sync_pm_bus
                                 }
                                 webhook_response = await webhook_client.get(webhook_url, params=params)
                                 if webhook_response.status_code == 200:
-                                    logger.info(f"✓ Auto-assignment synced to sheet: {first_name.strip()} {last_name.strip()} → {final_am_bus}")
+                                    log_msg = f"AM-only" if is_am_only else "AM+PM"
+                                    logger.info(f"✓ Auto-assignment ({log_msg}) synced: {first_name.strip()} {last_name.strip()} → AM:{final_am_bus}, PM:{sync_pm_bus}")
                                 else:
                                     logger.warning(f"Sheet sync failed for {first_name} {last_name}: {webhook_response.status_code}")
                         except Exception as we:
