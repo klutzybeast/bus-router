@@ -862,6 +862,8 @@ const BusRoutingMap = () => {
         mapInstance.setZoom(17);
         setSelectedCamper(firstMatch);
         toast.success(`Found: ${firstMatch.first_name} ${firstMatch.last_name}`);
+        // Keep focus on search input so user can continue typing
+        setTimeout(() => searchInputRef.current?.focus(), 100);
       }
     } else if (searchQuery.trim()) {
       toast.error("No campers found matching your search");
