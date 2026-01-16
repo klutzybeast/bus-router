@@ -1809,7 +1809,7 @@ async def get_shadow_by_camper(camper_id: str):
 async def create_shadow(shadow_data: ShadowCreate):
     """Create a new shadow staff member linked to a camper"""
     try:
-        # Get the camper to inherit their bus and session
+        # Get the camper to inherit their session
         camper = await db.campers.find_one({"_id": shadow_data.camper_id})
         if not camper:
             raise HTTPException(status_code=404, detail=f"Camper not found: {shadow_data.camper_id}")
@@ -1822,10 +1822,14 @@ async def create_shadow(shadow_data: ShadowCreate):
                 detail=f"Shadow already exists for this camper. Use PUT to update."
             )
         
-        # Determine which bus to use (prefer AM bus)
-        bus_number = camper.get('am_bus_number', '')
-        if not bus_number or bus_number == 'NONE':
-            bus_number = camper.get('pm_bus_number', '')
+        # Use provided bus_number if specified, otherwise infer from camper
+        if shadow_data.bus_number:
+            bus_number = shadow_data.bus_number
+        else:
+            # Fallback: Determine which bus to use (prefer AM bus)
+            bus_number = camper.get('am_bus_number', '')
+            if not bus_number or bus_number == 'NONE':
+                bus_number = camper.get('pm_bus_number', '')
         
         # Create shadow document
         shadow_doc = {
@@ -1834,6 +1838,7 @@ async def create_shadow(shadow_data: ShadowCreate):
             "camper_name": f"{camper.get('first_name', '')} {camper.get('last_name', '')}".strip(),
             "bus_number": bus_number,
             "session": camper.get('session', 'Full Season- 5 Days'),
+            "town": camper.get('town', ''),  # Store town for reference
             "created_at": datetime.now(timezone.utc).isoformat(),
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
