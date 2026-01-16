@@ -3673,7 +3673,7 @@ async def auto_sync_campminder():
                                 "first_name": first_name.strip(),
                                 "last_name": last_name.strip(),
                                 "am_bus_number": final_am_bus,
-                                "pm_bus_number": final_am_bus  # Use same for PM initially
+                                "pm_bus_number": final_am_bus if pm_needs_bus else "NONE"  # Only set PM bus if they need PM bus
                             }
                             webhook_response = await webhook_client.get(webhook_url, params=params)
                             if webhook_response.status_code == 200:
@@ -3682,28 +3682,39 @@ async def auto_sync_campminder():
                                 logger.warning(f"Sheet sync failed for {first_name} {last_name}: {webhook_response.status_code}")
                     except Exception as we:
                         logger.warning(f"Failed to sync auto-assignment to sheet: {str(we)}")
-            
-            if pm_bus and pm_bus.strip() and 'NONE' not in pm_bus.upper():
-                # Has valid PM bus - KEEP IT
-                final_pm_bus = pm_bus.strip()
             else:
-                # Use AM bus for PM (or NONE if AM is also NONE)
-                final_pm_bus = final_am_bus if final_am_bus else "NONE"
+                # AM not needed - set to NONE
+                final_am_bus = "NONE"
+            
+            # Handle PM bus assignment based on transport method
+            if pm_needs_bus:
+                if pm_bus and pm_bus.strip() and 'NONE' not in pm_bus.upper():
+                    # Has valid PM bus - KEEP IT
+                    final_pm_bus = pm_bus.strip()
+                elif final_am_bus and final_am_bus != "NONE":
+                    # Use AM bus for PM if available
+                    final_pm_bus = final_am_bus
+                else:
+                    # PM bus needed but no value - needs assignment
+                    final_pm_bus = "NONE"
+            else:
+                # PM bus NOT needed (Car Drop Off, After Care, etc.) - set to NONE
+                final_pm_bus = "NONE"
             
             # Filter out non-bus PM values
             if final_pm_bus and any(x in final_pm_bus.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM']):
-                final_pm_bus = final_am_bus if final_am_bus else "NONE"
-            
-            # If no bus was assigned, set to NONE (so we can track and display these campers)
-            if not final_am_bus:
-                final_am_bus = "NONE"
-            if not final_pm_bus:
                 final_pm_bus = "NONE"
             
-            # For PM-only campers (car drop-off AM OR AM bus is NONE but has PM bus), use PM address if AM address is empty
-            effective_address = am_address.strip() or pm_address.strip()
-            effective_town = am_town.strip() or pm_town.strip()
-            effective_zip = am_zip.strip() or pm_zip.strip()
+            # For PM-only campers, use PM address
+            effective_address = am_address.strip() if am_needs_bus else pm_address.strip()
+            effective_town = am_town.strip() if am_needs_bus else pm_town.strip()
+            effective_zip = am_zip.strip() if am_needs_bus else pm_zip.strip()
+            
+            # If no effective address, try the other one
+            if not effective_address:
+                effective_address = pm_address.strip() or am_address.strip()
+                effective_town = pm_town.strip() or am_town.strip()
+                effective_zip = pm_zip.strip() or am_zip.strip()
             
             # For campers without address but with valid bus, still add them (for route planning)
             has_any_bus = (final_am_bus and final_am_bus != "NONE") or (final_pm_bus and final_pm_bus != "NONE")
@@ -3712,10 +3723,17 @@ async def auto_sync_campminder():
                 # Skip campers with no address AND no bus
                 continue
             
-            # Determine pickup type - PM only if: no AM method, OR AM bus is NONE but has valid PM bus
-            is_pm_only = ('AM Bus' not in am_method and has_pm_bus) or (final_am_bus == "NONE" and final_pm_bus != "NONE")
+            # Determine pickup type based on transport methods
+            if am_needs_bus and pm_needs_bus:
+                pickup_type_val = "AM & PM"
+            elif am_needs_bus:
+                pickup_type_val = "AM Pickup Only"
+            elif pm_needs_bus:
+                pickup_type_val = "PM Drop-off Only"
+            else:
+                pickup_type_val = "Unknown"
             
-            # Calculate final PM values
+            # Calculate final PM values for campers with different addresses
             pm_final_address = pm_address if pm_address.strip() else am_address
             pm_final_town = pm_town if pm_town.strip() else am_town
             pm_final_zip = pm_zip if pm_zip.strip() else am_zip
