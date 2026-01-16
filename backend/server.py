@@ -2236,6 +2236,116 @@ async def delete_shadow_by_camper(camper_id: str):
 
 
 # ============================================
+# BUS ASSIGNED STAFF ENDPOINTS (Staff who take bus seats)
+# ============================================
+
+class BusAssignedStaffCreate(BaseModel):
+    """Model for creating assigned staff (staff who ride the bus and take a seat)"""
+    staff_name: str
+    bus_number: str
+    session: Optional[str] = "Full Season- 5 Days"  # Default to full season
+
+class BusAssignedStaffUpdate(BaseModel):
+    """Model for updating assigned staff"""
+    staff_name: Optional[str] = None
+    bus_number: Optional[str] = None
+    session: Optional[str] = None
+
+@api_router.get("/bus-assigned-staff")
+async def get_all_bus_assigned_staff():
+    """Get all assigned staff members for the active season"""
+    try:
+        query = {}
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        staff = await db.bus_assigned_staff.find(query).to_list(None)
+        result = []
+        for s in staff:
+            result.append({
+                "id": str(s.get("_id", "")),
+                "staff_name": s.get("staff_name"),
+                "bus_number": s.get("bus_number"),
+                "session": s.get("session"),
+                "created_at": s.get("created_at"),
+            })
+        return {"status": "success", "assigned_staff": result, "count": len(result)}
+    except Exception as e:
+        logging.error(f"Error getting assigned staff: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/bus-assigned-staff/by-bus/{bus_number}")
+async def get_assigned_staff_by_bus(bus_number: str):
+    """Get all assigned staff on a specific bus for the active season"""
+    import urllib.parse
+    try:
+        decoded_bus = urllib.parse.unquote(bus_number)
+        query = {"bus_number": decoded_bus}
+        
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        staff = await db.bus_assigned_staff.find(query).to_list(None)
+        result = []
+        for s in staff:
+            result.append({
+                "id": str(s.get("_id", "")),
+                "staff_name": s.get("staff_name"),
+                "bus_number": s.get("bus_number"),
+                "session": s.get("session"),
+                "created_at": s.get("created_at"),
+            })
+        return {"status": "success", "assigned_staff": result, "count": len(result)}
+    except Exception as e:
+        logging.error(f"Error getting assigned staff by bus: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/bus-assigned-staff")
+async def create_bus_assigned_staff(staff_data: BusAssignedStaffCreate):
+    """Create a new assigned staff member on a bus"""
+    try:
+        season_id = await get_active_season_id()
+        
+        staff_doc = {
+            "staff_name": staff_data.staff_name.strip(),
+            "bus_number": staff_data.bus_number,
+            "session": staff_data.session or "Full Season- 5 Days",
+            "season_id": season_id,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        
+        result = await db.bus_assigned_staff.insert_one(staff_doc)
+        staff_doc["id"] = str(result.inserted_id)
+        if "_id" in staff_doc:
+            del staff_doc["_id"]
+        
+        logging.info(f"Created assigned staff '{staff_data.staff_name}' on {staff_data.bus_number}")
+        return {"status": "success", "assigned_staff": staff_doc}
+    except Exception as e:
+        logging.error(f"Error creating assigned staff: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/bus-assigned-staff/{staff_id}")
+async def delete_bus_assigned_staff(staff_id: str):
+    """Delete an assigned staff member"""
+    from bson import ObjectId
+    try:
+        result = await db.bus_assigned_staff.delete_one({"_id": ObjectId(staff_id)})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Assigned staff not found")
+        
+        logging.info(f"Deleted assigned staff: {staff_id}")
+        return {"status": "success", "message": "Assigned staff deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting assigned staff: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
 # BUS ZONES ENDPOINTS (User-defined zones)
 # ============================================
 
