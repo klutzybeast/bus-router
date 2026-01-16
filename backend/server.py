@@ -1986,9 +1986,15 @@ class ShadowUpdate(BaseModel):
 
 @api_router.get("/shadows")
 async def get_all_shadows():
-    """Get all shadow staff members"""
+    """Get all shadow staff members for the active season"""
     try:
-        shadows = await db.shadows.find({}).to_list(None)
+        # Filter by active season
+        query = {}
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        shadows = await db.shadows.find(query).to_list(None)
         result = []
         for shadow in shadows:
             result.append({
