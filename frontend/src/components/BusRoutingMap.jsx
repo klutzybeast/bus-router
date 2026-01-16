@@ -2430,6 +2430,33 @@ const BusRoutingMap = () => {
                     </>
                   )}
                 </Button>
+
+                {/* Central Stops Toggle */}
+                <Button
+                  variant="outline"
+                  className={`w-full h-12 text-base ${
+                    showCentralStops 
+                      ? 'bg-gray-200 hover:bg-gray-300 border-gray-600 text-gray-700' 
+                      : 'bg-slate-50 hover:bg-slate-100 border-slate-400 text-slate-600'
+                  }`}
+                  onClick={() => {
+                    setShowCentralStops(!showCentralStops);
+                    toast.info(showCentralStops ? "Central stops hidden" : "Central stops shown");
+                  }}
+                  data-testid="toggle-central-stops-btn"
+                >
+                  {showCentralStops ? (
+                    <>
+                      <Eye className="w-5 h-5 mr-2" />
+                      Hide Central Stops
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="w-5 h-5 mr-2" />
+                      Show Central Stops
+                    </>
+                  )}
+                </Button>
                 
                 <Button
                   variant="outline"
