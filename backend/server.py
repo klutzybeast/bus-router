@@ -4179,6 +4179,7 @@ async def auto_sync_campminder():
                     "am_bus_number": final_am_bus,
                     "pm_bus_number": final_pm_bus,
                     "bus_color": bus_color,
+                    "season_id": sync_season_id,
                     "created_at": datetime.now(timezone.utc)
                 }
                 
@@ -4212,6 +4213,7 @@ async def auto_sync_campminder():
                     "am_bus_number": final_am_bus,
                     "pm_bus_number": final_pm_bus,
                     "bus_color": bus_color,
+                    "season_id": sync_season_id,
                     "created_at": datetime.now(timezone.utc)
                 }
                 result = await db.campers.replace_one({"_id": camper_id}, camper_doc, upsert=True)
