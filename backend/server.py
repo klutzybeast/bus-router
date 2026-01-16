@@ -3636,38 +3636,38 @@ async def auto_sync_campminder():
                     final_am_bus = am_bus.strip()
                 elif am_address.strip():
                     # Bus is empty/NONE but has address - AUTO-ASSIGN
-                if 'existing_routes' not in locals():
-                    all_db_campers = await db.campers.find({"am_bus_number": {"$exists": True}}).to_list(None)
-                    existing_routes = {}
-                    for ec in all_db_campers:
-                        bus_str = ec.get('am_bus_number', '')
-                        if bus_str and 'NONE' not in bus_str.upper():
-                            try:
-                                bus_num = int(''.join(filter(str.isdigit, bus_str)))
-                                if bus_num not in existing_routes:
-                                    existing_routes[bus_num] = []
-                                if ec.get('location', {}).get('latitude', 0) != 0:
-                                    existing_routes[bus_num].append({
-                                        'lat': ec['location']['latitude'],
-                                        'lng': ec['location']['longitude']
-                                    })
-                            except (ValueError, IndexError):
-                                pass
-                
-                location_temp = await geocode_address_cached(am_address, am_town, am_zip)
-                if location_temp:
-                    optimal_bus = route_optimizer.find_optimal_bus(
-                        {'lat': location_temp.latitude, 'lng': location_temp.longitude},
-                        existing_routes
-                    )
-                    final_am_bus = f"Bus #{optimal_bus:02d}"
-                    logger.info(f"AUTO-ASSIGNED (new): {first_name} {last_name} → {final_am_bus}")
+                    if 'existing_routes' not in locals():
+                        all_db_campers = await db.campers.find({"am_bus_number": {"$exists": True}}).to_list(None)
+                        existing_routes = {}
+                        for ec in all_db_campers:
+                            bus_str = ec.get('am_bus_number', '')
+                            if bus_str and 'NONE' not in bus_str.upper():
+                                try:
+                                    bus_num = int(''.join(filter(str.isdigit, bus_str)))
+                                    if bus_num not in existing_routes:
+                                        existing_routes[bus_num] = []
+                                    if ec.get('location', {}).get('latitude', 0) != 0:
+                                        existing_routes[bus_num].append({
+                                            'lat': ec['location']['latitude'],
+                                            'lng': ec['location']['longitude']
+                                        })
+                                except (ValueError, IndexError):
+                                    pass
                     
-                    # SYNC AUTO-ASSIGNMENT BACK TO GOOGLE SHEET
-                    # Trim names to match sheet lookup (handles trailing spaces)
-                    try:
-                        webhook_url = "https://script.google.com/macros/s/AKfycbw8JoFhHDgyigOLy8Y6jbKxC-dB-x_FivZHVTsI29fUzcRZmJ--dz3EmpVkTOEWXSkn/exec"
-                        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as webhook_client:
+                    location_temp = await geocode_address_cached(am_address, am_town, am_zip)
+                    if location_temp:
+                        optimal_bus = route_optimizer.find_optimal_bus(
+                            {'lat': location_temp.latitude, 'lng': location_temp.longitude},
+                            existing_routes
+                        )
+                        final_am_bus = f"Bus #{optimal_bus:02d}"
+                        logger.info(f"AUTO-ASSIGNED (new): {first_name} {last_name} → {final_am_bus}")
+                        
+                        # SYNC AUTO-ASSIGNMENT BACK TO GOOGLE SHEET
+                        # Trim names to match sheet lookup (handles trailing spaces)
+                        try:
+                            webhook_url = "https://script.google.com/macros/s/AKfycbw8JoFhHDgyigOLy8Y6jbKxC-dB-x_FivZHVTsI29fUzcRZmJ--dz3EmpVkTOEWXSkn/exec"
+                            async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as webhook_client:
                             params = {
                                 "action": "updateBus",
                                 "first_name": first_name.strip(),
