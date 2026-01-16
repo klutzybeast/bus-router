@@ -3715,8 +3715,61 @@ async def auto_sync_campminder():
                     # Use AM bus for PM if available
                     final_pm_bus = final_am_bus
                 else:
-                    # PM bus needed but no value - needs assignment
-                    final_pm_bus = "NONE"
+                    # PM bus needed but no value - AUTO-ASSIGN for PM-only campers
+                    # Use PM address if available, otherwise use AM address
+                    auto_assign_address = pm_address.strip() or am_address.strip()
+                    auto_assign_town = pm_town.strip() or am_town.strip()
+                    auto_assign_zip = pm_zip.strip() or am_zip.strip()
+                    
+                    if auto_assign_address:
+                        # Build existing routes if not already done
+                        if 'existing_routes' not in locals():
+                            all_db_campers = await db.campers.find({"am_bus_number": {"$exists": True}}).to_list(None)
+                            existing_routes = {}
+                            for ec in all_db_campers:
+                                bus_str = ec.get('am_bus_number', '') or ec.get('pm_bus_number', '')
+                                if bus_str and 'NONE' not in bus_str.upper():
+                                    try:
+                                        bus_num = int(''.join(filter(str.isdigit, bus_str)))
+                                        if bus_num not in existing_routes:
+                                            existing_routes[bus_num] = []
+                                        if ec.get('location', {}).get('latitude', 0) != 0:
+                                            existing_routes[bus_num].append({
+                                                'lat': ec['location']['latitude'],
+                                                'lng': ec['location']['longitude']
+                                            })
+                                    except (ValueError, IndexError):
+                                        pass
+                        
+                        location_temp = await geocode_address_cached(auto_assign_address, auto_assign_town, auto_assign_zip)
+                        if location_temp:
+                            optimal_bus = route_optimizer.find_optimal_bus(
+                                {'lat': location_temp.latitude, 'lng': location_temp.longitude},
+                                existing_routes
+                            )
+                            final_pm_bus = f"Bus #{optimal_bus:02d}"
+                            print(f"AUTO-ASSIGNED PM (PM-only): {first_name} {last_name} → {final_pm_bus}")
+                            
+                            # Sync to sheet
+                            try:
+                                webhook_url = "https://script.google.com/macros/s/AKfycbw8JoFhHDgyigOLy8Y6jbKxC-dB-x_FivZHVTsI29fUzcRZmJ--dz3EmpVkTOEWXSkn/exec"
+                                async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as webhook_client:
+                                    params = {
+                                        "action": "updateBus",
+                                        "first_name": first_name.strip(),
+                                        "last_name": last_name.strip(),
+                                        "am_bus_number": "NONE",
+                                        "pm_bus_number": final_pm_bus
+                                    }
+                                    webhook_response = await webhook_client.get(webhook_url, params=params)
+                                    if webhook_response.status_code == 200:
+                                        print(f"✓ PM auto-assignment synced to sheet: {first_name.strip()} {last_name.strip()} → {final_pm_bus}")
+                            except Exception as we:
+                                print(f"Failed to sync PM auto-assignment: {str(we)}")
+                        else:
+                            final_pm_bus = "NONE"
+                    else:
+                        final_pm_bus = "NONE"
             else:
                 # PM bus NOT needed (Car Drop Off, After Care, etc.) - set to NONE
                 final_pm_bus = "NONE"
