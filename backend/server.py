@@ -1868,11 +1868,16 @@ async def get_all_bus_staff():
 
 @api_router.get("/bus-staff/{bus_number}")
 async def get_bus_staff(bus_number: str):
-    """Get staff configuration for a specific bus"""
+    """Get staff configuration for a specific bus in the active season"""
     import urllib.parse
     try:
         decoded_bus = urllib.parse.unquote(bus_number)
-        config = await db.bus_staff.find_one({"bus_number": decoded_bus})
+        query = {"bus_number": decoded_bus}
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        config = await db.bus_staff.find_one(query)
         
         if config:
             return {
