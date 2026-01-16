@@ -2301,6 +2301,100 @@ const BusRoutingMap = () => {
                   </DialogContent>
                 </Dialog>
 
+                {/* Assigned Staff Dialog */}
+                <Dialog open={showAssignedStaffDialog} onOpenChange={setShowAssignedStaffDialog}>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl">Add Staff to Bus</DialogTitle>
+                      <DialogDescription>
+                        Add a staff member who will ride on the bus and take a seat.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      {/* Staff Name */}
+                      <div className="space-y-2">
+                        <Label htmlFor="assigned_staff_name">Staff Name</Label>
+                        <Input
+                          id="assigned_staff_name"
+                          placeholder="Enter staff name"
+                          value={assignedStaffName}
+                          onChange={(e) => setAssignedStaffName(e.target.value)}
+                          data-testid="assigned-staff-name-input"
+                        />
+                      </div>
+
+                      {/* Bus Selection */}
+                      <div className="space-y-2">
+                        <Label htmlFor="assigned_staff_bus">Select Bus</Label>
+                        <Select
+                          value={assignedStaffBus}
+                          onValueChange={setAssignedStaffBus}
+                        >
+                          <SelectTrigger data-testid="assigned-staff-bus-select">
+                            <SelectValue placeholder="-- Select Bus --" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {uniqueBuses.filter(b => b.startsWith('Bus')).map(bus => (
+                              <SelectItem key={bus} value={bus}>{bus}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Add Button */}
+                      <Button
+                        className="w-full"
+                        onClick={handleSaveAssignedStaff}
+                        disabled={!assignedStaffName.trim() || !assignedStaffBus}
+                        data-testid="save-assigned-staff-btn"
+                      >
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        Add Staff to Bus
+                      </Button>
+
+                      {/* Current Assigned Staff List */}
+                      <div className="border-t pt-4 mt-4">
+                        <h4 className="font-medium text-sm text-gray-700 mb-2">
+                          Current Assigned Staff ({assignedStaffList.length})
+                        </h4>
+                        <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                          {assignedStaffList.length === 0 ? (
+                            <p className="text-sm text-gray-500 italic">No staff assigned to buses yet</p>
+                          ) : (
+                            assignedStaffList.map(staff => (
+                              <div 
+                                key={staff.id} 
+                                className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm"
+                              >
+                                <div>
+                                  <span className="font-medium">{staff.staff_name}</span>
+                                  <span className="text-gray-500 ml-2">on {staff.bus_number}</span>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
+                                  onClick={() => handleDeleteAssignedStaff(staff.id)}
+                                  data-testid={`delete-assigned-staff-${staff.id}`}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => {
+                        setShowAssignedStaffDialog(false);
+                        setAssignedStaffName("");
+                        setAssignedStaffBus("");
+                      }}>Close</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
                 {/* Multiple Search Results Dialog */}
                 <Dialog open={showMultipleResults} onOpenChange={setShowMultipleResults}>
                   <DialogContent className="sm:max-w-[450px] max-h-[80vh]">
