@@ -3668,20 +3668,20 @@ async def auto_sync_campminder():
                         try:
                             webhook_url = "https://script.google.com/macros/s/AKfycbw8JoFhHDgyigOLy8Y6jbKxC-dB-x_FivZHVTsI29fUzcRZmJ--dz3EmpVkTOEWXSkn/exec"
                             async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as webhook_client:
-                            params = {
-                                "action": "updateBus",
-                                "first_name": first_name.strip(),
-                                "last_name": last_name.strip(),
-                                "am_bus_number": final_am_bus,
-                                "pm_bus_number": final_am_bus if pm_needs_bus else "NONE"  # Only set PM bus if they need PM bus
-                            }
-                            webhook_response = await webhook_client.get(webhook_url, params=params)
-                            if webhook_response.status_code == 200:
-                                logger.info(f"✓ Auto-assignment synced to sheet: {first_name.strip()} {last_name.strip()} → {final_am_bus}")
-                            else:
-                                logger.warning(f"Sheet sync failed for {first_name} {last_name}: {webhook_response.status_code}")
-                    except Exception as we:
-                        logger.warning(f"Failed to sync auto-assignment to sheet: {str(we)}")
+                                params = {
+                                    "action": "updateBus",
+                                    "first_name": first_name.strip(),
+                                    "last_name": last_name.strip(),
+                                    "am_bus_number": final_am_bus,
+                                    "pm_bus_number": final_am_bus if pm_needs_bus else "NONE"
+                                }
+                                webhook_response = await webhook_client.get(webhook_url, params=params)
+                                if webhook_response.status_code == 200:
+                                    logger.info(f"✓ Auto-assignment synced to sheet: {first_name.strip()} {last_name.strip()} → {final_am_bus}")
+                                else:
+                                    logger.warning(f"Sheet sync failed for {first_name} {last_name}: {webhook_response.status_code}")
+                        except Exception as we:
+                            logger.warning(f"Failed to sync auto-assignment to sheet: {str(we)}")
             else:
                 # AM not needed - set to NONE
                 final_am_bus = "NONE"
