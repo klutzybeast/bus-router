@@ -2320,8 +2320,13 @@ async def create_bus_zone(zone_data: BusZoneCreate):
 async def update_bus_zone(bus_number: str, zone_data: BusZoneUpdate):
     """Update an existing bus zone"""
     try:
-        # Find existing zone
-        existing = await db.bus_zones.find_one({"bus_number": bus_number})
+        # Find existing zone in active season
+        query = {"bus_number": bus_number}
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        existing = await db.bus_zones.find_one(query)
         if not existing:
             raise HTTPException(status_code=404, detail=f"No zone found for {bus_number}")
         
@@ -2336,12 +2341,12 @@ async def update_bus_zone(bus_number: str, zone_data: BusZoneUpdate):
             update_doc["color"] = zone_data.color
         
         await db.bus_zones.update_one(
-            {"bus_number": bus_number},
+            query,
             {"$set": update_doc}
         )
         
         # Fetch updated zone
-        updated = await db.bus_zones.find_one({"bus_number": bus_number})
+        updated = await db.bus_zones.find_one(query)
         return {
             "status": "success",
             "zone": {
