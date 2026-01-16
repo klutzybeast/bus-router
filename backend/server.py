@@ -2015,11 +2015,18 @@ async def get_all_shadows():
 
 @api_router.get("/shadows/by-bus/{bus_number}")
 async def get_shadows_by_bus(bus_number: str):
-    """Get all shadows assigned to campers on a specific bus"""
+    """Get all shadows assigned to campers on a specific bus for the active season"""
     import urllib.parse
     try:
         decoded_bus = urllib.parse.unquote(bus_number)
-        shadows = await db.shadows.find({"bus_number": decoded_bus}).to_list(None)
+        query = {"bus_number": decoded_bus}
+        
+        # Filter by active season
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        shadows = await db.shadows.find(query).to_list(None)
         result = []
         for shadow in shadows:
             result.append({
