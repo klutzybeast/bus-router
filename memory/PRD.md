@@ -286,4 +286,4 @@ REACT_APP_GOOGLE_MAPS_API_KEY=<google maps key>
 ---
 
 ## Last Updated
-January 2025 - Shadow Staff feature: 1:1 staff members assigned to accompany specific campers, with seat availability integration
+January 2026 - Multi-Season Support: Full season management (create, switch, archive), all data scoped to seasons, auto-migration on startup
