@@ -38,6 +38,14 @@ const BUS_COLORS = {
 
 const getBusColor = (busNumber) => BUS_COLORS[busNumber] || '#000000';
 
+// Central Stops - fixed locations for bus pickup/dropoff
+const CENTRAL_STOPS = [
+  { id: 'cs1', name: 'Long Beach Central Stop', address: '410 East Broadway, Long Beach, NY', lat: 40.5884, lng: -73.6579 },
+  { id: 'cs2', name: 'Bellmore Central Stop', address: '2273 Brody Lane, Bellmore, NY', lat: 40.6687, lng: -73.5271 },
+  { id: 'cs3', name: 'Merrick Central Stop 1', address: '60 Petit Ave, Merrick, NY', lat: 40.6631, lng: -73.5515 },
+  { id: 'cs4', name: 'Merrick Central Stop 2', address: '15 Fisher Ave, Merrick, NY', lat: 40.6584, lng: -73.5501 },
+];
+
 // Component to handle map controls using the useMap hook
 const MapController = ({ selectedCamper, onMapReady }) => {
   const map = useMap();
