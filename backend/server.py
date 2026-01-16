@@ -168,6 +168,21 @@ class GeoLocation(BaseModel):
     longitude: float
     address: Optional[str] = None
 
+# Season Management Models
+class SeasonCreate(BaseModel):
+    name: str  # e.g., "2026 Bus Route Management"
+    year: int
+    copy_from_season_id: Optional[str] = None  # If provided, copy data from this season
+
+class SeasonResponse(BaseModel):
+    id: str
+    name: str
+    year: int
+    is_active: bool
+    camper_count: int
+    created_at: str
+    archived_at: Optional[str] = None
+
 class CamperPin(BaseModel):
     first_name: str
     last_name: str
