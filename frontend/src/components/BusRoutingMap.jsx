@@ -1402,6 +1402,86 @@ const BusRoutingMap = () => {
             </InfoWindow>
           )}
 
+          {/* Address Search Result Marker */}
+          {addressSearchResult && showAddressResult && (
+            <>
+              <AdvancedMarker
+                position={{ lat: addressSearchResult.location.lat, lng: addressSearchResult.location.lng }}
+                onClick={() => setShowAddressResult(true)}
+              >
+                <div 
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg border-3 cursor-pointer hover:scale-110 transition-transform"
+                  style={{ 
+                    backgroundColor: '#dc2626', 
+                    borderWidth: '3px',
+                    borderColor: '#fff'
+                  }}
+                  data-testid="address-search-marker"
+                >
+                  📍
+                </div>
+              </AdvancedMarker>
+              <InfoWindow
+                position={{ lat: addressSearchResult.location.lat, lng: addressSearchResult.location.lng }}
+                onCloseClick={() => {
+                  setShowAddressResult(false);
+                  setAddressSearchResult(null);
+                }}
+                options={{ maxWidth: 320 }}
+              >
+                <div className="p-2" data-testid="address-search-info-window">
+                  <h3 className="font-bold text-base mb-2 text-gray-800">
+                    📍 Address Search Result
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <p><strong>Address:</strong> {addressSearchResult.address}</p>
+                    
+                    {addressSearchResult.servicing_buses.length > 0 && (
+                      <div>
+                        <strong className="text-green-700">🚌 Buses in Zone:</strong>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {addressSearchResult.servicing_buses.map((bus, idx) => (
+                            <span key={idx} className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">
+                              {bus.bus_number}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {addressSearchResult.nearby_buses.length > 0 && (
+                      <div>
+                        <strong className="text-blue-700">🚌 Nearby Buses:</strong>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {addressSearchResult.nearby_buses.map((bus, idx) => (
+                            <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                              {bus}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {addressSearchResult.servicing_buses.length === 0 && addressSearchResult.nearby_buses.length === 0 && (
+                      <p className="text-orange-600 italic">No buses currently service this exact area</p>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 w-full"
+                    onClick={() => {
+                      setShowAddressResult(false);
+                      setAddressSearchResult(null);
+                    }}
+                  >
+                    Clear Search
+                  </Button>
+                </div>
+              </InfoWindow>
+            </>
+          )}
+
           {selectedCamper && (
             <InfoWindow
               position={{
