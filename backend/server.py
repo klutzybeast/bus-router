@@ -2249,9 +2249,14 @@ async def get_bus_zones():
 
 @api_router.get("/bus-zones/{bus_number}")
 async def get_bus_zone(bus_number: str):
-    """Get zone for a specific bus"""
+    """Get zone for a specific bus in the active season"""
     try:
-        zone = await db.bus_zones.find_one({"bus_number": bus_number})
+        query = {"bus_number": bus_number}
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        zone = await db.bus_zones.find_one(query)
         if not zone:
             return {"zone": None}
         return {
