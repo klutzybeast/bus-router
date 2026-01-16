@@ -3581,43 +3581,23 @@ async def auto_sync_campminder():
         csv_file = StringIO(csv_content)
         reader = csv.DictReader(csv_file)
         
-        # Log column names for debugging
-        print(f"CSV columns: {reader.fieldnames}")
-        
         # Track camper IDs from sheet
         sheet_camper_ids = set()
         new_count = 0
         updated_count = 0
-        row_count = 0
         
         for row in reader:
-            row_count += 1
             am_method = row.get('Trans-AMDropOffMethod', '').strip()
             pm_method = row.get('Trans-PMDismissalMethod', '').strip()
             pm_bus_raw = row.get('2026Transportation M PM Bus', '').strip()
-            
-            # Debug log for any row with "Carrol" in last name
-            last_name_check = row.get('Last Name', '').strip()
-            first_name_check = row.get('First Name', '').strip()
-            if 'carrol' in last_name_check.lower():
-                print(f"FOUND CARROL ROW #{row_count}: {first_name_check} {last_name_check}")
-                print(f"  AM Method: '{am_method}'")
-                print(f"  PM Method: '{pm_method}'")
-                print(f"  PM Bus Raw: '{pm_bus_raw}'")
             
             # Determine if camper needs AM bus based on transport method
             am_needs_bus = 'am bus' in am_method.lower()
             # Determine if camper needs PM bus based on transport method
             pm_needs_bus = 'pm bus' in pm_method.lower()
             
-            # Debug for Carroll
-            if 'carrol' in last_name_check.lower():
-                print(f"  am_needs_bus={am_needs_bus}, pm_needs_bus={pm_needs_bus}")
-            
             # Skip campers who don't need any bus transport
             if not am_needs_bus and not pm_needs_bus:
-                if 'carrol' in last_name_check.lower():
-                    print(f"  SKIPPING Charlie - no bus needed")
                 continue
             
             # Get all required fields first
