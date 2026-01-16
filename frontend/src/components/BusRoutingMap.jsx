@@ -89,6 +89,10 @@ const BusRoutingMap = () => {
     pm_bus_number: ""
   });
   
+  // Multiple search results dialog state
+  const [showMultipleResults, setShowMultipleResults] = useState(false);
+  const [multipleResultsCampers, setMultipleResultsCampers] = useState([]);
+  
   // Fixed initial map center (Long Island area) - never changes
   const INITIAL_MAP_CENTER = { lat: 40.7128, lng: -73.7949 };
   const INITIAL_ZOOM = 11;
