@@ -1696,6 +1696,36 @@ const BusRoutingMap = () => {
                   <X className="w-5 h-5" />
                 </Button>
               </div>
+              
+              {/* Season Selector */}
+              <div className="mt-3 flex items-center gap-2">
+                <Select
+                  value={activeSeason?.id || ""}
+                  onValueChange={handleSeasonChange}
+                >
+                  <SelectTrigger className="flex-1 h-9 bg-blue-500/30 border-blue-400/50 text-white text-sm">
+                    <SelectValue placeholder="Select Season">
+                      {activeSeason?.name || "Loading..."}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {seasons.map(season => (
+                      <SelectItem key={season.id} value={season.id}>
+                        {season.name} ({season.camper_count} campers)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 px-2 text-white hover:bg-blue-500/30"
+                  onClick={() => setShowNewSeasonDialog(true)}
+                  title="Create New Season"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
             
             {/* Content - Scrollable */}
