@@ -896,6 +896,69 @@ const BusRoutingMap = () => {
     }
   };
 
+  // Navigate to a camper's other location (AM <-> PM)
+  const handleNavigateToOtherStop = (currentCamper, targetRoute) => {
+    const currentId = currentCamper._id || '';
+    const firstName = currentCamper.first_name;
+    const lastName = currentCamper.last_name;
+    
+    // Find the other entry for this camper
+    let otherEntry = null;
+    
+    if (targetRoute === 'PM') {
+      // Looking for PM entry - should end with _PM
+      otherEntry = campers.find(c => 
+        c.first_name === firstName && 
+        c.last_name === lastName && 
+        c._id && c._id.endsWith('_PM') &&
+        c._id !== currentId
+      );
+    } else {
+      // Looking for AM entry - should NOT end with _PM
+      otherEntry = campers.find(c => 
+        c.first_name === firstName && 
+        c.last_name === lastName && 
+        c._id && !c._id.endsWith('_PM') &&
+        c._id !== currentId
+      );
+    }
+    
+    if (otherEntry && mapInstance && otherEntry.location) {
+      mapInstance.panTo({
+        lat: otherEntry.location.latitude,
+        lng: otherEntry.location.longitude
+      });
+      mapInstance.setZoom(17);
+      setSelectedCamper(otherEntry);
+      toast.success(`Switched to ${targetRoute} stop: ${otherEntry.town || 'Unknown'}`);
+    } else {
+      toast.error(`No ${targetRoute} location found for this camper`);
+    }
+  };
+
+  // Check if a camper has a separate entry for the other route
+  const hasOtherRouteEntry = (camper, targetRoute) => {
+    const firstName = camper.first_name;
+    const lastName = camper.last_name;
+    const currentId = camper._id || '';
+    
+    if (targetRoute === 'PM') {
+      return campers.some(c => 
+        c.first_name === firstName && 
+        c.last_name === lastName && 
+        c._id && c._id.endsWith('_PM') &&
+        c._id !== currentId
+      );
+    } else {
+      return campers.some(c => 
+        c.first_name === firstName && 
+        c.last_name === lastName && 
+        c._id && !c._id.endsWith('_PM') &&
+        c._id !== currentId
+      );
+    }
+  };
+
   const handlePrintRoute = (busNumber) => {
     const encodedBusNumber = encodeURIComponent(busNumber);
     window.open(`${API}/route-sheet/${encodedBusNumber}/print`, '_blank');
