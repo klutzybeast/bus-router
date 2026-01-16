@@ -1793,9 +1793,16 @@ const BusRoutingMap = () => {
             {/* Header */}
             <div className="p-4 md:p-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white flex-shrink-0">
               <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl md:text-2xl font-bold">Camp Bus Routing</h2>
-                  <p className="text-sm text-blue-100 mt-1">33 Bus Routes</p>
+                <div className="flex items-center gap-3">
+                  <img 
+                    src="https://customer-assets.emergentagent.com/job_bustrek/artifacts/14j72p2r_rr%20logo.png" 
+                    alt="Rolling River Day Camp" 
+                    className="w-10 h-10 rounded-lg shadow-md"
+                  />
+                  <div>
+                    <h2 className="text-xl md:text-2xl font-bold">Camp Bus Routing</h2>
+                    <p className="text-sm text-blue-100 mt-0.5">33 Bus Routes</p>
+                  </div>
                 </div>
                 <Button
                   variant="ghost"
