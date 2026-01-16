@@ -5,7 +5,7 @@ import csv
 from io import StringIO
 
 class CampBusRoutingTester:
-    def __init__(self, base_url="https://busroutes-6.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://bustrek.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0

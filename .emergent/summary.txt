@@ -1,170 +1,180 @@
 <analysis>**original_problem_statement:**
 The user's goal is to build and deploy a web application to manage and display camper bus routes, with data sourced from a Google Sheet.
 
-During this session, the user requested several new features and reported critical bugs:
-- **Features:**
-    - Display dynamic, colored zone polygons around bus routes on the map, with a toggle and legend.
-    - Show detailed seat availability in the UI for each bus (Half 1 AM/PM, Half 2 AM/PM).
-    - Update the Seat Availability downloadable Excel report to include new Available columns for each session (e.g., Half 1 AM Available).
-- **UX Improvements:**
-    - Keep a camper's pin selected after changing their bus assignment.
-    - Ensure bus zones update automatically when a camper's bus is changed.
-- **Critical Bugs:**
-    - Excessive Google Maps API charges (47 in 3 days) due to the absence of a geocoding cache.
-    - The Google Sheet was not updating when a bus assignment was changed on the frontend (a recurring bidirectional sync failure).
-    - The map view would reset/zoom out whenever a user clicked on a pin.
-    - The bus zone polygons were oversized and not fitted to the camper locations.
-    - The deployed application was repeatedly failing to load or function correctly.
+In this session, the user requested several significant new features and bug fixes:
+- Implement a Shadow Staff feature, allowing a 1:1 staff member to be assigned to a specific child, take up a seat on the bus, and be managed through a dedicated UI.
+- Refine the search and filtering logic to correctly handle campers with different AM and PM bus routes and addresses. This included showing a selection modal for search results with multiple matches and ensuring bus filters only display the correct location pin.
+- Implement clickable bus badges in the camper InfoWindow to easily navigate between a camper's different AM/PM locations.
+- Fix critical Google Sheet synchronization bugs, ensuring buses are only assigned for AM Bus or PM Bus transport methods (not Car Drop Off, After Care, etc.) and that PM-only campers are correctly synced and have buses auto-assigned.
+- Add multi-season support to archive old data and start a new season each year, with a dropdown to switch between them.
+- Update the application's branding (tab title and footer).
 
 **PRODUCT REQUIREMENTS:**
-- Data to be sourced from a user-provided Google Sheet.
+- Data to be sourced from a user-provided Google Sheet or eventually a CampMinder API.
 - A map-based UI to visualize camper and bus data.
-- A feature to manually configure bus staff.
-- A downloadable, formatted Excel report for Seat Availability.
-- A downloadable, simplified CSV report for Bus Assignments.
-- Printable route sheets that consolidate stops for campers at the same address.
-- The application must be deployable and stable in the Emergent production environment.
-- The application must not incur excessive API costs.
-- Changes made in the UI must be reflected back in the source Google Sheet.
+- User-drawable, editable, and persistent bus zones.
+- A feature to manually configure bus staff and shadow staff.
+- Reliable data synchronization between the UI and the data source.
+- Multi-season support to archive and manage data year-over-year.
 
 **User's preferred language**: English
 
 **what currently exists?**
-A full-stack application (FastAPI, React, MongoDB) that displays camper locations and bus routes on a map. The application is now stable in the production environment.
-
-**Key Features Implemented/Fixed in this Session:**
-- **Geocoding Cache:** A critical bug causing high Google API costs was fixed by implementing a geocoding cache in MongoDB, with PositionStack as a free backup service.
-- **Bidirectional Sync:** A persistent issue preventing UI changes from updating the Google Sheet was resolved. This required extensive debugging of the Google Apps Script and hardcoding the correct webhook URL in the backend to bypass a production environment variable caching problem.
-- **Dynamic Bus Zones:** The map now features toggleable, colored, and tightly-fitted zone polygons around bus routes, complete with a legend.
-- **Seat Availability UI:** The bus list in the control panel now accurately displays remaining seats for each session (H1 AM/PM, H2 AM/PM), fetching data from a dedicated backend endpoint.
-- **UX Fixes:** The map no longer resets its view on pin interactions, and a selected camper pin remains active after updates.
+A full-stack application (FastAPI, React, MongoDB) that displays camper locations and bus routes on a map. The application features user-drawn bus zones, a shadow staff management system, and robust data synchronization with Google Sheets. The search and filter functionalities have been significantly enhanced to correctly handle complex scenarios involving campers with multiple addresses. The agent has just begun implementing a multi-season architecture by adding the necessary backend models and API endpoints, along with a basic frontend UI (dropdown and dialog), but the data migration for existing records is incomplete.
 
 **Last working item**:
-- **Last item agent was working:** The user requested an update to the downloadable Seat Availability Excel report to add four new columns showing available seats for each session (e.g., Half 1 AM Available). The agent updated the backend data generation logic in  and was about to modify the Excel file creation endpoint ( in ) to include the new columns and apply conditional formatting.
+- **Last item agent was working:** Implementing a multi-season feature. The agent created backend models/endpoints for seasons and added a season selector dropdown and New Season dialog to the frontend. However, upon testing, it was discovered that existing campers were not loading because they lack a .
 - **Status:** IN PROGRESS
 - **Agent Testing Done:** N
-- **Which testing method agent to use?** backend testing agent. The agent should call the  endpoint, save the resulting  file, and then use a Python script with  or  to verify that the new columns (, etc.) exist, the calculations are correct, and the file structure matches the user's request.
+- **Which testing method agent to use?** both. The backend requires a data migration script/logic to associate all existing data (campers, zones, staff, shadows) with the first default season. The frontend then needs to be tested to ensure the season switcher works, data reloads correctly, and the new season creation flow functions as expected.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- None. The current work is a feature enhancement task.
+- **Issue 1: Existing Data is Not Visible Due to Missing  (P0)**
+    - **Attempted fixes:** The agent built the season management feature but did not include a migration step for existing data.
+    - **Next debug checklist:**
+        1. In , modify the application startup logic or create a one-time migration endpoint.
+        2. On startup, check for an active season. If none exists, create a default one (e.g., 2026 Bus Route Management).
+        3. Query all collections (, , , ) for documents where  does not exist.
+        4. Update these documents by adding the  of the active season. This will make all historical data part of the initial season.
+    - **Why fix this issue and what will be achieved with the fix?** This will make all existing data visible and usable within the new multi-season architecture, unblocking further development.
+    - **Status:** IN PROGRESS
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** Both
+    - **Blocked on other issue:** None
 
 **In progress Task List**:
-- **Task 1: Update Seat Availability Excel Report (P0)**
-    - **Description:** Modify the downloadable Seat Availability Excel report to include new Available columns for each session (Half 1 AM, Half 1 PM, Half 2 AM, Half 2 PM) with correct calculations and formatting.
-    - **Where to resume:** The data generation logic in  is complete. The next step is to update the  endpoint in . This involves modifying the  logic to add the new columns, calculate the availability, apply conditional color formatting (Red/Orange/Green) to the new Available columns, and ensure the final structure matches the user's requirements.
-    - **What will be achieved with this?** The Excel report will provide more granular seat availability data, making it more useful for planning.
+- **Task 1: Complete Multi-Season Feature (P0)**
+    - **Where to resume:** After resolving the data migration issue (Issue 1), the agent must finish the multi-season implementation.
+        - **Backend:** Update **ALL** data-mutating endpoints (for campers, zones, staff, shadows) to be season-aware (i.e., require and filter by ). Currently, only  is updated.
+        - **Backend:** Implement the logic for the  endpoint to correctly copy all data (campers, zones, bus staff, shadows) from the previous active season into the new one.
+        - **Frontend:** Ensure the season dropdown correctly triggers a full data refresh for the entire application state when a new season is selected.
+    - **What will be achieved with this?** The application will fully support managing bus routes across multiple years, with the ability to archive old seasons and start fresh with copied data.
     - **Status:** IN PROGRESS
-    - **Should Test backend/backend/both after fix?** Backend
-    - **Blocked on something:** None.
+    - **Should Test frontend/backend/both after fix?** Both
+    - **Blocked on something:** 
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-    - **Refactor server.py (P1):** The main  file has become extremely large and complex. It should be broken down into a modular structure using FastAPI's  in a  directory and moving business logic into a  directory.
+    - **CampMinder API Integration (P1/Blocked):** A key user request to replace the Google Sheet sync with a more robust API-driven approach. The agent has provided the user with instructions on how to obtain API credentials from CampMinder. This task is blocked until the user provides the API Key, Subscription Key, and Report ID.
+    - **Refactor  (P1):** The main backend file is extremely large. It needs to be modularized by breaking down endpoints into FastAPI s within a  directory and moving business logic into a  directory.
+
 - **Future Tasks:**
-    - **CampMinder API Integration (P2/Blocked):** A long-term goal to replace the Google Sheet sync. This is blocked until the user resolves API key permission issues with CampMinder support.
+    - **Multi-Tenant SaaS Conversion (P2):** The user has expressed interest in turning the application into a saleable SaaS product for other camps. The agent has already provided a high-level architectural overview.
     - **Deprecate Google Sheet Sync (P2):** This task depends on the successful integration of the CampMinder API.
 
 **Completed work in this session**
-- **Geocoding Cache & Cost Control:** Implemented a robust geocoding cache using MongoDB to prevent re-geocoding of addresses, drastically reducing API calls and costs. Integrated PositionStack as a free fallback.
-- **Bidirectional Sync Fixed:** Resolved a critical, recurring bug where UI changes wouldn't update the Google Sheet in production by hardcoding the correct webhook URL in .
-- **Dynamic Bus Zone Polygons:** Created and integrated a new component () to display toggleable, colored, and tightly-fitted polygons around bus routes.
-- **Seat Availability UI:** Added a new API endpoint () and updated the frontend to display detailed seat availability for each bus session in the control panel.
-- **Map UX Overhaul:** Fixed the map view from resetting on pin interactions by using  and refactoring map centering logic. Ensured the selected camper pin remains active after a bus change.
-- **Deployment Stability:** Resolved multiple deployment failures related to environment variables, database connections, and incorrect frontend/backend URLs, leading to a stable production application.
+- **Shadow Staff Feature (Complete Refactor):**
+  - Implemented a full CRUD system for shadow staff members linked 1:1 with a child.
+  - UI was refactored from the camper InfoWindow into a dedicated side-panel dialog.
+  - The dialog's Link to Child dropdown is dynamically filtered by the selected bus and correctly shows which children already have a shadow.
+  - Shadows are now correctly counted in the bus seat availability calculations, and the side panel UI updates in real-time.
+- **Advanced Search, Filter, and Navigation UX:**
+  - **Multi-Result Search:** Search now handles multiple matches by showing a selection dialog, allowing the user to pick the correct camper. This works for campers with the same last name and for single campers with multiple addresses.
+  - **Correct Bus Filtering:** Fixed a critical bug where filtering by a bus would incorrectly show both AM and PM pins for campers with different routes. The filter now correctly displays only the relevant pin for the selected bus.
+  - **Intra-Camper Navigation:** Made AM/PM bus numbers in the InfoWindow clickable, allowing easy navigation between a camper's different pickup/drop-off locations.
+  - **Continuous Search:** The search input now remains focused and usable even when a camper's InfoWindow is open.
+- **Critical Google Sheet Sync Fixes:**
+  - **Transport Method Logic:** Corrected the sync logic to only assign buses if the transport method is explicitly AM Bus or PM Bus, ignoring Car Drop Off, After Care, etc.
+  - **Auto-Assignment for Partial Routes:** Fixed a bug where campers needing only a PM bus (like Charlie Carrol) were being skipped. The system now correctly auto-assigns a bus and syncs them. Verified this also works for AM-only campers.
+- **Code Cleanup and Branding:**
+  - Deleted the obsolete  component.
+  - Updated the app's tab title to RRDC Bus Mapping System and the footer credit to Made by Brian Stein.
+- **Testing:** Used  to perform a comprehensive test of the backend and frontend for the initial shadow feature implementation. Manually tested all subsequent features and fixes with screenshots.
 
 **Earlier issues found/mentioned but not fixed**
-- **Issue 1: Google Sheet formatting is not being applied**
-    - **Description:** The Google Apps Script that is supposed to format the Seat Availability sheet is not applying styles. This was mentioned in the previous session but has not been addressed as the focus was on critical bugs.
-    - **Debug checklist:** This is likely caused by the user not deploying the Apps Script with the **New version** option after making changes. Once the current task is complete, the agent should remind the user of this step.
-    - **Why to solve this issue and what will be achieved with this?** The exported sheet will be more readable and professional.
-    - **Should Test frontend/backend/both after fix:** Backend (by triggering the sheet update).
-    - **Is recurring issue?** Y
+- None.
 
 **Known issue recurrence from previous fork**
-- **Issue recurrence in previous fork:** Deployment issues and Google Sheet sync not working were the primary recurring problems.
-- **Recurrence count:** High. These issues were the main focus of the entire session.
-- **Status:** RESOLVED. The deployment is now stable, and the sync issue was resolved by hardcoding the webhook URL as a workaround for a platform-level environment variable caching problem.
+- **Issue recurrence in previous fork:** Google Sheet sync not working.
+- **Recurrence count:** High.
+- **Status:** RESOLVED. The sync logic was significantly hardened in this session by addressing several more root causes related to transport methods and auto-assignment for partial routes. The system is much more robust, but remains inherently complex.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Backend**: FastAPI, Motor (Async MongoDB), , .
-- **Frontend**: React, , TailwindCSS, shadcn/ui, .
-- **Geocoding Strategy**: Implemented a caching layer in MongoDB ( collection) to store results from Google Maps Geocoding API and uses PositionStack API as a fallback to minimize costs.
-- **Google Apps Script**: The session involved extensive debugging of the user's script, including switching from  to , fixing syntax errors, and correcting mismatched column names.
-- **Deployment Debugging**: Diagnosed and fixed issues related to environment variable caching, incorrect database names in production, and frontend-backend URL mismatches.
+- **Multi-Season Architecture:** Initiated a major architectural change by introducing a  collection and  fields to scope all data (campers, zones, staff, shadows) to a specific operational year.
+- **Dynamic UI Refactoring:** Successfully migrated the Add Shadow functionality from a simple form inside the camper InfoWindow to a more scalable and user-friendly side-panel dialog, demonstrating the ability to evolve the UI based on user feedback.
+- **Complex Frontend State & Filtering:** Managed complex frontend state to handle multiple layers of data filtering. The logic for  and  was refined to correctly display campers who have different AM and PM routes.
+- **React Refs for Focus Management:** Used the  hook in React to programmatically maintain focus on the search input, preventing the map from stealing focus and allowing for a smoother user experience.
 
 **key DB schema**
-- ** (New)**:
-    - :  (The full address string)
-    - : 
-    - : 
-    - :  (e.g., 'google', 'positionstack')
-    - : 
-    - : 
+- ****: 
+- ****: 
+- ****: Now includes a  field.
+- ****: Now includes a  field.
+- ****: Now includes a  field.
 
 **changes in tech stack**
-- Added  to the backend for PositionStack API calls.
+- None.
 
 **All files of reference**
-- : Major changes. Added geocoding cache with PositionStack fallback, new  endpoint, debug endpoints, and hardcoded the Google Sheets webhook URL to fix a production bug.
-- : Major changes. Integrated bus zone polygons, added state for zones/legend/seat availability, and fixed critical map reset/panning bugs.
-- : **(New)** Created to calculate and render compact, convex hull polygons for bus zones.
-- : Updated to generate the data structure for the new Available columns in the seat availability report.
-- : Updated to add  and the correct . Quotes were removed to fix a deployment agent issue.
-- **User's Google Apps Script:** The agent provided significant updates to the user's script to fix errors and align it with the backend API calls.
+- : Heavily modified. Added CRUD APIs for shadows and seasons. Overhauled the  logic to handle transport methods and auto-assign buses correctly.
+- : Major refactoring. Removed the inline shadow form and added a dedicated dialog. Implemented the season selector UI. Rewrote search, filtering, and navigation logic.
+- : Modified for branding changes (title and footer).
 
 **Areas that need refactoring**:
--  is critically large and needs to be modularized. Logic for routes, services, and data models should be separated into different files/directories.
-- The hardcoded Google Sheets webhook URL in  is a temporary workaround. It should be moved back to an environment variable if the platform's caching behavior is resolved.
+-  remains critically monolithic and is the highest priority for refactoring. The addition of season logic has increased its complexity.
+-  has grown to over 2,000 lines. The various dialogs (Add Camper, Configure Staff, Add Shadow, New Season, Multi-Search-Result) and the side panel itself should be extracted into their own components.
 
 **key api endpoints**
--  **(New)**: Returns JSON data for seat availability, used by the frontend UI.
--  **(New)**: A debug endpoint to check the status of the geocoding cache.
--  **(New)**: A debug endpoint to verify webhook configuration in the running environment.
--  **(Updated)**: The underlying webhook call was changed from POST to GET and the URL was eventually hardcoded to fix a persistent production issue. Logic was updated to send both AM and PM bus info.
+- **Shadows:**
+  - : Fetches all shadows for the active season.
+  - : Creates a new shadow.
+  - : Deletes a shadow.
+- **Seasons (New):**
+  - : Fetches all seasons.
+  - : Gets the currently active season.
+  - : Sets the active season.
+  - : Creates a new season (logic to copy data is pending).
+- **Existing Endpoints (Updated):**
+  - : Now filters by the active .
+  - : Logic completely overhauled to handle various transport methods and auto-assign buses for partial routes.
 
 **Critical Info for New Agent**
-- **Resume the Excel Report Task:** Your immediate priority is to finish the Update Seat Availability Report task by modifying the  endpoint in  to generate the new file format.
-- **Hardcoded Webhook URL:** The Google Sheets webhook URL is **hardcoded** in  around line 2375. This was a necessary fix for a production environment variable caching issue. Do not rely on the  file for this URL.
-- **Geocoding is Stable:** The costly geocoding issue is resolved with a robust caching system. You should not need to touch this logic.
-- **User Frustration:** The user has been very frustrated with deployment and sync issues. Ensure all new features are thoroughly tested before finishing. Communicate clearly that deployment issues are now resolved.
+- **Fix Data Migration First:** Your immediate priority is to fix the missing  on existing data. Without this, the application is not functional as it shows 0 campers. You must implement a migration logic that assigns the default active season's ID to all existing documents in the , , , and  collections.
+- **Season-Aware Endpoints:** After the migration, you must complete the multi-season task. Remember that **all** endpoints that create, read, update, or delete data must now be season-aware. They should implicitly use the active  for all operations. The previous agent only updated .
+- **CampMinder Integration is a High-Priority User Goal:** The user is very interested in this. Be prepared to act as soon as they provide the necessary API credentials.
 
 **documents and test reports created in this job**
--  (updated with new features and bug fixes)
+-  (updated multiple times).
+-  (for the shadow feature).
 
 **Last 10 User Messages and any pending HUMAN messages**
-1. **User**: it is not updating back to the sheet when i change the bus number on the pin in the front end - **STATUS: ADDRESSED**. This was the core webhook issue, eventually fixed by hardcoding the URL.
-2. **User**: i dont know how please update this already ffs - **STATUS: ADDRESSED**. User was frustrated with updating environment variables. The agent called the deployment agent and then hardcoded the URL as a final fix.
-3. **User**: listen im getting really pissed of it isnt working still... - **STATUS: ADDRESSED**. User reiterated the webhook issue and provided the script code.
-4. **User**: *Provides updated Apps Script code again after a fix attempt.* - **STATUS: ADDRESSED**. Agent identified a syntax error (a tab character) in the user's paste.
-5. **User**: yes but that isnt the issue its the front end its not updating the google sheet when i change the bus - **STATUS: ADDRESSED**. User clarified the problem was specific to the frontend UI action, not direct API calls.
-6. **User**: what happened - **STATUS: ADDRESSED**. The deployed app crashed briefly after a redeploy. Agent confirmed it came back online.
-7. **User**: working now - **STATUS: COMPLETED**. User confirmed the app was stable and the webhook was functioning correctly after the hardcoded URL was deployed.
-8. **User**: *Uploads an Excel file and gives a new feature request.* - **STATUS: IN PROGRESS**. This initiated the current task to update the seat availability report.
-9. **User**: configure the correct url before i deploy or you do it after - **STATUS: ADDRESSED**. Agent confirmed URL was correct in the codebase before user deployed.
-10. **User**: nothing loading on deployed app - **STATUS: ADDRESSED**. Agent fixed a final set of deployment blockers.
+1.  **User**: I want to start a new year each season (2027, 2028...). **STATUS: IN PROGRESS**. Agent started implementing, but it's blocked.
+2.  **User**: Can we change the tab header to RRDC Bus Mapping System and the footer to Made by Brian Stein? **STATUS: RESOLVED**.
+3.  **User**: I want to auto-refresh a report from CampMinder. **STATUS: BLOCKED**. Agent explained what credentials are needed from the user.
+4.  **User**: When I search, I want to keep typing even if a pin card is open. **STATUS: RESOLVED**.
+5.  **User**: Auto-assign a bus if a child is only on an AM bus. **STATUS: RESOLVED**.
+6.  **User**: The sheet is not picking up a new camper (Charlie Carrol), and it's incorrectly assigning buses to Car Drop Off. **STATUS: RESOLVED**.
+7.  **User**: I want to click the bus number on a pin card to switch to the camper's other stop. **STATUS: RESOLVED**.
+8.  **User**: The filter for Bus #4 is still showing a camper from Bus #11. **STATUS: RESOLVED**.
+9.  **User**: When I search for a camper with two addresses, show a popup to let me select which one. **STATUS: RESOLVED**.
+10. **User**: In the Add Shadow dialog, when I select a bus, the child dropdown should only show kids on that specific bus route (AM or PM). **STATUS: RESOLVED**.
 
 **Project Health Check:**
-- **Working:** The core application, including data sync, geocoding, bus zones, and UI, is now stable and functional in both local and production environments.
-- **In Progress:** The Seat Availability Excel report update is underway.
-- **Mocked:** No mocked components.
+- **Working:** All features from the start of the session are working robustly.
+- **In Progress:** The multi-season feature is partially implemented.
+- **Broken:** The main camper map is currently non-functional because existing data is not being loaded due to the new (but incomplete) season architecture. This is the top priority blocker.
+- **Mocked:** None.
 
 **3rd Party Integrations**
-- **Google Maps API**: Requires a User-provided API Key (for map display).
-- **Google Sheets API**: Requires a user-deployed Google Apps Script with a specific webhook URL.
-- **PositionStack API**: Requires a User-provided API Key (used as a free fallback for geocoding).
+- **Google Maps API**: Requires a User-provided API Key.
+- **Google Sheets API**: Requires two user-deployed Google Apps Scripts with specific webhook URLs.
+- **PositionStack API**: Requires a User-provided API Key.
+- **CampMinder API**: **(Planned)** Blocked on user providing credentials.
 
 **Testing status**
-- **Testing agent used after significant changes:** NO
-- **Troubleshoot agent used after agent stuck in loop:** YES (Deployment agent was called, which helped identify an issue with quotes in the  file).
+- **Testing agent used after significant changes:** YES, for the shadow feature.
+- **Troubleshoot agent used after agent stuck in loop:** NO
 - **Test files created:** None.
-- **Known regressions:** None.
+- **Known regressions:** The main data view is currently broken due to the incomplete multi-season migration.
 
 **Credentials to test flow:**
 - **PositionStack API Key**:  (available in )
+- **Google Sheets Webhook URLs**: Two separate URLs are configured in .
 
 **What agent forgot to execute**
-- The agent was in the middle of implementing the Update Seat Availability Report feature. It successfully updated the data generation part but did not get to the file creation/formatting part in  before the session ended. All other user requests and critical bugs from this session were addressed.</analysis>
+- The agent did not implement a data migration strategy when introducing the . This broke the main data display and is now the primary blocker.
+- The agent has not yet updated all CRUD endpoints to be season-aware, which is a necessary part of the multi-season feature.</analysis>
