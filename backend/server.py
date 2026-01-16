@@ -1402,8 +1402,12 @@ async def get_seat_availability_for_sheets():
         staff_configs = await db.bus_staff.find({}).to_list(None)
         staff_dict = {c['bus_number']: c for c in staff_configs}
         
-        # Use compact Cover Sheet format with staff info
-        sheet_data = cover_sheet_generator.generate_cover_sheet(campers, staff_dict)
+        # Get shadows and assigned staff for notes column
+        shadows = await db.shadows.find({}).to_list(None)
+        assigned_staff = await db.bus_assigned_staff.find({}).to_list(None)
+        
+        # Use compact Cover Sheet format with staff info and notes
+        sheet_data = cover_sheet_generator.generate_cover_sheet(campers, staff_dict, shadows, assigned_staff)
         
         return {
             "status": "success",
