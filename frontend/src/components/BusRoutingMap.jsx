@@ -803,8 +803,44 @@ const BusRoutingMap = () => {
   };
 
   const handleSearchSubmit = () => {
-    // Pan to the first matching camper when Enter is pressed
+    // Pan to the matching camper when Enter is pressed
     if (searchQuery.trim() && searchMatches.length > 0) {
+      // Check if there are multiple entries for the same person (same first + last name)
+      const query = searchQuery.toLowerCase().trim();
+      
+      // Group matches by full name to find duplicates (AM/PM entries)
+      const nameGroups = {};
+      searchMatches.forEach(camper => {
+        const fullName = `${camper.first_name} ${camper.last_name}`.toLowerCase();
+        if (!nameGroups[fullName]) {
+          nameGroups[fullName] = [];
+        }
+        nameGroups[fullName].push(camper);
+      });
+      
+      // Find exact name matches (where the search query matches a complete name)
+      let exactMatches = [];
+      for (const [fullName, camperList] of Object.entries(nameGroups)) {
+        // Check if query matches first name, last name, or full name exactly
+        const firstName = camperList[0].first_name.toLowerCase();
+        const lastName = camperList[0].last_name.toLowerCase();
+        if (query === firstName || query === lastName || query === fullName || 
+            fullName.includes(query)) {
+          if (camperList.length > 1) {
+            exactMatches = camperList;
+            break;
+          }
+        }
+      }
+      
+      // If we found multiple entries for the same person, show selection dialog
+      if (exactMatches.length > 1) {
+        setMultipleResultsCampers(exactMatches);
+        setShowMultipleResults(true);
+        return;
+      }
+      
+      // Single match - navigate directly
       const firstMatch = searchMatches[0];
       if (mapInstance && firstMatch.location) {
         mapInstance.panTo({
@@ -817,6 +853,22 @@ const BusRoutingMap = () => {
       }
     } else if (searchQuery.trim()) {
       toast.error("No campers found matching your search");
+    }
+  };
+
+  const handleSelectSearchResult = (camper) => {
+    setShowMultipleResults(false);
+    setMultipleResultsCampers([]);
+    if (mapInstance && camper.location) {
+      mapInstance.panTo({
+        lat: camper.location.latitude,
+        lng: camper.location.longitude
+      });
+      mapInstance.setZoom(17);
+      setSelectedCamper(camper);
+      const isPm = camper._id && camper._id.endsWith('_PM');
+      const routeType = isPm ? 'PM' : 'AM';
+      toast.success(`Found: ${camper.first_name} ${camper.last_name} (${routeType} - ${camper.town || 'Unknown'})`);
     }
   };
 
