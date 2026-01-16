@@ -1854,7 +1854,7 @@ const BusRoutingMap = () => {
                                   value={camperId}
                                   disabled={hasExistingShadow}
                                 >
-                                  {camper.last_name}, {camper.first_name}
+                                  {camper.displayName} - {camper.displayDetail}
                                   {hasExistingShadow && " (has shadow)"}
                                 </SelectItem>
                               );
