@@ -1,7 +1,7 @@
 # Camp Bus Routing System - Product Requirements Document
 
 ## Overview
-A web application that displays camper bus routes on a Google Map, using Google Sheets as the primary data source. The system manages AM and PM bus assignments for campers attending camp.
+A web application that displays camper bus routes on a Google Map, using Google Sheets as the primary data source. The system manages AM and PM bus assignments for campers attending camp with **multi-season support** for year-over-year data management.
 
 ## Primary Data Source
 - **Google Sheet**: `https://docs.google.com/spreadsheets/d/1QX0BSUuG889BjOYsTji8kYwT3VomSRE1j2_ZtxLd65k/edit`
@@ -16,6 +16,21 @@ A web application that displays camper bus routes on a Google Map, using Google 
 ---
 
 ## What's Been Implemented
+
+### Phase 15: Multi-Season Support ✅ (January 2026)
+- **Season Management**: Each year's data (campers, shadows, bus zones, staff) is now scoped to a specific season
+- **Season Selector**: Dropdown in sidebar to switch between seasons (shows season name and camper count)
+- **Create New Season**: "+" button opens dialog to create a new season (e.g., 2027, 2028...)
+- **Copy Data Feature**: When creating a new season, optionally copy all data from a previous season
+- **Season-Aware Endpoints**: All CRUD operations filter by active season_id
+- **Auto-Migration**: Backend automatically migrates existing data to the active season on startup
+- **Archive Support**: Seasons can be archived (data preserved but hidden)
+- **Backend Endpoints**:
+  - `GET /api/seasons` - List all seasons
+  - `GET /api/seasons/active` - Get active season with camper count
+  - `POST /api/seasons` - Create new season (with optional data copy)
+  - `PUT /api/seasons/{id}/activate` - Switch active season
+  - `PUT /api/seasons/{id}/archive` - Archive a season
 
 ### Phase 1: Core Map Display ✅
 - Google Map with camper pins
