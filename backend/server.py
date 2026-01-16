@@ -2316,6 +2316,251 @@ async def get_all_bus_assigned_staff():
         logging.error(f"Error getting assigned staff: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# ============================================
+# ROUTE ORDER ENDPOINTS (Custom stop ordering)
+# ============================================
+
+class RouteOrderSave(BaseModel):
+    """Model for saving custom route order"""
+    bus_number: str
+    route_type: str  # 'am' or 'pm'
+    stop_order: List[str]  # List of camper IDs in order
+
+@api_router.get("/route-order/{bus_number}")
+async def get_route_order(bus_number: str):
+    """Get custom route order for a bus"""
+    import urllib.parse
+    try:
+        decoded_bus = urllib.parse.unquote(bus_number)
+        season_id = await get_active_season_id()
+        
+        query = {"bus_number": decoded_bus}
+        if season_id:
+            query["season_id"] = season_id
+        
+        order = await db.route_orders.find_one(query)
+        
+        if order:
+            return {
+                "status": "success",
+                "bus_number": decoded_bus,
+                "am_order": order.get("am_order", []),
+                "pm_order": order.get("pm_order", []),
+                "updated_at": order.get("updated_at")
+            }
+        else:
+            return {
+                "status": "success",
+                "bus_number": decoded_bus,
+                "am_order": [],
+                "pm_order": [],
+                "updated_at": None
+            }
+    except Exception as e:
+        logging.error(f"Error getting route order: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/route-order")
+async def save_route_order(order_data: RouteOrderSave):
+    """Save custom route order for a bus"""
+    try:
+        season_id = await get_active_season_id()
+        
+        query = {"bus_number": order_data.bus_number}
+        if season_id:
+            query["season_id"] = season_id
+        
+        # Get existing order or create new
+        existing = await db.route_orders.find_one(query)
+        
+        update_field = f"{order_data.route_type}_order"
+        
+        if existing:
+            await db.route_orders.update_one(
+                query,
+                {"$set": {
+                    update_field: order_data.stop_order,
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+        else:
+            new_order = {
+                "bus_number": order_data.bus_number,
+                "am_order": order_data.stop_order if order_data.route_type == "am" else [],
+                "pm_order": order_data.stop_order if order_data.route_type == "pm" else [],
+                "season_id": season_id,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            await db.route_orders.insert_one(new_order)
+        
+        logging.info(f"Saved {order_data.route_type.upper()} route order for {order_data.bus_number}: {len(order_data.stop_order)} stops")
+        return {
+            "status": "success",
+            "message": f"Saved {order_data.route_type.upper()} route order for {order_data.bus_number}"
+        }
+    except Exception as e:
+        logging.error(f"Error saving route order: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/route-order/{bus_number}")
+async def delete_route_order(bus_number: str):
+    """Delete custom route order for a bus (revert to auto-generated)"""
+    import urllib.parse
+    try:
+        decoded_bus = urllib.parse.unquote(bus_number)
+        season_id = await get_active_season_id()
+        
+        query = {"bus_number": decoded_bus}
+        if season_id:
+            query["season_id"] = season_id
+        
+        result = await db.route_orders.delete_one(query)
+        
+        if result.deleted_count > 0:
+            return {"status": "success", "message": f"Route order deleted for {decoded_bus}"}
+        else:
+            return {"status": "success", "message": "No custom route order found"}
+    except Exception as e:
+        logging.error(f"Error deleting route order: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
+# ADDRESS SEARCH ENDPOINT
+# ============================================
+
+@api_router.get("/search-address")
+async def search_address(address: str):
+    """Search for an address and find which buses service that area"""
+    try:
+        if not address or len(address.strip()) < 3:
+            raise HTTPException(status_code=400, detail="Address too short")
+        
+        # Geocode the address
+        POSITIONSTACK_KEY = os.environ.get("POSITIONSTACK_API_KEY")
+        GOOGLE_MAPS_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
+        
+        lat = None
+        lng = None
+        formatted_address = address
+        
+        # Try Google Maps first
+        if GOOGLE_MAPS_KEY:
+            try:
+                import httpx
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    response = await client.get(
+                        f"https://maps.googleapis.com/maps/api/geocode/json",
+                        params={"address": address, "key": GOOGLE_MAPS_KEY}
+                    )
+                    data = response.json()
+                    if data.get("status") == "OK" and data.get("results"):
+                        location = data["results"][0]["geometry"]["location"]
+                        lat = location["lat"]
+                        lng = location["lng"]
+                        formatted_address = data["results"][0]["formatted_address"]
+            except Exception as e:
+                logging.warning(f"Google geocoding failed: {e}")
+        
+        # Fallback to PositionStack
+        if lat is None and POSITIONSTACK_KEY:
+            try:
+                import httpx
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    response = await client.get(
+                        f"http://api.positionstack.com/v1/forward",
+                        params={"access_key": POSITIONSTACK_KEY, "query": address}
+                    )
+                    data = response.json()
+                    if data.get("data") and len(data["data"]) > 0:
+                        result = data["data"][0]
+                        lat = result["latitude"]
+                        lng = result["longitude"]
+                        formatted_address = result.get("label", address)
+            except Exception as e:
+                logging.warning(f"PositionStack geocoding failed: {e}")
+        
+        if lat is None or lng is None:
+            raise HTTPException(status_code=404, detail="Address not found")
+        
+        # Find buses that service this area
+        # Check bus zones that contain this point
+        season_id = await get_active_season_id()
+        zone_query = {}
+        if season_id:
+            zone_query["season_id"] = season_id
+        
+        zones = await db.bus_zones.find(zone_query).to_list(None)
+        
+        servicing_buses = []
+        for zone in zones:
+            points = zone.get("points", [])
+            if points and point_in_polygon(lat, lng, points):
+                servicing_buses.append({
+                    "bus_number": zone.get("bus_number"),
+                    "zone_name": zone.get("name", ""),
+                    "color": zone.get("color", "")
+                })
+        
+        # Also check nearby campers to find buses in the area
+        nearby_buses = set()
+        campers = await db.campers.find({
+            "location.latitude": {"$exists": True, "$ne": 0},
+            "location.longitude": {"$exists": True, "$ne": 0}
+        }).to_list(None)
+        
+        for camper in campers:
+            clat = camper.get("location", {}).get("latitude", 0)
+            clng = camper.get("location", {}).get("longitude", 0)
+            
+            # Check if within ~0.5 mile radius
+            distance = ((clat - lat) ** 2 + (clng - lng) ** 2) ** 0.5
+            if distance < 0.01:  # Roughly 0.5-1 mile
+                am_bus = camper.get("am_bus_number", "")
+                pm_bus = camper.get("pm_bus_number", "")
+                if am_bus and am_bus.startswith("Bus"):
+                    nearby_buses.add(am_bus)
+                if pm_bus and pm_bus.startswith("Bus"):
+                    nearby_buses.add(pm_bus)
+        
+        return {
+            "status": "success",
+            "address": formatted_address,
+            "location": {"lat": lat, "lng": lng},
+            "servicing_buses": servicing_buses,
+            "nearby_buses": sorted(list(nearby_buses))
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error searching address: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+def point_in_polygon(lat: float, lng: float, polygon: List[Dict]) -> bool:
+    """Check if a point is inside a polygon using ray casting algorithm"""
+    n = len(polygon)
+    if n < 3:
+        return False
+    
+    inside = False
+    j = n - 1
+    
+    for i in range(n):
+        xi = polygon[i].get("lat", 0)
+        yi = polygon[i].get("lng", 0)
+        xj = polygon[j].get("lat", 0)
+        yj = polygon[j].get("lng", 0)
+        
+        if ((yi > lng) != (yj > lng)) and (lat < (xj - xi) * (lng - yi) / (yj - yi) + xi):
+            inside = not inside
+        
+        j = i
+    
+    return inside
+
+
 @api_router.get("/bus-assigned-staff/by-bus/{bus_number}")
 async def get_assigned_staff_by_bus(bus_number: str):
     """Get all assigned staff on a specific bus for the active season"""
