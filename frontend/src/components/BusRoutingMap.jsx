@@ -246,6 +246,16 @@ const BusRoutingMap = () => {
     }
   }, []);
 
+  // Fetch assigned staff from backend
+  const fetchAssignedStaff = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/bus-assigned-staff`);
+      setAssignedStaffList(response.data.assigned_staff || []);
+    } catch (error) {
+      console.error("Error fetching assigned staff:", error);
+    }
+  }, []);
+
   // Get campers on a specific bus (for shadow dropdown)
   // Only shows campers who are actually on that bus for their route
   // - For PM-specific entries (_PM suffix), only show if pm_bus matches
