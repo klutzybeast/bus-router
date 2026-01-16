@@ -1256,6 +1256,45 @@ const BusRoutingMap = () => {
             );
           })}
 
+          {/* Central Stops - Gray circles with CS label */}
+          {showCentralStops && CENTRAL_STOPS.map((stop) => (
+            <AdvancedMarker
+              key={stop.id}
+              position={{ lat: stop.lat, lng: stop.lng }}
+              onClick={() => setSelectedCentralStop(stop)}
+            >
+              <div 
+                className="w-12 h-12 rounded-full flex items-center justify-center text-gray-700 font-bold text-sm shadow-lg border-3 border-gray-500 cursor-pointer hover:scale-110 active:scale-95 transition-transform"
+                style={{ 
+                  backgroundColor: 'rgba(156, 163, 175, 0.7)', 
+                  borderWidth: '3px',
+                  borderColor: '#6B7280'
+                }}
+                data-testid={`central-stop-${stop.id}`}
+              >
+                CS
+              </div>
+            </AdvancedMarker>
+          ))}
+
+          {/* Central Stop InfoWindow */}
+          {selectedCentralStop && (
+            <InfoWindow
+              position={{ lat: selectedCentralStop.lat, lng: selectedCentralStop.lng }}
+              onCloseClick={() => setSelectedCentralStop(null)}
+              options={{ maxWidth: 280 }}
+            >
+              <div className="p-2" data-testid="central-stop-info-window">
+                <h3 className="font-bold text-base mb-2 text-gray-800">
+                  🚌 Central Stop
+                </h3>
+                <div className="space-y-1 text-sm text-gray-600">
+                  <p><strong>Address:</strong> {selectedCentralStop.address}</p>
+                </div>
+              </div>
+            </InfoWindow>
+          )}
+
           {selectedCamper && (
             <InfoWindow
               position={{
