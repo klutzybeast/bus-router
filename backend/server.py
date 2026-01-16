@@ -758,15 +758,22 @@ async def get_campers(season_id: Optional[str] = None):
 
 @api_router.get("/campers/needs-address")
 async def get_campers_needing_address():
-    """Get campers who have bus assignments but no address"""
+    """Get campers who have bus assignments but no address in the active season"""
     try:
-        campers = await db.campers.find({
+        query = {
             "location.latitude": 0.0,
             "$or": [
                 {"am_bus_number": {"$exists": True, "$regex": "^Bus"}},
                 {"pm_bus_number": {"$exists": True, "$regex": "^Bus"}}
             ]
-        }).to_list(None)
+        }
+        
+        # Filter by active season
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        campers = await db.campers.find(query).to_list(None)
         
         result = []
         for camper in campers:
