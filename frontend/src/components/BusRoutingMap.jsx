@@ -2550,6 +2550,17 @@ const BusRoutingMap = () => {
                   Add Shadow Staff
                 </Button>
 
+                {/* Add Staff to Bus Button */}
+                <Button
+                  variant="outline"
+                  className="w-full h-12 text-base bg-teal-50 hover:bg-teal-100 border-teal-600 text-teal-700"
+                  onClick={() => setShowAssignedStaffDialog(true)}
+                  data-testid="add-staff-to-bus-btn"
+                >
+                  <UserPlus className="w-5 h-5 mr-2" />
+                  Add Staff to Bus ({assignedStaffList.length})
+                </Button>
+
                 {/* Bus Zones Toggle */}
                 <Button
                   variant="outline"
