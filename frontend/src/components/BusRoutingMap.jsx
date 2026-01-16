@@ -981,7 +981,11 @@ const BusRoutingMap = () => {
     // Just update search text, don't filter pins
   };
 
-  const handleSearchSubmit = () => {
+  // State for address search results
+  const [addressSearchResult, setAddressSearchResult] = useState(null);
+  const [showAddressResult, setShowAddressResult] = useState(false);
+
+  const handleSearchSubmit = async () => {
     // Pan to the matching camper when Enter is pressed
     if (searchQuery.trim() && searchMatches.length > 0) {
       // If multiple matches found, show selection dialog
@@ -1017,7 +1021,46 @@ const BusRoutingMap = () => {
         setTimeout(() => searchInputRef.current?.focus(), 100);
       }
     } else if (searchQuery.trim()) {
-      toast.error("No campers found matching your search");
+      // No camper matches - try searching as an address
+      toast.loading("Searching address...");
+      try {
+        const response = await axios.get(`${API}/search-address`, {
+          params: { address: searchQuery }
+        });
+        toast.dismiss();
+        
+        if (response.data.status === "success") {
+          const { location, address, servicing_buses, nearby_buses } = response.data;
+          
+          // Center map on the address
+          if (mapInstance) {
+            mapInstance.panTo({ lat: location.lat, lng: location.lng });
+            mapInstance.setZoom(16);
+          }
+          
+          // Store result for display
+          setAddressSearchResult({
+            address,
+            location,
+            servicing_buses: servicing_buses || [],
+            nearby_buses: nearby_buses || []
+          });
+          setShowAddressResult(true);
+          
+          // Show info
+          const busInfo = nearby_buses.length > 0 
+            ? `Nearby buses: ${nearby_buses.join(", ")}`
+            : "No buses currently service this exact area";
+          toast.success(`Found: ${address}\n${busInfo}`, { duration: 5000 });
+        }
+      } catch (error) {
+        toast.dismiss();
+        if (error.response?.status === 404) {
+          toast.error("Address not found. Try a more specific address.");
+        } else {
+          toast.error("No campers or addresses found matching your search");
+        }
+      }
     }
   };
 
