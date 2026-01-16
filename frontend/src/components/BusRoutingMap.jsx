@@ -883,6 +883,8 @@ const BusRoutingMap = () => {
       const isPm = camper._id && camper._id.endsWith('_PM');
       const routeType = isPm ? 'PM' : 'AM';
       toast.success(`Found: ${camper.first_name} ${camper.last_name} (${routeType} - ${camper.town || 'Unknown'})`);
+      // Keep focus on search input so user can continue typing
+      setTimeout(() => searchInputRef.current?.focus(), 100);
     }
   };
 
