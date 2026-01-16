@@ -83,6 +83,13 @@ const BusRoutingMap = () => {
   // Ref to keep focus on search input
   const searchInputRef = useRef(null);
   
+  // Season Management State
+  const [seasons, setSeasons] = useState([]);
+  const [activeSeason, setActiveSeason] = useState(null);
+  const [showNewSeasonDialog, setShowNewSeasonDialog] = useState(false);
+  const [newSeasonYear, setNewSeasonYear] = useState(new Date().getFullYear() + 1);
+  const [copyFromSeason, setCopyFromSeason] = useState("");
+  
   const [newCamper, setNewCamper] = useState({
     first_name: "",
     last_name: "",
@@ -127,6 +134,75 @@ const BusRoutingMap = () => {
 
   // Seat availability from backend (accurate counts including campers without addresses)
   const [busSeatAvailability, setBusSeatAvailability] = useState({});
+
+  // Fetch seasons
+  const fetchSeasons = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/seasons`);
+      setSeasons(response.data.seasons || []);
+    } catch (error) {
+      console.error("Error fetching seasons:", error);
+    }
+  }, []);
+
+  // Fetch active season
+  const fetchActiveSeason = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/seasons/active`);
+      setActiveSeason(response.data.season);
+      return response.data.season;
+    } catch (error) {
+      console.error("Error fetching active season:", error);
+      return null;
+    }
+  }, []);
+
+  // Switch to a different season
+  const handleSeasonChange = async (seasonId) => {
+    try {
+      toast.loading("Switching season...");
+      await axios.put(`${API}/seasons/${seasonId}/activate`);
+      toast.dismiss();
+      const newSeason = await fetchActiveSeason();
+      await fetchSeasons();
+      // Reload campers for new season
+      await fetchCampers();
+      await fetchShadows();
+      await fetchUserZones();
+      await fetchBusStaff();
+      toast.success(`Switched to ${newSeason?.name || 'new season'}`);
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Failed to switch season");
+    }
+  };
+
+  // Create new season
+  const handleCreateSeason = async () => {
+    try {
+      toast.loading("Creating new season...");
+      const seasonName = `${newSeasonYear} Bus Route Management`;
+      await axios.post(`${API}/seasons`, {
+        name: seasonName,
+        year: newSeasonYear,
+        copy_from_season_id: copyFromSeason || null
+      });
+      toast.dismiss();
+      toast.success(`Season '${seasonName}' created!`);
+      setShowNewSeasonDialog(false);
+      setNewSeasonYear(new Date().getFullYear() + 1);
+      setCopyFromSeason("");
+      await fetchActiveSeason();
+      await fetchSeasons();
+      await fetchCampers();
+      await fetchShadows();
+      await fetchUserZones();
+      await fetchBusStaff();
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error.response?.data?.detail || "Failed to create season");
+    }
+  };
 
   // Shadow staff state
   const [shadows, setShadows] = useState({}); // { camper_id: shadow_info }
