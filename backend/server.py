@@ -2221,9 +2221,15 @@ class BusZoneUpdate(BaseModel):
 
 @api_router.get("/bus-zones")
 async def get_bus_zones():
-    """Get all user-defined bus zones"""
+    """Get all user-defined bus zones for the active season"""
     try:
-        zones = await db.bus_zones.find({}).to_list(None)
+        # Filter by active season
+        query = {}
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        zones = await db.bus_zones.find(query).to_list(None)
         # Convert ObjectId to string and return
         result = []
         for zone in zones:
