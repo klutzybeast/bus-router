@@ -1911,7 +1911,7 @@ async def get_bus_staff(bus_number: str):
 
 @api_router.post("/bus-staff")
 async def save_bus_staff(config: BusStaffConfig):
-    """Save or update bus staff configuration"""
+    """Save or update bus staff configuration for the active season"""
     try:
         # Geocode the address if provided (using cached version)
         lat = None
@@ -1923,6 +1923,9 @@ async def save_bus_staff(config: BusStaffConfig):
                 lng = location.longitude
                 logging.info(f"Geocoded {config.home_address} to {lat}, {lng}")
         
+        # Get active season
+        season_id = await get_active_season_id()
+        
         # Prepare document
         staff_doc = {
             "bus_number": config.bus_number,
@@ -1933,12 +1936,17 @@ async def save_bus_staff(config: BusStaffConfig):
             "location_name": config.location_name or get_bus_location(config.bus_number),
             "lat": lat,
             "lng": lng,
+            "season_id": season_id,  # Add season_id
             "last_updated": datetime.now(timezone.utc).isoformat()
         }
         
-        # Upsert to database
+        # Upsert to database (matching bus_number AND season_id)
+        query = {"bus_number": config.bus_number}
+        if season_id:
+            query["season_id"] = season_id
+        
         result = await db.bus_staff.replace_one(
-            {"bus_number": config.bus_number},
+            query,
             staff_doc,
             upsert=True
         )
