@@ -2276,10 +2276,17 @@ async def get_bus_zone(bus_number: str):
 
 @api_router.post("/bus-zones")
 async def create_bus_zone(zone_data: BusZoneCreate):
-    """Create a new bus zone (one zone per bus)"""
+    """Create a new bus zone (one zone per bus per season)"""
     try:
-        # Check if zone already exists for this bus
-        existing = await db.bus_zones.find_one({"bus_number": zone_data.bus_number})
+        # Get active season
+        season_id = await get_active_season_id()
+        
+        # Check if zone already exists for this bus in this season
+        existing_query = {"bus_number": zone_data.bus_number}
+        if season_id:
+            existing_query["season_id"] = season_id
+        
+        existing = await db.bus_zones.find_one(existing_query)
         if existing:
             raise HTTPException(
                 status_code=400, 
@@ -2292,6 +2299,7 @@ async def create_bus_zone(zone_data: BusZoneCreate):
             "points": [{"lat": p.lat, "lng": p.lng} for p in zone_data.points],
             "name": zone_data.name or f"{zone_data.bus_number} Zone",
             "color": zone_data.color or "",
+            "season_id": season_id,  # Add season_id
             "created_at": datetime.now(timezone.utc).isoformat(),
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
