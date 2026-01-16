@@ -2076,8 +2076,14 @@ async def create_shadow(shadow_data: ShadowCreate):
         if not camper:
             raise HTTPException(status_code=404, detail=f"Camper not found: {shadow_data.camper_id}")
         
-        # Check if shadow already exists for this camper
-        existing = await db.shadows.find_one({"camper_id": shadow_data.camper_id})
+        # Get active season for the shadow
+        season_id = await get_active_season_id()
+        
+        # Check if shadow already exists for this camper in this season
+        existing_query = {"camper_id": shadow_data.camper_id}
+        if season_id:
+            existing_query["season_id"] = season_id
+        existing = await db.shadows.find_one(existing_query)
         if existing:
             raise HTTPException(
                 status_code=400,
@@ -2101,6 +2107,7 @@ async def create_shadow(shadow_data: ShadowCreate):
             "bus_number": bus_number,
             "session": camper.get('session', 'Full Season- 5 Days'),
             "town": camper.get('town', ''),  # Store town for reference
+            "season_id": season_id,  # Add season_id
             "created_at": datetime.now(timezone.utc).isoformat(),
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
