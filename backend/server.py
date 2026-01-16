@@ -4361,6 +4361,47 @@ async def sync_loop():
 async def lifespan(app: FastAPI):
     global sync_task
     
+    # Ensure data migration: Associate existing data with active season
+    try:
+        logger.info("Checking season data migration...")
+        active_season = await db.seasons.find_one({"is_active": True})
+        
+        if not active_season:
+            # Create default season if none exists
+            from datetime import datetime, timezone
+            current_year = datetime.now().year
+            new_season = {
+                "_id": str(uuid.uuid4()),
+                "name": f"{current_year} Bus Route Management",
+                "year": current_year,
+                "is_active": True,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "archived_at": None
+            }
+            await db.seasons.insert_one(new_season)
+            active_season = new_season
+            logger.info(f"Created default season: {new_season['name']}")
+        
+        season_id = active_season["_id"]
+        
+        # Migrate documents that don't have a season_id
+        collections_to_migrate = ['campers', 'shadows', 'bus_zones', 'bus_staff']
+        for collection_name in collections_to_migrate:
+            collection = db[collection_name]
+            result = await collection.update_many(
+                {"$or": [
+                    {"season_id": {"$exists": False}},
+                    {"season_id": None}
+                ]},
+                {"$set": {"season_id": season_id}}
+            )
+            if result.modified_count > 0:
+                logger.info(f"Migrated {result.modified_count} {collection_name} to season {season_id[:8]}...")
+        
+        logger.info("Season data migration complete")
+    except Exception as e:
+        logger.error(f"Error during season migration: {e}")
+    
     logger.info(f"Auto-sync enabled: {AUTO_SYNC_ENABLED}")
     if AUTO_SYNC_ENABLED:
         logger.info(f"Starting auto-sync from Google Sheets (interval: {SYNC_INTERVAL_MINUTES} min)")
