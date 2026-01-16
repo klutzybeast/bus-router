@@ -183,6 +183,17 @@ class SeasonResponse(BaseModel):
     created_at: str
     archived_at: Optional[str] = None
 
+async def get_active_season_id() -> Optional[str]:
+    """Helper function to get the active season ID"""
+    try:
+        season = await db.seasons.find_one({"is_active": True})
+        if season:
+            return str(season["_id"])
+        return None
+    except Exception as e:
+        logging.error(f"Error getting active season ID: {e}")
+        return None
+
 class CamperPin(BaseModel):
     first_name: str
     last_name: str
