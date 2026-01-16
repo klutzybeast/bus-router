@@ -525,6 +525,10 @@ const BusRoutingMap = () => {
   }, []);
 
   useEffect(() => {
+    // Initialize seasons first
+    fetchActiveSeason();
+    fetchSeasons();
+    
     fetchCampers();
     fetchBusStaff();
     fetchBusInfo();
