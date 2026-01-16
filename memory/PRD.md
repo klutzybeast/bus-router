@@ -200,6 +200,15 @@ A web application that displays camper bus routes on a Google Map, using Google 
 | `/api/sync-to-google-sheet` | POST | Sync all assignments to sheet |
 | `/api/detect-changes` | POST | Detect and sync bus assignment changes |
 
+### Season Management Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/seasons` | GET | Get all seasons with camper counts |
+| `/api/seasons/active` | GET | Get active season with camper count |
+| `/api/seasons` | POST | Create new season (optional copy_from_season_id) |
+| `/api/seasons/{id}/activate` | PUT | Switch to a different season |
+| `/api/seasons/{id}/archive` | PUT | Archive a season (keeps data) |
+
 ### Route Endpoints
 | Endpoint | Method | Description |
 |----------|--------|-------------|
