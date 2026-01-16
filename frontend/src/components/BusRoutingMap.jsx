@@ -145,12 +145,41 @@ const BusRoutingMap = () => {
   }, []);
 
   // Get campers on a specific bus (for shadow dropdown)
+  // Only shows campers who are actually on that bus for their route
+  // - For PM-specific entries (_PM suffix), only show if pm_bus matches
+  // - For regular entries, only show if am_bus matches (or pm_bus if no am_bus)
   const getCampersOnBus = useCallback((busNumber) => {
     if (!busNumber) return [];
-    return campers.filter(c => 
-      c.am_bus_number === busNumber || c.pm_bus_number === busNumber
-    ).sort((a, b) => 
-      `${a.last_name} ${a.first_name}`.localeCompare(`${b.last_name} ${b.first_name}`)
+    
+    return campers.filter(c => {
+      const isPmEntry = c._id && c._id.endsWith('_PM');
+      
+      if (isPmEntry) {
+        // PM-specific entry - only show if this is their PM bus
+        return c.pm_bus_number === busNumber;
+      } else {
+        // Regular entry - show if this is their AM bus
+        // OR if they have no AM bus but this is their PM bus
+        const hasAmBus = c.am_bus_number && c.am_bus_number !== 'NONE' && c.am_bus_number.startsWith('Bus');
+        if (hasAmBus) {
+          return c.am_bus_number === busNumber;
+        } else {
+          return c.pm_bus_number === busNumber;
+        }
+      }
+    }).map(c => {
+      // Add route info for display
+      const isPmEntry = c._id && c._id.endsWith('_PM');
+      const routeType = isPmEntry ? 'PM' : 'AM';
+      const town = c.town || '';
+      return {
+        ...c,
+        routeType,
+        displayName: `${c.last_name}, ${c.first_name}`,
+        displayDetail: town ? `${routeType} - ${town}` : routeType
+      };
+    }).sort((a, b) => 
+      a.displayName.localeCompare(b.displayName)
     );
   }, [campers]);
 
