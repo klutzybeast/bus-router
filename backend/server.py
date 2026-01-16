@@ -1750,6 +1750,7 @@ async def get_all_shadows():
                 "camper_name": shadow.get("camper_name"),
                 "bus_number": shadow.get("bus_number"),
                 "session": shadow.get("session"),
+                "town": shadow.get("town", ""),
                 "created_at": shadow.get("created_at"),
                 "updated_at": shadow.get("updated_at")
             })
