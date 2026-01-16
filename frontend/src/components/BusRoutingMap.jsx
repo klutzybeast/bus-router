@@ -771,8 +771,32 @@ const BusRoutingMap = () => {
     }
   };
 
+  // Filter campers by selected bus
+  // For campers with different AM/PM addresses (separate entries), only show the entry for the correct route
   const filteredCampers = selectedBusFilter 
-    ? campers.filter(c => c.am_bus_number === selectedBusFilter || c.pm_bus_number === selectedBusFilter || c.bus_number === selectedBusFilter)
+    ? campers.filter(c => {
+        const isPmEntry = c._id && c._id.endsWith('_PM');
+        
+        if (isPmEntry) {
+          // PM-specific entry - only show if the selected bus is their PM bus
+          return c.pm_bus_number === selectedBusFilter;
+        } else {
+          // Regular entry - check if this is an AM entry for a camper with different AM/PM buses
+          const hasDifferentPmBus = c.am_bus_number && c.pm_bus_number && 
+                                     c.am_bus_number !== c.pm_bus_number &&
+                                     c.am_bus_number !== 'NONE' && c.pm_bus_number !== 'NONE';
+          
+          if (hasDifferentPmBus) {
+            // This camper has separate AM/PM addresses - only show on AM bus
+            return c.am_bus_number === selectedBusFilter;
+          } else {
+            // Normal camper - show if either AM or PM bus matches
+            return c.am_bus_number === selectedBusFilter || 
+                   c.pm_bus_number === selectedBusFilter || 
+                   c.bus_number === selectedBusFilter;
+          }
+        }
+      })
     : campers;
 
   const sessionFilteredCampers = sessionFilter === "all" 
