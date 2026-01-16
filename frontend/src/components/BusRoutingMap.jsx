@@ -201,7 +201,8 @@ const BusRoutingMap = () => {
       toast.loading("Saving shadow...");
       await axios.post(`${API}/shadows`, {
         shadow_name: shadowName.trim(),
-        camper_id: selectedShadowCamper
+        camper_id: selectedShadowCamper,
+        bus_number: selectedShadowBus  // Pass the selected bus explicitly
       });
       toast.dismiss();
       toast.success("Shadow saved successfully");
