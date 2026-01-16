@@ -3763,29 +3763,17 @@ async def auto_sync_campminder():
             effective_town = am_town.strip() if am_needs_bus else pm_town.strip()
             effective_zip = am_zip.strip() if am_needs_bus else pm_zip.strip()
             
-            # Debug for Carroll
-            if 'carrol' in last_name.lower():
-                print(f"  AM Address: '{am_address}', PM Address: '{pm_address}'")
-                print(f"  Effective Address: '{effective_address}'")
-            
             # If no effective address, try the other one
             if not effective_address:
                 effective_address = pm_address.strip() or am_address.strip()
                 effective_town = pm_town.strip() or am_town.strip()
                 effective_zip = pm_zip.strip() or am_zip.strip()
-                if 'carrol' in last_name.lower():
-                    print(f"  Fallback Effective Address: '{effective_address}'")
             
             # For campers without address but with valid bus, still add them (for route planning)
             has_any_bus = (final_am_bus and final_am_bus != "NONE") or (final_pm_bus and final_pm_bus != "NONE")
             
-            if 'carrol' in last_name.lower():
-                print(f"  final_am_bus={final_am_bus}, final_pm_bus={final_pm_bus}, has_any_bus={has_any_bus}")
-            
             if not effective_address and not has_any_bus:
                 # Skip campers with no address AND no bus
-                if 'carrol' in last_name.lower():
-                    print(f"  SKIPPING Charlie - no address and no bus")
                 continue
             
             # Determine pickup type based on transport methods
