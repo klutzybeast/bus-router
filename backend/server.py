@@ -3582,7 +3582,7 @@ async def auto_sync_campminder():
         reader = csv.DictReader(csv_file)
         
         # Log column names for debugging
-        logger.info(f"CSV columns: {reader.fieldnames}")
+        print(f"CSV columns: {reader.fieldnames}")
         
         # Track camper IDs from sheet
         sheet_camper_ids = set()
@@ -3600,10 +3600,10 @@ async def auto_sync_campminder():
             last_name_check = row.get('Last Name', '').strip()
             first_name_check = row.get('First Name', '').strip()
             if 'carrol' in last_name_check.lower():
-                logger.info(f"FOUND CARROL ROW #{row_count}: {first_name_check} {last_name_check}")
-                logger.info(f"  AM Method: '{am_method}'")
-                logger.info(f"  PM Method: '{pm_method}'")
-                logger.info(f"  PM Bus Raw: '{pm_bus_raw}'")
+                print(f"FOUND CARROL ROW #{row_count}: {first_name_check} {last_name_check}")
+                print(f"  AM Method: '{am_method}'")
+                print(f"  PM Method: '{pm_method}'")
+                print(f"  PM Bus Raw: '{pm_bus_raw}'")
             
             # Determine if camper needs AM bus based on transport method
             am_needs_bus = 'am bus' in am_method.lower()
