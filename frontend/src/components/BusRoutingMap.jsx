@@ -1976,6 +1976,54 @@ const BusRoutingMap = () => {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
+
+                {/* Multiple Search Results Dialog */}
+                <Dialog open={showMultipleResults} onOpenChange={setShowMultipleResults}>
+                  <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                      <DialogTitle className="text-lg">Multiple Entries Found</DialogTitle>
+                      <DialogDescription>
+                        This camper has {multipleResultsCampers.length} different pickup/dropoff locations. Select which one to view:
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2 mt-4">
+                      {multipleResultsCampers.map((camper, index) => {
+                        const isPm = camper._id && camper._id.endsWith('_PM');
+                        const routeType = isPm ? 'PM' : 'AM';
+                        const busNumber = isPm ? camper.pm_bus_number : camper.am_bus_number;
+                        return (
+                          <Button
+                            key={camper._id || index}
+                            variant="outline"
+                            className="w-full h-auto py-3 px-4 justify-start text-left"
+                            onClick={() => handleSelectSearchResult(camper)}
+                          >
+                            <div className="flex flex-col items-start">
+                              <div className="font-semibold">
+                                {camper.first_name} {camper.last_name}
+                                <span className={`ml-2 px-2 py-0.5 rounded text-xs ${isPm ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
+                                  {routeType}
+                                </span>
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                {camper.town || 'Unknown'} - {busNumber || 'No bus'}
+                              </div>
+                              <div className="text-xs text-gray-400 truncate max-w-full">
+                                {camper.location?.address || 'No address'}
+                              </div>
+                            </div>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    <DialogFooter className="mt-4">
+                      <Button variant="outline" onClick={() => {
+                        setShowMultipleResults(false);
+                        setMultipleResultsCampers([]);
+                      }}>Cancel</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
                 
                 <Button
                   variant="outline"
