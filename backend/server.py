@@ -3918,6 +3918,10 @@ async def auto_sync_campminder():
         new_count = 0
         updated_count = 0
         
+        # Get active season ID for synced campers
+        active_season = await db.seasons.find_one({"is_active": True})
+        sync_season_id = str(active_season["_id"]) if active_season else None
+        
         for row in reader:
             am_method = row.get('Trans-AMDropOffMethod', '').strip()
             pm_method = row.get('Trans-PMDismissalMethod', '').strip()
