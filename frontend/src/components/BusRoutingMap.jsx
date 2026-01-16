@@ -2806,6 +2806,18 @@ const BusRoutingMap = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-8 w-8 p-0 flex-shrink-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditRoute(bus);
+                          }}
+                          title="Edit Route Order"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           className="h-8 w-8 p-0 flex-shrink-0"
                           onClick={(e) => {
                             e.stopPropagation();
