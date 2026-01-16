@@ -4258,6 +4258,7 @@ async def auto_sync_campminder():
                     "am_bus_number": final_am_bus,
                     "pm_bus_number": final_pm_bus,
                     "bus_color": get_bus_color(final_pm_bus),
+                    "season_id": sync_season_id,
                     "created_at": datetime.now(timezone.utc)
                 }
                 result = await db.campers.replace_one({"_id": camper_id_pm}, camper_doc_pm, upsert=True)
@@ -4266,8 +4267,11 @@ async def auto_sync_campminder():
                 elif result.modified_count > 0:
                     updated_count += 1
         
-        # Delete campers no longer in sheet
-        all_db_campers = await db.campers.find({}).to_list(None)
+        # Delete campers no longer in sheet (only for current season)
+        delete_query = {}
+        if sync_season_id:
+            delete_query["season_id"] = sync_season_id
+        all_db_campers = await db.campers.find(delete_query).to_list(None)
         deleted_count = 0
         for db_camper in all_db_campers:
             if db_camper['_id'] not in sheet_camper_ids:
