@@ -506,7 +506,7 @@ async def create_season(season_data: SeasonCreate):
         
         await db.seasons.insert_one(new_season)
         
-        copied_counts = {"campers": 0, "shadows": 0, "bus_zones": 0, "bus_staff": 0}
+        copied_counts = {"campers": 0, "shadows": 0, "bus_zones": 0, "bus_staff": 0, "assigned_staff": 0}
         
         # Copy data from previous season if specified
         if season_data.copy_from_season_id:
@@ -550,6 +550,16 @@ async def create_season(season_data: SeasonCreate):
                     staff["created_at"] = datetime.now(timezone.utc).isoformat()
                 await db.bus_staff.insert_many(old_staff)
                 copied_counts["bus_staff"] = len(old_staff)
+            
+            # Copy assigned staff
+            old_assigned = await db.bus_assigned_staff.find({"season_id": season_data.copy_from_season_id}).to_list(None)
+            if old_assigned:
+                for assigned in old_assigned:
+                    assigned.pop("_id", None)
+                    assigned["season_id"] = new_season_id
+                    assigned["created_at"] = datetime.now(timezone.utc).isoformat()
+                await db.bus_assigned_staff.insert_many(old_assigned)
+                copied_counts["assigned_staff"] = len(old_assigned)
         
         logging.info(f"Created new season: {season_data.name} (Year: {season_data.year})")
         if season_data.copy_from_season_id:
