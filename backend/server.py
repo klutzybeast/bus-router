@@ -3459,7 +3459,7 @@ def reorder_stops(stops: List[Dict], order: List[str]) -> List[Dict]:
     return reordered
 
 def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -> str:
-    """Generate editable HTML route sheet with drag-and-drop"""
+    """Generate editable HTML route sheet with drag-and-drop (mobile + desktop compatible)"""
     
     home_label = route_sheet.get('home_label', 'Home')
     
@@ -3468,35 +3468,53 @@ def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -
     <html>
     <head>
         <title>Edit Route - {route_sheet['bus_number']}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <style>
-            body {{ font-family: Arial, sans-serif; max-width: 1200px; margin: 20px auto; padding: 0 20px; }}
-            .header {{ background: #1e40af; color: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; }}
-            .header h1 {{ margin: 0; }}
-            .edit-notice {{ background: #fef3c7; border: 2px solid #f59e0b; padding: 15px; border-radius: 8px; margin-bottom: 20px; }}
-            .routes-container {{ display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }}
-            .route-section {{ background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; }}
-            .route-section h2 {{ color: #1e40af; margin-top: 0; }}
+            * {{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }}
+            body {{ font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 10px; }}
+            .header {{ background: #1e40af; color: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; }}
+            .header h1 {{ margin: 0; font-size: 1.3em; }}
+            .header p {{ margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.9; }}
+            .edit-notice {{ background: #fef3c7; border: 2px solid #f59e0b; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9em; }}
+            .routes-container {{ display: grid; grid-template-columns: 1fr; gap: 20px; }}
+            @media (min-width: 768px) {{ .routes-container {{ grid-template-columns: 1fr 1fr; }} }}
+            .route-section {{ background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }}
+            .route-section h2 {{ color: #1e40af; margin-top: 0; font-size: 1.1em; }}
+            .route-section p {{ font-size: 0.85em; color: #666; }}
             .stop-list {{ min-height: 100px; }}
             .stop-item {{ 
                 background: white; 
-                border: 1px solid #d1d5db; 
-                padding: 12px 15px; 
+                border: 2px solid #d1d5db; 
+                padding: 12px; 
                 margin: 8px 0; 
-                border-radius: 6px;
-                cursor: grab;
+                border-radius: 8px;
                 display: flex;
                 align-items: center;
-                gap: 12px;
-                transition: all 0.2s;
+                gap: 10px;
+                transition: all 0.15s;
+                touch-action: none;
+                user-select: none;
+                -webkit-user-select: none;
             }}
-            .stop-item:hover {{ background: #f0f9ff; border-color: #3b82f6; }}
-            .stop-item.dragging {{ opacity: 0.5; transform: scale(1.02); }}
-            .stop-item.drag-over {{ border: 2px dashed #3b82f6; background: #dbeafe; }}
+            .stop-item:active {{ background: #dbeafe; border-color: #3b82f6; }}
+            .stop-item.dragging {{ 
+                opacity: 0.9; 
+                transform: scale(1.02); 
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                z-index: 1000;
+                background: #eff6ff;
+                border-color: #3b82f6;
+            }}
+            .stop-item.drag-over {{ 
+                border: 2px dashed #3b82f6; 
+                background: #dbeafe;
+                transform: scale(0.98);
+            }}
             .stop-number {{ 
                 background: #3b82f6; 
                 color: white; 
-                width: 28px; 
-                height: 28px; 
+                min-width: 32px; 
+                height: 32px; 
                 border-radius: 50%; 
                 display: flex; 
                 align-items: center; 
@@ -3505,49 +3523,91 @@ def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -
                 font-size: 14px;
                 flex-shrink: 0;
             }}
-            .drag-handle {{ cursor: grab; color: #9ca3af; font-size: 20px; }}
-            .stop-info {{ flex-grow: 1; }}
-            .stop-name {{ font-weight: bold; color: #1f2937; }}
-            .stop-address {{ color: #6b7280; font-size: 0.9em; margin-top: 2px; }}
-            .buttons {{ display: flex; gap: 10px; margin: 20px 0; justify-content: center; }}
-            .btn {{ padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }}
+            .drag-handle {{ 
+                cursor: grab; 
+                color: #6b7280; 
+                font-size: 24px; 
+                padding: 5px;
+                touch-action: none;
+            }}
+            .stop-info {{ flex-grow: 1; min-width: 0; }}
+            .stop-name {{ font-weight: bold; color: #1f2937; font-size: 0.95em; }}
+            .stop-address {{ color: #6b7280; font-size: 0.8em; margin-top: 2px; word-break: break-word; }}
+            .buttons {{ 
+                display: flex; 
+                flex-wrap: wrap;
+                gap: 8px; 
+                margin: 15px 0; 
+                justify-content: center; 
+                position: sticky;
+                top: 0;
+                background: white;
+                padding: 10px 0;
+                z-index: 100;
+                border-bottom: 1px solid #e5e7eb;
+            }}
+            .btn {{ 
+                padding: 12px 16px; 
+                border: none; 
+                border-radius: 8px; 
+                font-size: 14px; 
+                cursor: pointer; 
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }}
             .btn-primary {{ background: #2563eb; color: white; }}
-            .btn-primary:hover {{ background: #1d4ed8; }}
+            .btn-primary:active {{ background: #1d4ed8; }}
             .btn-success {{ background: #16a34a; color: white; }}
-            .btn-success:hover {{ background: #15803d; }}
+            .btn-success:active {{ background: #15803d; }}
             .btn-secondary {{ background: #6b7280; color: white; }}
-            .btn-secondary:hover {{ background: #4b5563; }}
+            .btn-secondary:active {{ background: #4b5563; }}
             .btn-danger {{ background: #dc2626; color: white; }}
-            .btn-danger:hover {{ background: #b91c1c; }}
-            .save-status {{ text-align: center; padding: 10px; margin: 10px 0; border-radius: 6px; display: none; }}
+            .btn-danger:active {{ background: #b91c1c; }}
+            .save-status {{ 
+                text-align: center; 
+                padding: 12px; 
+                margin: 10px 0; 
+                border-radius: 8px; 
+                display: none; 
+                font-weight: 600;
+            }}
             .save-status.success {{ display: block; background: #d1fae5; color: #065f46; }}
             .save-status.error {{ display: block; background: #fee2e2; color: #991b1b; }}
             .save-status.loading {{ display: block; background: #dbeafe; color: #1e40af; }}
+            .placeholder {{ 
+                border: 2px dashed #3b82f6; 
+                background: #dbeafe; 
+                border-radius: 8px;
+                min-height: 60px;
+                margin: 8px 0;
+            }}
         </style>
     </head>
     <body>
         <div class="header">
-            <h1>✏️ Edit Route Order - {route_sheet['bus_number']}</h1>
-            <p>Drag and drop stops to reorder the route</p>
+            <h1>✏️ Edit Route - {route_sheet['bus_number']}</h1>
+            <p>Drag stops to reorder (works on mobile & desktop)</p>
         </div>
         
-        <div class="edit-notice">
-            <strong>⚠️ Edit Mode:</strong> Drag stops to reorder them. Click "Save Order" when done, then "Print" to generate the route sheet.
+        <div class="buttons">
+            <button class="btn btn-success" onclick="saveOrder()">💾 Save</button>
+            <button class="btn btn-primary" onclick="printRoute()">🖨️ Print</button>
+            <button class="btn btn-danger" onclick="resetOrder()">🔄 Reset</button>
+            <button class="btn btn-secondary" onclick="window.close()">✕ Close</button>
         </div>
         
         <div id="saveStatus" class="save-status"></div>
         
-        <div class="buttons">
-            <button class="btn btn-success" onclick="saveOrder()">💾 Save Order</button>
-            <button class="btn btn-primary" onclick="printRoute()">🖨️ Print Route Sheet</button>
-            <button class="btn btn-danger" onclick="resetOrder()">🔄 Reset to Auto-Generated</button>
-            <button class="btn btn-secondary" onclick="window.close()">✕ Close</button>
+        <div class="edit-notice">
+            <strong>📱 Tip:</strong> Touch and hold a stop, then drag it to a new position. Release to drop.
         </div>
         
         <div class="routes-container">
             <div class="route-section">
-                <h2>🌅 AM Route - Morning Pickups</h2>
-                <p><strong>Start:</strong> {home_label} → <strong>End:</strong> Camp</p>
+                <h2>🌅 AM Pickups</h2>
+                <p>{home_label} → Camp</p>
                 <div class="stop-list" id="amStops">
     """
     
@@ -3555,8 +3615,8 @@ def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -
         camper_names = stop.get("camper_name", "Unknown")
         address = stop.get("address", "")
         html += f"""
-                    <div class="stop-item" draggable="true" data-address="{address}">
-                        <span class="drag-handle">⋮⋮</span>
+                    <div class="stop-item" data-address="{address}">
+                        <span class="drag-handle">☰</span>
                         <span class="stop-number">{stop['stop_number']}</span>
                         <div class="stop-info">
                             <div class="stop-name">{camper_names}</div>
@@ -3570,8 +3630,8 @@ def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -
             </div>
             
             <div class="route-section">
-                <h2>🌆 PM Route - Afternoon Drop-offs</h2>
-                <p><strong>Start:</strong> Camp → <strong>End:</strong> {home_label}</p>
+                <h2>🌆 PM Drop-offs</h2>
+                <p>Camp → {home_label}</p>
                 <div class="stop-list" id="pmStops">
     """
     
@@ -3579,8 +3639,8 @@ def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -
         camper_names = stop.get("camper_name", "Unknown")
         address = stop.get("address", "")
         html += f"""
-                    <div class="stop-item" draggable="true" data-address="{address}">
-                        <span class="drag-handle">⋮⋮</span>
+                    <div class="stop-item" data-address="{address}">
+                        <span class="drag-handle">☰</span>
                         <span class="stop-number">{stop['stop_number']}</span>
                         <div class="stop-info">
                             <div class="stop-name">{camper_names}</div>
@@ -3598,59 +3658,178 @@ def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -
             const API_URL = window.location.origin + '/api';
             const BUS_NUMBER = '{bus_number}';
             
-            // Drag and drop functionality
-            function initDragDrop(containerId) {{
-                const container = document.getElementById(containerId);
-                let draggedItem = null;
+            // Universal drag and drop (touch + mouse)
+            class DragDropList {{
+                constructor(containerId) {{
+                    this.container = document.getElementById(containerId);
+                    this.draggedItem = null;
+                    this.placeholder = null;
+                    this.touchStartY = 0;
+                    this.touchStartX = 0;
+                    this.initialTop = 0;
+                    this.initialLeft = 0;
+                    
+                    this.init();
+                }}
                 
-                container.querySelectorAll('.stop-item').forEach(item => {{
-                    item.addEventListener('dragstart', function(e) {{
-                        draggedItem = this;
-                        this.classList.add('dragging');
-                        e.dataTransfer.effectAllowed = 'move';
+                init() {{
+                    this.container.querySelectorAll('.stop-item').forEach(item => {{
+                        // Mouse events
+                        item.addEventListener('mousedown', (e) => this.onDragStart(e, item));
+                        
+                        // Touch events
+                        item.addEventListener('touchstart', (e) => this.onTouchStart(e, item), {{ passive: false }});
+                        item.addEventListener('touchmove', (e) => this.onTouchMove(e), {{ passive: false }});
+                        item.addEventListener('touchend', (e) => this.onTouchEnd(e));
                     }});
                     
-                    item.addEventListener('dragend', function() {{
-                        this.classList.remove('dragging');
-                        container.querySelectorAll('.stop-item').forEach(i => i.classList.remove('drag-over'));
-                        updateStopNumbers(containerId);
-                    }});
+                    // Mouse move/up on document
+                    document.addEventListener('mousemove', (e) => this.onMouseMove(e));
+                    document.addEventListener('mouseup', (e) => this.onDragEnd(e));
+                }}
+                
+                onDragStart(e, item) {{
+                    if (e.button !== 0) return;
+                    e.preventDefault();
+                    this.startDrag(item, e.clientX, e.clientY);
+                }}
+                
+                onTouchStart(e, item) {{
+                    if (e.touches.length !== 1) return;
+                    const touch = e.touches[0];
+                    this.touchStartX = touch.clientX;
+                    this.touchStartY = touch.clientY;
                     
-                    item.addEventListener('dragover', function(e) {{
+                    // Start drag after a short delay to distinguish from scroll
+                    this.touchTimer = setTimeout(() => {{
                         e.preventDefault();
-                        e.dataTransfer.dropEffect = 'move';
-                        if (this !== draggedItem) {{
-                            this.classList.add('drag-over');
+                        this.startDrag(item, touch.clientX, touch.clientY);
+                        if (navigator.vibrate) navigator.vibrate(50);
+                    }}, 150);
+                }}
+                
+                startDrag(item, x, y) {{
+                    this.draggedItem = item;
+                    const rect = item.getBoundingClientRect();
+                    
+                    // Store original position
+                    this.initialTop = rect.top;
+                    this.initialLeft = rect.left;
+                    this.offsetX = x - rect.left;
+                    this.offsetY = y - rect.top;
+                    
+                    // Create placeholder
+                    this.placeholder = document.createElement('div');
+                    this.placeholder.className = 'placeholder';
+                    this.placeholder.style.height = rect.height + 'px';
+                    item.parentNode.insertBefore(this.placeholder, item);
+                    
+                    // Style dragged item
+                    item.classList.add('dragging');
+                    item.style.position = 'fixed';
+                    item.style.width = rect.width + 'px';
+                    item.style.top = rect.top + 'px';
+                    item.style.left = rect.left + 'px';
+                    item.style.zIndex = '1000';
+                }}
+                
+                onMouseMove(e) {{
+                    if (!this.draggedItem) return;
+                    e.preventDefault();
+                    this.moveDrag(e.clientX, e.clientY);
+                }}
+                
+                onTouchMove(e) {{
+                    if (this.touchTimer) {{
+                        const touch = e.touches[0];
+                        const dx = Math.abs(touch.clientX - this.touchStartX);
+                        const dy = Math.abs(touch.clientY - this.touchStartY);
+                        if (dx > 10 || dy > 10) {{
+                            clearTimeout(this.touchTimer);
+                            this.touchTimer = null;
                         }}
+                    }}
+                    
+                    if (!this.draggedItem) return;
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    this.moveDrag(touch.clientX, touch.clientY);
+                }}
+                
+                moveDrag(x, y) {{
+                    if (!this.draggedItem) return;
+                    
+                    // Move dragged item
+                    this.draggedItem.style.top = (y - this.offsetY) + 'px';
+                    this.draggedItem.style.left = (x - this.offsetX) + 'px';
+                    
+                    // Find drop target
+                    const items = [...this.container.querySelectorAll('.stop-item:not(.dragging)')];
+                    let closestItem = null;
+                    let closestDistance = Infinity;
+                    
+                    items.forEach(item => {{
+                        const rect = item.getBoundingClientRect();
+                        const itemCenterY = rect.top + rect.height / 2;
+                        const distance = Math.abs(y - itemCenterY);
+                        
+                        if (distance < closestDistance) {{
+                            closestDistance = distance;
+                            closestItem = item;
+                        }}
+                        
+                        item.classList.remove('drag-over');
                     }});
                     
-                    item.addEventListener('dragleave', function() {{
-                        this.classList.remove('drag-over');
-                    }});
-                    
-                    item.addEventListener('drop', function(e) {{
-                        e.preventDefault();
-                        this.classList.remove('drag-over');
-                        if (draggedItem && this !== draggedItem) {{
-                            const allItems = [...container.querySelectorAll('.stop-item')];
-                            const draggedIndex = allItems.indexOf(draggedItem);
-                            const dropIndex = allItems.indexOf(this);
-                            
-                            if (draggedIndex < dropIndex) {{
-                                this.parentNode.insertBefore(draggedItem, this.nextSibling);
-                            }} else {{
-                                this.parentNode.insertBefore(draggedItem, this);
-                            }}
+                    if (closestItem && closestDistance < 80) {{
+                        const rect = closestItem.getBoundingClientRect();
+                        const insertBefore = y < rect.top + rect.height / 2;
+                        
+                        if (insertBefore) {{
+                            this.container.insertBefore(this.placeholder, closestItem);
+                        }} else {{
+                            this.container.insertBefore(this.placeholder, closestItem.nextSibling);
                         }}
+                    }}
+                }}
+                
+                onTouchEnd(e) {{
+                    if (this.touchTimer) {{
+                        clearTimeout(this.touchTimer);
+                        this.touchTimer = null;
+                    }}
+                    this.onDragEnd(e);
+                }}
+                
+                onDragEnd(e) {{
+                    if (!this.draggedItem) return;
+                    
+                    // Insert at placeholder position
+                    if (this.placeholder && this.placeholder.parentNode) {{
+                        this.placeholder.parentNode.insertBefore(this.draggedItem, this.placeholder);
+                        this.placeholder.remove();
+                    }}
+                    
+                    // Reset styles
+                    this.draggedItem.classList.remove('dragging');
+                    this.draggedItem.style.position = '';
+                    this.draggedItem.style.width = '';
+                    this.draggedItem.style.top = '';
+                    this.draggedItem.style.left = '';
+                    this.draggedItem.style.zIndex = '';
+                    
+                    this.draggedItem = null;
+                    this.placeholder = null;
+                    
+                    // Update numbers
+                    this.updateNumbers();
+                }}
+                
+                updateNumbers() {{
+                    this.container.querySelectorAll('.stop-item').forEach((item, index) => {{
+                        item.querySelector('.stop-number').textContent = index + 1;
                     }});
-                }});
-            }}
-            
-            function updateStopNumbers(containerId) {{
-                const container = document.getElementById(containerId);
-                container.querySelectorAll('.stop-item').forEach((item, index) => {{
-                    item.querySelector('.stop-number').textContent = index + 1;
-                }});
+                }}
             }}
             
             function getStopOrder(containerId) {{
@@ -3662,56 +3841,46 @@ def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -
                 const status = document.getElementById('saveStatus');
                 status.textContent = message;
                 status.className = 'save-status ' + type;
+                if (type === 'success' || type === 'error') {{
+                    setTimeout(() => status.className = 'save-status', 3000);
+                }}
             }}
             
             async function saveOrder() {{
-                showStatus('Saving...', 'loading');
+                showStatus('💾 Saving...', 'loading');
                 
                 try {{
-                    // Save AM order
                     const amOrder = getStopOrder('amStops');
                     await fetch(API_URL + '/route-order', {{
                         method: 'POST',
                         headers: {{ 'Content-Type': 'application/json' }},
-                        body: JSON.stringify({{
-                            bus_number: BUS_NUMBER,
-                            route_type: 'am',
-                            stop_order: amOrder
-                        }})
+                        body: JSON.stringify({{ bus_number: BUS_NUMBER, route_type: 'am', stop_order: amOrder }})
                     }});
                     
-                    // Save PM order
                     const pmOrder = getStopOrder('pmStops');
                     await fetch(API_URL + '/route-order', {{
                         method: 'POST',
                         headers: {{ 'Content-Type': 'application/json' }},
-                        body: JSON.stringify({{
-                            bus_number: BUS_NUMBER,
-                            route_type: 'pm',
-                            stop_order: pmOrder
-                        }})
+                        body: JSON.stringify({{ bus_number: BUS_NUMBER, route_type: 'pm', stop_order: pmOrder }})
                     }});
                     
-                    showStatus('✓ Route order saved successfully!', 'success');
+                    showStatus('✅ Route order saved!', 'success');
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                 }} catch (error) {{
-                    showStatus('✕ Error saving order: ' + error.message, 'error');
+                    showStatus('❌ Error: ' + error.message, 'error');
                 }}
             }}
             
             async function resetOrder() {{
-                if (!confirm('Reset to auto-generated order? This will delete your custom order.')) return;
-                
-                showStatus('Resetting...', 'loading');
+                if (!confirm('Reset to auto-generated order?')) return;
+                showStatus('🔄 Resetting...', 'loading');
                 
                 try {{
-                    await fetch(API_URL + '/route-order/' + encodeURIComponent(BUS_NUMBER), {{
-                        method: 'DELETE'
-                    }});
-                    
-                    showStatus('✓ Order reset. Reloading...', 'success');
-                    setTimeout(() => location.reload(), 1000);
+                    await fetch(API_URL + '/route-order/' + encodeURIComponent(BUS_NUMBER), {{ method: 'DELETE' }});
+                    showStatus('✅ Reset complete. Reloading...', 'success');
+                    setTimeout(() => location.reload(), 800);
                 }} catch (error) {{
-                    showStatus('✕ Error: ' + error.message, 'error');
+                    showStatus('❌ Error: ' + error.message, 'error');
                 }}
             }}
             
@@ -3719,9 +3888,9 @@ def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -
                 window.open(API_URL + '/route-sheet/' + encodeURIComponent(BUS_NUMBER) + '/print', '_blank');
             }}
             
-            // Initialize drag and drop
-            initDragDrop('amStops');
-            initDragDrop('pmStops');
+            // Initialize
+            new DragDropList('amStops');
+            new DragDropList('pmStops');
         </script>
     </body>
     </html>
