@@ -346,6 +346,48 @@ const BusRoutingMap = () => {
     }
   };
 
+  // Save assigned staff to a bus
+  const handleSaveAssignedStaff = async () => {
+    if (!assignedStaffName.trim() || !assignedStaffBus) {
+      toast.error("Please enter staff name and select a bus");
+      return;
+    }
+    
+    try {
+      toast.loading("Adding staff to bus...");
+      await axios.post(`${API}/bus-assigned-staff`, {
+        staff_name: assignedStaffName.trim(),
+        bus_number: assignedStaffBus,
+        session: "Full Season- 5 Days"
+      });
+      toast.dismiss();
+      toast.success(`${assignedStaffName} added to ${assignedStaffBus}`);
+      setShowAssignedStaffDialog(false);
+      setAssignedStaffName("");
+      setAssignedStaffBus("");
+      await fetchAssignedStaff();
+      await fetchSeatAvailability(); // Update seat counts
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error.response?.data?.detail || "Failed to add staff");
+    }
+  };
+
+  // Delete assigned staff
+  const handleDeleteAssignedStaff = async (staffId) => {
+    try {
+      toast.loading("Removing staff...");
+      await axios.delete(`${API}/bus-assigned-staff/${staffId}`);
+      toast.dismiss();
+      toast.success("Staff removed from bus");
+      await fetchAssignedStaff();
+      await fetchSeatAvailability(); // Update seat counts
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Failed to remove staff");
+    }
+  };
+
   // Fetch user-defined zones from backend
   const fetchUserZones = useCallback(async () => {
     try {
