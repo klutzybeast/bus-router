@@ -79,6 +79,10 @@ const BusRoutingMap = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [mapInstance, setMapInstance] = useState(null);
   const [showAddCamper, setShowAddCamper] = useState(false);
+  
+  // Ref to keep focus on search input
+  const searchInputRef = useRef(null);
+  
   const [newCamper, setNewCamper] = useState({
     first_name: "",
     last_name: "",
