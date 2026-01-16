@@ -2367,9 +2367,14 @@ async def update_bus_zone(bus_number: str, zone_data: BusZoneUpdate):
 
 @api_router.delete("/bus-zones/{bus_number}")
 async def delete_bus_zone(bus_number: str):
-    """Delete a bus zone"""
+    """Delete a bus zone from the active season"""
     try:
-        result = await db.bus_zones.delete_one({"bus_number": bus_number})
+        query = {"bus_number": bus_number}
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        result = await db.bus_zones.delete_one(query)
         if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail=f"No zone found for {bus_number}")
         return {"status": "success", "message": f"Zone for {bus_number} deleted"}
