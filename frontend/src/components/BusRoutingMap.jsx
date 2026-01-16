@@ -2238,6 +2238,62 @@ const BusRoutingMap = () => {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
+
+                {/* New Season Dialog */}
+                <Dialog open={showNewSeasonDialog} onOpenChange={setShowNewSeasonDialog}>
+                  <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Calendar className="w-5 h-5" />
+                        Create New Season
+                      </DialogTitle>
+                      <DialogDescription>
+                        Start a new season for bus route management. Optionally copy data from a previous season.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="season_year">Season Year</Label>
+                        <Input
+                          id="season_year"
+                          type="number"
+                          value={newSeasonYear}
+                          onChange={(e) => setNewSeasonYear(parseInt(e.target.value) || new Date().getFullYear())}
+                          min={2020}
+                          max={2050}
+                        />
+                        <p className="text-xs text-gray-500">Season will be named "{newSeasonYear} Bus Route Management"</p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="copy_from">Copy Data From (Optional)</Label>
+                        <Select
+                          value={copyFromSeason}
+                          onValueChange={setCopyFromSeason}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Start fresh (no copy)" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Start fresh (no copy)</SelectItem>
+                            {seasons.map(season => (
+                              <SelectItem key={season.id} value={season.id}>
+                                {season.name} ({season.camper_count} campers)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-gray-500">Copy campers, shadows, bus zones, and staff from a previous season</p>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setShowNewSeasonDialog(false)}>Cancel</Button>
+                      <Button onClick={handleCreateSeason} className="bg-blue-600 hover:bg-blue-700">
+                        Create Season
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
                 
                 <Button
                   variant="outline"
