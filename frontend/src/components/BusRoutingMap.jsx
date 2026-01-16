@@ -1224,24 +1224,48 @@ const BusRoutingMap = () => {
                         {hasValidAmBus && (
                           <div className="flex flex-wrap items-center gap-1">
                             <span className="font-semibold">AM Bus:</span> 
-                            <span 
-                              className="px-2 py-0.5 rounded text-white text-xs font-medium"
-                              style={{ backgroundColor: getBusColor(selectedCamper.am_bus_number) }}
-                            >
-                              {selectedCamper.am_bus_number}
-                            </span>
+                            {/* Make clickable if viewing PM location and AM entry exists */}
+                            {isPmLocation && hasOtherRouteEntry(selectedCamper, 'AM') ? (
+                              <button
+                                onClick={() => handleNavigateToOtherStop(selectedCamper, 'AM')}
+                                className="px-2 py-0.5 rounded text-white text-xs font-medium cursor-pointer hover:opacity-80 hover:ring-2 hover:ring-offset-1 transition-all"
+                                style={{ backgroundColor: getBusColor(selectedCamper.am_bus_number) }}
+                                title="Click to view AM pickup location"
+                              >
+                                {selectedCamper.am_bus_number} →
+                              </button>
+                            ) : (
+                              <span 
+                                className="px-2 py-0.5 rounded text-white text-xs font-medium"
+                                style={{ backgroundColor: getBusColor(selectedCamper.am_bus_number) }}
+                              >
+                                {selectedCamper.am_bus_number}
+                              </span>
+                            )}
                           </div>
                         )}
                         {/* Only show PM Bus if valid */}
                         {hasValidPmBus && (
                           <div className="flex flex-wrap items-center gap-1">
                             <span className="font-semibold">PM Bus:</span> 
-                            <span 
-                              className="px-2 py-0.5 rounded text-white text-xs font-medium"
-                              style={{ backgroundColor: getBusColor(selectedCamper.pm_bus_number) }}
-                            >
-                              {selectedCamper.pm_bus_number}
-                            </span>
+                            {/* Make clickable if viewing AM location and PM entry exists */}
+                            {!isPmLocation && hasOtherRouteEntry(selectedCamper, 'PM') ? (
+                              <button
+                                onClick={() => handleNavigateToOtherStop(selectedCamper, 'PM')}
+                                className="px-2 py-0.5 rounded text-white text-xs font-medium cursor-pointer hover:opacity-80 hover:ring-2 hover:ring-offset-1 transition-all"
+                                style={{ backgroundColor: getBusColor(selectedCamper.pm_bus_number) }}
+                                title="Click to view PM drop-off location"
+                              >
+                                {selectedCamper.pm_bus_number} →
+                              </button>
+                            ) : (
+                              <span 
+                                className="px-2 py-0.5 rounded text-white text-xs font-medium"
+                                style={{ backgroundColor: getBusColor(selectedCamper.pm_bus_number) }}
+                              >
+                                {selectedCamper.pm_bus_number}
+                              </span>
+                            )}
                           </div>
                         )}
                         {/* Show message if no buses assigned */}
