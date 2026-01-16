@@ -3420,7 +3420,12 @@ async def get_printable_route_sheet(bus_number: str, edit: bool = False):
         else:
             html = route_printer.generate_printable_html(route_sheet)
         
-        return HTMLResponse(content=html)
+        # Return with no-cache headers to ensure fresh data after reset
+        response = HTMLResponse(content=html)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
     except Exception as e:
         logging.error(f"Error generating printable route: {str(e)}")
         return HTMLResponse(content=f"<h1>Error: {str(e)}</h1>", status_code=500)
