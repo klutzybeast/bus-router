@@ -137,6 +137,10 @@ const BusRoutingMap = () => {
   const [newZonePoints, setNewZonePoints] = useState([]);
   const [editingZoneBus, setEditingZoneBus] = useState(null);
 
+  // Central Stops State
+  const [showCentralStops, setShowCentralStops] = useState(true);
+  const [selectedCentralStop, setSelectedCentralStop] = useState(null);
+
   // Bus Info State (capacities)
   const [busInfoMap, setBusInfoMap] = useState({});
 
