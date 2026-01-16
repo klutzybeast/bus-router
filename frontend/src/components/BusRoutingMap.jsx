@@ -224,6 +224,12 @@ const BusRoutingMap = () => {
   const [selectedShadowBus, setSelectedShadowBus] = useState("");
   const [selectedShadowCamper, setSelectedShadowCamper] = useState("");
 
+  // Assigned Staff State (staff who ride the bus and take a seat)
+  const [assignedStaffList, setAssignedStaffList] = useState([]);
+  const [showAssignedStaffDialog, setShowAssignedStaffDialog] = useState(false);
+  const [assignedStaffName, setAssignedStaffName] = useState("");
+  const [assignedStaffBus, setAssignedStaffBus] = useState("");
+
   // Fetch shadows from backend
   const fetchShadows = useCallback(async () => {
     try {
