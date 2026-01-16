@@ -1802,8 +1802,12 @@ async def push_seat_availability_to_sheet():
         staff_configs = await db.bus_staff.find({}).to_list(None)
         staff_dict = {c['bus_number']: c for c in staff_configs}
         
-        # Generate cover sheet data in 14-column format with availability columns
-        sheet_data = cover_sheet_generator.generate_cover_sheet(campers_with_buses, staff_dict)
+        # Get shadows and assigned staff for notes column
+        shadows = await db.shadows.find({}).to_list(None)
+        assigned_staff = await db.bus_assigned_staff.find({}).to_list(None)
+        
+        # Generate cover sheet data in 14-column format with availability columns and Notes
+        sheet_data = cover_sheet_generator.generate_cover_sheet(campers_with_buses, staff_dict, shadows, assigned_staff)
         
         # Use dedicated seat availability webhook
         webhook_url = os.environ.get('SEAT_AVAILABILITY_WEBHOOK_URL', '')
@@ -1819,7 +1823,7 @@ async def push_seat_availability_to_sheet():
             "data": sheet_data
         }
         
-        logging.info(f"Pushing {len(sheet_data)} rows to seat availability sheet (14 columns)")
+        logging.info(f"Pushing {len(sheet_data)} rows to seat availability sheet (14 columns with Notes)")
         
         async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
             response = await client.post(webhook_url, json=payload)
