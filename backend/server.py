@@ -3581,6 +3581,9 @@ async def auto_sync_campminder():
         csv_file = StringIO(csv_content)
         reader = csv.DictReader(csv_file)
         
+        # Log column names for debugging
+        logger.info(f"CSV columns: {reader.fieldnames}")
+        
         # Track camper IDs from sheet
         sheet_camper_ids = set()
         new_count = 0
