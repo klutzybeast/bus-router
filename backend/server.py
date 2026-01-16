@@ -826,6 +826,9 @@ async def add_camper_manually(camper: ManualCamperInput):
             bus_color = get_bus_color(am_bus)
             pickup_type = "AM & PM"
         
+        # Get active season
+        season_id = await get_active_season_id()
+        
         camper_doc = {
             "_id": camper_id,
             "first_name": camper.first_name,
@@ -842,6 +845,7 @@ async def add_camper_manually(camper: ManualCamperInput):
             "am_bus_number": am_bus,
             "pm_bus_number": pm_bus,
             "bus_color": bus_color,
+            "season_id": season_id,  # Add season_id
             "created_at": datetime.now(timezone.utc),
             "manually_added": True
         }
