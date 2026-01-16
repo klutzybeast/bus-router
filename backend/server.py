@@ -1729,6 +1729,7 @@ class ShadowCreate(BaseModel):
     """Model for creating a shadow staff member"""
     shadow_name: str
     camper_id: str  # The camper this shadow is linked to
+    bus_number: Optional[str] = None  # Optionally specify the bus (for AM/PM specific stops)
 
 class ShadowUpdate(BaseModel):
     """Model for updating a shadow"""
