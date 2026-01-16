@@ -1830,9 +1830,15 @@ class BusStaffConfig(BaseModel):
 
 @api_router.get("/bus-staff")
 async def get_all_bus_staff():
-    """Get all bus staff configurations from database"""
+    """Get all bus staff configurations from database for the active season"""
     try:
-        staff_configs = await db.bus_staff.find({}).to_list(None)
+        # Filter by active season
+        query = {}
+        season_id = await get_active_season_id()
+        if season_id:
+            query["season_id"] = season_id
+        
+        staff_configs = await db.bus_staff.find(query).to_list(None)
         
         # Convert to dict format
         result = {}
