@@ -3826,8 +3826,10 @@ async def auto_sync_campminder():
             
             # Only create separate PM entry if:
             # 1. PM address is different from AM address
-            # 2. AND this is NOT a PM-only camper (PM-only campers already have their entry with PM address)
-            if pm_final_address.strip() and pm_final_address != am_address and not is_pm_only:
+            # 2. AND camper needs both AM and PM bus (not PM-only, they already have their PM entry)
+            # 3. AND PM bus is needed
+            has_different_pm_address = pm_final_address.strip() and pm_final_address != am_address
+            if has_different_pm_address and am_needs_bus and pm_needs_bus:
                 camper_id_pm = f"{last_name}_{first_name}_{pm_zip}_PM".replace(' ', '_')
                 sheet_camper_ids.add(camper_id_pm)
                 
