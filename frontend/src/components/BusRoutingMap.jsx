@@ -2268,14 +2268,14 @@ const BusRoutingMap = () => {
                       <div className="space-y-2">
                         <Label htmlFor="copy_from">Copy Data From (Optional)</Label>
                         <Select
-                          value={copyFromSeason}
-                          onValueChange={setCopyFromSeason}
+                          value={copyFromSeason || "none"}
+                          onValueChange={(val) => setCopyFromSeason(val === "none" ? "" : val)}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Start fresh (no copy)" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Start fresh (no copy)</SelectItem>
+                            <SelectItem value="none">Start fresh (no copy)</SelectItem>
                             {seasons.map(season => (
                               <SelectItem key={season.id} value={season.id}>
                                 {season.name} ({season.camper_count} campers)
