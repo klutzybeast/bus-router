@@ -3587,14 +3587,17 @@ async def auto_sync_campminder():
         updated_count = 0
         
         for row in reader:
-            am_method = row.get('Trans-AMDropOffMethod', '')
+            am_method = row.get('Trans-AMDropOffMethod', '').strip()
+            pm_method = row.get('Trans-PMDismissalMethod', '').strip()
             pm_bus_raw = row.get('2026Transportation M PM Bus', '').strip()
             
-            # Include if: AM Bus method OR has valid PM bus (for car drop-off AM cases)
-            # Case-insensitive check for AM Bus
-            has_pm_bus = pm_bus_raw and 'NONE' not in pm_bus_raw.upper() and not any(x in pm_bus_raw.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM'])
+            # Determine if camper needs AM bus based on transport method
+            am_needs_bus = 'am bus' in am_method.lower()
+            # Determine if camper needs PM bus based on transport method
+            pm_needs_bus = 'pm bus' in pm_method.lower()
             
-            if 'am bus' not in am_method.lower() and not has_pm_bus:
+            # Skip campers who don't need any bus transport
+            if not am_needs_bus and not pm_needs_bus:
                 continue
             
             # Get all required fields first
@@ -3613,19 +3616,26 @@ async def auto_sync_campminder():
             am_bus = row.get('2026Transportation M AM Bus', '')
             pm_bus = row.get('2026Transportation M PM Bus', '')
             
-            # Check if this is a PM-only camper (has PM bus but no AM bus)
-            has_valid_pm_bus = pm_bus and pm_bus.strip() and 'NONE' not in pm_bus.upper() and not any(x in pm_bus.upper() for x in ['MAIN TENT', 'HOCKEY RINK', 'AUDITORIUM'])
-            is_pm_only_camper = (not am_bus or 'NONE' in am_bus.upper()) and has_valid_pm_bus
+            # Only use bus values if the transport method calls for bus
+            # If method is Car Drop Off, After Care, Morning Care - force NONE
+            if not am_needs_bus:
+                am_bus = 'NONE'
+            if not pm_needs_bus:
+                pm_bus = 'NONE'
             
-            # PRESERVE existing bus assignments, AUTO-ASSIGN if empty/NONE (but NOT for PM-only campers)
+            # Check if this is a PM-only camper (needs PM bus but not AM bus)
+            is_pm_only_camper = not am_needs_bus and pm_needs_bus
+            
+            # PRESERVE existing bus assignments, AUTO-ASSIGN if empty/NONE
             final_am_bus = None
             final_pm_bus = None
             
-            if am_bus and am_bus.strip() and 'NONE' not in am_bus.upper():
-                # Has valid AM bus in sheet - KEEP IT (don't override)
-                final_am_bus = am_bus.strip()
-            elif am_address.strip() and not is_pm_only_camper:
-                # Bus is empty/NONE but has address AND not a PM-only camper - AUTO-ASSIGN
+            if am_needs_bus:
+                if am_bus and am_bus.strip() and 'NONE' not in am_bus.upper():
+                    # Has valid AM bus in sheet - KEEP IT
+                    final_am_bus = am_bus.strip()
+                elif am_address.strip():
+                    # Bus is empty/NONE but has address - AUTO-ASSIGN
                 if 'existing_routes' not in locals():
                     all_db_campers = await db.campers.find({"am_bus_number": {"$exists": True}}).to_list(None)
                     existing_routes = {}
