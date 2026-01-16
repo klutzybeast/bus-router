@@ -675,18 +675,30 @@ async def api_force_sync():
         return {"status": "error", "error": str(e)}
 
 @api_router.get("/campers")
-async def get_campers():
+async def get_campers(season_id: Optional[str] = None):
     global db_connected
     try:
+        # Get active season if no season_id provided
+        if not season_id:
+            active_season = await db.seasons.find_one({"is_active": True})
+            if active_season:
+                season_id = str(active_season["_id"])
+        
+        # Build query - filter by season if we have one
+        query = {
+            "location.latitude": {"$ne": 0.0},
+            "$or": [
+                {"am_bus_number": {"$regex": "^Bus"}},
+                {"pm_bus_number": {"$regex": "^Bus"}}
+            ]
+        }
+        
+        if season_id:
+            query["season_id"] = season_id
+        
         # Return campers with valid locations and at least one valid bus assignment
         existing_campers = await asyncio.wait_for(
-            db.campers.find({
-                "location.latitude": {"$ne": 0.0},
-                "$or": [
-                    {"am_bus_number": {"$regex": "^Bus"}},
-                    {"pm_bus_number": {"$regex": "^Bus"}}
-                ]
-            }).to_list(None),
+            db.campers.find(query).to_list(None),
             timeout=30.0  # 30 second timeout
         )
         
@@ -720,7 +732,8 @@ async def get_campers():
                 "session": camper.get('session', ''),
                 "pickup_type": camper.get('pickup_type', ''),
                 "town": camper.get('town', ''),
-                "zip_code": camper.get('zip_code', '')
+                "zip_code": camper.get('zip_code', ''),
+                "season_id": camper.get('season_id', '')
             }
             result.append(camper_dict)
         
