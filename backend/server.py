@@ -4536,7 +4536,7 @@ async def lifespan(app: FastAPI):
         season_id = active_season["_id"]
         
         # Migrate documents that don't have a season_id
-        collections_to_migrate = ['campers', 'shadows', 'bus_zones', 'bus_staff']
+        collections_to_migrate = ['campers', 'shadows', 'bus_zones', 'bus_staff', 'bus_assigned_staff']
         for collection_name in collections_to_migrate:
             collection = db[collection_name]
             result = await collection.update_many(
