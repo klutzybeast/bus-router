@@ -3889,7 +3889,10 @@ def generate_editable_route_html(route_sheet: Dict[str, Any], bus_number: str) -
                     
                     if (response.ok && data.status === 'success') {{
                         showStatus('✅ Reset complete. Reloading...', 'success');
-                        setTimeout(() => location.reload(), 800);
+                        // Force reload without cache
+                        setTimeout(() => {{
+                            window.location.href = window.location.pathname + '?edit=true&t=' + Date.now();
+                        }}, 800);
                     }} else {{
                         showStatus('❌ Error: ' + (data.message || 'Unknown error'), 'error');
                     }}
