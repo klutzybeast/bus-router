@@ -1150,6 +1150,11 @@ const BusRoutingMap = () => {
     window.open(`${API}/route-sheet/${encodedBusNumber}/print`, '_blank');
   };
 
+  const handleEditRoute = (busNumber) => {
+    const encodedBusNumber = encodeURIComponent(busNumber);
+    window.open(`${API}/route-sheet/${encodedBusNumber}/print?edit=true`, '_blank');
+  };
+
   const handleAddCamper = async () => {
     if (!newCamper.first_name || !newCamper.last_name || !newCamper.address || !newCamper.town || !newCamper.zip_code) {
       toast.error("Please fill in all required fields");
