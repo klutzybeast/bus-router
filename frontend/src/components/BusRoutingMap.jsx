@@ -2074,14 +2074,14 @@ const BusRoutingMap = () => {
 
                 {/* Multiple Search Results Dialog */}
                 <Dialog open={showMultipleResults} onOpenChange={setShowMultipleResults}>
-                  <DialogContent className="sm:max-w-[400px]">
+                  <DialogContent className="sm:max-w-[450px] max-h-[80vh]">
                     <DialogHeader>
-                      <DialogTitle className="text-lg">Multiple Entries Found</DialogTitle>
+                      <DialogTitle className="text-lg">{multipleResultsCampers.length} Results Found</DialogTitle>
                       <DialogDescription>
-                        This camper has {multipleResultsCampers.length} different pickup/dropoff locations. Select which one to view:
+                        Select which camper to view on the map:
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-2 mt-4">
+                    <div className="space-y-2 mt-4 max-h-[50vh] overflow-y-auto">
                       {multipleResultsCampers.map((camper, index) => {
                         const isPm = camper._id && camper._id.endsWith('_PM');
                         const routeType = isPm ? 'PM' : 'AM';
@@ -2093,9 +2093,9 @@ const BusRoutingMap = () => {
                             className="w-full h-auto py-3 px-4 justify-start text-left"
                             onClick={() => handleSelectSearchResult(camper)}
                           >
-                            <div className="flex flex-col items-start">
+                            <div className="flex flex-col items-start w-full">
                               <div className="font-semibold">
-                                {camper.first_name} {camper.last_name}
+                                {camper.last_name}, {camper.first_name}
                                 <span className={`ml-2 px-2 py-0.5 rounded text-xs ${isPm ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
                                   {routeType}
                                 </span>
@@ -2103,7 +2103,7 @@ const BusRoutingMap = () => {
                               <div className="text-sm text-gray-600">
                                 {camper.town || 'Unknown'} - {busNumber || 'No bus'}
                               </div>
-                              <div className="text-xs text-gray-400 truncate max-w-full">
+                              <div className="text-xs text-gray-400 truncate w-full">
                                 {camper.location?.address || 'No address'}
                               </div>
                             </div>
