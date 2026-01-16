@@ -1625,6 +1625,7 @@ const BusRoutingMap = () => {
                 {/* Search Input */}
                 <div className="relative">
                   <Input
+                    ref={searchInputRef}
                     type="text"
                     placeholder="Search camper, address... (Enter to find)"
                     value={searchQuery}
