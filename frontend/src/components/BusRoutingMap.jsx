@@ -1432,6 +1432,9 @@ const BusRoutingMap = () => {
                   first_name: staff.name.split(' ')[0] || staff.name,
                   last_name: staff.name.split(' ').slice(1).join(' ') || '',
                   isStaff: true,
+                  am_bus_number: staff.bus_number,
+                  pm_bus_number: staff.bus_number,
+                  session: staff.session || 'Full Season- 5 Days',
                   location: { latitude: staff.lat, longitude: staff.lng, address: staff.address }
                 })}
               >
