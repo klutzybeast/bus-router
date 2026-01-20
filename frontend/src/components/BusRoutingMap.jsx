@@ -621,6 +621,7 @@ const BusRoutingMap = () => {
     fetchUserZones(); // Fetch user-defined zones
     fetchShadows(); // Fetch shadow staff
     fetchAssignedStaff(); // Fetch assigned staff (staff who ride the bus)
+    fetchStaffWithAddresses(); // Fetch staff with addresses (zone lookup)
     
     const now = new Date();
     const tomorrow = new Date(now);
@@ -642,7 +643,7 @@ const BusRoutingMap = () => {
     }, timeUntilMorning);
     
     return () => clearTimeout(timeout);
-  }, [fetchCampers, fetchBusInfo, fetchSeatAvailability, fetchUserZones]);
+  }, [fetchCampers, fetchBusInfo, fetchSeatAvailability, fetchUserZones, fetchStaffWithAddresses]);
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
