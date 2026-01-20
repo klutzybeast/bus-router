@@ -2796,12 +2796,17 @@ async def create_staff_address(staff_data: StaffAddressCreate):
         
         nearby_buses = sorted(list(nearby_bus_set), key=lambda x: int(''.join(filter(str.isdigit, x)) or '0'))
         
+        # Auto-assign bus if staff falls within a zone (unless explicitly set by user)
+        auto_assigned_bus = None
+        if zone_info and zone_info.get("bus_number"):
+            auto_assigned_bus = zone_info["bus_number"]
+        
         staff_doc = {
             "name": staff_data.name.strip(),
             "address": formatted_address,
             "lat": lat,
             "lng": lng,
-            "bus_number": staff_data.bus_number,
+            "bus_number": staff_data.bus_number or auto_assigned_bus,  # Use zone bus if not specified
             "session": staff_data.session or "Full Season- 5 Days",
             "zone_info": zone_info,
             "nearby_buses": nearby_buses,
@@ -2814,7 +2819,8 @@ async def create_staff_address(staff_data: StaffAddressCreate):
         if "_id" in staff_doc:
             del staff_doc["_id"]
         
-        logging.info(f"Created staff with address: {staff_data.name} at {formatted_address}")
+        logging.info(f"Created staff with address: {staff_data.name} at {formatted_address}" + 
+                    (f" - Auto-assigned to {auto_assigned_bus}" if auto_assigned_bus and not staff_data.bus_number else ""))
         return {"status": "success", "staff": staff_doc}
     except HTTPException:
         raise
