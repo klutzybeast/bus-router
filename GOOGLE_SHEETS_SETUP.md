@@ -20,7 +20,7 @@ Your seat availability sheet will automatically update every 15 minutes using Go
 1. **Delete** any existing code in the editor
 2. **Copy** the entire script from `/app/scripts/GoogleSheets_AutoUpdate.gs`
 3. **Paste** it into the Apps Script editor
-4. The API URL is already configured: `https://bustrek.preview.emergentagent.com/api/sheets/compact-availability`
+4. The API URL is already configured: `https://campmap-routes.preview.emergentagent.com/api/sheets/compact-availability`
 
 ### Step 4: Save and Authorize
 1. Click the **💾 Save** icon (or Ctrl+S / Cmd+S)
@@ -103,6 +103,6 @@ In Apps Script, you can run these functions manually:
 ## 📍 Your API Endpoint
 
 The Google Sheet pulls data from:
-`https://bustrek.preview.emergentagent.com/api/sheets/compact-availability`
+`https://campmap-routes.preview.emergentagent.com/api/sheets/compact-availability`
 
 You can test it anytime in your browser to see the raw data!

@@ -1,4 +1,4 @@
-const API_URL = 'https://bustrek.preview.emergentagent.com/api/sheets/seat-availability';
+const API_URL = 'https://campmap-routes.preview.emergentagent.com/api/sheets/seat-availability';
 
 function updateSeatAvailability() {
   try {
