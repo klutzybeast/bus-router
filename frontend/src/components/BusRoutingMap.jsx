@@ -1418,6 +1418,41 @@ const BusRoutingMap = () => {
             </InfoWindow>
           )}
 
+          {/* Staff with Addresses - Triangle markers */}
+          {staffWithAddresses.filter(s => s.bus_number && s.lat && s.lng).map((staff) => {
+            const busColor = getBusColor(staff.bus_number);
+            const displayText = staff.bus_number.replace('Bus #', '');
+            
+            return (
+              <AdvancedMarker
+                key={`staff-${staff.id}`}
+                position={{ lat: staff.lat, lng: staff.lng }}
+                onClick={() => setSelectedCamper({
+                  ...staff,
+                  first_name: staff.name.split(' ')[0] || staff.name,
+                  last_name: staff.name.split(' ').slice(1).join(' ') || '',
+                  isStaff: true,
+                  location: { latitude: staff.lat, longitude: staff.lng, address: staff.address }
+                })}
+              >
+                <div 
+                  className="flex items-center justify-center text-white font-bold text-xs shadow-lg cursor-pointer hover:scale-110 active:scale-95 transition-transform"
+                  style={{ 
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: busColor,
+                    clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.4)'
+                  }}
+                  data-testid={`staff-triangle-${staff.id}`}
+                  title={`${staff.name} - ${staff.bus_number}`}
+                >
+                  <span style={{ marginTop: '10px' }}>{displayText}</span>
+                </div>
+              </AdvancedMarker>
+            );
+          })}
+
           {/* Address Search Result Marker */}
           {addressSearchResult && showAddressResult && (
             <>
