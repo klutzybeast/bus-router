@@ -1465,6 +1465,9 @@ async def get_seat_availability_json():
         # Get all assigned staff (they also take bus seats)
         assigned_staff = await db.bus_assigned_staff.find({}).to_list(None)
         
+        # Get all staff with addresses (they also take bus seats)
+        staff_addresses = await db.staff_addresses.find({}).to_list(None)
+        
         # Get staff configurations from database
         staff_configs = await db.bus_staff.find({}).to_list(None)
         staff_dict = {c['bus_number']: c for c in staff_configs}
@@ -1473,7 +1476,7 @@ async def get_seat_availability_json():
         from collections import defaultdict
         bus_data = defaultdict(lambda: {
             'h1_am': 0, 'h1_pm': 0, 'h2_am': 0, 'h2_pm': 0,
-            'shadows': 0, 'assigned_staff': 0,
+            'shadows': 0, 'assigned_staff': 0, 'staff_with_addresses': 0,
             'capacity': 30, 'location': '', 'driver': 'TBD', 'counselor': 'TBD'
         })
         
