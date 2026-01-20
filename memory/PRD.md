@@ -260,6 +260,15 @@ A web application that displays camper bus routes on a Google Map, using Google 
 | `/api/shadows/by-bus/{bus_number}` | GET | Get shadows on specific bus |
 | `/api/shadows/by-camper/{camper_id}` | GET | Get shadow for specific camper |
 
+### Staff with Addresses Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/staff-addresses` | GET | Get all staff with addresses |
+| `/api/staff-addresses` | POST | Create staff (geocodes address) |
+| `/api/staff-addresses/{id}` | PUT | Update staff (assign bus) |
+| `/api/staff-addresses/{id}` | DELETE | Delete staff |
+| `/api/staff-addresses/upload-csv` | POST | Bulk CSV import |
+
 ### Audit Endpoints
 | Endpoint | Method | Description |
 |----------|--------|-------------|
