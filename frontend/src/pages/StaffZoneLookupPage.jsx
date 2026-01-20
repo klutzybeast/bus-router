@@ -400,11 +400,13 @@ const StaffZoneLookupPage = () => {
                     </div>
                     
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50 -mt-1 -mr-1"
+                      variant="destructive"
+                      size="sm"
+                      className="h-8 w-8 p-0 flex-shrink-0"
                       onClick={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
+                        console.log('Delete clicked for:', staff.id, staff.name);
                         handleDeleteStaff(staff.id, staff.name);
                       }}
                       data-testid={`delete-staff-${staff.id}`}
