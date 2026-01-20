@@ -387,8 +387,8 @@ const StaffZoneLookup = ({ isOpen, onClose, busZones, uniqueBuses, onStaffUpdate
                 disableDefaultUI={false}
                 style={{ width: '100%', height: '100%' }}
               >
-                {/* Bus Zones (no campers) */}
-                {busZones.map((zone) => {
+                {/* Bus Zones (no campers) - only render if busZones is an array */}
+                {Array.isArray(busZones) && busZones.map((zone) => {
                   if (!zone.points || zone.points.length < 3) return null;
                   const busColor = getBusColor(zone.bus_number);
                   
