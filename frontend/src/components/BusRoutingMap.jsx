@@ -1436,19 +1436,40 @@ const BusRoutingMap = () => {
                   location: { latitude: staff.lat, longitude: staff.lng, address: staff.address }
                 })}
               >
+                {/* Staff Triangle with black outline */}
                 <div 
-                  className="flex items-center justify-center text-white font-bold text-xs shadow-lg cursor-pointer hover:scale-110 active:scale-95 transition-transform"
-                  style={{ 
-                    width: '36px',
-                    height: '36px',
-                    backgroundColor: busColor,
-                    clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.4)'
-                  }}
+                  className="relative cursor-pointer hover:scale-110 active:scale-95 transition-transform"
+                  style={{ width: '40px', height: '40px' }}
                   data-testid={`staff-triangle-${staff.id}`}
                   title={`${staff.name} - ${staff.bus_number}`}
                 >
-                  <span style={{ marginTop: '10px' }}>{displayText}</span>
+                  {/* Black outline triangle */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '40px',
+                      height: '40px',
+                      backgroundColor: '#000000',
+                      clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)',
+                    }}
+                  />
+                  {/* Inner colored triangle */}
+                  <div
+                    className="flex items-center justify-center text-white font-bold text-xs"
+                    style={{
+                      position: 'absolute',
+                      top: '3px',
+                      left: '3px',
+                      width: '34px',
+                      height: '34px',
+                      backgroundColor: busColor,
+                      clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)',
+                    }}
+                  >
+                    <span style={{ marginTop: '10px' }}>{displayText}</span>
+                  </div>
                 </div>
               </AdvancedMarker>
             );
