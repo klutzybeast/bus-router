@@ -192,11 +192,13 @@ A web application that displays camper bus routes on a Google Map, using Google 
 ## Key Files
 | File | Purpose |
 |------|---------|
-| `/app/backend/server.py` | Main FastAPI application (2596 lines) |
+| `/app/backend/server.py` | Main FastAPI application (~5600 lines) |
 | `/app/backend/route_printer.py` | Route sheet generation |
 | `/app/backend/bus_config.py` | Bus info and home locations |
 | `/app/backend/sibling_offset.py` | Pin offset for siblings |
+| `/app/backend/cover_sheet_generator.py` | Seat availability reports (Excel/Google Sheets) |
 | `/app/frontend/src/components/BusRoutingMap.jsx` | Main React map component |
+| `/app/frontend/src/components/StaffZoneLookup.jsx` | Staff zone lookup dialog with map |
 | `/app/frontend/src/components/EditableBusZone.jsx` | User-editable bus zone component |
 | `/app/frontend/src/components/ZoneCreator.jsx` | Zone drawing/creation component |
 | `/app/backend/models/schemas.py` | Pydantic models |
