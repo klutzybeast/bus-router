@@ -426,7 +426,7 @@ const StaffZoneLookupPage = () => {
                       >
                         <SelectValue placeholder="Select Bus to Assign" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-60 overflow-y-auto">
                         {uniqueBuses.map(bus => (
                           <SelectItem key={bus} value={bus}>
                             <div className="flex items-center gap-2">
@@ -443,10 +443,11 @@ const StaffZoneLookupPage = () => {
                     
                     {staff.bus_number && (
                       <div 
-                        className="w-8 h-8 flex items-center justify-center text-white text-xs font-bold shadow"
+                        className="w-8 h-8 flex items-center justify-center text-white text-xs font-bold"
                         style={{ 
                           backgroundColor: getBusColor(staff.bus_number),
-                          clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)'
+                          clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)',
+                          filter: 'drop-shadow(0 0 1px black) drop-shadow(0 0 1px black)'
                         }}
                         title={staff.bus_number}
                       >
