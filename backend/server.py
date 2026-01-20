@@ -1837,12 +1837,13 @@ async def push_seat_availability_to_sheet():
         staff_configs = await db.bus_staff.find({}).to_list(None)
         staff_dict = {c['bus_number']: c for c in staff_configs}
         
-        # Get shadows and assigned staff for notes column
+        # Get shadows, assigned staff, and staff with addresses for notes column
         shadows = await db.shadows.find({}).to_list(None)
         assigned_staff = await db.bus_assigned_staff.find({}).to_list(None)
+        staff_addresses = await db.staff_addresses.find({}).to_list(None)
         
         # Generate cover sheet data in 14-column format with availability columns and Notes
-        sheet_data = cover_sheet_generator.generate_cover_sheet(campers_with_buses, staff_dict, shadows, assigned_staff)
+        sheet_data = cover_sheet_generator.generate_cover_sheet(campers_with_buses, staff_dict, shadows, assigned_staff, staff_addresses)
         
         # Use dedicated seat availability webhook
         webhook_url = os.environ.get('SEAT_AVAILABILITY_WEBHOOK_URL', '')
