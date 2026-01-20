@@ -19,7 +19,6 @@ import {
 import { Label } from "@/components/ui/label";
 import EditableBusZone from "./EditableBusZone";
 import ZoneCreator from "./ZoneCreator";
-import StaffZoneLookup from "./StaffZoneLookup";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 const API = `${BACKEND_URL}/api`;
