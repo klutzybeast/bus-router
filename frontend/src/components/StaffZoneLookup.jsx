@@ -421,9 +421,9 @@ const StaffZoneLookup = ({ isOpen, onClose, busZones = [], uniqueBuses = [], onS
                 style={{ width: '100%', height: '100%' }}
               >
                 {/* Bus Zones - render as polygons */}
-                {Array.isArray(busZones) && Object.entries(busZones).map(([busNumber, zone]) => {
+                {busZones && typeof busZones === 'object' && Object.entries(busZones).map(([busNumber, zone]) => {
                   if (!zone || !zone.points || zone.points.length < 3) return null;
-                  const busColor = getBusColor(busNumber);
+                  const busColor = zone.color || getBusColor(busNumber);
                   
                   return (
                     <ZonePolygon
