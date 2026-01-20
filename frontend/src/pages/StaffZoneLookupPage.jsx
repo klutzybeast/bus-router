@@ -185,15 +185,23 @@ const StaffZoneLookupPage = () => {
 
   // Delete staff
   const handleDeleteStaff = async (staffId, staffName) => {
-    if (!window.confirm(`Delete ${staffName}?`)) return;
+    console.log('handleDeleteStaff called:', staffId, staffName);
+    
+    const confirmed = window.confirm(`Delete ${staffName}?`);
+    console.log('User confirmed:', confirmed);
+    
+    if (!confirmed) return;
     
     try {
-      await axios.delete(`${API}/staff-addresses/${staffId}`);
+      console.log('Sending delete request for:', staffId);
+      const response = await axios.delete(`${API}/staff-addresses/${staffId}`);
+      console.log('Delete response:', response.data);
       toast.success(`Deleted ${staffName}`);
       await fetchStaff();
     } catch (error) {
       console.error("Error deleting staff:", error);
-      toast.error("Failed to delete staff");
+      console.error("Error details:", error.response?.data);
+      toast.error(`Failed to delete: ${error.response?.data?.detail || error.message}`);
     }
   };
 
