@@ -275,7 +275,8 @@ class CoverSheetGenerator:
         return sheet_data
     
     def generate_cover_sheet_simple(self, campers: List[Dict[str, Any]], staff_dict: Dict[str, Dict] = None,
-                                    shadows: List[Dict[str, Any]] = None, assigned_staff: List[Dict[str, Any]] = None) -> List[List[Any]]:
+                                    shadows: List[Dict[str, Any]] = None, assigned_staff: List[Dict[str, Any]] = None,
+                                    staff_addresses: List[Dict[str, Any]] = None) -> List[List[Any]]:
         """
         Generate simplified 11-column cover sheet data for Google Sheets.
         This matches the format expected by the Google Apps Script.
@@ -287,6 +288,7 @@ class CoverSheetGenerator:
             staff_dict: Optional dict of bus_number -> staff config from database
             shadows: Optional list of shadow documents
             assigned_staff: Optional list of assigned staff documents
+            staff_addresses: Optional list of staff with addresses documents
         
         Returns list of rows (each row is a list of values)
         """
@@ -296,6 +298,8 @@ class CoverSheetGenerator:
             shadows = []
         if assigned_staff is None:
             assigned_staff = []
+        if staff_addresses is None:
+            staff_addresses = []
         
         # Build notes for each bus (shadows and assigned staff names)
         bus_notes = defaultdict(list)
@@ -310,6 +314,13 @@ class CoverSheetGenerator:
             bus_num = staff.get('bus_number', '')
             if bus_num:
                 staff_name = staff.get('staff_name', '')
+                bus_notes[bus_num].append(f"Staff: {staff_name}")
+        
+        # Add staff with addresses to notes (only if they have a bus assigned)
+        for staff in staff_addresses:
+            bus_num = staff.get('bus_number', '')
+            if bus_num and bus_num.startswith('Bus'):
+                staff_name = staff.get('name', '')
                 bus_notes[bus_num].append(f"Staff: {staff_name}")
         
         # Group campers by bus - track AM and PM separately
