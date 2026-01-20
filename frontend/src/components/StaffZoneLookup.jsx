@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { APIProvider, Map, AdvancedMarker, InfoWindow } from "@vis.gl/react-google-maps";
+import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap } from "@vis.gl/react-google-maps";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,6 +26,39 @@ const BUS_COLORS = {
 };
 
 const getBusColor = (busNumber) => BUS_COLORS[busNumber] || '#000000';
+
+// Component to render a single bus zone polygon
+/* global google */
+const ZonePolygon = ({ busNumber, points, color }) => {
+  const map = useMap();
+  const polygonRef = useRef(null);
+
+  useEffect(() => {
+    if (!map || !points || points.length < 3) return;
+
+    // Create polygon
+    const polygon = new google.maps.Polygon({
+      paths: points.map(p => ({ lat: p.lat, lng: p.lng })),
+      strokeColor: color,
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: color,
+      fillOpacity: 0.2,
+      map: map,
+      clickable: false,
+    });
+
+    polygonRef.current = polygon;
+
+    return () => {
+      if (polygonRef.current) {
+        polygonRef.current.setMap(null);
+      }
+    };
+  }, [map, points, color]);
+
+  return null; // This component renders via Google Maps API, not React DOM
+};
 
 const StaffZoneLookup = ({ isOpen, onClose, busZones = [], uniqueBuses = [], onStaffUpdate }) => {
   const [staffList, setStaffList] = useState([]);
