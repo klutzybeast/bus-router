@@ -420,16 +420,18 @@ const StaffZoneLookup = ({ isOpen, onClose, busZones = [], uniqueBuses = [], onS
                 disableDefaultUI={false}
                 style={{ width: '100%', height: '100%' }}
               >
-                {/* Bus Zones (no campers) - only render if busZones is an array */}
-                {Array.isArray(busZones) && busZones.map((zone) => {
-                  if (!zone.points || zone.points.length < 3) return null;
-                  const busColor = getBusColor(zone.bus_number);
+                {/* Bus Zones - render as polygons */}
+                {Array.isArray(busZones) && Object.entries(busZones).map(([busNumber, zone]) => {
+                  if (!zone || !zone.points || zone.points.length < 3) return null;
+                  const busColor = getBusColor(busNumber);
                   
-                  // Draw polygon using SVG overlay approach
                   return (
-                    <div key={zone.id}>
-                      {/* Zone polygon would be rendered here - using Google Maps Polygon API */}
-                    </div>
+                    <ZonePolygon
+                      key={busNumber}
+                      busNumber={busNumber}
+                      points={zone.points}
+                      color={busColor}
+                    />
                   );
                 })}
 
