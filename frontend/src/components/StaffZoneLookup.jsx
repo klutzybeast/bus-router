@@ -27,7 +27,7 @@ const BUS_COLORS = {
 
 const getBusColor = (busNumber) => BUS_COLORS[busNumber] || '#000000';
 
-const StaffZoneLookup = ({ isOpen, onClose, busZones, uniqueBuses, onStaffUpdate }) => {
+const StaffZoneLookup = ({ isOpen, onClose, busZones = [], uniqueBuses = [], onStaffUpdate }) => {
   const [staffList, setStaffList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
