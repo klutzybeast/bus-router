@@ -3032,6 +3032,18 @@ const BusRoutingMap = () => {
             onClick={() => setIsPanelOpen(false)}
           />
         )}
+        
+        {/* Staff Zone Lookup Dialog */}
+        <StaffZoneLookup
+          isOpen={showStaffZoneLookup}
+          onClose={() => setShowStaffZoneLookup(false)}
+          busZones={userZones}
+          uniqueBuses={uniqueBuses}
+          onStaffUpdate={() => {
+            fetchStaffWithAddresses();
+            fetchSeatAvailability();
+          }}
+        />
       </div>
     </APIProvider>
   );
