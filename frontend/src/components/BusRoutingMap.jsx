@@ -2747,6 +2747,17 @@ const BusRoutingMap = () => {
                   Add Staff to Bus ({assignedStaffList.length})
                 </Button>
 
+                {/* Staff Zone Lookup Button */}
+                <Button
+                  variant="outline"
+                  className="w-full h-12 text-base bg-indigo-50 hover:bg-indigo-100 border-indigo-600 text-indigo-700"
+                  onClick={() => setShowStaffZoneLookup(true)}
+                  data-testid="staff-zone-lookup-btn"
+                >
+                  <Users className="w-5 h-5 mr-2" />
+                  Staff Zone Lookup ({staffWithAddresses.filter(s => s.bus_number).length}/{staffWithAddresses.length})
+                </Button>
+
                 {/* Bus Zones Toggle */}
                 <Button
                   variant="outline"
