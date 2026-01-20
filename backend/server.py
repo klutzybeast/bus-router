@@ -1550,6 +1550,22 @@ async def get_seat_availability_json():
                     bus_data[bus_number]['h2_am'] += 1
                     bus_data[bus_number]['h2_pm'] += 1
         
+        # Process staff with addresses - they take seats too (only if bus assigned)
+        for staff in staff_addresses:
+            bus_number = staff.get('bus_number', '')
+            session = staff.get('session', '')
+            halves = parse_session(session)
+            
+            if bus_number and bus_number.startswith('Bus'):
+                bus_data[bus_number]['staff_with_addresses'] += 1
+                # Staff with addresses take both AM and PM seats
+                if halves['h1']:
+                    bus_data[bus_number]['h1_am'] += 1
+                    bus_data[bus_number]['h1_pm'] += 1
+                if halves['h2']:
+                    bus_data[bus_number]['h2_am'] += 1
+                    bus_data[bus_number]['h2_pm'] += 1
+        
         # Add capacity and staff info
         result = {}
         for bus_number in bus_data:
