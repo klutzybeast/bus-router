@@ -449,7 +449,9 @@ const BusRoutingMap = () => {
   // Delete a zone
   const deleteZone = useCallback(async (busNumber) => {
     try {
-      await axios.delete(`${BACKEND_URL}/api/bus-zones/${encodeURIComponent(busNumber)}`);
+      // Properly encode the bus number for the URL (e.g., "Bus #01" -> "Bus%20%2301")
+      const encodedBusNumber = encodeURIComponent(busNumber);
+      await axios.delete(`${BACKEND_URL}/api/bus-zones/${encodedBusNumber}`);
       toast.success(`Zone deleted for ${busNumber}`);
       await fetchUserZones();
     } catch (error) {
