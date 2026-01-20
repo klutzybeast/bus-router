@@ -343,7 +343,7 @@ const StaffZoneLookup = ({ isOpen, onClose, busZones = [], uniqueBuses = [], onS
                           <SelectValue placeholder="Assign Bus" />
                         </SelectTrigger>
                         <SelectContent>
-                          {uniqueBuses.filter(b => b.startsWith('Bus')).map(bus => (
+                          {(uniqueBuses || []).filter(b => b.startsWith('Bus')).map(bus => (
                             <SelectItem key={bus} value={bus}>
                               <div className="flex items-center gap-2">
                                 <div 
