@@ -231,7 +231,6 @@ const BusRoutingMap = () => {
   const [assignedStaffBus, setAssignedStaffBus] = useState("");
 
   // Staff Zone Lookup State (staff with addresses)
-  const [showStaffZoneLookup, setShowStaffZoneLookup] = useState(false);
   const [staffWithAddresses, setStaffWithAddresses] = useState([]);
 
   // Fetch staff with addresses
