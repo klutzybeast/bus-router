@@ -3057,13 +3057,18 @@ async def upload_staff_csv(file: UploadFile = File(...)):
             
             nearby_buses = sorted(list(nearby_bus_set), key=lambda x: int(''.join(filter(str.isdigit, x)) or '0'))
             
+            # Auto-assign bus if staff falls within a zone
+            auto_assigned_bus = None
+            if zone_info and zone_info.get("bus_number"):
+                auto_assigned_bus = zone_info["bus_number"]
+            
             # Create staff document
             staff_doc = {
                 "name": name,
                 "address": formatted_address,
                 "lat": lat,
                 "lng": lng,
-                "bus_number": None,  # User will assign manually
+                "bus_number": auto_assigned_bus,  # Auto-assign based on zone
                 "session": "Full Season- 5 Days",
                 "zone_info": zone_info,
                 "nearby_buses": nearby_buses,
@@ -3078,6 +3083,7 @@ async def upload_staff_csv(file: UploadFile = File(...)):
             results["success"].append({
                 "name": name,
                 "address": formatted_address,
+                "auto_assigned": auto_assigned_bus,
                 "zone": zone_info.get("bus_number") if zone_info else None,
                 "nearby_buses": nearby_buses[:5]
             })
