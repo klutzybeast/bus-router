@@ -32,6 +32,28 @@ A web application that displays camper bus routes on a Google Map, using Google 
   - `PUT /api/seasons/{id}/activate` - Switch active season
   - `PUT /api/seasons/{id}/archive` - Archive a season
 
+### Phase 16: Staff Zone Lookup ✅ (January 2026)
+- **Staff with Addresses**: Add counselors/staff with their home addresses
+- **Geocoding**: Automatically geocodes addresses using Google Maps API (PositionStack backup)
+- **Zone Detection**: Shows which bus zone a staff member falls into
+- **Nearby Buses**: Calculates and displays nearby buses based on camper locations
+- **Manual Bus Assignment**: Staff can be manually assigned to any bus
+- **Triangle Markers**: Staff appear as triangles on the main map (different from camper circles)
+- **Seat Tracking**: Staff take seats on buses, reflected in:
+  - Bus card seat availability
+  - Seat availability reports (Excel download)
+  - Google Sheet sync
+  - Notes column in reports
+- **CSV Upload**: Bulk import staff via CSV with Name and Address columns
+- **UI**: Pop-out dialog with map showing zones (no campers) + staff list with pin cards
+- **Backend Endpoints**:
+  - `GET /api/staff-addresses` - Get all staff with addresses
+  - `POST /api/staff-addresses` - Create staff (geocodes address, calculates nearby buses)
+  - `PUT /api/staff-addresses/{id}` - Update staff (bus assignment)
+  - `DELETE /api/staff-addresses/{id}` - Delete staff
+  - `POST /api/staff-addresses/upload-csv` - Bulk CSV import
+- **Test Case**: Brian Stein, 4288 New York Avenue, Island Park, NY - nearby Bus #15, Bus #31
+
 ### Phase 1: Core Map Display ✅
 - Google Map with camper pins
 - Color-coded pins by bus number (33 unique colors)
