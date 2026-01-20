@@ -181,11 +181,12 @@ A web application that displays camper bus routes on a Google Map, using Google 
 
 ---
 
-## Current Stats (as of January 2025)
-- **492 campers** on map
+## Current Stats (as of January 2026)
+- **528 campers** on map
 - **34 buses** configured
 - **33 active buses** with campers
 - **1 shadow staff** assigned
+- **1 staff with address** (Brian Stein on Bus #15)
 
 ---
 
