@@ -2632,6 +2632,437 @@ async def delete_bus_assigned_staff(staff_id: str):
 
 
 # ============================================
+# STAFF WITH ADDRESSES (Staff Zone Lookup)
+# ============================================
+
+class StaffAddressCreate(BaseModel):
+    """Model for creating staff with address"""
+    name: str
+    address: str
+    bus_number: Optional[str] = None
+    session: Optional[str] = "Full Season- 5 Days"
+
+class StaffAddressUpdate(BaseModel):
+    """Model for updating staff"""
+    name: Optional[str] = None
+    address: Optional[str] = None
+    bus_number: Optional[str] = None
+    session: Optional[str] = None
+
+@api_router.get("/staff-addresses")
+async def get_all_staff_addresses():
+    """Get all staff with addresses for the active season"""
+    try:
+        season_id = await get_active_season_id()
+        query = {}
+        if season_id:
+            query["season_id"] = season_id
+        
+        staff_list = await db.staff_addresses.find(query).to_list(None)
+        result = []
+        for s in staff_list:
+            result.append({
+                "id": str(s.get("_id", "")),
+                "name": s.get("name"),
+                "address": s.get("address"),
+                "lat": s.get("lat"),
+                "lng": s.get("lng"),
+                "bus_number": s.get("bus_number"),
+                "session": s.get("session"),
+                "zone_info": s.get("zone_info"),
+                "nearby_buses": s.get("nearby_buses", []),
+                "created_at": s.get("created_at"),
+            })
+        return {"status": "success", "staff": result, "count": len(result)}
+    except Exception as e:
+        logging.error(f"Error getting staff addresses: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/staff-addresses")
+async def create_staff_address(staff_data: StaffAddressCreate):
+    """Create a new staff member with address - geocodes and finds zone"""
+    try:
+        season_id = await get_active_season_id()
+        
+        # Geocode the address
+        lat = None
+        lng = None
+        formatted_address = staff_data.address
+        
+        GOOGLE_MAPS_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
+        POSITIONSTACK_KEY = os.environ.get("POSITIONSTACK_API_KEY")
+        
+        # Try Google Maps first
+        if GOOGLE_MAPS_KEY:
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    response = await client.get(
+                        f"https://maps.googleapis.com/maps/api/geocode/json",
+                        params={"address": staff_data.address, "key": GOOGLE_MAPS_KEY}
+                    )
+                    data = response.json()
+                    if data.get("status") == "OK" and data.get("results"):
+                        location = data["results"][0]["geometry"]["location"]
+                        lat = location["lat"]
+                        lng = location["lng"]
+                        formatted_address = data["results"][0]["formatted_address"]
+            except Exception as e:
+                logging.warning(f"Google geocoding failed for staff: {e}")
+        
+        # Fallback to PositionStack
+        if lat is None and POSITIONSTACK_KEY:
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    response = await client.get(
+                        f"http://api.positionstack.com/v1/forward",
+                        params={"access_key": POSITIONSTACK_KEY, "query": staff_data.address}
+                    )
+                    data = response.json()
+                    if data.get("data") and len(data["data"]) > 0:
+                        result = data["data"][0]
+                        lat = result["latitude"]
+                        lng = result["longitude"]
+                        formatted_address = result.get("label", staff_data.address)
+            except Exception as e:
+                logging.warning(f"PositionStack geocoding failed for staff: {e}")
+        
+        if lat is None or lng is None:
+            raise HTTPException(status_code=400, detail="Could not geocode address")
+        
+        # Find which zone this staff falls into
+        zone_query = {}
+        if season_id:
+            zone_query["season_id"] = season_id
+        zones = await db.bus_zones.find(zone_query).to_list(None)
+        
+        zone_info = None
+        nearby_buses = []
+        
+        for zone in zones:
+            points = zone.get("points", [])
+            if points and point_in_polygon(lat, lng, points):
+                zone_info = {
+                    "bus_number": zone.get("bus_number"),
+                    "zone_name": zone.get("name", ""),
+                    "color": zone.get("color", "")
+                }
+                break
+        
+        # Find nearby buses (within ~1 mile)
+        campers = await db.campers.find({
+            "location.latitude": {"$exists": True, "$ne": 0},
+            "location.longitude": {"$exists": True, "$ne": 0}
+        }).to_list(None)
+        
+        nearby_bus_set = set()
+        for camper in campers:
+            clat = camper.get("location", {}).get("latitude", 0)
+            clng = camper.get("location", {}).get("longitude", 0)
+            distance = ((clat - lat) ** 2 + (clng - lng) ** 2) ** 0.5
+            if distance < 0.015:  # ~1 mile
+                am_bus = camper.get("am_bus_number", "")
+                pm_bus = camper.get("pm_bus_number", "")
+                if am_bus and am_bus.startswith("Bus"):
+                    nearby_bus_set.add(am_bus)
+                if pm_bus and pm_bus.startswith("Bus"):
+                    nearby_bus_set.add(pm_bus)
+        
+        nearby_buses = sorted(list(nearby_bus_set), key=lambda x: int(''.join(filter(str.isdigit, x)) or '0'))
+        
+        staff_doc = {
+            "name": staff_data.name.strip(),
+            "address": formatted_address,
+            "lat": lat,
+            "lng": lng,
+            "bus_number": staff_data.bus_number,
+            "session": staff_data.session or "Full Season- 5 Days",
+            "zone_info": zone_info,
+            "nearby_buses": nearby_buses,
+            "season_id": season_id,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        
+        result = await db.staff_addresses.insert_one(staff_doc)
+        staff_doc["id"] = str(result.inserted_id)
+        if "_id" in staff_doc:
+            del staff_doc["_id"]
+        
+        logging.info(f"Created staff with address: {staff_data.name} at {formatted_address}")
+        return {"status": "success", "staff": staff_doc}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating staff address: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/staff-addresses/{staff_id}")
+async def update_staff_address(staff_id: str, staff_data: StaffAddressUpdate):
+    """Update a staff member (typically to assign a bus)"""
+    from bson import ObjectId
+    try:
+        update_fields = {}
+        if staff_data.name is not None:
+            update_fields["name"] = staff_data.name.strip()
+        if staff_data.bus_number is not None:
+            update_fields["bus_number"] = staff_data.bus_number
+        if staff_data.session is not None:
+            update_fields["session"] = staff_data.session
+        if staff_data.address is not None:
+            # Re-geocode if address changed
+            lat = None
+            lng = None
+            formatted_address = staff_data.address
+            
+            GOOGLE_MAPS_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
+            if GOOGLE_MAPS_KEY:
+                try:
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        response = await client.get(
+                            f"https://maps.googleapis.com/maps/api/geocode/json",
+                            params={"address": staff_data.address, "key": GOOGLE_MAPS_KEY}
+                        )
+                        data = response.json()
+                        if data.get("status") == "OK" and data.get("results"):
+                            location = data["results"][0]["geometry"]["location"]
+                            lat = location["lat"]
+                            lng = location["lng"]
+                            formatted_address = data["results"][0]["formatted_address"]
+                except Exception as e:
+                    logging.warning(f"Geocoding failed during update: {e}")
+            
+            if lat and lng:
+                update_fields["address"] = formatted_address
+                update_fields["lat"] = lat
+                update_fields["lng"] = lng
+        
+        if not update_fields:
+            raise HTTPException(status_code=400, detail="No fields to update")
+        
+        update_fields["updated_at"] = datetime.now(timezone.utc).isoformat()
+        
+        result = await db.staff_addresses.update_one(
+            {"_id": ObjectId(staff_id)},
+            {"$set": update_fields}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Staff not found")
+        
+        # Return updated document
+        updated = await db.staff_addresses.find_one({"_id": ObjectId(staff_id)})
+        return {
+            "status": "success",
+            "staff": {
+                "id": str(updated["_id"]),
+                "name": updated.get("name"),
+                "address": updated.get("address"),
+                "lat": updated.get("lat"),
+                "lng": updated.get("lng"),
+                "bus_number": updated.get("bus_number"),
+                "session": updated.get("session"),
+                "zone_info": updated.get("zone_info"),
+                "nearby_buses": updated.get("nearby_buses", []),
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating staff address: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/staff-addresses/{staff_id}")
+async def delete_staff_address(staff_id: str):
+    """Delete a staff member"""
+    from bson import ObjectId
+    try:
+        result = await db.staff_addresses.delete_one({"_id": ObjectId(staff_id)})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Staff not found")
+        
+        logging.info(f"Deleted staff address: {staff_id}")
+        return {"status": "success", "message": "Staff deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting staff address: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/staff-addresses/upload-csv")
+async def upload_staff_csv(file: UploadFile = File(...)):
+    """Upload CSV with staff names and addresses - bulk import"""
+    from fastapi import UploadFile, File
+    import io
+    try:
+        season_id = await get_active_season_id()
+        
+        # Read CSV content
+        content = await file.read()
+        text_content = content.decode('utf-8')
+        
+        # Parse CSV
+        reader = csv.DictReader(io.StringIO(text_content))
+        
+        # Normalize column names (handle various formats)
+        fieldnames = reader.fieldnames
+        name_col = None
+        address_col = None
+        
+        for col in fieldnames:
+            col_lower = col.lower().strip()
+            if col_lower in ['name', 'staff name', 'staff_name', 'staffname']:
+                name_col = col
+            elif col_lower in ['address', 'staff address', 'staff_address', 'staffaddress', 'home address', 'home_address']:
+                address_col = col
+        
+        if not name_col or not address_col:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"CSV must have 'Name' and 'Address' columns. Found columns: {fieldnames}"
+            )
+        
+        results = {
+            "success": [],
+            "failed": [],
+            "total": 0
+        }
+        
+        GOOGLE_MAPS_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
+        POSITIONSTACK_KEY = os.environ.get("POSITIONSTACK_API_KEY")
+        
+        for row in reader:
+            results["total"] += 1
+            name = row.get(name_col, "").strip()
+            address = row.get(address_col, "").strip()
+            
+            if not name or not address:
+                results["failed"].append({
+                    "name": name or "Unknown",
+                    "address": address or "Missing",
+                    "error": "Missing name or address"
+                })
+                continue
+            
+            # Geocode the address
+            lat = None
+            lng = None
+            formatted_address = address
+            
+            if GOOGLE_MAPS_KEY:
+                try:
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        response = await client.get(
+                            f"https://maps.googleapis.com/maps/api/geocode/json",
+                            params={"address": address, "key": GOOGLE_MAPS_KEY}
+                        )
+                        data = response.json()
+                        if data.get("status") == "OK" and data.get("results"):
+                            location = data["results"][0]["geometry"]["location"]
+                            lat = location["lat"]
+                            lng = location["lng"]
+                            formatted_address = data["results"][0]["formatted_address"]
+                except Exception as e:
+                    logging.warning(f"Geocoding failed for {name}: {e}")
+            
+            if lat is None and POSITIONSTACK_KEY:
+                try:
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        response = await client.get(
+                            f"http://api.positionstack.com/v1/forward",
+                            params={"access_key": POSITIONSTACK_KEY, "query": address}
+                        )
+                        data = response.json()
+                        if data.get("data") and len(data["data"]) > 0:
+                            result_data = data["data"][0]
+                            lat = result_data["latitude"]
+                            lng = result_data["longitude"]
+                            formatted_address = result_data.get("label", address)
+                except Exception as e:
+                    logging.warning(f"PositionStack failed for {name}: {e}")
+            
+            if lat is None or lng is None:
+                results["failed"].append({
+                    "name": name,
+                    "address": address,
+                    "error": "Could not geocode address"
+                })
+                continue
+            
+            # Find zone info
+            zone_query = {}
+            if season_id:
+                zone_query["season_id"] = season_id
+            zones = await db.bus_zones.find(zone_query).to_list(None)
+            
+            zone_info = None
+            for zone in zones:
+                points = zone.get("points", [])
+                if points and point_in_polygon(lat, lng, points):
+                    zone_info = {
+                        "bus_number": zone.get("bus_number"),
+                        "zone_name": zone.get("name", ""),
+                        "color": zone.get("color", "")
+                    }
+                    break
+            
+            # Find nearby buses
+            campers = await db.campers.find({
+                "location.latitude": {"$exists": True, "$ne": 0}
+            }).to_list(None)
+            
+            nearby_bus_set = set()
+            for camper in campers:
+                clat = camper.get("location", {}).get("latitude", 0)
+                clng = camper.get("location", {}).get("longitude", 0)
+                distance = ((clat - lat) ** 2 + (clng - lng) ** 2) ** 0.5
+                if distance < 0.015:
+                    am_bus = camper.get("am_bus_number", "")
+                    pm_bus = camper.get("pm_bus_number", "")
+                    if am_bus and am_bus.startswith("Bus"):
+                        nearby_bus_set.add(am_bus)
+                    if pm_bus and pm_bus.startswith("Bus"):
+                        nearby_bus_set.add(pm_bus)
+            
+            nearby_buses = sorted(list(nearby_bus_set), key=lambda x: int(''.join(filter(str.isdigit, x)) or '0'))
+            
+            # Create staff document
+            staff_doc = {
+                "name": name,
+                "address": formatted_address,
+                "lat": lat,
+                "lng": lng,
+                "bus_number": None,  # User will assign manually
+                "session": "Full Season- 5 Days",
+                "zone_info": zone_info,
+                "nearby_buses": nearby_buses,
+                "season_id": season_id,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }
+            
+            insert_result = await db.staff_addresses.insert_one(staff_doc)
+            staff_doc["id"] = str(insert_result.inserted_id)
+            del staff_doc["_id"]
+            
+            results["success"].append({
+                "name": name,
+                "address": formatted_address,
+                "zone": zone_info.get("bus_number") if zone_info else None,
+                "nearby_buses": nearby_buses[:5]
+            })
+        
+        logging.info(f"CSV upload complete: {len(results['success'])} success, {len(results['failed'])} failed")
+        return {
+            "status": "success",
+            "message": f"Imported {len(results['success'])} of {results['total']} staff members",
+            "results": results
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error uploading staff CSV: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
 # BUS ZONES ENDPOINTS (User-defined zones)
 # ============================================
 
