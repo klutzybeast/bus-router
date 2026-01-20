@@ -512,6 +512,13 @@ const StaffZoneLookup = ({ isOpen, onClose, busZones = [], uniqueBuses = [], onS
               <div className="font-semibold mb-2">Legend</div>
               <div className="flex items-center gap-2 mb-1">
                 <div 
+                  className="w-4 h-4 border-2 border-blue-500"
+                  style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)' }}
+                />
+                <span>Bus Zones</span>
+              </div>
+              <div className="flex items-center gap-2 mb-1">
+                <div 
                   className="w-4 h-4"
                   style={{ 
                     backgroundColor: '#3B82F6',
