@@ -280,8 +280,8 @@ A web application that displays camper bus routes on a Google Map, using Google 
 ## Backlog
 
 ### P1 - High Priority
-- [ ] Complete migration to modular routers (reduces `server.py` from 2596 lines)
-- [ ] Refactor `BusRoutingMap.jsx` - extract UI panels into separate components
+- [ ] Complete migration to modular routers (reduces `server.py` from ~5600 lines)
+- [ ] Refactor `BusRoutingMap.jsx` - extract UI panels into separate components (~3000 lines)
 - [ ] Resolve CampMinder API access (requires user action with provider)
 
 ### P2 - Medium Priority  
