@@ -231,6 +231,20 @@ const BusRoutingMap = () => {
   const [assignedStaffName, setAssignedStaffName] = useState("");
   const [assignedStaffBus, setAssignedStaffBus] = useState("");
 
+  // Staff Zone Lookup State (staff with addresses)
+  const [showStaffZoneLookup, setShowStaffZoneLookup] = useState(false);
+  const [staffWithAddresses, setStaffWithAddresses] = useState([]);
+
+  // Fetch staff with addresses
+  const fetchStaffWithAddresses = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/staff-addresses`);
+      setStaffWithAddresses(response.data.staff || []);
+    } catch (error) {
+      console.error("Error fetching staff with addresses:", error);
+    }
+  }, []);
+
   // Fetch shadows from backend
   const fetchShadows = useCallback(async () => {
     try {
