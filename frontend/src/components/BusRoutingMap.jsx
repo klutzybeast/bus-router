@@ -1893,8 +1893,8 @@ const BusRoutingMap = () => {
               </div>
             )}
             
-            <div className="space-y-1">
-              {uniqueBuses.filter(bus => bus.startsWith('Bus')).slice(0, 25).map((bus) => {
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {uniqueBuses.filter(bus => bus.startsWith('Bus')).map((bus) => {
                 const busColor = getBusColor(bus);
                 const hasZone = !!userZones[bus];
                 const isActive = selectedBusFilter === bus || selectedZoneBus === bus;
