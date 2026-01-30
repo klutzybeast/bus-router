@@ -209,9 +209,25 @@ async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Di
     """
     Get guardian contacts using the CampMinder family relationship API.
     Results are cached in MongoDB - but empty results are NOT cached to allow retry.
+    
+    IMPORTANT: Only returns actual parents/guardians (PersonType=2), NOT siblings.
     """
     try:
-        # First, delete any cached entries with empty guardians (cleanup from previous bugs)
+        # CRITICAL FIX: Clear ALL cached data to remove siblings incorrectly cached as parents
+        # This is a one-time cleanup after fixing the PersonType filter bug
+        # Check if we have any old cache entries that might contain siblings
+        old_cache_count = await db.campminder_relatives_cache.count_documents({})
+        if old_cache_count > 0:
+            # Check if any cache entry is missing person_type field (old format before fix)
+            sample = await db.campminder_relatives_cache.find_one({})
+            if sample:
+                guardians = sample.get('guardians', [])
+                # If any guardian lacks person_type field, it's old data - clear all
+                if guardians and 'person_type' not in guardians[0]:
+                    logging.info(f"Clearing {old_cache_count} stale cache entries (pre-PersonType fix)")
+                    await db.campminder_relatives_cache.delete_many({})
+        
+        # Also delete any cached entries with empty guardians
         await db.campminder_relatives_cache.delete_many({"guardians": []})
         
         result = {}
