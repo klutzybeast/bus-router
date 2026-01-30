@@ -35,16 +35,16 @@ class CampMinderAPI:
     CampMinder API Integration for Bus Route Management
     
     Uses the correct API endpoints:
-    - Auth: https://auth.campminder.com/auth/apikey
+    - Auth: https://api.campminder.com/auth/apikey
     - Data (legacy): https://webapi.campminder.com/api/...
-    - Data (new): https://data.campminder.com/...
+    - Data (new): https://data.campminder.com/... (for relatives API)
     """
     
     def __init__(self, api_key: str, subscription_key: str, api_url: str = None):
         self.api_key = api_key
         self.subscription_key = subscription_key
-        # Auth endpoint - using the newer auth.campminder.com
-        self.auth_url = "https://auth.campminder.com"
+        # Auth endpoint - api.campminder.com (confirmed working)
+        self.auth_url = "https://api.campminder.com"
         # Legacy data endpoints on webapi.campminder.com
         self.data_url = "https://webapi.campminder.com"
         # New data endpoints on data.campminder.com (for relatives API)
