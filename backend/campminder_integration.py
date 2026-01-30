@@ -816,12 +816,16 @@ class CampMinderAPI:
                             # Extract phone numbers from various locations in the person data
                             phones = []
                             
-                            # Check for Phones array in person data
-                            person_phones = person.get('Phones', [])
+                            # Check for PhoneNumbers array (primary location for phone data)
+                            person_phones = person.get('PhoneNumbers', []) or person.get('Phones', [])
                             if person_phones:
                                 for phone in person_phones:
                                     phone_num = phone.get('Number') or phone.get('PhoneNumber')
-                                    phone_type = phone.get('Type') or phone.get('PhoneType', 'Phone')
+                                    phone_type = phone.get('Type') or phone.get('TypeID') or phone.get('PhoneType', 'Phone')
+                                    # Map type IDs to labels (2=Cell, 3=Other, etc.)
+                                    type_labels = {1: 'Home', 2: 'Cell', 3: 'Work', 4: 'Fax'}
+                                    if isinstance(phone_type, int):
+                                        phone_type = type_labels.get(phone_type, 'Phone')
                                     if phone_num:
                                         phones.append({
                                             'number': phone_num,
