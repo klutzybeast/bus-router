@@ -847,7 +847,7 @@ class CampMinderAPI:
             
             logger.info(f"Processing parent contacts for {len(campers)} campers using {len(all_persons)} person records")
             
-            # Build name -> person_id lookup
+            # Build name -> person_id lookup (convert to int for consistency)
             name_to_pid = {}
             for pid, person in all_persons.items():
                 name = person.get('Name', {})
@@ -855,7 +855,7 @@ class CampMinderAPI:
                 last = (name.get('LastName') or '').strip().lower()
                 if first and last:
                     key = f"{first}_{last}"
-                    name_to_pid[key] = pid
+                    name_to_pid[key] = int(pid)  # Convert to int
             
             # Step 2: Get all family mappings
             person_to_family = await self.get_all_family_mappings()
@@ -871,6 +871,9 @@ class CampMinderAPI:
                 family_to_persons[fid].append(pid)
             
             logger.info(f"Built {len(family_to_persons)} family groups")
+            
+            # Build person lookup with int keys for consistent access
+            person_by_id = {int(k): v for k, v in all_persons.items()}
             
             # Step 3: For each camper, find their family and get parent contacts
             result = {}
@@ -900,7 +903,7 @@ class CampMinderAPI:
                     if member_pid == camper_pid:
                         continue  # Skip the camper
                     
-                    member = all_persons.get(member_pid)
+                    member = person_by_id.get(member_pid)
                     if not member:
                         continue
                     
