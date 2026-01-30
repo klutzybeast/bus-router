@@ -2925,6 +2925,49 @@ const BusRoutingMap = () => {
                   )}
                 </Button>
                 
+                {/* Print Roster Button with Dropdown */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full h-12 text-base bg-purple-50 hover:bg-purple-100 border-purple-600 text-purple-700"
+                      data-testid="print-roster-btn"
+                    >
+                      <FileText className="w-5 h-5 mr-2" />
+                      Print Roster
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 p-2" align="start">
+                    <div className="space-y-1">
+                      <div className="text-sm font-semibold mb-2 px-2">Select Bus to Print</div>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-sm h-9"
+                        onClick={() => window.open(`${BACKEND_URL}/api/full-roster/print?bus=all`, '_blank')}
+                      >
+                        <FileText className="w-4 h-4 mr-2" />
+                        All Buses
+                      </Button>
+                      <div className="max-h-60 overflow-y-auto">
+                        {uniqueBuses.filter(b => b.startsWith('Bus')).map(bus => (
+                          <Button
+                            key={bus}
+                            variant="ghost"
+                            className="w-full justify-start text-sm h-9"
+                            onClick={() => window.open(`${BACKEND_URL}/api/full-roster/print?bus=${encodeURIComponent(bus)}`, '_blank')}
+                          >
+                            <div 
+                              className="w-3 h-3 rounded-full mr-2"
+                              style={{ backgroundColor: getBusColor(bus) }}
+                            />
+                            {bus}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                
                 <Button
                   variant="outline"
                   className="w-full h-12 text-base"
