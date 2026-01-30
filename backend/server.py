@@ -4614,14 +4614,12 @@ async def get_full_roster_print(bus: str = "all"):
         staff_addresses_cursor = db.staff_addresses.find({"season_id": season_id} if season_id else {})
         staff_addresses_list = await staff_addresses_cursor.to_list(length=None)
         
-        # Try to get guardian contacts from CampMinder API
+        # Try to get guardian contacts from CampMinder API using name-based matching
         guardian_contacts = {}
         try:
-            # Collect person IDs for campers that have them
-            person_ids = [c.get('personID') for c in campers if c.get('personID')]
-            if person_ids:
-                guardian_contacts = await campminder_api.get_bulk_guardian_contacts(person_ids)
-                logging.info(f"Retrieved guardian contacts for {len(guardian_contacts)} campers")
+            # Use name-based matching since our campers don't have personID
+            guardian_contacts = await campminder_api.get_guardian_contacts_by_name(campers)
+            logging.info(f"Retrieved guardian contacts for {len(guardian_contacts)} campers by name matching")
         except Exception as e:
             logging.warning(f"Could not fetch guardian contacts from CampMinder: {e}")
         
@@ -4657,9 +4655,11 @@ async def get_full_roster_print(bus: str = "all"):
                 is_pm = pm_bus == bus_num
                 rider_type = "AM & PM" if (is_am and is_pm) else ("AM only" if is_am else "PM only")
                 
-                # Get guardian contacts for this camper
-                person_id = camper.get('personID')
-                guardians = guardian_contacts.get(person_id, []) if person_id else []
+                # Get guardian contacts for this camper using name key
+                first = (camper.get('first_name') or '').strip().lower()
+                last = (camper.get('last_name') or '').strip().lower()
+                name_key = f"{first}_{last}"
+                guardians = guardian_contacts.get(name_key, [])
                 
                 # Format phone numbers - get up to 2 parents
                 phone_list = []
