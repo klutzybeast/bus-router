@@ -976,7 +976,13 @@ class CampMinderAPI:
     async def get_guardian_contacts_by_name(self, campers: List[Dict]) -> Dict[str, List[Dict]]:
         """
         Get guardian contacts by matching camper last names to CampMinder person data.
-        Finds adults with the same last name who have phone numbers.
+        Finds adults with the same or similar last name who have phone numbers.
+        
+        Handles:
+        - Exact matches (Smith -> Smith)
+        - Hyphenated names (Polo-Zacco -> Zacco)
+        - Names with suffixes (Zacco Jr -> Zacco)
+        - Names with spaces (Di Mambro -> Di Mambro)
         
         Args:
             campers: List of camper dicts with 'first_name' and 'last_name' keys
@@ -991,12 +997,12 @@ class CampMinderAPI:
                 logger.warning("No persons returned from CampMinder")
                 return {}
             
-            # Step 2: Build last name -> persons with phones lookup
-            # Group persons by last name and collect those with phone numbers
-            last_name_to_contacts = {}
+            # Step 2: Build lookup of persons with phones
+            # Store by normalized last name AND original for flexible matching
+            persons_with_phones = []
             for pid, person in all_persons.items():
                 name = person.get('Name', {})
-                last = (name.get('LastName') or '').strip().lower()
+                last = (name.get('LastName') or '').strip()
                 first = (name.get('FirstName') or '').strip()
                 
                 # Get phone numbers
@@ -1012,41 +1018,76 @@ class CampMinderAPI:
                 
                 # Only include persons with phone numbers (likely adults/parents)
                 if last and phones:
-                    if last not in last_name_to_contacts:
-                        last_name_to_contacts[last] = []
-                    last_name_to_contacts[last].append({
-                        'name': f"{first} {name.get('LastName', '')}".strip(),
+                    persons_with_phones.append({
+                        'name': f"{first} {last}".strip(),
+                        'first_lower': first.lower(),
+                        'last_lower': last.lower(),
+                        'last_normalized': self._normalize_last_name(last),
                         'phones': phones,
                         'person_id': pid
                     })
             
-            logger.info(f"Built contact lookup with {len(last_name_to_contacts)} last names")
+            logger.info(f"Found {len(persons_with_phones)} persons with phone numbers")
             
-            # Step 3: Match each camper to potential guardians by last name
+            # Step 3: Match each camper to potential guardians
             result = {}
             for camper in campers:
                 first = (camper.get('first_name') or '').strip().lower()
-                last = (camper.get('last_name') or '').strip().lower()
-                key = f"{first}_{last}"
+                last = (camper.get('last_name') or '').strip()
+                key = f"{first}_{last.lower()}"
                 
                 if not last:
                     result[key] = []
                     continue
                 
-                # Get all persons with same last name who have phones
-                potential_guardians = last_name_to_contacts.get(last, [])
+                last_lower = last.lower()
+                last_normalized = self._normalize_last_name(last)
                 
-                # Filter out the camper themselves (by first name match)
+                # Find matching guardians
                 guardians = []
-                for contact in potential_guardians:
-                    contact_first = contact['name'].split()[0].lower() if contact['name'] else ''
+                for contact in persons_with_phones:
                     # Skip if this is the camper themselves
-                    if contact_first == first:
+                    if contact['first_lower'] == first and contact['last_lower'] == last_lower:
                         continue
-                    guardians.append(contact)
+                    
+                    # Check for match using multiple strategies
+                    is_match = False
+                    
+                    # Strategy 1: Exact match
+                    if contact['last_lower'] == last_lower:
+                        is_match = True
+                    
+                    # Strategy 2: Normalized match (handles Jr, III, etc.)
+                    elif contact['last_normalized'] == last_normalized:
+                        is_match = True
+                    
+                    # Strategy 3: Camper's last name contained in contact's last name
+                    # Handles "Polo-Zacco" matching "Zacco"
+                    elif last_lower in contact['last_lower']:
+                        is_match = True
+                    
+                    # Strategy 4: Contact's normalized name contained in camper's name
+                    # Handles "Di Mambro" variations
+                    elif contact['last_normalized'] in last_normalized or last_normalized in contact['last_normalized']:
+                        is_match = True
+                    
+                    if is_match:
+                        guardians.append({
+                            'name': contact['name'],
+                            'phones': contact['phones']
+                        })
                 
-                # Limit to 2 guardians
-                result[key] = guardians[:2]
+                # Deduplicate by name and limit to 2
+                seen_names = set()
+                unique_guardians = []
+                for g in guardians:
+                    if g['name'] not in seen_names:
+                        seen_names.add(g['name'])
+                        unique_guardians.append(g)
+                        if len(unique_guardians) >= 2:
+                            break
+                
+                result[key] = unique_guardians
             
             matched_count = sum(1 for v in result.values() if v)
             logger.info(f"✓ Found guardians for {matched_count}/{len(campers)} campers by last name matching")
@@ -1057,3 +1098,28 @@ class CampMinderAPI:
             import traceback
             traceback.print_exc()
             return {}
+    
+    def _normalize_last_name(self, name: str) -> str:
+        """
+        Normalize a last name for matching by removing:
+        - Suffixes (Jr, Sr, III, etc.)
+        - Hyphens
+        - Extra spaces
+        """
+        import re
+        normalized = name.lower().strip()
+        
+        # Remove common suffixes
+        suffixes = [' jr', ' sr', ' ii', ' iii', ' iv', ' v', ' jr.', ' sr.']
+        for suffix in suffixes:
+            if normalized.endswith(suffix):
+                normalized = normalized[:-len(suffix)]
+        
+        # Split hyphenated names and keep all parts
+        # "Polo-Zacco" becomes "polo zacco"
+        normalized = normalized.replace('-', ' ')
+        
+        # Normalize spaces
+        normalized = ' '.join(normalized.split())
+        
+        return normalized
