@@ -35,11 +35,14 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - **Backend Endpoints**:
   - `POST /api/campers/{camper_id}/pickup-dropoff` - Set or clear pickup/dropoff status
   - `GET /api/full-roster/print?bus=all|Bus%20%23XX` - Generate printable roster HTML
+  - `POST /api/clear-guardian-cache` - Clear cached parent data (admin use)
 - **CampMinder Integration**: ✅ COMPLETED
   - `get_parent_contacts_for_campers()` - Fetches parent contacts using family relationships
   - `get_all_family_mappings()` - Gets person-to-family ID mappings  
+  - **PersonType filtering**: Only includes actual parents/guardians (PersonType=2), NOT siblings
   - 24-hour MongoDB caching in `campminder_relatives_cache` collection
   - Shows up to 2 parents per camper with phone numbers
+  - Auto-clears stale cache when detecting old data format
 
 ### Phase 16: Staff Zone Lookup ✅ (January 2026)
 - **Staff with Addresses**: Add counselors/staff with their home addresses
