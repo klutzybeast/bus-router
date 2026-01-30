@@ -204,7 +204,16 @@ class CampMinderAPI:
         Endpoint: GET /api/entity/person/GetPersons
         
         Returns dict mapping person_id -> person data
+        
+        Uses caching to avoid rate limits.
         """
+        # Check cache first (only for full requests without specific person_ids)
+        if not person_ids and self._persons_cache and self._persons_cache_time:
+            cache_age = datetime.now() - self._persons_cache_time
+            if cache_age < self._persons_cache_ttl:
+                logger.info(f"Using cached persons data ({len(self._persons_cache)} persons, {cache_age.seconds}s old)")
+                return self._persons_cache
+        
         try:
             headers = await self.get_auth_headers()
             
@@ -238,13 +247,33 @@ class CampMinderAPI:
                         if pid:
                             persons_dict[pid] = person
                     
-                    logger.info(f"✓ Retrieved {len(persons_dict)} persons")
+                    # Cache the result (only for full requests)
+                    if not person_ids:
+                        self._persons_cache = persons_dict
+                        self._persons_cache_time = datetime.now()
+                    
+                    logger.info(f"✓ Retrieved {len(persons_dict)} persons from API")
                     return persons_dict
+                elif response.status_code == 429:
+                    # Rate limited - try to use cache if available
+                    logger.warning(f"Rate limited by CampMinder API")
+                    if self._persons_cache:
+                        logger.info(f"Using stale cache ({len(self._persons_cache)} persons)")
+                        return self._persons_cache
+                    return {}
                 else:
                     logger.error(f"Failed to get persons: {response.status_code}")
+                    # Try cache on error
+                    if self._persons_cache:
+                        logger.info(f"Using stale cache on error ({len(self._persons_cache)} persons)")
+                        return self._persons_cache
                     return {}
         except Exception as e:
             logger.error(f"Error getting persons: {str(e)}")
+            # Try cache on exception
+            if self._persons_cache:
+                logger.info(f"Using stale cache on exception ({len(self._persons_cache)} persons)")
+                return self._persons_cache
             return {}
     
     async def get_family_addresses(self, since: str = None) -> Dict[int, List[Dict]]:
