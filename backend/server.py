@@ -203,25 +203,33 @@ async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Di
     This is the RECOMMENDED approach using the reliable relatives endpoint.
     Results are cached in MongoDB to avoid repeated API calls.
     
+    Process:
+    1. Look up CampMinder person IDs for campers by name
+    2. Fetch relatives from /persons/{id}/relatives endpoint
+    3. Cache results in MongoDB
+    
     The cache stores: camper_name -> [{parent_name, phones}]
     """
     try:
         result = {}
         
-        # Get unique camper names and build lookup
-        camper_lookup = {}  # name_key -> person_id
+        # Get unique camper names
         unique_keys = set()
+        camper_list = []
         
         for camper in campers:
             first = (camper.get('first_name') or '').strip().lower()
             last = (camper.get('last_name') or '').strip().lower()
-            person_id = camper.get('personID') or camper.get('person_id')
             
             if first and last:
                 key = f"{first}_{last}"
-                unique_keys.add(key)
-                if person_id:
-                    camper_lookup[key] = int(person_id)
+                if key not in unique_keys:
+                    unique_keys.add(key)
+                    camper_list.append({
+                        'first_name': camper.get('first_name', '').strip(),
+                        'last_name': camper.get('last_name', '').strip(),
+                        'key': key
+                    })
         
         if not unique_keys:
             return {}
@@ -258,18 +266,37 @@ async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Di
         if missing_keys:
             logging.info(f"Fetching relatives for {len(missing_keys)} campers from CampMinder API...")
             
-            # Get person IDs for missing campers
+            # Step 1: Get all persons from CampMinder to build name->personID mapping
+            all_persons = await campminder_api.get_persons(since='2020-01-01T00:00:00Z')
+            
+            # Build name -> person ID lookup
+            name_to_pid = {}
+            for pid, person in all_persons.items():
+                name = person.get('Name', {})
+                first = (name.get('FirstName') or name.get('NickName') or '').strip().lower()
+                last = (name.get('LastName') or '').strip().lower()
+                if first and last:
+                    name_to_pid[f"{first}_{last}"] = pid
+            
+            logging.info(f"Built name->personID mapping with {len(name_to_pid)} entries")
+            
+            # Step 2: Get person IDs for missing campers
             person_ids_to_fetch = []
             key_to_pid = {}
             
             for key in missing_keys:
-                pid = camper_lookup.get(key)
+                pid = name_to_pid.get(key)
                 if pid:
                     person_ids_to_fetch.append(pid)
                     key_to_pid[pid] = key
+                else:
+                    # Camper not found in CampMinder - log and skip
+                    logging.debug(f"Camper {key} not found in CampMinder person data")
+            
+            logging.info(f"Found {len(person_ids_to_fetch)} camper person IDs to fetch relatives for")
             
             if person_ids_to_fetch:
-                # Use the new relatives API
+                # Step 3: Use the new relatives API
                 api_result = await campminder_api.get_bulk_relatives(person_ids_to_fetch)
                 
                 # Process results and save to cache
@@ -298,6 +325,20 @@ async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Di
                             }},
                             upsert=True
                         )
+            
+            # For campers without CampMinder match, cache empty result
+            for key in missing_keys:
+                if key not in result:
+                    result[key] = []
+                    await db.campminder_relatives_cache.update_one(
+                        {"_id": key},
+                        {"$set": {
+                            "guardians": [],
+                            "person_id": None,
+                            "updated_at": datetime.now().isoformat()
+                        }},
+                        upsert=True
+                    )
         
         found_count = sum(1 for v in result.values() if v)
         logging.info(f"Guardian lookup complete: {found_count}/{len(unique_keys)} have contacts")
