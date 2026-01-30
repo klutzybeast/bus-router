@@ -4623,38 +4623,109 @@ async def get_full_roster_print(bus: str = "all"):
         except Exception as e:
             logging.warning(f"Could not fetch guardian contacts from CampMinder: {e}")
         
-        # Group campers by bus - with deduplication
-        buses_data = {}
-        seen_campers = {}  # Track seen campers per bus to avoid duplicates
+        # First, group camper records by name to handle AM/PM address differences
+        # Some campers have separate records for AM pickup address and PM dropoff address
+        camper_records = {}  # name_key -> {'am_record': ..., 'pm_record': ..., 'default_record': ...}
         
         for camper in campers:
-            # Determine which buses this camper is on
-            am_bus = camper.get('am_bus_number', '')
-            pm_bus = camper.get('pm_bus_number', '')
-            
-            # Create unique key for this camper (use name only for dedup since same person can't be on same bus twice)
             first_name = (camper.get('first_name') or '').strip()
             last_name = (camper.get('last_name') or '').strip()
             camper_key = f"{first_name}_{last_name}".lower()
             
-            # If filtering by specific bus, only include that bus
-            if bus != "all":
-                buses_to_process = [(bus, am_bus == bus, pm_bus == bus)] if (am_bus == bus or pm_bus == bus) else []
-            else:
-                # Process each bus this camper is assigned to
-                buses_to_process = []
-                if am_bus and am_bus.startswith('Bus'):
-                    buses_to_process.append((am_bus, True, pm_bus == am_bus))
-                if pm_bus and pm_bus.startswith('Bus') and pm_bus != am_bus:
-                    buses_to_process.append((pm_bus, am_bus == pm_bus, True))
+            if camper_key not in camper_records:
+                camper_records[camper_key] = {
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'am_bus': camper.get('am_bus_number', ''),
+                    'pm_bus': camper.get('pm_bus_number', ''),
+                    'am_record': None,  # Record with AM address
+                    'pm_record': None,  # Record with PM-only address
+                    'default_record': camper,  # Fallback
+                    'pickup_dropoff': camper.get('pickup_dropoff', '')
+                }
             
-            for bus_num, is_am_on_this_bus, is_pm_on_this_bus in buses_to_process:
-                # Skip if we've already added this camper to this bus
-                bus_seen_key = f"{bus_num}_{camper_key}"
-                if bus_seen_key in seen_campers:
-                    continue
-                seen_campers[bus_seen_key] = True
+            pickup_type = (camper.get('pickup_type') or '').lower()
+            
+            # Categorize this record based on pickup_type
+            if 'pm' in pickup_type and 'am' not in pickup_type:
+                # This is a PM-only dropoff address (e.g., "PM Drop-off Only")
+                camper_records[camper_key]['pm_record'] = camper
+            elif 'am' in pickup_type:
+                # This is an AM address (e.g., "AM & PM" or "AM Pick-up Only")
+                camper_records[camper_key]['am_record'] = camper
+            else:
+                # Default/unknown - use as fallback
+                if not camper_records[camper_key]['am_record']:
+                    camper_records[camper_key]['am_record'] = camper
+            
+            # Update pickup_dropoff if set
+            if camper.get('pickup_dropoff'):
+                camper_records[camper_key]['pickup_dropoff'] = camper.get('pickup_dropoff')
+        
+        # Now build buses_data using the correct address for each route
+        buses_data = {}
+        
+        for camper_key, camper_info in camper_records.items():
+            am_bus = camper_info['am_bus']
+            pm_bus = camper_info['pm_bus']
+            first_name = camper_info['first_name']
+            last_name = camper_info['last_name']
+            
+            # Get guardian contacts
+            name_key = f"{first_name}_{last_name}".lower()
+            guardians = guardian_contacts.get(name_key, [])
+            
+            # Format phone numbers - get up to 2 parents
+            phone_list = []
+            for guardian in guardians[:2]:
+                guardian_name = guardian.get('name', 'Parent')
+                for phone in guardian.get('phones', [])[:1]:
+                    phone_num = phone.get('number', '')
+                    if phone_num:
+                        phone_list.append({'name': guardian_name, 'phone': phone_num})
+            
+            # Helper function to get address from a record
+            def get_address_from_record(record):
+                if not record:
+                    return ''
+                location = record.get('location', {})
+                addr = location.get('address', '') if isinstance(location, dict) else ''
+                if not addr:
+                    parts = [
+                        record.get('address', ''),
+                        record.get('town', ''),
+                        record.get('state', ''),
+                        record.get('zip_code', '')
+                    ]
+                    addr = ', '.join(filter(None, parts))
+                return addr
+            
+            # Determine which buses to add this camper to
+            buses_to_add = []
+            
+            if bus != "all":
+                # Filtering by specific bus
+                if am_bus == bus and pm_bus == bus:
+                    buses_to_add.append((bus, "AM & PM", camper_info['am_record'] or camper_info['default_record']))
+                elif am_bus == bus:
+                    buses_to_add.append((bus, "AM only", camper_info['am_record'] or camper_info['default_record']))
+                elif pm_bus == bus:
+                    buses_to_add.append((bus, "PM only", camper_info['pm_record'] or camper_info['am_record'] or camper_info['default_record']))
+            else:
+                # All buses
+                if am_bus and am_bus.startswith('Bus'):
+                    if am_bus == pm_bus:
+                        # Same bus for AM and PM - use AM address
+                        buses_to_add.append((am_bus, "AM & PM", camper_info['am_record'] or camper_info['default_record']))
+                    else:
+                        # Different buses - AM bus gets AM address
+                        buses_to_add.append((am_bus, "AM only", camper_info['am_record'] or camper_info['default_record']))
                 
+                if pm_bus and pm_bus.startswith('Bus') and pm_bus != am_bus:
+                    # PM bus gets PM address (or AM address if no separate PM address)
+                    buses_to_add.append((pm_bus, "PM only", camper_info['pm_record'] or camper_info['am_record'] or camper_info['default_record']))
+            
+            for bus_num, rider_type, address_record in buses_to_add:
                 if bus_num not in buses_data:
                     buses_data[bus_num] = {
                         'campers': [],
@@ -4663,45 +4734,15 @@ async def get_full_roster_print(bus: str = "all"):
                         'bus_info': bus_staff_map.get(bus_num, {})
                     }
                 
-                # Determine rider type for THIS specific bus
-                rider_type = "AM & PM" if (is_am_on_this_bus and is_pm_on_this_bus) else ("AM only" if is_am_on_this_bus else "PM only")
-                
-                # Get guardian contacts for this camper using name key
-                first = (camper.get('first_name') or '').strip().lower()
-                last = (camper.get('last_name') or '').strip().lower()
-                name_key = f"{first}_{last}"
-                guardians = guardian_contacts.get(name_key, [])
-                
-                # Format phone numbers - get up to 2 parents
-                phone_list = []
-                for guardian in guardians[:2]:  # Limit to 2 parents
-                    guardian_name = guardian.get('name', 'Parent')
-                    for phone in guardian.get('phones', [])[:1]:  # First phone per parent
-                        phone_num = phone.get('number', '')
-                        if phone_num:
-                            phone_list.append({'name': guardian_name, 'phone': phone_num})
-                
-                # Build full address - prefer location.address (geocoded), fallback to address field
-                location = camper.get('location', {})
-                full_address = location.get('address', '') if isinstance(location, dict) else ''
-                
-                # If location.address is empty, build from parts
-                if not full_address:
-                    address_parts = [
-                        camper.get('address', ''),
-                        camper.get('town', ''),
-                        camper.get('state', ''),
-                        camper.get('zip_code', '')
-                    ]
-                    full_address = ', '.join(filter(None, address_parts))
+                full_address = get_address_from_record(address_record)
                 
                 buses_data[bus_num]['campers'].append({
                     'name': f"{first_name} {last_name}",
                     'full_address': full_address,
                     'rider_type': rider_type,
-                    'pickup_dropoff': camper.get('pickup_dropoff', ''),
+                    'pickup_dropoff': camper_info['pickup_dropoff'],
                     'phones': phone_list,
-                    'camper_id': str(camper.get('_id', ''))
+                    'camper_id': str(address_record.get('_id', '')) if address_record else ''
                 })
         
         # Add shadows to their buses
