@@ -211,6 +211,9 @@ async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Di
     Results are cached in MongoDB - but empty results are NOT cached to allow retry.
     """
     try:
+        # First, delete any cached entries with empty guardians (cleanup from previous bugs)
+        await db.campminder_relatives_cache.delete_many({"guardians": []})
+        
         result = {}
         
         # Get unique camper names
@@ -237,15 +240,17 @@ async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Di
         # Check cache in MongoDB - ONLY use cached entries that have actual data
         cache_cursor = db.campminder_relatives_cache.find({
             "_id": {"$in": list(unique_keys)},
-            "guardians": {"$ne": []}  # Only get entries with actual guardian data
+            "guardians.0": {"$exists": True}  # Must have at least one guardian
         })
         cache_data = await cache_cursor.to_list(length=None)
         
         # Build result from cache
         cached_keys = set()
         for item in cache_data:
-            result[item['_id']] = item.get('guardians', [])
-            cached_keys.add(item['_id'])
+            guardians = item.get('guardians', [])
+            if guardians:  # Double check it has data
+                result[item['_id']] = guardians
+                cached_keys.add(item['_id'])
         
         # All keys not in cache with data need to be fetched
         missing_keys = unique_keys - cached_keys
