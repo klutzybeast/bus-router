@@ -834,10 +834,15 @@ class CampMinderAPI:
             Dict mapping camper_name_key (first_last) -> list of parent contacts
         """
         try:
+            # Verify API credentials are available
+            if not self.api_key or not self.subscription_key:
+                logger.error("CampMinder API credentials not configured")
+                return {}
+            
             # Step 1: Get all persons with their phone numbers
             all_persons = await self.get_persons(since='2020-01-01T00:00:00Z')
             if not all_persons:
-                logger.error("Failed to get persons data")
+                logger.error("Failed to get persons data - check API credentials and connectivity")
                 return {}
             
             logger.info(f"Processing parent contacts for {len(campers)} campers using {len(all_persons)} person records")
