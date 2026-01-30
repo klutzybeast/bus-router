@@ -8,29 +8,33 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - **Webhook for Updates**: `https://script.google.com/macros/s/AKfycbybQKEZ4G0bBTMuLK7dOju864j_0rZyJ8pKpsP_hLnBNZGb3JN_n3xDgJd9AlpWyG4I/exec`
 
 ## CampMinder API Status
-- **Status**: BLOCKED
-- Partial integration exists but custom field access (bus assignments) is blocked by the API provider
-- User needs to contact CampMinder support to upgrade subscription for custom field access
+- **Status**: PARTIAL - Authentication and basic data retrieval working
+- Partial integration exists for parent contact retrieval (for bus rosters)
+- Custom field access (bus assignments) may require higher subscription tier
 - Field IDs identified: AM Bus (20852), PM Bus (20853)
 
 ---
 
 ## What's Been Implemented
 
-### Phase 15: Multi-Season Support ✅ (January 2026)
-- **Season Management**: Each year's data (campers, shadows, bus zones, staff) is now scoped to a specific season
-- **Season Selector**: Dropdown in sidebar to switch between seasons (shows season name and camper count)
-- **Create New Season**: "+" button opens dialog to create a new season (e.g., 2027, 2028...)
-- **Copy Data Feature**: When creating a new season, optionally copy all data from a previous season
-- **Season-Aware Endpoints**: All CRUD operations filter by active season_id
-- **Auto-Migration**: Backend automatically migrates existing data to the active season on startup
-- **Archive Support**: Seasons can be archived (data preserved but hidden)
+### Phase 17: Camper Card & Roster Enhancements ✅ (January 2026)
+- **Pickup/Dropoff Status**: Camper info card now includes dropdown for special pickup/dropoff arrangements:
+  - Early Pickup
+  - Late Drop Off
+  - Early Pickup and Late Drop Off
+  - Clear Status (to remove existing status)
+- **Status saves to database** and persists between sessions
+- **Status shown in camper card** with "Current: [status]" indicator
+- **Full Bus Roster**: New printable roster accessible via "Print Roster" button
+  - Shows all campers grouped by bus
+  - Displays AM/PM rider type (color-coded badges)
+  - Shows pickup/dropoff status when set
+  - Parent phone placeholder (CampMinder API integration)
+  - Print-friendly styling with page breaks
 - **Backend Endpoints**:
-  - `GET /api/seasons` - List all seasons
-  - `GET /api/seasons/active` - Get active season with camper count
-  - `POST /api/seasons` - Create new season (with optional data copy)
-  - `PUT /api/seasons/{id}/activate` - Switch active season
-  - `PUT /api/seasons/{id}/archive` - Archive a season
+  - `POST /api/campers/{camper_id}/pickup-dropoff` - Set or clear pickup/dropoff status
+  - `GET /api/full-roster/print?bus=all|Bus%20%23XX` - Generate printable roster HTML
+- **CampMinder Integration**: Added methods for fetching guardian contacts (may return empty due to API subscription)
 
 ### Phase 16: Staff Zone Lookup ✅ (January 2026)
 - **Staff with Addresses**: Add counselors/staff with their home addresses
@@ -53,6 +57,21 @@ A web application that displays camper bus routes on a Google Map, using Google 
   - `DELETE /api/staff-addresses/{id}` - Delete staff
   - `POST /api/staff-addresses/upload-csv` - Bulk CSV import
 - **Test Case**: Brian Stein, 4288 New York Avenue, Island Park, NY - nearby Bus #15, Bus #31
+
+### Phase 15: Multi-Season Support ✅ (January 2026)
+- **Season Management**: Each year's data (campers, shadows, bus zones, staff) is now scoped to a specific season
+- **Season Selector**: Dropdown in sidebar to switch between seasons (shows season name and camper count)
+- **Create New Season**: "+" button opens dialog to create a new season (e.g., 2027, 2028...)
+- **Copy Data Feature**: When creating a new season, optionally copy all data from a previous season
+- **Season-Aware Endpoints**: All CRUD operations filter by active season_id
+- **Auto-Migration**: Backend automatically migrates existing data to the active season on startup
+- **Archive Support**: Seasons can be archived (data preserved but hidden)
+- **Backend Endpoints**:
+  - `GET /api/seasons` - List all seasons
+  - `GET /api/seasons/active` - Get active season with camper count
+  - `POST /api/seasons` - Create new season (with optional data copy)
+  - `PUT /api/seasons/{id}/activate` - Switch active season
+  - `PUT /api/seasons/{id}/archive` - Archive a season
 
 ### Phase 1: Core Map Display ✅
 - Google Map with camper pins
