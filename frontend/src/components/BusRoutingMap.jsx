@@ -1733,6 +1733,39 @@ const BusRoutingMap = () => {
                           </div>
                         )}
                         
+                        {/* Early Pickup / Late Dropoff Selection */}
+                        <div className="mt-3 pt-3 border-t">
+                          <div className="text-xs font-semibold mb-2">Pickup/Dropoff:</div>
+                          <div className="flex gap-2 items-center">
+                            <Select 
+                              value={selectedPickupDropoff || selectedCamper.pickup_dropoff || ""} 
+                              onValueChange={setSelectedPickupDropoff}
+                            >
+                              <SelectTrigger className="flex-1 h-8 text-xs">
+                                <SelectValue placeholder="Select option" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Early Pickup">Early Pickup</SelectItem>
+                                <SelectItem value="Late Drop Off">Late Drop Off</SelectItem>
+                                <SelectItem value="Early Pickup and Late Drop Off">Early Pickup and Late Drop Off</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              size="sm"
+                              className="h-8 text-xs bg-green-600 hover:bg-green-700"
+                              onClick={() => handleSavePickupDropoff(selectedCamper._id || `${selectedCamper.last_name}_${selectedCamper.first_name}_${selectedCamper.zip_code}`.replace(' ', '_'))}
+                              disabled={!selectedPickupDropoff && !selectedCamper.pickup_dropoff}
+                            >
+                              Save
+                            </Button>
+                          </div>
+                          {selectedCamper.pickup_dropoff && (
+                            <div className="mt-1 text-xs text-green-600">
+                              Current: {selectedCamper.pickup_dropoff}
+                            </div>
+                          )}
+                        </div>
+                        
                         {/* Manual Bus Override - Separate for AM and PM */}
                         <div className="mt-3 pt-3 border-t">
                           <div className="text-xs font-semibold mb-2">Change Bus Assignments:</div>
@@ -1743,7 +1776,7 @@ const BusRoutingMap = () => {
                                 <SelectTrigger className="w-28 h-8 text-xs">
                                   <SelectValue placeholder="AM Bus" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="max-h-60 overflow-y-auto">
                                   {uniqueBuses.filter(b => b.startsWith('Bus')).map(bus => (
                                     <SelectItem key={bus} value={bus}>{bus}</SelectItem>
                                   ))}
@@ -1764,7 +1797,7 @@ const BusRoutingMap = () => {
                                 <SelectTrigger className="w-28 h-8 text-xs">
                                   <SelectValue placeholder="PM Bus" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="max-h-60 overflow-y-auto">
                                   {uniqueBuses.filter(b => b.startsWith('Bus')).map(bus => (
                                     <SelectItem key={`pm-${bus}`} value={bus}>{bus}</SelectItem>
                                   ))}
