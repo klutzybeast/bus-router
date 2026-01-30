@@ -1312,13 +1312,16 @@ const BusRoutingMap = () => {
       });
       
       toast.dismiss();
-      toast.success(`Saved: ${selectedPickupDropoff}`);
+      
+      // Handle CLEAR case
+      const newStatus = selectedPickupDropoff === "CLEAR" ? "" : selectedPickupDropoff;
+      toast.success(selectedPickupDropoff === "CLEAR" ? "Status cleared" : `Saved: ${selectedPickupDropoff}`);
       
       // Update the selected camper locally
       if (selectedCamper) {
         const updatedCamper = {
           ...selectedCamper,
-          pickup_dropoff: selectedPickupDropoff
+          pickup_dropoff: newStatus
         };
         setSelectedCamper(updatedCamper);
         
