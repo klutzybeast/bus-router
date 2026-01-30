@@ -1398,6 +1398,23 @@ async def trigger_manual_sync():
         logging.error(f"Error in manual sync: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/clear-guardian-cache")
+async def clear_guardian_cache():
+    """
+    Clear the cached guardian/parent contact data.
+    Use this if parent phone numbers are not showing correctly.
+    The next roster request will re-fetch from CampMinder API.
+    """
+    try:
+        result = await db.campminder_relatives_cache.delete_many({})
+        return {
+            "status": "success", 
+            "message": f"Cleared {result.deleted_count} cached entries. Next roster request will fetch fresh data."
+        }
+    except Exception as e:
+        logging.error(f"Error clearing guardian cache: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/test-campminder-api")
 async def test_campminder_api():
     """
