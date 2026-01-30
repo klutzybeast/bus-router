@@ -4525,8 +4525,23 @@ class PickupDropoffRequest(BaseModel):
 
 @api_router.post("/campers/{camper_id}/pickup-dropoff")
 async def update_pickup_dropoff(camper_id: str, request: PickupDropoffRequest):
-    """Update the pickup/dropoff status for a camper (Early Pickup, Late Drop Off, or both)"""
+    """Update the pickup/dropoff status for a camper (Early Pickup, Late Drop Off, or both). Use 'CLEAR' to remove status."""
     try:
+        # Handle CLEAR to remove the status
+        if request.pickup_dropoff == "CLEAR":
+            result = await db.campers.update_one(
+                {"_id": camper_id},
+                {"$unset": {"pickup_dropoff": ""}}
+            )
+            if result.modified_count > 0 or result.matched_count > 0:
+                logging.info(f"Cleared pickup/dropoff for {camper_id}")
+                return {
+                    "status": "success",
+                    "message": "Pickup/dropoff status cleared"
+                }
+            else:
+                raise HTTPException(status_code=404, detail="Camper not found")
+        
         # Validate the pickup_dropoff value
         valid_options = ["Early Pickup", "Late Drop Off", "Early Pickup and Late Drop Off"]
         if request.pickup_dropoff not in valid_options:
