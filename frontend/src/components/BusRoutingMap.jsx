@@ -1753,6 +1753,9 @@ const BusRoutingMap = () => {
                                 <SelectItem value="Early Pickup">Early Pickup</SelectItem>
                                 <SelectItem value="Late Drop Off">Late Drop Off</SelectItem>
                                 <SelectItem value="Early Pickup and Late Drop Off">Early Pickup and Late Drop Off</SelectItem>
+                                {selectedCamper.pickup_dropoff && (
+                                  <SelectItem value="CLEAR" className="text-red-600">Clear Status</SelectItem>
+                                )}
                               </SelectContent>
                             </Select>
                             <Button
