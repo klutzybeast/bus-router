@@ -198,65 +198,115 @@ async def get_active_season_id() -> Optional[str]:
 
 async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Dict]]:
     """
-    Get guardian contacts using cached family mappings from MongoDB.
-    This uses the campminder_family_cache collection to avoid slow API calls.
+    Get guardian contacts using the CampMinder /persons/{id}/relatives API.
+    
+    This is the RECOMMENDED approach using the reliable relatives endpoint.
+    Results are cached in MongoDB to avoid repeated API calls.
     
     The cache stores: camper_name -> [{parent_name, phones}]
     """
     try:
         result = {}
         
-        # Get unique camper names
+        # Get unique camper names and build lookup
+        camper_lookup = {}  # name_key -> person_id
         unique_keys = set()
+        
         for camper in campers:
             first = (camper.get('first_name') or '').strip().lower()
             last = (camper.get('last_name') or '').strip().lower()
+            person_id = camper.get('personID') or camper.get('person_id')
+            
             if first and last:
-                unique_keys.add(f"{first}_{last}")
+                key = f"{first}_{last}"
+                unique_keys.add(key)
+                if person_id:
+                    camper_lookup[key] = int(person_id)
         
         if not unique_keys:
             return {}
         
-        # Check cache in MongoDB
-        cache_cursor = db.campminder_family_cache.find(
+        # Check cache in MongoDB first
+        cache_cursor = db.campminder_relatives_cache.find(
             {"_id": {"$in": list(unique_keys)}}
         )
         cache_data = await cache_cursor.to_list(length=None)
         
-        # Build result from cache
-        for item in cache_data:
-            result[item['_id']] = item.get('guardians', [])
+        # Build result from cache (only if not stale - less than 24 hours)
+        cached_keys = set()
+        from datetime import datetime, timedelta
+        cache_ttl = timedelta(hours=24)
         
-        # Find keys not in cache
-        cached_keys = set(item['_id'] for item in cache_data)
+        for item in cache_data:
+            updated_at = item.get('updated_at')
+            if updated_at:
+                try:
+                    if isinstance(updated_at, str):
+                        cache_time = datetime.fromisoformat(updated_at)
+                    else:
+                        cache_time = updated_at
+                    
+                    if datetime.now() - cache_time < cache_ttl:
+                        result[item['_id']] = item.get('guardians', [])
+                        cached_keys.add(item['_id'])
+                except:
+                    pass
+        
+        # Find keys not in cache or with stale cache
         missing_keys = unique_keys - cached_keys
         
         if missing_keys:
-            logging.info(f"Cache miss for {len(missing_keys)} campers, fetching from API...")
+            logging.info(f"Fetching relatives for {len(missing_keys)} campers from CampMinder API...")
             
-            # Get missing data from CampMinder API
-            missing_campers = [c for c in campers 
-                             if f"{(c.get('first_name') or '').strip().lower()}_{(c.get('last_name') or '').strip().lower()}" in missing_keys]
+            # Get person IDs for missing campers
+            person_ids_to_fetch = []
+            key_to_pid = {}
             
-            if missing_campers:
-                api_result = await campminder_api.get_guardian_contacts_by_name(missing_campers)
+            for key in missing_keys:
+                pid = camper_lookup.get(key)
+                if pid:
+                    person_ids_to_fetch.append(pid)
+                    key_to_pid[pid] = key
+            
+            if person_ids_to_fetch:
+                # Use the new relatives API
+                api_result = await campminder_api.get_bulk_relatives(person_ids_to_fetch)
                 
-                # Save to cache and add to result
-                for key, guardians in api_result.items():
-                    result[key] = guardians
-                    
-                    # Save to MongoDB cache
-                    await db.campminder_family_cache.update_one(
-                        {"_id": key},
-                        {"$set": {"guardians": guardians, "updated_at": datetime.now().isoformat()}},
-                        upsert=True
-                    )
+                # Process results and save to cache
+                for pid, relatives in api_result.items():
+                    key = key_to_pid.get(pid)
+                    if key:
+                        # Format guardians for the roster
+                        guardians = []
+                        for rel in relatives:
+                            phone = rel.get('best_phone') or rel.get('mobile_phone') or rel.get('home_phone') or ''
+                            if rel.get('name') and phone:
+                                guardians.append({
+                                    'name': rel['name'],
+                                    'phones': [{'number': phone, 'type': 'Cell'}]
+                                })
+                        
+                        result[key] = guardians
+                        
+                        # Save to MongoDB cache
+                        await db.campminder_relatives_cache.update_one(
+                            {"_id": key},
+                            {"$set": {
+                                "guardians": guardians,
+                                "person_id": pid,
+                                "updated_at": datetime.now().isoformat()
+                            }},
+                            upsert=True
+                        )
         
-        logging.info(f"Guardian lookup complete: {sum(1 for v in result.values() if v)}/{len(unique_keys)} have contacts")
+        found_count = sum(1 for v in result.values() if v)
+        logging.info(f"Guardian lookup complete: {found_count}/{len(unique_keys)} have contacts")
         return result
         
     except Exception as e:
-        logging.error(f"Error in cached guardian lookup: {e}")
+        logging.error(f"Error in guardian lookup: {e}")
+        import traceback
+        traceback.print_exc()
         return {}
 
 
