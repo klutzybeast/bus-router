@@ -1292,6 +1292,47 @@ const BusRoutingMap = () => {
     }
   };
 
+  // Handler for saving pickup/dropoff status
+  const handleSavePickupDropoff = async (camperId) => {
+    if (!selectedPickupDropoff) {
+      toast.error("Please select a pickup/dropoff option");
+      return;
+    }
+    
+    try {
+      toast.loading("Saving pickup/dropoff...");
+      
+      await axios.post(`${API}/campers/${camperId}/pickup-dropoff`, {
+        pickup_dropoff: selectedPickupDropoff
+      });
+      
+      toast.dismiss();
+      toast.success(`Saved: ${selectedPickupDropoff}`);
+      
+      // Update the selected camper locally
+      if (selectedCamper) {
+        const updatedCamper = {
+          ...selectedCamper,
+          pickup_dropoff: selectedPickupDropoff
+        };
+        setSelectedCamper(updatedCamper);
+        
+        // Update in campers array
+        setCampers(prevCampers => 
+          prevCampers.map(c => 
+            c._id === camperId ? updatedCamper : c
+          )
+        );
+      }
+      
+      setSelectedPickupDropoff("");
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error saving pickup/dropoff:", error);
+      toast.error("Failed to save pickup/dropoff");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-50">
