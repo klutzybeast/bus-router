@@ -198,15 +198,14 @@ async def get_active_season_id() -> Optional[str]:
 
 async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Dict]]:
     """
-    Get guardian contacts using the CampMinder /persons/{id}/relatives API.
+    Get guardian contacts using the CampMinder family relationship API.
     
-    This is the RECOMMENDED approach using the reliable relatives endpoint.
-    Results are cached in MongoDB to avoid repeated API calls.
+    This approach:
+    1. Gets all persons (with phone numbers) from CampMinder
+    2. Gets all family mappings
+    3. Finds other family members with phone numbers for each camper
     
-    Process:
-    1. Look up CampMinder person IDs for campers by name
-    2. Fetch relatives from /persons/{id}/relatives endpoint
-    3. Cache results in MongoDB
+    Results are cached in MongoDB for 24 hours to avoid repeated API calls.
     
     The cache stores: camper_name -> [{parent_name, phones}]
     """
@@ -264,69 +263,29 @@ async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Di
         missing_keys = unique_keys - cached_keys
         
         if missing_keys:
-            logging.info(f"Fetching relatives for {len(missing_keys)} campers from CampMinder API...")
+            logging.info(f"Fetching parent contacts for {len(missing_keys)} campers from CampMinder API...")
             
-            # Step 1: Get all persons from CampMinder to build name->personID mapping
-            all_persons = await campminder_api.get_persons(since='2020-01-01T00:00:00Z')
+            # Get campers to look up
+            missing_campers = [c for c in camper_list if c['key'] in missing_keys]
             
-            # Build name -> person ID lookup
-            name_to_pid = {}
-            for pid, person in all_persons.items():
-                name = person.get('Name', {})
-                first = (name.get('FirstName') or name.get('NickName') or '').strip().lower()
-                last = (name.get('LastName') or '').strip().lower()
-                if first and last:
-                    name_to_pid[f"{first}_{last}"] = pid
+            # Use the new family-based approach to get parent contacts
+            api_result = await campminder_api.get_parent_contacts_for_campers(missing_campers)
             
-            logging.info(f"Built name->personID mapping with {len(name_to_pid)} entries")
-            
-            # Step 2: Get person IDs for missing campers
-            person_ids_to_fetch = []
-            key_to_pid = {}
-            
-            for key in missing_keys:
-                pid = name_to_pid.get(key)
-                if pid:
-                    person_ids_to_fetch.append(pid)
-                    key_to_pid[pid] = key
-                else:
-                    # Camper not found in CampMinder - log and skip
-                    logging.debug(f"Camper {key} not found in CampMinder person data")
-            
-            logging.info(f"Found {len(person_ids_to_fetch)} camper person IDs to fetch relatives for")
-            
-            if person_ids_to_fetch:
-                # Step 3: Use the new relatives API
-                api_result = await campminder_api.get_bulk_relatives(person_ids_to_fetch)
+            # Process results and save to cache
+            for key, guardians in api_result.items():
+                result[key] = guardians
                 
-                # Process results and save to cache
-                for pid, relatives in api_result.items():
-                    key = key_to_pid.get(pid)
-                    if key:
-                        # Format guardians for the roster
-                        guardians = []
-                        for rel in relatives:
-                            phone = rel.get('best_phone') or rel.get('mobile_phone') or rel.get('home_phone') or ''
-                            if rel.get('name') and phone:
-                                guardians.append({
-                                    'name': rel['name'],
-                                    'phones': [{'number': phone, 'type': 'Cell'}]
-                                })
-                        
-                        result[key] = guardians
-                        
-                        # Save to MongoDB cache
-                        await db.campminder_relatives_cache.update_one(
-                            {"_id": key},
-                            {"$set": {
-                                "guardians": guardians,
-                                "person_id": pid,
-                                "updated_at": datetime.now().isoformat()
-                            }},
-                            upsert=True
-                        )
+                # Save to MongoDB cache
+                await db.campminder_relatives_cache.update_one(
+                    {"_id": key},
+                    {"$set": {
+                        "guardians": guardians,
+                        "updated_at": datetime.now().isoformat()
+                    }},
+                    upsert=True
+                )
             
-            # For campers without CampMinder match, cache empty result
+            # For campers without results, cache empty
             for key in missing_keys:
                 if key not in result:
                     result[key] = []
@@ -334,7 +293,6 @@ async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Di
                         {"_id": key},
                         {"$set": {
                             "guardians": [],
-                            "person_id": None,
                             "updated_at": datetime.now().isoformat()
                         }},
                         upsert=True
