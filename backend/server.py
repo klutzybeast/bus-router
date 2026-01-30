@@ -210,6 +210,7 @@ async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Di
     The cache stores: camper_name -> [{parent_name, phones}]
     """
     try:
+        logging.info(f"get_guardian_contacts_cached called with {len(campers)} campers")
         result = {}
         
         # Get unique camper names
