@@ -3845,7 +3845,6 @@ async def get_route_sheet(bus_number: str):
 async def get_printable_route_sheet(bus_number: str, edit: bool = False):
     """Get printable HTML route sheet with optional edit mode for drag-and-drop reordering"""
     try:
-        from fastapi.responses import HTMLResponse
         import urllib.parse
         decoded_bus = urllib.parse.unquote(bus_number)
         
