@@ -25,12 +25,12 @@ A web application that displays camper bus routes on a Google Map, using Google 
   - Clear Status (to remove existing status)
 - **Status saves to database** and persists between sessions
 - **Status shown in camper card** with "Current: [status]" indicator
-- **Full Bus Roster**: New printable roster accessible via "Print Roster" button
-  - Shows all campers grouped by bus
-  - Displays AM/PM rider type (color-coded badges)
-  - Shows pickup/dropoff status when set
-  - Parent phone placeholder (CampMinder API integration)
-  - Print-friendly styling with page breaks
+- **Full Bus Roster** (opens in separate popup window):
+  - **Bus Info Header**: Bus number, driver name, counselor name, camper count/capacity
+  - **Camper Table**: Full street addresses, AM/PM route badges, pickup/dropoff status
+  - **Parent Phone Numbers**: Column for parent contacts (from CampMinder API)
+  - **Staff & Shadows Section**: Shows staff and shadows assigned to each bus at the bottom
+  - Print-friendly styling with page breaks per bus
 - **Backend Endpoints**:
   - `POST /api/campers/{camper_id}/pickup-dropoff` - Set or clear pickup/dropoff status
   - `GET /api/full-roster/print?bus=all|Bus%20%23XX` - Generate printable roster HTML
