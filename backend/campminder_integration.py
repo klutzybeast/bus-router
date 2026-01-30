@@ -35,17 +35,20 @@ class CampMinderAPI:
     CampMinder API Integration for Bus Route Management
     
     Uses the correct API endpoints:
-    - Auth: https://api.campminder.com/auth/apikey
-    - Data: https://webapi.campminder.com/api/...
+    - Auth: https://auth.campminder.com/auth/apikey
+    - Data (legacy): https://webapi.campminder.com/api/...
+    - Data (new): https://data.campminder.com/...
     """
     
     def __init__(self, api_key: str, subscription_key: str, api_url: str = None):
         self.api_key = api_key
         self.subscription_key = subscription_key
-        # Auth endpoint is on api.campminder.com
-        self.auth_url = "https://api.campminder.com"
-        # Data endpoints are on webapi.campminder.com
+        # Auth endpoint - using the newer auth.campminder.com
+        self.auth_url = "https://auth.campminder.com"
+        # Legacy data endpoints on webapi.campminder.com
         self.data_url = "https://webapi.campminder.com"
+        # New data endpoints on data.campminder.com (for relatives API)
+        self.new_data_url = "https://data.campminder.com"
         self.jwt_token = None
         self.token_expiry = None
         self.client_ids = None
@@ -64,6 +67,11 @@ class CampMinderAPI:
         self._family_cache = {}
         self._family_cache_time = None
         self._family_cache_ttl = timedelta(minutes=30)  # Cache for 30 minutes
+        
+        # Cache for relatives/parent data
+        self._relatives_cache = {}
+        self._relatives_cache_time = None
+        self._relatives_cache_ttl = timedelta(minutes=30)
     
     async def get_jwt_token(self) -> Optional[str]:
         """
