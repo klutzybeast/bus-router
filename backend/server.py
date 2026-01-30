@@ -208,15 +208,7 @@ async def get_active_season_id() -> Optional[str]:
 async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Dict]]:
     """
     Get guardian contacts using the CampMinder family relationship API.
-    
-    This approach:
-    1. Gets all persons (with phone numbers) from CampMinder
-    2. Gets all family mappings
-    3. Finds other family members with phone numbers for each camper
-    
-    Results are cached in MongoDB for 24 hours to avoid repeated API calls.
-    
-    The cache stores: camper_name -> [{parent_name, phones}]
+    Results are cached in MongoDB - but empty results are NOT cached to allow retry.
     """
     try:
         result = {}
@@ -242,91 +234,51 @@ async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Di
         if not unique_keys:
             return {}
         
-        # Check cache in MongoDB first
-        cache_cursor = db.campminder_relatives_cache.find(
-            {"_id": {"$in": list(unique_keys)}}
-        )
+        # Check cache in MongoDB - ONLY use cached entries that have actual data
+        cache_cursor = db.campminder_relatives_cache.find({
+            "_id": {"$in": list(unique_keys)},
+            "guardians": {"$ne": []}  # Only get entries with actual guardian data
+        })
         cache_data = await cache_cursor.to_list(length=None)
         
-        # Build result from cache (only if not stale - less than 24 hours)
+        # Build result from cache
         cached_keys = set()
-        from datetime import datetime, timedelta
-        cache_ttl = timedelta(hours=24)
-        
         for item in cache_data:
-            updated_at = item.get('updated_at')
-            if updated_at:
-                try:
-                    if isinstance(updated_at, str):
-                        cache_time = datetime.fromisoformat(updated_at)
-                    else:
-                        cache_time = updated_at
-                    
-                    if datetime.now() - cache_time < cache_ttl:
-                        result[item['_id']] = item.get('guardians', [])
-                        cached_keys.add(item['_id'])
-                except:
-                    pass
+            result[item['_id']] = item.get('guardians', [])
+            cached_keys.add(item['_id'])
         
-        # Find keys not in cache or with stale cache
+        # All keys not in cache with data need to be fetched
         missing_keys = unique_keys - cached_keys
         
         if missing_keys:
-            logging.info(f"Fetching parent contacts for {len(missing_keys)} campers from CampMinder API...")
-            
             # Get campers to look up
             missing_campers = [c for c in camper_list if c['key'] in missing_keys]
             
-            try:
-                # Use the new family-based approach to get parent contacts
-                api_result = await campminder_api.get_parent_contacts_for_campers(missing_campers)
-                
-                if api_result:
-                    # Process results and save to cache
-                    for key, guardians in api_result.items():
-                        result[key] = guardians
-                        
-                        # Save to MongoDB cache
-                        await db.campminder_relatives_cache.update_one(
-                            {"_id": key},
-                            {"$set": {
-                                "guardians": guardians,
-                                "updated_at": datetime.now().isoformat()
-                            }},
-                            upsert=True
-                        )
-                    
-                    # For campers without results, cache empty
-                    for key in missing_keys:
-                        if key not in result:
-                            result[key] = []
-                            await db.campminder_relatives_cache.update_one(
-                                {"_id": key},
-                                {"$set": {
-                                    "guardians": [],
-                                    "updated_at": datetime.now().isoformat()
-                                }},
-                                upsert=True
-                            )
-                else:
-                    logging.warning("CampMinder API returned empty result - using empty contacts for missing campers")
-                    for key in missing_keys:
-                        result[key] = []
-                        
-            except Exception as api_error:
-                logging.error(f"CampMinder API error: {api_error}")
-                # Don't cache failures - just return empty for now
-                for key in missing_keys:
+            # Fetch from CampMinder API
+            api_result = await campminder_api.get_parent_contacts_for_campers(missing_campers)
+            
+            # Only cache entries that have actual guardian data
+            for key, guardians in api_result.items():
+                result[key] = guardians
+                if guardians:  # Only cache if we got actual data
+                    await db.campminder_relatives_cache.update_one(
+                        {"_id": key},
+                        {"$set": {
+                            "guardians": guardians,
+                            "updated_at": datetime.now().isoformat()
+                        }},
+                        upsert=True
+                    )
+            
+            # For keys with no results, just add empty to result (don't cache)
+            for key in missing_keys:
+                if key not in result:
                     result[key] = []
         
-        found_count = sum(1 for v in result.values() if v)
-        logging.info(f"Guardian lookup complete: {found_count}/{len(unique_keys)} have contacts")
         return result
         
     except Exception as e:
         logging.error(f"Error in guardian lookup: {e}")
-        import traceback
-        traceback.print_exc()
         return {}
 
 
