@@ -1087,6 +1087,10 @@ class CampMinderAPI:
                     if contact['first_lower'] == first and contact['last_lower'] == last_lower:
                         continue
                     
+                    # Skip contacts with very short last names (likely data entry errors)
+                    if len(contact['last_lower']) < 3:
+                        continue
+                    
                     is_match = False
                     
                     # Strategy 1: Exact match
@@ -1099,11 +1103,14 @@ class CampMinderAPI:
                     
                     # Strategy 3: Camper's last name contained in contact's last name
                     # Handles "Polo-Zacco" matching "Zacco"
-                    elif last_lower in contact['last_lower']:
+                    # Require at least 3 chars match and camper name must be substantial part
+                    elif len(last_lower) >= 3 and last_lower in contact['last_lower']:
                         is_match = True
                     
-                    # Strategy 4: Contact's normalized name contained in camper's name
-                    elif contact['last_normalized'] in last_normalized or last_normalized in contact['last_normalized']:
+                    # Strategy 4: Contact's last name contained in camper's last name
+                    # Handles hyphenated camper names
+                    # Require at least 3 chars and substantial match
+                    elif len(contact['last_normalized']) >= 3 and contact['last_normalized'] in last_normalized:
                         is_match = True
                     
                     if is_match:
