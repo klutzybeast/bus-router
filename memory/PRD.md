@@ -236,6 +236,13 @@ A web application that displays camper bus routes on a Google Map, using Google 
 | `/api/campers/add` | POST | Manually add a camper |
 | `/api/campers/{id}` | DELETE | Delete a camper |
 | `/api/campers/{id}/change-bus` | POST | Change camper's bus assignment |
+| `/api/campers/{id}/pickup-dropoff` | POST | Set/clear pickup/dropoff status |
+
+### Roster Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/full-roster/print?bus=all` | GET | Printable full roster for all buses |
+| `/api/full-roster/print?bus=Bus%20%23XX` | GET | Printable roster for specific bus |
 
 ### Sync Endpoints
 | Endpoint | Method | Description |
