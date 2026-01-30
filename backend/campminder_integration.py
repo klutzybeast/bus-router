@@ -775,6 +775,131 @@ class CampMinderAPI:
         """Bulk update bus assignments (placeholder)"""
         return {a['camper_id']: True for a in assignments}
     
+    async def get_person_relatives(self, person_id: int) -> List[Dict]:
+        """
+        Get relatives (parents/guardians) for a specific person using the NEW API endpoint.
+        
+        Endpoint: GET https://data.campminder.com/persons/{person_id}/relatives
+        
+        This is the RECOMMENDED approach per CampMinder API documentation.
+        Returns list of relatives with their contact info (phone numbers, email).
+        
+        Args:
+            person_id: The CampMinder person ID of the camper
+            
+        Returns:
+            List of relative dicts with name, relationship, phones, email
+        """
+        try:
+            # Check cache first
+            if person_id in self._relatives_cache:
+                cached_data, cache_time = self._relatives_cache[person_id]
+                if datetime.now() - cache_time < self._relatives_cache_ttl:
+                    return cached_data
+            
+            token = await self.get_jwt_token()
+            if not token:
+                logger.error("Failed to get JWT token for relatives API")
+                return []
+            
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Ocp-Apim-Subscription-Key": self.subscription_key,
+                "Accept": "application/json"
+            }
+            
+            params = {"clientid": self.client_ids or '241'}
+            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.get(
+                    f"{self.new_data_url}/persons/{person_id}/relatives",
+                    headers=headers,
+                    params=params
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    relatives_raw = data.get('result', [])
+                    
+                    # Parse relatives and filter to parents/guardians
+                    relatives = []
+                    for rel in relatives_raw:
+                        relationship = (rel.get('relationship') or '').lower()
+                        
+                        # Only include parent-type relationships
+                        if relationship in ['father', 'mother', 'guardian', 'parent', 'step-father', 'step-mother', 'stepfather', 'stepmother']:
+                            # Get best phone number (mobile > home > work)
+                            phone = rel.get('mobilePhone') or rel.get('homePhone') or rel.get('workPhone') or ''
+                            
+                            relatives.append({
+                                'person_id': rel.get('personID'),
+                                'name': f"{rel.get('firstName', '')} {rel.get('lastName', '')}".strip(),
+                                'relationship': rel.get('relationship', ''),
+                                'email': rel.get('email', ''),
+                                'mobile_phone': rel.get('mobilePhone', ''),
+                                'home_phone': rel.get('homePhone', ''),
+                                'work_phone': rel.get('workPhone', ''),
+                                'best_phone': phone
+                            })
+                    
+                    # Cache the result
+                    self._relatives_cache[person_id] = (relatives, datetime.now())
+                    
+                    logger.debug(f"Got {len(relatives)} parent relatives for person {person_id}")
+                    return relatives
+                    
+                elif response.status_code == 429:
+                    logger.warning(f"Rate limited on relatives API for person {person_id}")
+                    return []
+                else:
+                    logger.warning(f"Relatives API returned {response.status_code} for person {person_id}")
+                    return []
+                    
+        except Exception as e:
+            logger.error(f"Error getting relatives for person {person_id}: {str(e)}")
+            return []
+    
+    async def get_bulk_relatives(self, person_ids: List[int], max_concurrent: int = 5) -> Dict[int, List[Dict]]:
+        """
+        Get relatives for multiple persons with rate limiting.
+        
+        Uses the /persons/{id}/relatives endpoint with controlled concurrency
+        to respect CampMinder's ~60 requests/minute rate limit.
+        
+        Args:
+            person_ids: List of CampMinder person IDs
+            max_concurrent: Maximum concurrent requests (default 5)
+            
+        Returns:
+            Dict mapping person_id -> list of relative contacts
+        """
+        results = {}
+        
+        # Process in batches to respect rate limits
+        for i, person_id in enumerate(person_ids):
+            try:
+                relatives = await self.get_person_relatives(person_id)
+                results[person_id] = relatives
+                
+                # Rate limiting: ~60 requests/minute = 1 request per second
+                # With caching, we can be a bit more aggressive
+                if (i + 1) % max_concurrent == 0:
+                    await asyncio.sleep(0.5)  # Brief pause every batch
+                else:
+                    await asyncio.sleep(0.1)  # Small delay between requests
+                    
+                # Log progress for large batches
+                if (i + 1) % 50 == 0:
+                    logger.info(f"Relatives progress: {i + 1}/{len(person_ids)}")
+                    
+            except Exception as e:
+                logger.error(f"Error fetching relatives for {person_id}: {str(e)}")
+                results[person_id] = []
+        
+        found_count = sum(1 for v in results.values() if v)
+        logger.info(f"✓ Got relatives for {found_count}/{len(person_ids)} campers")
+        return results
+    
     async def get_family_members(self, person_ids: List[int] = None, family_ids: List[int] = None) -> Dict[int, List[Dict]]:
         """
         Get family members (including parents/guardians) for persons or families
