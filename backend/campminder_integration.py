@@ -1019,7 +1019,7 @@ class CampMinderAPI:
         
         Process:
         1. Match camper name to CampMinder person ID
-        2. Get camper's family ID
+        2. Get camper's family ID  
         3. Find other family members with same family ID who have phone numbers
         
         Args:
@@ -1047,93 +1047,96 @@ class CampMinderAPI:
                     key = f"{first}_{last}"
                     name_to_pid[key] = pid
             
-            # Step 3: Get persons with phones and their family IDs
-            # We need to build a family_id -> [person data] map
+            # Step 3: Get all camper PIDs that we need to look up
+            camper_pids = []
+            camper_key_to_pid = {}
+            for camper in campers:
+                first = (camper.get('first_name') or '').strip().lower()
+                last = (camper.get('last_name') or '').strip().lower()
+                key = f"{first}_{last}"
+                pid = name_to_pid.get(key)
+                if pid:
+                    camper_pids.append(pid)
+                    camper_key_to_pid[key] = pid
+            
+            logger.info(f"Matched {len(camper_pids)} campers to CampMinder")
+            
+            # Step 4: Get family IDs for all campers
+            camper_family_ids = {}
+            for pid in camper_pids:
+                try:
+                    family_map = await self.get_family_persons([pid])
+                    if family_map and family_map.get(pid):
+                        camper_family_ids[pid] = family_map[pid]
+                except:
+                    pass
+                await asyncio.sleep(0.02)
+            
+            logger.info(f"Got family IDs for {len(camper_family_ids)} campers")
+            
+            # Step 5: Get unique family IDs we need to find members for
+            unique_family_ids = set(camper_family_ids.values())
+            
+            # Step 6: Find all persons with phones and get their family IDs
+            # Only query persons who might be in our families
             persons_with_phones = []
             for pid, person in all_persons.items():
                 phones = person.get('PhoneNumbers', [])
                 if phones:
-                    name = person.get('Name', {})
                     phone_list = [{'number': p.get('Number'), 'type': 'Cell'} for p in phones if p.get('Number')]
                     if phone_list:
+                        name = person.get('Name', {})
                         persons_with_phones.append({
                             'pid': pid,
                             'name': f"{name.get('FirstName', '')} {name.get('LastName', '')}".strip(),
                             'phones': phone_list
                         })
             
-            logger.info(f"Found {len(persons_with_phones)} persons with phones")
+            logger.info(f"Found {len(persons_with_phones)} persons with phones, querying family IDs...")
             
-            # Step 4: Get family IDs for all persons with phones (use cache if available)
-            family_id_cache = getattr(self, '_family_id_cache', {})
+            # Query family IDs for persons with phones
+            family_to_persons = {fid: [] for fid in unique_family_ids}
             
-            # Query family IDs for persons not in cache
-            uncached_pids = [p['pid'] for p in persons_with_phones if p['pid'] not in family_id_cache]
-            
-            if uncached_pids:
-                logger.info(f"Querying family IDs for {len(uncached_pids)} persons...")
-                for i, pid in enumerate(uncached_pids):
-                    if i > 0 and i % 100 == 0:
-                        logger.info(f"  Progress: {i}/{len(uncached_pids)}")
-                    try:
-                        family_map = await self.get_family_persons([pid])
-                        if family_map:
-                            family_id_cache[pid] = family_map.get(pid)
-                    except:
-                        pass
-                    await asyncio.sleep(0.05)  # Small delay to avoid rate limits
-                
-                # Cache for future use
-                self._family_id_cache = family_id_cache
-            
-            # Build family_id -> persons mapping
-            family_to_persons = {}
-            for person_data in persons_with_phones:
+            for i, person_data in enumerate(persons_with_phones):
+                if i > 0 and i % 200 == 0:
+                    logger.info(f"  Progress: {i}/{len(persons_with_phones)}")
                 pid = person_data['pid']
-                fid = family_id_cache.get(pid)
-                if fid:
-                    if fid not in family_to_persons:
-                        family_to_persons[fid] = []
-                    family_to_persons[fid].append(person_data)
+                try:
+                    family_map = await self.get_family_persons([pid])
+                    if family_map:
+                        fid = family_map.get(pid)
+                        if fid and fid in unique_family_ids:
+                            family_to_persons[fid].append(person_data)
+                except:
+                    pass
+                await asyncio.sleep(0.02)
             
-            logger.info(f"Built family mapping for {len(family_to_persons)} families")
-            
-            # Step 5: For each camper, find their family members
+            # Step 7: Build result
             result = {}
             for camper in campers:
                 first = (camper.get('first_name') or '').strip().lower()
                 last = (camper.get('last_name') or '').strip().lower()
                 key = f"{first}_{last}"
                 
-                # Find camper's CampMinder person ID
-                camper_pid = name_to_pid.get(key)
+                camper_pid = camper_key_to_pid.get(key)
                 if not camper_pid:
                     result[key] = []
                     continue
                 
-                # Get camper's family ID
-                if camper_pid not in family_id_cache:
-                    try:
-                        family_map = await self.get_family_persons([camper_pid])
-                        if family_map:
-                            family_id_cache[camper_pid] = family_map.get(camper_pid)
-                    except:
-                        pass
-                
-                camper_family_id = family_id_cache.get(camper_pid)
-                if not camper_family_id:
+                family_id = camper_family_ids.get(camper_pid)
+                if not family_id:
                     result[key] = []
                     continue
                 
-                # Get family members with phones (excluding the camper)
-                family_members = family_to_persons.get(camper_family_id, [])
+                # Get family members (excluding the camper)
+                family_members = family_to_persons.get(family_id, [])
                 guardians = [
                     {'name': m['name'], 'phones': m['phones']}
                     for m in family_members
                     if m['pid'] != camper_pid
                 ]
                 
-                result[key] = guardians[:2]  # Limit to 2 contacts
+                result[key] = guardians[:2]
             
             matched_count = sum(1 for v in result.values() if v)
             logger.info(f"✓ Found guardians for {matched_count}/{len(campers)} campers using family relationships")
