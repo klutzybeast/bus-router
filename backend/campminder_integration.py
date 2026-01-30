@@ -975,7 +975,8 @@ class CampMinderAPI:
     
     async def get_guardian_contacts_by_name(self, campers: List[Dict]) -> Dict[str, List[Dict]]:
         """
-        Get guardian contacts by matching camper names to CampMinder person data.
+        Get guardian contacts by matching camper last names to CampMinder person data.
+        Finds adults with the same last name who have phone numbers.
         
         Args:
             campers: List of camper dicts with 'first_name' and 'last_name' keys
@@ -990,68 +991,17 @@ class CampMinderAPI:
                 logger.warning("No persons returned from CampMinder")
                 return {}
             
-            # Step 2: Build name -> person ID lookup (for campers in CampMinder)
-            name_to_pid = {}
+            # Step 2: Build last name -> persons with phones lookup
+            # Group persons by last name and collect those with phone numbers
+            last_name_to_contacts = {}
             for pid, person in all_persons.items():
                 name = person.get('Name', {})
-                first = (name.get('FirstName') or name.get('NickName') or '').strip().lower()
                 last = (name.get('LastName') or '').strip().lower()
-                if first and last:
-                    key = f"{first}_{last}"
-                    name_to_pid[key] = pid
-            
-            logger.info(f"Built name lookup with {len(name_to_pid)} entries")
-            
-            # Step 3: Match our campers to CampMinder person IDs
-            matched_pids = []
-            camper_pid_map = {}
-            for camper in campers:
-                first = (camper.get('first_name') or '').strip().lower()
-                last = (camper.get('last_name') or '').strip().lower()
-                if first and last:
-                    key = f"{first}_{last}"
-                    pid = name_to_pid.get(key)
-                    if pid:
-                        matched_pids.append(pid)
-                        camper_pid_map[key] = pid
-            
-            logger.info(f"Matched {len(matched_pids)} campers to CampMinder IDs")
-            
-            if not matched_pids:
-                return {}
-            
-            # Step 4: Get family mappings for matched campers
-            family_map = await self.get_family_persons(matched_pids)
-            if not family_map:
-                logger.warning("No family mappings found for matched campers")
-                return {}
-            
-            # Step 5: Get unique family IDs and fetch family members
-            family_ids = list(set(family_map.values()))
-            all_family_members = await self.get_family_members(family_ids=family_ids)
-            
-            # Step 6: Collect parent/guardian person IDs (non-campers)
-            parent_pids = set()
-            camper_pid_set = set(matched_pids)
-            family_to_parents = {}
-            
-            for fid, members in all_family_members.items():
-                family_to_parents[fid] = []
-                if isinstance(members, list):
-                    for member in members:
-                        pid = member.get('PersonID')
-                        if pid and pid not in camper_pid_set:
-                            parent_pids.add(pid)
-                            family_to_parents[fid].append(pid)
-            
-            # Step 7: Get contact info (with phones) for all parents
-            parent_contacts = {}
-            for pid in parent_pids:
-                person = all_persons.get(pid, {})
-                phones = []
+                first = (name.get('FirstName') or '').strip()
                 
-                # Extract phone numbers
-                person_phones = person.get('PhoneNumbers', []) or person.get('Phones', [])
+                # Get phone numbers
+                phones = []
+                person_phones = person.get('PhoneNumbers', [])
                 for phone in person_phones:
                     phone_num = phone.get('Number', '')
                     if phone_num:
@@ -1060,42 +1010,46 @@ class CampMinderAPI:
                             'type': 'Cell'
                         })
                 
-                if phones:
-                    name = person.get('Name', {})
-                    parent_contacts[pid] = {
-                        'name': f"{name.get('FirstName', '')} {name.get('LastName', '')}".strip(),
-                        'phones': phones
-                    }
+                # Only include persons with phone numbers (likely adults/parents)
+                if last and phones:
+                    if last not in last_name_to_contacts:
+                        last_name_to_contacts[last] = []
+                    last_name_to_contacts[last].append({
+                        'name': f"{first} {name.get('LastName', '')}".strip(),
+                        'phones': phones,
+                        'person_id': pid
+                    })
             
-            logger.info(f"Found {len(parent_contacts)} parents with phone numbers")
+            logger.info(f"Built contact lookup with {len(last_name_to_contacts)} last names")
             
-            # Step 8: Build final result mapping camper name key -> guardians
+            # Step 3: Match each camper to potential guardians by last name
             result = {}
             for camper in campers:
                 first = (camper.get('first_name') or '').strip().lower()
                 last = (camper.get('last_name') or '').strip().lower()
                 key = f"{first}_{last}"
                 
-                pid = camper_pid_map.get(key)
-                if not pid:
+                if not last:
                     result[key] = []
                     continue
                 
-                family_id = family_map.get(pid)
-                if not family_id:
-                    result[key] = []
-                    continue
+                # Get all persons with same last name who have phones
+                potential_guardians = last_name_to_contacts.get(last, [])
                 
-                parent_pids_for_family = family_to_parents.get(family_id, [])
+                # Filter out the camper themselves (by first name match)
                 guardians = []
-                for parent_pid in parent_pids_for_family[:2]:  # Limit to 2 parents
-                    contact = parent_contacts.get(parent_pid)
-                    if contact:
-                        guardians.append(contact)
+                for contact in potential_guardians:
+                    contact_first = contact['name'].split()[0].lower() if contact['name'] else ''
+                    # Skip if this is the camper themselves
+                    if contact_first == first:
+                        continue
+                    guardians.append(contact)
                 
-                result[key] = guardians
+                # Limit to 2 guardians
+                result[key] = guardians[:2]
             
-            logger.info(f"✓ Built guardian contacts for {len(result)} campers by name")
+            matched_count = sum(1 for v in result.values() if v)
+            logger.info(f"✓ Found guardians for {matched_count}/{len(campers)} campers by last name matching")
             return result
             
         except Exception as e:
