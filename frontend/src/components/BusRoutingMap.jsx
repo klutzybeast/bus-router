@@ -112,6 +112,9 @@ const BusRoutingMap = () => {
   const [showMultipleResults, setShowMultipleResults] = useState(false);
   const [multipleResultsCampers, setMultipleResultsCampers] = useState([]);
   
+  // Pickup/Dropoff state for camper card
+  const [selectedPickupDropoff, setSelectedPickupDropoff] = useState("");
+  
   // Fixed initial map center (Long Island area) - never changes
   const INITIAL_MAP_CENTER = { lat: 40.7128, lng: -73.7949 };
   const INITIAL_ZOOM = 11;
