@@ -823,9 +823,14 @@ class CampMinderAPI:
         Get parent/guardian contacts for a list of campers using family relationships.
         
         This approach:
-        1. Gets all persons (with phone numbers)
+        1. Gets all persons (with phone numbers and PersonType)
         2. Gets all family mappings
-        3. Finds other family members with phone numbers for each camper
+        3. Finds ONLY parents/guardians (PersonType=2) with phone numbers for each camper
+        
+        PersonType values in CampMinder:
+        - 1 = Camper (child)
+        - 2 = Parent/Guardian
+        - 3+ = Other family member (sibling, emergency contact, etc.)
         
         Args:
             campers: List of camper dicts with 'first_name' and 'last_name'
@@ -895,7 +900,7 @@ class CampMinderAPI:
                     result[key] = []
                     continue
                 
-                # Find other family members with phone numbers
+                # Find ONLY parents/guardians (PersonType=2) with phone numbers
                 family_members = family_to_persons.get(family_id, [])
                 parents = []
                 
@@ -905,6 +910,16 @@ class CampMinderAPI:
                     
                     member = person_by_id.get(member_pid)
                     if not member:
+                        continue
+                    
+                    # CRITICAL: Only include parents/guardians (PersonType = 2)
+                    # PersonType 1 = Camper, 2 = Parent/Guardian, 3+ = Other (sibling, etc.)
+                    person_type = member.get('PersonType') or member.get('personType') or member.get('Type')
+                    
+                    # Skip if not a parent/guardian
+                    # PersonType 2 = Parent/Guardian in CampMinder
+                    if person_type is not None and person_type != 2:
+                        logger.debug(f"Skipping family member {member_pid} - PersonType={person_type} (not parent)")
                         continue
                     
                     # Get phone numbers
@@ -925,7 +940,8 @@ class CampMinderAPI:
                         parent_name = f"{name.get('FirstName', '')} {name.get('LastName', '')}".strip()
                         parents.append({
                             'name': parent_name,
-                            'phones': [{'number': phone_number, 'type': 'Cell'}]
+                            'phones': [{'number': phone_number, 'type': 'Cell'}],
+                            'person_type': person_type  # Include for debugging
                         })
                 
                 # Limit to 2 parents per camper
