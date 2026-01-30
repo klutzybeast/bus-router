@@ -8,9 +8,10 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - **Webhook for Updates**: `https://script.google.com/macros/s/AKfycbybQKEZ4G0bBTMuLK7dOju864j_0rZyJ8pKpsP_hLnBNZGb3JN_n3xDgJd9AlpWyG4I/exec`
 
 ## CampMinder API Status
-- **Status**: PARTIAL - Authentication and basic data retrieval working
-- Partial integration exists for parent contact retrieval (for bus rosters)
-- Custom field access (bus assignments) may require higher subscription tier
+- **Status**: WORKING - Full parent contact integration completed
+- Family relationship API working via GetFamilyPersons with 'since' parameter
+- Parent phone numbers fetched from person records (PhoneNumbers field)
+- 24-hour caching in MongoDB to reduce API calls
 - Field IDs identified: AM Bus (20852), PM Bus (20853)
 
 ---
@@ -28,13 +29,17 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - **Full Bus Roster** (opens in separate popup window):
   - **Bus Info Header**: Bus number, driver name, counselor name, camper count/capacity
   - **Camper Table**: Full street addresses, AM/PM route badges, pickup/dropoff status
-  - **Parent Phone Numbers**: Column for parent contacts (from CampMinder API)
+  - **Parent Phone Numbers**: ✅ WORKING - Shows parent names and phone numbers from CampMinder family relationships
   - **Staff & Shadows Section**: Shows staff and shadows assigned to each bus at the bottom
   - Print-friendly styling with page breaks per bus
 - **Backend Endpoints**:
   - `POST /api/campers/{camper_id}/pickup-dropoff` - Set or clear pickup/dropoff status
   - `GET /api/full-roster/print?bus=all|Bus%20%23XX` - Generate printable roster HTML
-- **CampMinder Integration**: Added methods for fetching guardian contacts (may return empty due to API subscription)
+- **CampMinder Integration**: ✅ COMPLETED
+  - `get_parent_contacts_for_campers()` - Fetches parent contacts using family relationships
+  - `get_all_family_mappings()` - Gets person-to-family ID mappings  
+  - 24-hour MongoDB caching in `campminder_relatives_cache` collection
+  - Shows up to 2 parents per camper with phone numbers
 
 ### Phase 16: Staff Zone Lookup ✅ (January 2026)
 - **Staff with Addresses**: Add counselors/staff with their home addresses
