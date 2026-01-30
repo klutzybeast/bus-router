@@ -820,23 +820,16 @@ class CampMinderAPI:
     
     async def get_parent_contacts_for_campers(self, campers: List[Dict]) -> Dict[str, List[Dict]]:
         """
-        Get parent/guardian contacts for a list of campers using family relationships.
+        Get PRIMARY parent contact for each camper using family relationships.
         
-        This approach:
-        1. Gets all persons (with phone numbers and PersonType)
-        2. Gets all family mappings
-        3. Finds ONLY parents/guardians (PersonType=2) with phone numbers for each camper
-        
-        PersonType values in CampMinder:
-        - 1 = Camper (child)
-        - 2 = Parent/Guardian
-        - 3+ = Other family member (sibling, emergency contact, etc.)
+        Returns ONLY the principal/primary parent (IsPrincipal=True) for each camper.
+        This avoids returning siblings or secondary contacts.
         
         Args:
             campers: List of camper dicts with 'first_name' and 'last_name'
             
         Returns:
-            Dict mapping camper_name_key (first_last) -> list of parent contacts
+            Dict mapping camper_name_key (first_last) -> list with single primary parent
         """
         try:
             # Verify API credentials are available
@@ -850,10 +843,17 @@ class CampMinderAPI:
                 logger.error("Failed to get persons data - check API credentials and connectivity")
                 return {}
             
-            logger.info(f"Processing parent contacts for {len(campers)} campers using {len(all_persons)} person records")
+            logger.info(f"Processing PRIMARY parent contact for {len(campers)} campers using {len(all_persons)} person records")
             
             # Build name -> person_id lookup (convert to int for consistency)
             name_to_pid = {}
+            # Also track which persons are campers (have same last name as a camper we're looking for)
+            camper_last_names = set()
+            for camper in campers:
+                last = (camper.get('last_name') or '').strip().lower()
+                if last:
+                    camper_last_names.add(last)
+            
             for pid, person in all_persons.items():
                 name = person.get('Name', {})
                 first = (name.get('FirstName') or name.get('NickName') or '').strip().lower()
@@ -880,7 +880,7 @@ class CampMinderAPI:
             # Build person lookup with int keys for consistent access
             person_by_id = {int(k): v for k, v in all_persons.items()}
             
-            # Step 3: For each camper, find their family and get parent contacts
+            # Step 3: For each camper, find their family and get PRIMARY parent only
             result = {}
             
             for camper in campers:
@@ -900,27 +900,38 @@ class CampMinderAPI:
                     result[key] = []
                     continue
                 
-                # Find ONLY parents/guardians (PersonType=2) with phone numbers
+                # Find PRIMARY parent (IsPrincipal=True) with phone number
                 family_members = family_to_persons.get(family_id, [])
-                parents = []
+                primary_parent = None
+                fallback_parent = None
                 
                 for member_pid in family_members:
                     if member_pid == camper_pid:
-                        continue  # Skip the camper
+                        continue  # Skip the camper themselves
                     
                     member = person_by_id.get(member_pid)
                     if not member:
                         continue
                     
-                    # CRITICAL: Only include parents/guardians (PersonType = 2)
-                    # PersonType 1 = Camper, 2 = Parent/Guardian, 3+ = Other (sibling, etc.)
-                    person_type = member.get('PersonType') or member.get('personType') or member.get('Type')
+                    # Get member's name info
+                    member_name = member.get('Name', {})
+                    member_first = (member_name.get('FirstName') or '').strip().lower()
+                    member_last = (member_name.get('LastName') or '').strip().lower()
                     
-                    # Skip if not a parent/guardian
-                    # PersonType 2 = Parent/Guardian in CampMinder
-                    if person_type is not None and person_type != 2:
-                        logger.debug(f"Skipping family member {member_pid} - PersonType={person_type} (not parent)")
-                        continue
+                    # SKIP if this person is also a camper (sibling) - check if their name is in our camper list
+                    sibling_key = f"{member_first}_{member_last}"
+                    if sibling_key in name_to_pid and sibling_key != key:
+                        # Check if this person is in our campers list (meaning they're a sibling, not a parent)
+                        is_sibling = False
+                        for c in campers:
+                            c_first = (c.get('first_name') or '').strip().lower()
+                            c_last = (c.get('last_name') or '').strip().lower()
+                            if c_first == member_first and c_last == member_last:
+                                is_sibling = True
+                                break
+                        if is_sibling:
+                            logger.debug(f"Skipping {member_first} {member_last} - they are a sibling (also a camper)")
+                            continue
                     
                     # Get phone numbers
                     phones = member.get('PhoneNumbers', [])
@@ -935,17 +946,31 @@ class CampMinderAPI:
                             phone_number = num
                             break
                     
-                    if phone_number:
-                        name = member.get('Name', {})
-                        parent_name = f"{name.get('FirstName', '')} {name.get('LastName', '')}".strip()
-                        parents.append({
-                            'name': parent_name,
-                            'phones': [{'number': phone_number, 'type': 'Cell'}],
-                            'person_type': person_type  # Include for debugging
-                        })
+                    if not phone_number:
+                        continue
+                    
+                    # Check if this is the principal/primary contact
+                    is_principal = member.get('IsPrincipal', False)
+                    
+                    parent_info = {
+                        'name': f"{member_name.get('FirstName', '')} {member_name.get('LastName', '')}".strip(),
+                        'phones': [{'number': phone_number, 'type': 'Cell'}],
+                        'is_principal': is_principal
+                    }
+                    
+                    if is_principal:
+                        primary_parent = parent_info
+                        break  # Found the primary, stop looking
+                    elif fallback_parent is None:
+                        fallback_parent = parent_info  # Keep first non-principal as fallback
                 
-                # Limit to 2 parents per camper
-                result[key] = parents[:2]
+                # Use primary parent if found, otherwise use fallback (first family member with phone)
+                if primary_parent:
+                    result[key] = [primary_parent]
+                elif fallback_parent:
+                    result[key] = [fallback_parent]
+                else:
+                    result[key] = []
             
             found_count = sum(1 for v in result.values() if v)
             logger.info(f"✓ Found parent contacts for {found_count}/{len(campers)} campers")
