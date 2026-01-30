@@ -752,10 +752,14 @@ async def get_campers(season_id: Optional[str] = None):
                 "bus_number": am_bus or pm_bus,  # For compatibility - use whichever is valid
                 "bus_color": camper.get('bus_color', ''),
                 "session": camper.get('session', ''),
+                "session_type": camper.get('session_type', ''),
                 "pickup_type": camper.get('pickup_type', ''),
+                "pickup_dropoff": camper.get('pickup_dropoff', ''),
+                "address": camper.get('address', ''),
                 "town": camper.get('town', ''),
                 "zip_code": camper.get('zip_code', ''),
-                "season_id": camper.get('season_id', '')
+                "season_id": camper.get('season_id', ''),
+                "personID": camper.get('personID', None)
             }
             result.append(camper_dict)
         
