@@ -4679,14 +4679,10 @@ async def get_full_roster_print(bus: str = "all"):
         staff_addresses_cursor = db.staff_addresses.find({"season_id": season_id} if season_id else {})
         staff_addresses_list = await staff_addresses_cursor.to_list(length=None)
         
-        # Try to get guardian contacts from CampMinder API using family relationships
-        # Use cached family mappings from MongoDB if available
+        # Guardian contacts from CampMinder API are currently disabled due to API limitations
+        # The GetFamilyPersons endpoint is unreliable 
+        # TODO: Implement manual parent contact entry or CSV import as alternative
         guardian_contacts = {}
-        try:
-            guardian_contacts = await get_guardian_contacts_cached(campers)
-            logging.info(f"Retrieved guardian contacts for {len(guardian_contacts)} campers")
-        except Exception as e:
-            logging.warning(f"Could not fetch guardian contacts: {e}")
         
         # First, group camper records by name to handle AM/PM address differences
         # Some campers have separate records for AM pickup address and PM dropoff address
