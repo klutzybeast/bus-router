@@ -1014,14 +1014,13 @@ class CampMinderAPI:
     
     async def get_guardian_contacts_by_name(self, campers: List[Dict]) -> Dict[str, List[Dict]]:
         """
-        Get guardian contacts using last name matching with fallback strategies.
-        Shows the actual parent name even if different from camper's last name.
+        Get guardian contacts using CampMinder family relationships.
+        Only returns ACTUAL family members - no name-based guessing.
         
-        Matching strategies (in order):
-        1. Exact last name match
-        2. Hyphenated names (Polo-Zacco matches Zacco)
-        3. Names with suffixes (Zacco Jr matches Zacco)
-        4. Partial name containment
+        Process:
+        1. Match camper name to CampMinder person ID
+        2. Get camper's family ID
+        3. Find other family members with same family ID who have phone numbers
         
         Args:
             campers: List of camper dicts with 'first_name' and 'last_name' keys
@@ -1038,105 +1037,110 @@ class CampMinderAPI:
             
             logger.info(f"Got {len(all_persons)} persons from CampMinder")
             
-            # Step 2: Build lookup of persons with phones
-            persons_with_phones = []
+            # Step 2: Build name -> person ID lookup
+            name_to_pid = {}
             for pid, person in all_persons.items():
                 name = person.get('Name', {})
-                last = (name.get('LastName') or '').strip()
-                first = (name.get('FirstName') or '').strip()
-                
-                phones = []
-                for phone in person.get('PhoneNumbers', []):
-                    phone_num = phone.get('Number', '')
-                    if phone_num:
-                        phones.append({
-                            'number': phone_num,
-                            'type': 'Cell'
+                first = (name.get('FirstName') or '').strip().lower()
+                last = (name.get('LastName') or '').strip().lower()
+                if first and last:
+                    key = f"{first}_{last}"
+                    name_to_pid[key] = pid
+            
+            # Step 3: Get persons with phones and their family IDs
+            # We need to build a family_id -> [person data] map
+            persons_with_phones = []
+            for pid, person in all_persons.items():
+                phones = person.get('PhoneNumbers', [])
+                if phones:
+                    name = person.get('Name', {})
+                    phone_list = [{'number': p.get('Number'), 'type': 'Cell'} for p in phones if p.get('Number')]
+                    if phone_list:
+                        persons_with_phones.append({
+                            'pid': pid,
+                            'name': f"{name.get('FirstName', '')} {name.get('LastName', '')}".strip(),
+                            'phones': phone_list
                         })
+            
+            logger.info(f"Found {len(persons_with_phones)} persons with phones")
+            
+            # Step 4: Get family IDs for all persons with phones (use cache if available)
+            family_id_cache = getattr(self, '_family_id_cache', {})
+            
+            # Query family IDs for persons not in cache
+            uncached_pids = [p['pid'] for p in persons_with_phones if p['pid'] not in family_id_cache]
+            
+            if uncached_pids:
+                logger.info(f"Querying family IDs for {len(uncached_pids)} persons...")
+                for i, pid in enumerate(uncached_pids):
+                    if i > 0 and i % 100 == 0:
+                        logger.info(f"  Progress: {i}/{len(uncached_pids)}")
+                    try:
+                        family_map = await self.get_family_persons([pid])
+                        if family_map:
+                            family_id_cache[pid] = family_map.get(pid)
+                    except:
+                        pass
+                    await asyncio.sleep(0.05)  # Small delay to avoid rate limits
                 
-                if last and phones:
-                    persons_with_phones.append({
-                        'name': f"{first} {last}".strip(),
-                        'first_lower': first.lower(),
-                        'last_lower': last.lower(),
-                        'last_normalized': self._normalize_last_name(last),
-                        'phones': phones,
-                        'person_id': pid
-                    })
+                # Cache for future use
+                self._family_id_cache = family_id_cache
             
-            logger.info(f"Found {len(persons_with_phones)} persons with phone numbers")
+            # Build family_id -> persons mapping
+            family_to_persons = {}
+            for person_data in persons_with_phones:
+                pid = person_data['pid']
+                fid = family_id_cache.get(pid)
+                if fid:
+                    if fid not in family_to_persons:
+                        family_to_persons[fid] = []
+                    family_to_persons[fid].append(person_data)
             
-            # Step 3: Match each camper to potential guardians
+            logger.info(f"Built family mapping for {len(family_to_persons)} families")
+            
+            # Step 5: For each camper, find their family members
             result = {}
             for camper in campers:
                 first = (camper.get('first_name') or '').strip().lower()
-                last = (camper.get('last_name') or '').strip()
-                key = f"{first}_{last.lower()}"
+                last = (camper.get('last_name') or '').strip().lower()
+                key = f"{first}_{last}"
                 
-                if not last:
+                # Find camper's CampMinder person ID
+                camper_pid = name_to_pid.get(key)
+                if not camper_pid:
                     result[key] = []
                     continue
                 
-                last_lower = last.lower()
-                last_normalized = self._normalize_last_name(last)
+                # Get camper's family ID
+                if camper_pid not in family_id_cache:
+                    try:
+                        family_map = await self.get_family_persons([camper_pid])
+                        if family_map:
+                            family_id_cache[camper_pid] = family_map.get(camper_pid)
+                    except:
+                        pass
                 
-                # Find matching guardians
-                guardians = []
-                for contact in persons_with_phones:
-                    # Skip if this is the camper themselves
-                    if contact['first_lower'] == first and contact['last_lower'] == last_lower:
-                        continue
-                    
-                    # Skip contacts with very short last names (likely data entry errors)
-                    if len(contact['last_lower']) < 3:
-                        continue
-                    
-                    is_match = False
-                    
-                    # Strategy 1: Exact match
-                    if contact['last_lower'] == last_lower:
-                        is_match = True
-                    
-                    # Strategy 2: Normalized match (handles Jr, III, etc.)
-                    elif contact['last_normalized'] == last_normalized:
-                        is_match = True
-                    
-                    # Strategy 3: Camper's last name contained in contact's last name
-                    # Handles "Polo-Zacco" matching "Zacco"
-                    # Require at least 3 chars match and camper name must be substantial part
-                    elif len(last_lower) >= 3 and last_lower in contact['last_lower']:
-                        is_match = True
-                    
-                    # Strategy 4: Contact's last name contained in camper's last name
-                    # Handles hyphenated camper names
-                    # Require at least 3 chars and substantial match
-                    elif len(contact['last_normalized']) >= 3 and contact['last_normalized'] in last_normalized:
-                        is_match = True
-                    
-                    if is_match:
-                        guardians.append({
-                            'name': contact['name'],
-                            'phones': contact['phones']
-                        })
+                camper_family_id = family_id_cache.get(camper_pid)
+                if not camper_family_id:
+                    result[key] = []
+                    continue
                 
-                # Deduplicate by name and limit to 2
-                seen_names = set()
-                unique_guardians = []
-                for g in guardians:
-                    if g['name'] not in seen_names:
-                        seen_names.add(g['name'])
-                        unique_guardians.append(g)
-                        if len(unique_guardians) >= 2:
-                            break
+                # Get family members with phones (excluding the camper)
+                family_members = family_to_persons.get(camper_family_id, [])
+                guardians = [
+                    {'name': m['name'], 'phones': m['phones']}
+                    for m in family_members
+                    if m['pid'] != camper_pid
+                ]
                 
-                result[key] = unique_guardians
+                result[key] = guardians[:2]  # Limit to 2 contacts
             
             matched_count = sum(1 for v in result.values() if v)
-            logger.info(f"✓ Found guardians for {matched_count}/{len(campers)} campers")
+            logger.info(f"✓ Found guardians for {matched_count}/{len(campers)} campers using family relationships")
             return result
             
         except Exception as e:
-            logger.error(f"Error getting guardian contacts by name: {str(e)}")
+            logger.error(f"Error getting guardian contacts: {str(e)}")
             import traceback
             traceback.print_exc()
             return {}
