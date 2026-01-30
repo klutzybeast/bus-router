@@ -4670,14 +4670,19 @@ async def get_full_roster_print(bus: str = "all"):
                         if phone_num:
                             phone_list.append({'name': guardian_name, 'phone': phone_num})
                 
-                # Build full address
-                address_parts = [
-                    camper.get('address', ''),
-                    camper.get('town', ''),
-                    camper.get('state', ''),
-                    camper.get('zip_code', '')
-                ]
-                full_address = ', '.join(filter(None, address_parts))
+                # Build full address - prefer location.address (geocoded), fallback to address field
+                location = camper.get('location', {})
+                full_address = location.get('address', '') if isinstance(location, dict) else ''
+                
+                # If location.address is empty, build from parts
+                if not full_address:
+                    address_parts = [
+                        camper.get('address', ''),
+                        camper.get('town', ''),
+                        camper.get('state', ''),
+                        camper.get('zip_code', '')
+                    ]
+                    full_address = ', '.join(filter(None, address_parts))
                 
                 buses_data[bus_num]['campers'].append({
                     'name': f"{camper.get('first_name', '')} {camper.get('last_name', '')}",
