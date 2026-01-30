@@ -4549,6 +4549,330 @@ async def update_pickup_dropoff(camper_id: str, request: PickupDropoffRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@api_router.get("/full-roster/print")
+async def get_full_roster_print(bus: str = "all"):
+    """
+    Generate a printable full bus roster with:
+    - Camper name
+    - AM/PM rider status
+    - Pickup/Dropoff status (Early Pickup, Late Drop Off, etc.)
+    - Parent/guardian phone numbers (from CampMinder API)
+    
+    Query params:
+    - bus: "all" for all buses, or specific bus number like "Bus #15"
+    """
+    try:
+        season_id = await get_active_season_id()
+        
+        # Build query based on bus filter
+        query = {"season_id": season_id} if season_id else {}
+        
+        if bus != "all":
+            # Filter by specific bus (check both AM and PM)
+            query["$or"] = [
+                {"am_bus_number": bus},
+                {"pm_bus_number": bus}
+            ]
+        
+        # Get campers from database
+        campers_cursor = db.campers.find(query, {"_id": 0})
+        campers = await campers_cursor.to_list(length=None)
+        
+        if not campers:
+            return HTMLResponse(content="<h1>No campers found</h1>", status_code=404)
+        
+        # Try to get guardian contacts from CampMinder API
+        guardian_contacts = {}
+        try:
+            # Collect person IDs for campers that have them
+            person_ids = [c.get('personID') for c in campers if c.get('personID')]
+            if person_ids:
+                guardian_contacts = await campminder_api.get_bulk_guardian_contacts(person_ids)
+                logging.info(f"Retrieved guardian contacts for {len(guardian_contacts)} campers")
+        except Exception as e:
+            logging.warning(f"Could not fetch guardian contacts from CampMinder: {e}")
+        
+        # Group campers by bus
+        buses_data = {}
+        for camper in campers:
+            # Determine which buses this camper is on
+            am_bus = camper.get('am_bus_number', '')
+            pm_bus = camper.get('pm_bus_number', '')
+            
+            # If filtering by specific bus, only include that bus
+            if bus != "all":
+                buses_to_add = [bus] if (am_bus == bus or pm_bus == bus) else []
+            else:
+                # Include all buses this camper is on
+                buses_to_add = []
+                if am_bus and am_bus.startswith('Bus'):
+                    buses_to_add.append(am_bus)
+                if pm_bus and pm_bus.startswith('Bus') and pm_bus != am_bus:
+                    buses_to_add.append(pm_bus)
+            
+            for bus_num in buses_to_add:
+                if bus_num not in buses_data:
+                    buses_data[bus_num] = []
+                
+                # Determine rider type
+                is_am = am_bus == bus_num
+                is_pm = pm_bus == bus_num
+                rider_type = "AM & PM" if (is_am and is_pm) else ("AM only" if is_am else "PM only")
+                
+                # Get guardian contacts for this camper
+                person_id = camper.get('personID')
+                guardians = guardian_contacts.get(person_id, []) if person_id else []
+                
+                # Format phone numbers
+                phone_list = []
+                for guardian in guardians:
+                    for phone in guardian.get('phones', []):
+                        phone_num = phone.get('number', '')
+                        phone_type = phone.get('type', '')
+                        if phone_num:
+                            phone_list.append(f"{guardian.get('name', 'Parent')}: {phone_num}")
+                
+                buses_data[bus_num].append({
+                    'name': f"{camper.get('first_name', '')} {camper.get('last_name', '')}",
+                    'address': camper.get('address', ''),
+                    'town': camper.get('town', ''),
+                    'rider_type': rider_type,
+                    'pickup_dropoff': camper.get('pickup_dropoff', ''),
+                    'phones': phone_list,
+                    'session_type': camper.get('session_type', '')
+                })
+        
+        # Sort buses numerically
+        sorted_buses = sorted(buses_data.keys(), key=lambda x: int(x.replace('Bus #', '').replace('Bus', '').strip() or '0'))
+        
+        # Generate HTML
+        html = generate_roster_html(sorted_buses, buses_data, bus)
+        
+        response = HTMLResponse(content=html)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        return response
+        
+    except Exception as e:
+        logging.error(f"Error generating full roster: {str(e)}")
+        return HTMLResponse(content=f"<h1>Error: {str(e)}</h1>", status_code=500)
+
+
+def generate_roster_html(sorted_buses: list, buses_data: dict, bus_filter: str) -> str:
+    """Generate printable HTML for the full bus roster"""
+    
+    title = "Full Bus Roster - All Buses" if bus_filter == "all" else f"Bus Roster - {bus_filter}"
+    
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>{title}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            * {{ box-sizing: border-box; }}
+            body {{ 
+                font-family: Arial, sans-serif; 
+                max-width: 1200px; 
+                margin: 0 auto; 
+                padding: 20px;
+                font-size: 12px;
+            }}
+            .header {{ 
+                background: #1e40af; 
+                color: white; 
+                padding: 15px 20px; 
+                margin-bottom: 20px; 
+                border-radius: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }}
+            .header h1 {{ margin: 0; font-size: 1.5em; }}
+            .header .date {{ font-size: 0.9em; opacity: 0.9; }}
+            .print-btn {{
+                background: white;
+                color: #1e40af;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+            }}
+            .print-btn:hover {{ background: #e0e7ff; }}
+            .bus-section {{ 
+                page-break-inside: avoid;
+                margin-bottom: 30px; 
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                overflow: hidden;
+            }}
+            .bus-header {{ 
+                background: #f1f5f9; 
+                padding: 12px 15px; 
+                font-weight: bold;
+                font-size: 1.1em;
+                border-bottom: 1px solid #e2e8f0;
+                display: flex;
+                justify-content: space-between;
+            }}
+            .bus-header .count {{ 
+                background: #1e40af;
+                color: white;
+                padding: 2px 10px;
+                border-radius: 12px;
+                font-size: 0.9em;
+            }}
+            table {{ 
+                width: 100%; 
+                border-collapse: collapse;
+            }}
+            th {{ 
+                background: #f8fafc; 
+                padding: 10px 8px; 
+                text-align: left; 
+                font-weight: 600;
+                border-bottom: 2px solid #e2e8f0;
+                font-size: 11px;
+            }}
+            td {{ 
+                padding: 8px; 
+                border-bottom: 1px solid #e2e8f0;
+                vertical-align: top;
+            }}
+            tr:hover {{ background: #f8fafc; }}
+            .name-cell {{ font-weight: 500; }}
+            .rider-type {{ 
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-size: 10px;
+                font-weight: 500;
+            }}
+            .rider-am-pm {{ background: #dcfce7; color: #166534; }}
+            .rider-am {{ background: #fef3c7; color: #92400e; }}
+            .rider-pm {{ background: #dbeafe; color: #1e40af; }}
+            .status {{ 
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-size: 10px;
+                background: #fce7f3;
+                color: #9d174d;
+            }}
+            .phone-list {{ 
+                font-size: 11px; 
+                color: #475569;
+            }}
+            .phone-item {{ margin-bottom: 2px; }}
+            .no-phone {{ color: #94a3b8; font-style: italic; }}
+            .legend {{
+                display: flex;
+                gap: 15px;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+            }}
+            .legend-item {{
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 11px;
+            }}
+            @media print {{
+                .print-btn {{ display: none; }}
+                .header {{ background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
+                .bus-section {{ page-break-inside: avoid; }}
+                body {{ font-size: 10px; }}
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div>
+                <h1>{title}</h1>
+                <div class="date">Generated: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}</div>
+            </div>
+            <button class="print-btn" onclick="window.print()">🖨️ Print</button>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <span class="rider-type rider-am-pm">AM & PM</span> Both routes
+            </div>
+            <div class="legend-item">
+                <span class="rider-type rider-am">AM only</span> Morning pickup only
+            </div>
+            <div class="legend-item">
+                <span class="rider-type rider-pm">PM only</span> Afternoon dropoff only
+            </div>
+            <div class="legend-item">
+                <span class="status">Status</span> Early Pickup / Late Drop Off
+            </div>
+        </div>
+    """
+    
+    for bus_num in sorted_buses:
+        campers = buses_data[bus_num]
+        # Sort campers by last name
+        campers.sort(key=lambda x: x['name'].split()[-1] if x['name'] else '')
+        
+        html += f"""
+        <div class="bus-section">
+            <div class="bus-header">
+                <span>{bus_num}</span>
+                <span class="count">{len(campers)} campers</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%">#</th>
+                        <th style="width: 18%">Name</th>
+                        <th style="width: 22%">Address</th>
+                        <th style="width: 10%">Route</th>
+                        <th style="width: 15%">Status</th>
+                        <th style="width: 30%">Parent/Guardian Phone</th>
+                    </tr>
+                </thead>
+                <tbody>
+        """
+        
+        for idx, camper in enumerate(campers, 1):
+            rider_class = 'rider-am-pm' if 'AM & PM' in camper['rider_type'] else ('rider-am' if 'AM' in camper['rider_type'] else 'rider-pm')
+            status_html = f'<span class="status">{camper["pickup_dropoff"]}</span>' if camper['pickup_dropoff'] else '-'
+            
+            phones_html = ''
+            if camper['phones']:
+                phones_html = '<div class="phone-list">'
+                for phone in camper['phones'][:3]:  # Limit to 3 contacts
+                    phones_html += f'<div class="phone-item">{phone}</div>'
+                phones_html += '</div>'
+            else:
+                phones_html = '<span class="no-phone">No contacts on file</span>'
+            
+            html += f"""
+                    <tr>
+                        <td>{idx}</td>
+                        <td class="name-cell">{camper['name']}</td>
+                        <td>{camper['address']}, {camper['town']}</td>
+                        <td><span class="rider-type {rider_class}">{camper['rider_type']}</span></td>
+                        <td>{status_html}</td>
+                        <td>{phones_html}</td>
+                    </tr>
+            """
+        
+        html += """
+                </tbody>
+            </table>
+        </div>
+        """
+    
+    html += """
+    </body>
+    </html>
+    """
+    
+    return html
+
+
 @api_router.post("/sync-to-google-sheet")
 async def sync_bus_assignments_to_sheet():
     """
