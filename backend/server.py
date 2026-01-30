@@ -110,9 +110,18 @@ route_optimizer = RouteOptimizer(num_buses=34)
 sheets_generator = SheetsDataGenerator()
 cover_sheet_generator = CoverSheetGenerator()
 route_printer = RoutePrinter(gmaps) if gmaps else None
+
+# CampMinder API setup - log warning if credentials missing
+_campminder_api_key = os.environ.get('CAMPMINDER_API_KEY', '')
+_campminder_subscription_key = os.environ.get('CAMPMINDER_SUBSCRIPTION_KEY', '')
+if not _campminder_api_key or not _campminder_subscription_key:
+    logging.warning("⚠️ CampMinder API credentials not configured - parent phone numbers will not be available")
+else:
+    logging.info("✓ CampMinder API credentials configured")
+
 campminder_api = CampMinderAPI(
-    api_key=os.environ.get('CAMPMINDER_API_KEY', ''),
-    subscription_key=os.environ.get('CAMPMINDER_SUBSCRIPTION_KEY', '')
+    api_key=_campminder_api_key,
+    subscription_key=_campminder_subscription_key
 )
 
 app = FastAPI()
