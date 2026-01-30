@@ -8,7 +8,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://routewise-camp.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://bus-roster-pro-1.preview.emergentagent.com').rstrip('/')
 
 class TestShadowAPI:
     """Shadow Staff CRUD API tests"""

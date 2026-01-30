@@ -1,4 +1,4 @@
-const API_URL = 'https://routewise-camp.preview.emergentagent.com/api/sheets/seat-availability';
+const API_URL = 'https://bus-roster-pro-1.preview.emergentagent.com/api/sheets/seat-availability';
 
 function updateSeatAvailability() {
   try {

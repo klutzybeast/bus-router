@@ -14,149 +14,130 @@ The current set of tasks revolves around enhancing the camper management and bus
 **User's preferred language**: English
 
 **what currently exists?**
-A full-stack bus routing application with a FastAPI backend, React frontend, and MongoDB database. A printable bus roster has been implemented that meets most of the user's requirements: it opens in a new tab, shows correct AM/PM addresses and route types, displays bus staff info, and lists staff/shadows. A camper status dropdown has also been successfully added to the camper info card.
+A full-stack bus routing application with a FastAPI backend, React frontend, and MongoDB database. A printable bus roster has been implemented and the logic to fetch parent phone numbers from the CampMinder API is complete and functional within the agent's preview environment.
 
-The application is currently blocked on fulfilling the user's strict requirement to fetch and display the correct parent/guardian phone numbers for every camper from the CampMinder API. The agent's attempts to implement this have failed due to the unreliability of the necessary third-party API endpoints.
+However, the feature is **not working** in the user's deployed production environment. The root cause was identified as a combination of a data type mismatch (string vs. integer s) and stale, empty results being stored in the production database cache. A fix has been implemented to correct the type mismatch and to automatically clear bad cache entries on roster load.
 
 **Last working item**:
-- **Last item agent was working:** The agent was trying to implement a reliable method to fetch parent/guardian phone numbers from the CampMinder API for the bus roster. The user explicitly rejected a fuzzy name-matching approach because it produced incorrect results. The agent then attempted to use the official family relationship API (), but this endpoint proved to be highly unstable, causing frequent timeouts and errors.
-- **Status:** BLOCKED
-- **Agent Testing Done:** N
-- **Which testing method agent to use?** backend testing agent
+- **Last item agent was working:** Resolving a persistent bug where parent names and phone numbers appear correctly in the agent's preview environment but are missing in the user's deployed production application. The agent implemented a fix to automatically purge bad cache entries from the database, which is believed to be the cause of the issue in the production environment.
+- **Status:** USER VERIFICATION PENDING
+- **Agent Testing Done:** Y
+- **Which testing method agent to use?** The fix can only be verified by the user on their deployed production environment. The agent cannot access the user's production database. If the issue persists after the user redeploys, the next step would be to use the  to add more extensive logging to the cache-clearing and data-fetching logic in  to diagnose the issue in the production environment.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: CampMinder API for family relationships is unreliable (P0)**
+- **Issue 1: Parent phone numbers not showing on the roster in the deployed production app (P0)**
 - **Issue 2: Refactor large  and  files (P1)**
 
 **Issues Detail:**
-- **Issue 1: CampMinder API for family relationships is unreliable**
+- **Issue 1: Parent phone numbers not showing on the roster in the deployed production app**
     - **Attempted fixes:**
-        - **Fuzzy Name Matching:** This was implemented but produced incorrect parent names (e.g., Ronnisha B for camper Di Mambro), and the user explicitly rejected this approach.
-        - **Family Relationship API ():** The agent tried to use this to get accurate parent links. However, the API endpoint is unstable, consistently causing timeouts and returning errors, making it unusable for production.
-        - **Caching Strategies:** Both in-memory and MongoDB caching were attempted to mitigate API slowness, but they couldn't solve the core issue of the API failing on the initial data fetch.
+        1.  **Incorrect API  endpoint:** The user provided documentation for a  endpoint which was discovered to be non-existent.
+        2.  **New API Strategy:** A reliable method was developed using existing  and  endpoints.
+        3.  **Type Mismatch:** A critical bug was found and fixed where  was being compared as a string against an integer key, causing lookups to fail.
+        4.  **Bad Caching:** The initial implementation cached empty results, causing persistent failures if the API failed even once. This was fixed to only cache successful results.
+        5.  **Manual Cache Clearing:** An API endpoint () was added, but the user was unable to use it.
+        6.  **Automatic Cache Cleaning:** The final fix was to update the code to automatically detect and delete invalid (empty) cache entries from the database every time the roster is loaded. This is intended to self-heal the production environment.
     - **Next debug checklist:**
-        1.  **Do NOT try to fix the CampMinder  API.** Assume it is not a viable solution.
-        2.  Use the  tool to present the user with the situation and two clear alternatives:
-            *   **Option A:** Remove the parent phone number feature from the roster for now, as the API required to fetch it is broken.
-            *   **Option B:** Build a new feature that allows the user to manually provide parent contact information, for example via a CSV upload.
-        3.  Proceed based on the user's choice. Do not try other workarounds for the CampMinder API.
-    - **Why fix this issue and what will be achieved with the fix?** This is a critical feature for the user (Every single camper has a parent and a phone number on file find it). Resolving this blocker will complete the bus roster feature.
-    - **Status:** BLOCKED
+        1.  Await user confirmation after they redeploy the latest changes containing the automatic cache-cleaning logic.
+        2.  If it still fails, the problem lies within the production environment's state, which the agent cannot directly inspect.
+        3.  Ask the user for any backend logs from their deployed application.
+        4.  If no logs are available, add more detailed logging to the  function in  to trace the number of cache entries deleted, campers processed, and contacts found in the production environment.
+    - **Why fix this issue and what will be achieved with the fix?** This is the user's highest priority and the final step to completing the bus roster feature. The user is blocked and frustrated by this issue.
+    - **Status:** USER VERIFICATION PENDING
     - **Is recurring issue?** Y
     - **Should Test frontend/backend/both after fix?** backend
-    - **Blocked on other issue:** This is the primary blocker for all other work.
+    - **Blocked on other issue:** None. This is the main blocker.
 
 - **Issue 2: Refactor  and **
     - **Attempted fixes:** None.
-    - **Next debug checklist:** After unblocking the primary issue, propose a plan to break down  into a  directory with separate files for each domain (e.g., , ). Similarly, extract components from  into smaller, manageable files.
-    - **Why fix this issue and what will be achieved with the fix?** These files are over 5,500 and 3,000 lines, respectively, making them extremely difficult to maintain and prone to bugs. Refactoring is critical for long-term stability.
+    - **Next debug checklist:** After unblocking the primary issue, propose a plan to break down  into a  directory and decompose the  component.
+    - **Why fix this issue and what will be achieved with the fix?** These files are over 5,500 and 3,000 lines, respectively, making them extremely difficult to maintain. Refactoring is critical for long-term stability.
     - **Status:** NOT STARTED
     - **Is recurring issue?** Y
     - **Should Test frontend/backend/both after fix?** both
     - **Blocked on other issue:** Issue 1
 
 **In progress Task List**:
-- **Task 1: Finalize Bus Roster Enhancements (P0)**
-    - **Where to resume:** Address the  blocker by communicating the API limitations to the user and proposing alternatives. The necessary file for modification is .
-    - **What will be achieved with this?** A fully functional and accurate bus roster that meets all of the user's specified requirements.
+- **Task 1: Finalize Bus Roster Parent Phone Number feature (P0)**
+    - **Where to resume:** Await user feedback after they redeploy the application with the latest fix.
+    - **What will be achieved with this?** A fully functional and accurate bus roster in the user's production environment.
     - **Status:** BLOCKED
-    - **Should Test frontend/backend/both after fix?** both
-    - **Blocked on something:** The unreliability of the CampMinder  API.
+    - **Should Test frontend/backend/both after fix?** backend
+    - **Blocked on something:** Waiting for the user to redeploy and verify the fix.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-  - **Refactor  and  (P1):** This is a critical technical debt item that should be addressed after the roster is complete.
-
+    - **Refactor  and  (P1):** Address critical technical debt after the roster feature is fully resolved.
 - **Future Tasks:**
-  - **Build Multi-Tenant SaaS Version (P2)**
-  - **Deprecate Google Sheet Sync (P2)**
+    - **Build Multi-Tenant SaaS Version (P2)**
+    - **Deprecate Google Sheet Sync (P2)**
 
 **Completed work in this session**
-- **Bus Roster Foundation:**
-  - A printable HTML roster is now generated via the  endpoint.
-  - The roster correctly displays bus info (driver, counselor), camper counts, full street addresses, and staff/shadow assignments.
-- **Dynamic Roster Logic:**
-  - Campers are correctly shown as AM only or PM only on the appropriate bus rosters.
-  - The correct address is displayed for campers with different AM pickup and PM dropoff locations.
-  - Duplicate camper entries on the roster have been resolved.
-- **Camper Card Status Feature:**
-  - A dropdown for Early/Late Pickup status has been added to the camper info card.
-  - The status is saved to the database via  and reflected on the roster.
-
-**Earlier issues found/mentioned but not fixed**
-- None.
-
-**Known issue recurrence from previous fork**
-- None.
+- **Implemented Reliable Parent Contact Fetching:** Developed a robust, multi-step process to get parent phone numbers from the CampMinder API by combining data from the  and  endpoints.
+- **Fixed Critical Type Mismatch Bug:** Resolved an issue where camper  lookups failed due to a string vs. integer type mismatch.
+- **Implemented Defensive Caching:**
+    - Modified caching logic in  to prevent storing empty results from failed API calls.
+    - Added logic to automatically find and delete stale, empty cache entries from the  collection on roster load to self-heal the production environment.
+- **Added a Manual Cache Clearing Endpoint:** Created  for administrative purposes.
+- **Updated PRD:** Marked the bus roster feature as In Progress with notes on the production bug.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **3rd Party API Instability:** The session was dominated by troubleshooting an unreliable external API (CampMinder). The agent discovered that the  endpoint, which is essential for getting accurate parent data, frequently times out or returns errors.
-- **Complex Data Aggregation:** The roster endpoint aggregates data from MongoDB (, ) and the CampMinder API. The logic to handle campers with different AM/PM addresses was particularly complex.
-- **Defensive Programming:** The agent eventually had to disable the failing API integration to prevent the entire roster feature from timing out, highlighting the need to handle unstable external dependencies gracefully.
+- **Production vs. Preview Divergence:** The primary challenge was a feature working in the preview environment but failing in production. This was traced to differences in the state of the MongoDB cache between the two environments.
+- **Defensive Caching & Self-Healing:** The solution evolved to not just prevent bad data from being cached, but to also actively purge bad data from the cache on application startup, making the system more resilient to transient API failures.
+- **Third-Party API Archaeology:** The agent had to discard incorrect user-provided documentation and reverse-engineer a reliable data-fetching strategy by exploring the behavior of existing, known-working API endpoints (,  with  parameter).
+- **Type Safety in Python:** A critical bug was caused by a subtle type mismatch between string and integer dictionary keys during data lookup, highlighting the importance of ensuring type consistency.
 
 **key DB schema**
-- ****: This collection contains duplicate entries for campers with different AM/PM addresses. These are distinguished by a  field ('AM & PM' vs. 'PM Drop-off Only'). The  field was also added.
-- ****: A MongoDB collection was briefly created to cache family mappings, but the strategy was abandoned due to the slow initial population time.
-
-**changes in tech stack**
-- None.
+- ****: MongoDB collection used to cache guardian information. A bad state in this collection (cached empty  arrays) was the likely cause of the production issue.
+    - Schema: 
 
 **All files of reference**
-- : Heavily modified to add and repeatedly refine the  endpoint and its helper functions.
-- : Contains the complex, multi-revision (and currently non-functional) logic for fetching parent contacts. The primary source of the blocker.
-- : Minor modifications to add the camper status dropdown and its save handler.
-- : Updated to reflect progress on the roster feature.
+- : Heavily modified to implement robust caching logic within  and to add the  endpoint.
+- : Completely refactored to use a new, reliable strategy for fetching parent contacts. The critical type-mismatch fix () was applied here.
+- : Updated with the status of the roster feature.
 
 **Areas that need refactoring**:
-- **/app/backend/campminder_integration.py**: This file is a mess of failed attempts. It should be cleaned to remove the non-working code paths related to family lookups.
 - **/app/backend/server.py**: Now over 5,800 lines. Must be broken into  modules.
 - **/app/frontend/src/components/BusRoutingMap.jsx**: Still over 3,000 lines and needs to be decomposed into smaller components.
 
 **key api endpoints**
-- : **(Working)** Sets a camper's pickup/dropoff status.
-- : **(BLOCKED)** Generates the roster HTML. The data fetching for parent phone numbers is broken due to API unreliability.
+- : **(USER VERIFICATION PENDING)** Generates the roster. The underlying data fetching is believed to be fixed, but requires user verification in production.
+- : **(Working)** A new endpoint created to manually clear the production cache as a debugging measure.
 
 **Critical Info for New Agent**
-- **DO NOT TRY TO FIX THE CAMPYONDER FAMILY API.** The previous agent confirmed it is unstable and spent significant time on failed workarounds. Assume the  endpoint is unusable.
-- **Your first action must be to communicate the API limitation to the user.** Use  to clearly explain that the parent phone number feature is blocked by the external API and propose alternatives: either remove the feature or build a manual CSV import for parent contacts.
-- **The user has explicitly rejected fuzzy name-matching for contacts.** Do not re-implement this strategy, as it produces inaccurate data that the user will not accept. Accuracy is the highest priority.
-
-**documents and test reports created in this job**
-- : This report is outdated and does not cover the final (broken) implementation of the parent contact feature.
+- **The primary issue is environmental, not logical.** The core code for fetching parent data has been verified and works. The problem is stale, invalid data in the user's production database cache.
+- **Do not re-implement the data fetching logic.** The current strategy in  is correct.
+- **Your first action is to confirm if the user has redeployed the latest code.** The last change, which automatically cleans the cache, is the most likely solution.
+- **The user is frustrated and not technical.** Do not ask them to run  or use browser consoles. The solution must work automatically within the code.
+- If the issue persists after redeployment, focus all debugging efforts on the  function in . The goal is to understand why the cache-clearing logic is not working as expected in the user's environment.
 
 **Last 10 User Messages and any pending HUMAN messages**
-- **User**: Requested that the AM address appear on the AM bus roster and the PM address on the PM bus roster. (Implemented)
-- **User**: Asked for confirmation that the fix was applied to all campers. (Verified)
-- **User**: Asked where the driver/counselor data was coming from. (Answered:  collection)
-- **User**: Asked where the Balder campers' data came from. (Answered: Google Sheet sync)
-- **User**: Questioned if the camper data came from the API. (Clarified: Camper data from Google Sheets, parent phones from CampMinder API)
-- **User**: Every single camper has a parent and a phone number on file find it. **(This is the critical, unfulfilled requirement that caused the block.)**
-- **User**: Stated that the parent's name should be shown even if it's different from the camper's. (This led the agent to attempt using the failing family API).
-- **User**: For god sake ONLY THE NAMES OF THE CONTACTS IN the campers file don’t just ad names that are random because they have matching similarities **(This was an explicit rejection of the fuzzy name-matching logic after seeing incorrect parent names.)**
+- The user is extremely frustrated because the feature works in preview but not on their live site, despite multiple redeploys.
+- They have confirmed the issue affects all campers on the roster.
+- They do not know how to perform technical debugging steps like clearing a cache via .
+- They are at the point of suggesting a fresh database, indicating they believe the problem is with persistent data.
+- The latest message expresses extreme frustration and provides a screenshot of the bug on the live site.
 
 **Project Health Check:**
-- **Working:** All core bus routing features. Camper status updates. Roster generation with camper details and correct AM/PM addresses.
-- **Broken:** The Parent Phone Numbers feature on the bus roster is non-functional and currently disabled to prevent the page from timing out. This is the main blocker.
+- **Broken:** The primary feature (parent phone numbers on the roster) is non-functional in the user's production environment. This is a critical blocker.
+- **Working:** All other application features, and the roster feature within the agent's preview environment.
 - **Mocked:** None.
 
 **3rd Party Integrations**
+- **CampMinder API**: The integration is the source of the current issue. The interaction with its rate limits and the subsequent caching strategy is the core of the problem.
 - **Google Maps API**: In use.
 - **Google Sheets API**: In use.
 - **PositionStack API**: In use.
-- **CampMinder API**: **(BLOCKED)** The integration is active, but a critical endpoint for fetching family relationships is unreliable, preventing the completion of the roster feature.
 
 **Testing status**
-- **Testing agent used after significant changes:** NO, not since the last set of user-requested changes. The last test report () is obsolete.
+- **Testing agent used after significant changes:** NO
 - **Troubleshoot agent used after agent stuck in loop:** NO
-- **Test files created:** None in this session.
-- **Known regressions:** The parent phone number feature is a regression; it was partially working with incorrect data, and is now not working at all to prevent timeouts.
-
-**Credentials to test flow:**
-- Credentials for PositionStack, Google Sheets, and CampMinder are in .
+- **Test files created:** None.
+- **Known regressions:** The parent phone number feature is not working in production.
 
 **What agent forgot to execute**
-The agent failed to recognize the third-party API limitation early enough. It spent too much time and context attempting to work around an unreliable endpoint instead of escalating the issue to the user with clear, alternative solutions.</analysis>
+The agent initially did not account for the possibility of the production and preview environments having divergent database states (specifically, the cache). It took several failed attempts before focusing on a solution that would heal the production environment's bad data state instead of just working correctly in the clean preview environment.</analysis>
