@@ -4632,8 +4632,10 @@ async def get_full_roster_print(bus: str = "all"):
             am_bus = camper.get('am_bus_number', '')
             pm_bus = camper.get('pm_bus_number', '')
             
-            # Create unique key for this camper
-            camper_key = f"{camper.get('first_name', '')}_{camper.get('last_name', '')}_{camper.get('zip_code', '')}"
+            # Create unique key for this camper (use name only for dedup since same person can't be on same bus twice)
+            first_name = (camper.get('first_name') or '').strip()
+            last_name = (camper.get('last_name') or '').strip()
+            camper_key = f"{first_name}_{last_name}".lower()
             
             # If filtering by specific bus, only include that bus
             if bus != "all":
@@ -4694,7 +4696,7 @@ async def get_full_roster_print(bus: str = "all"):
                     full_address = ', '.join(filter(None, address_parts))
                 
                 buses_data[bus_num]['campers'].append({
-                    'name': f"{camper.get('first_name', '')} {camper.get('last_name', '')}",
+                    'name': f"{first_name} {last_name}",
                     'full_address': full_address,
                     'rider_type': rider_type,
                     'pickup_dropoff': camper.get('pickup_dropoff', ''),
