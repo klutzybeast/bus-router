@@ -727,3 +727,244 @@ class CampMinderAPI:
     async def bulk_update_bus_assignments(self, assignments: List[Dict]) -> Dict[str, bool]:
         """Bulk update bus assignments (placeholder)"""
         return {a['camper_id']: True for a in assignments}
+    
+    async def get_family_members(self, person_ids: List[int] = None, family_ids: List[int] = None) -> Dict[int, List[Dict]]:
+        """
+        Get family members (including parents/guardians) for persons or families
+        Endpoint: GET /api/entity/family/GetFamilyMembers
+        
+        Returns dict mapping family_id -> list of family members with contact info
+        """
+        try:
+            headers = await self.get_auth_headers()
+            
+            params = {'clientid': self.client_ids or '241'}
+            if person_ids:
+                params['personIdList'] = ','.join(map(str, person_ids))
+            if family_ids:
+                params['familyIdList'] = ','.join(map(str, family_ids))
+            
+            async with httpx.AsyncClient(timeout=90.0) as client:
+                response = await client.get(
+                    f"{self.data_url}/api/entity/family/GetFamilyMembers",
+                    headers=headers,
+                    params=params
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    result = data.get('Result', {})
+                    
+                    if isinstance(result, dict):
+                        logger.info(f"✓ Retrieved family members for {len(result)} families")
+                        return result
+                    elif isinstance(result, list):
+                        # Convert to dict keyed by family ID
+                        family_dict = {}
+                        for item in result:
+                            fid = item.get('FamilyID')
+                            if fid:
+                                if fid not in family_dict:
+                                    family_dict[fid] = []
+                                family_dict[fid].append(item)
+                        return family_dict
+                    return {}
+                else:
+                    logger.error(f"Failed to get family members: {response.status_code} - {response.text[:200]}")
+                    return {}
+        except Exception as e:
+            logger.error(f"Error getting family members: {str(e)}")
+            return {}
+    
+    async def get_person_contacts(self, person_ids: List[int] = None, since: str = None) -> Dict[int, Dict]:
+        """
+        Get person contact information including phone numbers
+        Endpoint: GET /api/entity/person/GetPersons with full data
+        
+        Returns dict mapping person_id -> contact data (including phones)
+        """
+        try:
+            headers = await self.get_auth_headers()
+            
+            params = {'clientid': self.client_ids or '241'}
+            if person_ids:
+                params['personIDs'] = ','.join(map(str, person_ids))
+            if since:
+                params['since'] = since
+            
+            async with httpx.AsyncClient(timeout=90.0) as client:
+                response = await client.get(
+                    f"{self.data_url}/api/entity/person/GetPersons",
+                    headers=headers,
+                    params=params
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    result = data.get('Result', {})
+                    
+                    if isinstance(result, dict):
+                        persons_list = list(result.values())
+                    else:
+                        persons_list = result if result else []
+                    
+                    # Extract contact info for each person
+                    contacts_dict = {}
+                    for person in persons_list:
+                        pid = person.get('ID')
+                        if pid:
+                            # Extract phone numbers from various locations in the person data
+                            phones = []
+                            
+                            # Check for Phones array in person data
+                            person_phones = person.get('Phones', [])
+                            if person_phones:
+                                for phone in person_phones:
+                                    phone_num = phone.get('Number') or phone.get('PhoneNumber')
+                                    phone_type = phone.get('Type') or phone.get('PhoneType', 'Phone')
+                                    if phone_num:
+                                        phones.append({
+                                            'number': phone_num,
+                                            'type': phone_type
+                                        })
+                            
+                            # Also check ContactInfo
+                            contact_info = person.get('ContactInfo', {})
+                            if contact_info:
+                                for key in ['HomePhone', 'WorkPhone', 'MobilePhone', 'CellPhone', 'Phone']:
+                                    if contact_info.get(key):
+                                        phones.append({
+                                            'number': contact_info[key],
+                                            'type': key.replace('Phone', '')
+                                        })
+                            
+                            name = person.get('Name', {})
+                            contacts_dict[pid] = {
+                                'first_name': name.get('FirstName', ''),
+                                'last_name': name.get('LastName', ''),
+                                'phones': phones,
+                                'email': person.get('Email', '') or contact_info.get('Email', ''),
+                                'is_principal': person.get('IsPrincipal', False)
+                            }
+                    
+                    logger.info(f"✓ Retrieved contacts for {len(contacts_dict)} persons")
+                    return contacts_dict
+                else:
+                    logger.error(f"Failed to get person contacts: {response.status_code}")
+                    return {}
+        except Exception as e:
+            logger.error(f"Error getting person contacts: {str(e)}")
+            return {}
+    
+    async def get_guardian_contacts_for_camper(self, camper_person_id: int) -> List[Dict]:
+        """
+        Get guardian/parent contacts for a specific camper
+        
+        Returns list of guardian contacts with phone numbers
+        """
+        try:
+            # Step 1: Get family ID for camper
+            family_map = await self.get_family_persons([camper_person_id])
+            family_id = family_map.get(camper_person_id)
+            
+            if not family_id:
+                logger.warning(f"No family found for camper {camper_person_id}")
+                return []
+            
+            # Step 2: Get all family members
+            family_members = await self.get_family_members(family_ids=[family_id])
+            members_list = family_members.get(family_id, [])
+            
+            if not members_list:
+                logger.warning(f"No family members found for family {family_id}")
+                return []
+            
+            # Step 3: Get contact details for family members (excluding the camper)
+            member_ids = [m.get('PersonID') for m in members_list if m.get('PersonID') and m.get('PersonID') != camper_person_id]
+            
+            if not member_ids:
+                return []
+            
+            contacts = await self.get_person_contacts(person_ids=member_ids)
+            
+            # Filter to principals (parents/guardians) and return with phone data
+            guardians = []
+            for pid, contact in contacts.items():
+                if contact.get('phones'):
+                    guardians.append({
+                        'name': f"{contact.get('first_name', '')} {contact.get('last_name', '')}".strip(),
+                        'phones': contact.get('phones', []),
+                        'email': contact.get('email', ''),
+                        'is_principal': contact.get('is_principal', False)
+                    })
+            
+            return guardians
+        except Exception as e:
+            logger.error(f"Error getting guardian contacts: {str(e)}")
+            return []
+    
+    async def get_bulk_guardian_contacts(self, camper_person_ids: List[int]) -> Dict[int, List[Dict]]:
+        """
+        Get guardian contacts for multiple campers efficiently
+        
+        Returns dict mapping camper_person_id -> list of guardian contacts
+        """
+        try:
+            if not camper_person_ids:
+                return {}
+            
+            # Step 1: Get family IDs for all campers
+            family_map = await self.get_family_persons(camper_person_ids)
+            
+            if not family_map:
+                logger.warning("No family mappings found")
+                return {}
+            
+            # Get unique family IDs
+            family_ids = list(set(family_map.values()))
+            
+            # Step 2: Get all family members
+            all_family_members = await self.get_family_members(family_ids=family_ids)
+            
+            # Step 3: Collect all member person IDs (excluding campers)
+            all_member_ids = set()
+            camper_set = set(camper_person_ids)
+            for fid, members in all_family_members.items():
+                for member in members:
+                    pid = member.get('PersonID')
+                    if pid and pid not in camper_set:
+                        all_member_ids.add(pid)
+            
+            # Step 4: Get contacts for all members
+            all_contacts = await self.get_person_contacts(person_ids=list(all_member_ids))
+            
+            # Step 5: Map camper -> family -> members -> contacts
+            result = {}
+            for camper_id in camper_person_ids:
+                family_id = family_map.get(camper_id)
+                if not family_id:
+                    result[camper_id] = []
+                    continue
+                
+                members = all_family_members.get(family_id, [])
+                guardians = []
+                
+                for member in members:
+                    pid = member.get('PersonID')
+                    if pid and pid != camper_id and pid in all_contacts:
+                        contact = all_contacts[pid]
+                        if contact.get('phones'):
+                            guardians.append({
+                                'name': f"{contact.get('first_name', '')} {contact.get('last_name', '')}".strip(),
+                                'phones': contact.get('phones', []),
+                                'email': contact.get('email', ''),
+                                'is_principal': contact.get('is_principal', False)
+                            })
+                
+                result[camper_id] = guardians
+            
+            logger.info(f"✓ Retrieved guardian contacts for {len(result)} campers")
+            return result
+        except Exception as e:
+            logger.error(f"Error getting bulk guardian contacts: {str(e)}")
+            return {}
