@@ -59,6 +59,11 @@ class CampMinderAPI:
         self._persons_cache = None
         self._persons_cache_time = None
         self._persons_cache_ttl = timedelta(minutes=10)  # Cache for 10 minutes
+        
+        # Cache for family mappings (person_id -> family_id)
+        self._family_cache = {}
+        self._family_cache_time = None
+        self._family_cache_ttl = timedelta(minutes=30)  # Cache for 30 minutes
     
     async def get_jwt_token(self) -> Optional[str]:
         """
