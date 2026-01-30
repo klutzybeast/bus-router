@@ -4623,25 +4623,36 @@ async def get_full_roster_print(bus: str = "all"):
         except Exception as e:
             logging.warning(f"Could not fetch guardian contacts from CampMinder: {e}")
         
-        # Group campers by bus
+        # Group campers by bus - with deduplication
         buses_data = {}
+        seen_campers = {}  # Track seen campers per bus to avoid duplicates
+        
         for camper in campers:
             # Determine which buses this camper is on
             am_bus = camper.get('am_bus_number', '')
             pm_bus = camper.get('pm_bus_number', '')
             
+            # Create unique key for this camper
+            camper_key = f"{camper.get('first_name', '')}_{camper.get('last_name', '')}_{camper.get('zip_code', '')}"
+            
             # If filtering by specific bus, only include that bus
             if bus != "all":
-                buses_to_add = [bus] if (am_bus == bus or pm_bus == bus) else []
+                buses_to_process = [(bus, am_bus == bus, pm_bus == bus)] if (am_bus == bus or pm_bus == bus) else []
             else:
-                # Include all buses this camper is on
-                buses_to_add = []
+                # Process each bus this camper is assigned to
+                buses_to_process = []
                 if am_bus and am_bus.startswith('Bus'):
-                    buses_to_add.append(am_bus)
+                    buses_to_process.append((am_bus, True, pm_bus == am_bus))
                 if pm_bus and pm_bus.startswith('Bus') and pm_bus != am_bus:
-                    buses_to_add.append(pm_bus)
+                    buses_to_process.append((pm_bus, am_bus == pm_bus, True))
             
-            for bus_num in buses_to_add:
+            for bus_num, is_am_on_this_bus, is_pm_on_this_bus in buses_to_process:
+                # Skip if we've already added this camper to this bus
+                bus_seen_key = f"{bus_num}_{camper_key}"
+                if bus_seen_key in seen_campers:
+                    continue
+                seen_campers[bus_seen_key] = True
+                
                 if bus_num not in buses_data:
                     buses_data[bus_num] = {
                         'campers': [],
@@ -4650,10 +4661,8 @@ async def get_full_roster_print(bus: str = "all"):
                         'bus_info': bus_staff_map.get(bus_num, {})
                     }
                 
-                # Determine rider type
-                is_am = am_bus == bus_num
-                is_pm = pm_bus == bus_num
-                rider_type = "AM & PM" if (is_am and is_pm) else ("AM only" if is_am else "PM only")
+                # Determine rider type for THIS specific bus
+                rider_type = "AM & PM" if (is_am_on_this_bus and is_pm_on_this_bus) else ("AM only" if is_am_on_this_bus else "PM only")
                 
                 # Get guardian contacts for this camper using name key
                 first = (camper.get('first_name') or '').strip().lower()
