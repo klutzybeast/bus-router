@@ -195,6 +195,71 @@ async def get_active_season_id() -> Optional[str]:
         logging.error(f"Error getting active season ID: {e}")
         return None
 
+
+async def get_guardian_contacts_cached(campers: List[Dict]) -> Dict[str, List[Dict]]:
+    """
+    Get guardian contacts using cached family mappings from MongoDB.
+    This uses the campminder_family_cache collection to avoid slow API calls.
+    
+    The cache stores: camper_name -> [{parent_name, phones}]
+    """
+    try:
+        result = {}
+        
+        # Get unique camper names
+        unique_keys = set()
+        for camper in campers:
+            first = (camper.get('first_name') or '').strip().lower()
+            last = (camper.get('last_name') or '').strip().lower()
+            if first and last:
+                unique_keys.add(f"{first}_{last}")
+        
+        if not unique_keys:
+            return {}
+        
+        # Check cache in MongoDB
+        cache_cursor = db.campminder_family_cache.find(
+            {"_id": {"$in": list(unique_keys)}}
+        )
+        cache_data = await cache_cursor.to_list(length=None)
+        
+        # Build result from cache
+        for item in cache_data:
+            result[item['_id']] = item.get('guardians', [])
+        
+        # Find keys not in cache
+        cached_keys = set(item['_id'] for item in cache_data)
+        missing_keys = unique_keys - cached_keys
+        
+        if missing_keys:
+            logging.info(f"Cache miss for {len(missing_keys)} campers, fetching from API...")
+            
+            # Get missing data from CampMinder API
+            missing_campers = [c for c in campers 
+                             if f"{(c.get('first_name') or '').strip().lower()}_{(c.get('last_name') or '').strip().lower()}" in missing_keys]
+            
+            if missing_campers:
+                api_result = await campminder_api.get_guardian_contacts_by_name(missing_campers)
+                
+                # Save to cache and add to result
+                for key, guardians in api_result.items():
+                    result[key] = guardians
+                    
+                    # Save to MongoDB cache
+                    await db.campminder_family_cache.update_one(
+                        {"_id": key},
+                        {"$set": {"guardians": guardians, "updated_at": datetime.now().isoformat()}},
+                        upsert=True
+                    )
+        
+        logging.info(f"Guardian lookup complete: {sum(1 for v in result.values() if v)}/{len(unique_keys)} have contacts")
+        return result
+        
+    except Exception as e:
+        logging.error(f"Error in cached guardian lookup: {e}")
+        return {}
+
+
 class CamperPin(BaseModel):
     first_name: str
     last_name: str
