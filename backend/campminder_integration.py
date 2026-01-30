@@ -54,6 +54,11 @@ class CampMinderAPI:
         self.am_bus_field_id = AM_BUS_FIELD_ID
         self.pm_bus_field_id = PM_BUS_FIELD_ID
         self.field_definitions = {}
+        
+        # Cache for persons data (to avoid rate limits)
+        self._persons_cache = None
+        self._persons_cache_time = None
+        self._persons_cache_ttl = timedelta(minutes=10)  # Cache for 10 minutes
     
     async def get_jwt_token(self) -> Optional[str]:
         """
