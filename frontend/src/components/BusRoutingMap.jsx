@@ -3169,6 +3169,18 @@ const BusRoutingMap = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-8 w-8 p-0 flex-shrink-0 text-green-600 hover:text-green-800 hover:bg-green-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTrackBus(bus);
+                          }}
+                          title="Track Bus Location"
+                        >
+                          <Navigation className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           className="h-8 w-8 p-0 flex-shrink-0"
                           onClick={(e) => {
                             e.stopPropagation();
