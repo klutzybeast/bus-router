@@ -113,3 +113,12 @@ code {
         border-bottom-color: inherit;
     }
 }
+
+/* PWA Safe Area for iPhone notch */
+.safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+}
+
+.safe-area-pt {
+    padding-top: env(safe-area-inset-top, 0px);
+}
