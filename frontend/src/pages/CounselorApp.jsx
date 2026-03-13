@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { CheckCircle, XCircle, Bus, Users, LogOut, Loader2, Navigation } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+const APP_VERSION = "v2.1"; // For debugging
 
 export default function CounselorApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
