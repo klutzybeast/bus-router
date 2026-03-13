@@ -3246,6 +3246,125 @@ const BusRoutingMap = () => {
           </div>
         </Card>
 
+        {/* GPS Bus Tracking Dialog */}
+        <Dialog open={trackingBus !== null} onOpenChange={(open) => !open && closeTracking()}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Navigation className="w-5 h-5 text-green-600" />
+                Live Tracking: {trackingBus}
+              </DialogTitle>
+              <DialogDescription>
+                Real-time GPS location from the counselor's phone
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="py-4">
+              {trackingLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+                  <span className="ml-2">Loading location...</span>
+                </div>
+              ) : trackingData?.success ? (
+                <div className="space-y-4">
+                  {/* Status Banner */}
+                  <div className={`p-3 rounded-lg flex items-center gap-2 ${
+                    trackingData.tracking_active 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    <Radio className={`w-4 h-4 ${trackingData.tracking_active ? 'animate-pulse' : ''}`} />
+                    <span className="font-medium">
+                      {trackingData.tracking_active 
+                        ? 'GPS Active - Tracking in real-time' 
+                        : 'GPS Inactive - Last known location'}
+                    </span>
+                  </div>
+
+                  {/* Map showing bus location */}
+                  <div className="h-64 rounded-lg overflow-hidden border">
+                    <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+                      <Map
+                        defaultZoom={15}
+                        defaultCenter={{ lat: trackingData.latitude, lng: trackingData.longitude }}
+                        mapId="bus-tracking-map"
+                        gestureHandling="cooperative"
+                      >
+                        <AdvancedMarker
+                          position={{ lat: trackingData.latitude, lng: trackingData.longitude }}
+                        >
+                          <div className="relative">
+                            <div className="w-10 h-10 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+                              <span className="text-white font-bold text-xs">
+                                {trackingBus?.replace('Bus #', '')}
+                              </span>
+                            </div>
+                            {trackingData.heading && (
+                              <div 
+                                className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-green-500"
+                                style={{ transform: `translateX(-50%) rotate(${trackingData.heading}deg)` }}
+                              />
+                            )}
+                          </div>
+                        </AdvancedMarker>
+                      </Map>
+                    </APIProvider>
+                  </div>
+
+                  {/* Location Details */}
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-500">Latitude:</span>
+                      <span className="ml-2 font-mono">{trackingData.latitude?.toFixed(6)}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Longitude:</span>
+                      <span className="ml-2 font-mono">{trackingData.longitude?.toFixed(6)}</span>
+                    </div>
+                    {trackingData.speed !== null && trackingData.speed !== undefined && (
+                      <div>
+                        <span className="text-gray-500">Speed:</span>
+                        <span className="ml-2">{(trackingData.speed * 2.237).toFixed(1)} mph</span>
+                      </div>
+                    )}
+                    {trackingData.accuracy && (
+                      <div>
+                        <span className="text-gray-500">Accuracy:</span>
+                        <span className="ml-2">±{trackingData.accuracy?.toFixed(0)}m</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Last Update */}
+                  <div className="text-center text-sm text-gray-500 border-t pt-3">
+                    Last updated: {trackingData.updated_at 
+                      ? new Date(trackingData.updated_at).toLocaleTimeString() 
+                      : 'Unknown'}
+                    <span className="ml-2 text-xs">(Auto-refreshes every 10s)</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Navigation className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                  <p className="text-gray-500 font-medium">No location data available</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    The counselor app must be open and GPS enabled on the bus
+                  </p>
+                  <p className="text-xs text-blue-500 mt-3">
+                    Counselor app URL: <code className="bg-gray-100 px-2 py-1 rounded">/counselor</code>
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={closeTracking}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         {/* Overlay for mobile when panel is open */}
         {isPanelOpen && (
           <div 
