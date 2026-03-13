@@ -155,6 +155,12 @@ const BusRoutingMap = () => {
   // Seat availability from backend (accurate counts including campers without addresses)
   const [busSeatAvailability, setBusSeatAvailability] = useState({});
 
+  // GPS Bus Tracking State
+  const [trackingBus, setTrackingBus] = useState(null);
+  const [trackingData, setTrackingData] = useState(null);
+  const [trackingLoading, setTrackingLoading] = useState(false);
+  const trackingIntervalRef = useRef(null);
+
   // Fetch seasons
   const fetchSeasons = useCallback(async () => {
     try {
