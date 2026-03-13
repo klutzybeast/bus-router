@@ -1192,23 +1192,97 @@ const BusRoutingMap = () => {
     setTrackingBus(busNumber);
     setTrackingLoading(true);
     setTrackingData(null);
+    setNearestStop(null);
+    
+    // Fetch stops for this bus (campers with their locations)
+    const busStops = getBusStops(busNumber);
+    setTrackingStops(busStops);
     
     // Fetch initial location
-    await fetchBusLocation(busNumber);
+    await fetchBusLocation(busNumber, busStops);
     
     // Set up polling every 5 seconds for smoother tracking
     if (trackingIntervalRef.current) {
       clearInterval(trackingIntervalRef.current);
     }
     trackingIntervalRef.current = setInterval(() => {
-      fetchBusLocation(busNumber);
+      fetchBusLocation(busNumber, busStops);
     }, 5000);
   };
 
-  const fetchBusLocation = async (busNumber) => {
+  // Get stops (grouped campers by location) for a bus
+  const getBusStops = (busNumber) => {
+    const busCampers = campers.filter(c => 
+      c.am_bus_number === busNumber || c.pm_bus_number === busNumber
+    );
+    
+    // Group campers by location (stop)
+    const stopMap = {};
+    busCampers.forEach(camper => {
+      if (camper.location?.lat && camper.location?.lng) {
+        // Round to 5 decimal places to group nearby addresses
+        const key = `${camper.location.lat.toFixed(5)}_${camper.location.lng.toFixed(5)}`;
+        if (!stopMap[key]) {
+          stopMap[key] = {
+            lat: camper.location.lat,
+            lng: camper.location.lng,
+            address: camper.location.address || 'Unknown',
+            campers: []
+          };
+        }
+        stopMap[key].campers.push({
+          id: camper._id,
+          name: `${camper.first_name} ${camper.last_name}`,
+          first_name: camper.first_name,
+          last_name: camper.last_name
+        });
+      }
+    });
+    
+    return Object.values(stopMap);
+  };
+
+  // Calculate distance between two points in meters
+  const getDistanceMeters = (lat1, lng1, lat2, lng2) => {
+    const R = 6371000; // Earth's radius in meters
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  // Find nearest stop to current bus location
+  const findNearestStop = (busLat, busLng, stops) => {
+    if (!stops || stops.length === 0) return null;
+    
+    let nearest = null;
+    let minDistance = Infinity;
+    
+    stops.forEach(stop => {
+      const distance = getDistanceMeters(busLat, busLng, stop.lat, stop.lng);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearest = { ...stop, distance };
+      }
+    });
+    
+    // Only return if within 100 meters of a stop
+    return minDistance <= 100 ? nearest : null;
+  };
+
+  const fetchBusLocation = async (busNumber, stops) => {
     try {
       const response = await axios.get(`${API}/bus-tracking/location/${encodeURIComponent(busNumber)}`);
       setTrackingData(response.data);
+      
+      // Check if bus is near a stop
+      if (response.data.success && response.data.latitude && response.data.longitude) {
+        const nearest = findNearestStop(response.data.latitude, response.data.longitude, stops || trackingStops);
+        setNearestStop(nearest);
+      }
     } catch (error) {
       console.error("Error fetching bus location:", error);
       setTrackingData({ success: false, message: "Failed to fetch location" });
@@ -1224,6 +1298,8 @@ const BusRoutingMap = () => {
     }
     setTrackingBus(null);
     setTrackingData(null);
+    setTrackingStops([]);
+    setNearestStop(null);
   };
 
   // Cleanup tracking interval on unmount
