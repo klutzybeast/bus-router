@@ -4786,7 +4786,7 @@ async def update_bus_location(request: BusLocationUpdate):
             upsert=True
         )
         
-        logging.debug(f"Updated location for {bus_number}: {request.latitude}, {request.longitude}")
+        logging.info(f"📍 GPS UPDATE: {bus_number} at {request.latitude}, {request.longitude}")
         
         return {"success": True, "message": "Location updated"}
         
