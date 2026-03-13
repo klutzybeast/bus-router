@@ -1194,13 +1194,13 @@ const BusRoutingMap = () => {
     // Fetch initial location
     await fetchBusLocation(busNumber);
     
-    // Set up polling every 10 seconds
+    // Set up polling every 5 seconds for smoother tracking
     if (trackingIntervalRef.current) {
       clearInterval(trackingIntervalRef.current);
     }
     trackingIntervalRef.current = setInterval(() => {
       fetchBusLocation(busNumber);
-    }, 10000);
+    }, 5000);
   };
 
   const fetchBusLocation = async (busNumber) => {
