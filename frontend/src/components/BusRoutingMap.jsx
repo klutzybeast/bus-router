@@ -1185,6 +1185,54 @@ const BusRoutingMap = () => {
     window.open(`${API}/route-sheet/${encodedBusNumber}/print?edit=true`, '_blank');
   };
 
+  // GPS Bus Tracking Functions
+  const handleTrackBus = async (busNumber) => {
+    setTrackingBus(busNumber);
+    setTrackingLoading(true);
+    setTrackingData(null);
+    
+    // Fetch initial location
+    await fetchBusLocation(busNumber);
+    
+    // Set up polling every 10 seconds
+    if (trackingIntervalRef.current) {
+      clearInterval(trackingIntervalRef.current);
+    }
+    trackingIntervalRef.current = setInterval(() => {
+      fetchBusLocation(busNumber);
+    }, 10000);
+  };
+
+  const fetchBusLocation = async (busNumber) => {
+    try {
+      const response = await axios.get(`${API}/bus-tracking/location/${encodeURIComponent(busNumber)}`);
+      setTrackingData(response.data);
+    } catch (error) {
+      console.error("Error fetching bus location:", error);
+      setTrackingData({ success: false, message: "Failed to fetch location" });
+    } finally {
+      setTrackingLoading(false);
+    }
+  };
+
+  const closeTracking = () => {
+    if (trackingIntervalRef.current) {
+      clearInterval(trackingIntervalRef.current);
+      trackingIntervalRef.current = null;
+    }
+    setTrackingBus(null);
+    setTrackingData(null);
+  };
+
+  // Cleanup tracking interval on unmount
+  useEffect(() => {
+    return () => {
+      if (trackingIntervalRef.current) {
+        clearInterval(trackingIntervalRef.current);
+      }
+    };
+  }, []);
+
   const handleAddCamper = async () => {
     if (!newCamper.first_name || !newCamper.last_name || !newCamper.address || !newCamper.town || !newCamper.zip_code) {
       toast.error("Please fill in all required fields");
