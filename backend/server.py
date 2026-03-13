@@ -4648,6 +4648,342 @@ async def change_camper_bus(camper_id: str, am_bus_number: str = None, pm_bus_nu
 class PickupDropoffRequest(BaseModel):
     pickup_dropoff: str
 
+
+# ============================================
+# GPS BUS TRACKING & COUNSELOR APP ENDPOINTS
+# ============================================
+
+class BusLocationUpdate(BaseModel):
+    """GPS location update from counselor app"""
+    bus_number: str
+    latitude: float
+    longitude: float
+    accuracy: Optional[float] = None  # GPS accuracy in meters
+    speed: Optional[float] = None  # Speed in m/s
+    heading: Optional[float] = None  # Direction 0-360
+
+class BusLoginRequest(BaseModel):
+    """Counselor login with bus PIN"""
+    pin: str  # Bus number as PIN (e.g., "06" or "6" for Bus #06)
+
+class AttendanceUpdate(BaseModel):
+    """Mark camper attendance"""
+    camper_id: str
+    status: str  # "present" or "absent"
+    
+class BulkAttendanceUpdate(BaseModel):
+    """Bulk attendance update"""
+    bus_number: str
+    date: str  # ISO date string
+    attendance: List[Dict[str, str]]  # List of {camper_id, status}
+
+
+@api_router.post("/bus-tracking/login")
+async def bus_tracking_login(request: BusLoginRequest):
+    """
+    Counselor login with bus number as PIN.
+    PIN is just the bus number (e.g., "6" or "06" for Bus #06)
+    Returns bus info and camper list if valid.
+    """
+    try:
+        # Normalize PIN to bus number format
+        pin = request.pin.strip().lstrip('0') or '0'
+        bus_number = f"Bus #{pin.zfill(2)}"
+        
+        # Get active season
+        season_id = await get_active_season_id()
+        
+        # Check if any campers exist for this bus
+        query = {
+            "$or": [
+                {"am_bus_number": bus_number},
+                {"pm_bus_number": bus_number}
+            ]
+        }
+        if season_id:
+            query["season_id"] = season_id
+            
+        camper_count = await db.campers.count_documents(query)
+        
+        if camper_count == 0:
+            raise HTTPException(status_code=401, detail="Invalid bus number")
+        
+        # Get bus info
+        driver = get_bus_driver(bus_number)
+        counselor = get_bus_counselor(bus_number)
+        
+        # Get campers on this bus (AM riders)
+        campers_cursor = db.campers.find(
+            {"am_bus_number": bus_number, "season_id": season_id} if season_id else {"am_bus_number": bus_number},
+            {"_id": 1, "first_name": 1, "last_name": 1, "location.address": 1, "am_bus_number": 1, "pm_bus_number": 1}
+        ).sort([("last_name", 1), ("first_name", 1)])
+        
+        campers = []
+        async for c in campers_cursor:
+            campers.append({
+                "id": c["_id"],
+                "first_name": c.get("first_name", ""),
+                "last_name": c.get("last_name", ""),
+                "address": c.get("location", {}).get("address", ""),
+                "am_bus": c.get("am_bus_number", ""),
+                "pm_bus": c.get("pm_bus_number", "")
+            })
+        
+        # Get today's attendance if exists
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        attendance_doc = await db.bus_attendance.find_one({
+            "bus_number": bus_number,
+            "date": today
+        })
+        
+        attendance = {}
+        if attendance_doc:
+            for record in attendance_doc.get("records", []):
+                attendance[record["camper_id"]] = record["status"]
+        
+        logging.info(f"Bus tracking login successful: {bus_number} with {len(campers)} campers")
+        
+        return {
+            "success": True,
+            "bus_number": bus_number,
+            "driver": driver,
+            "counselor": counselor,
+            "campers": campers,
+            "attendance": attendance,
+            "date": today
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Bus tracking login error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/bus-tracking/location")
+async def update_bus_location(request: BusLocationUpdate):
+    """
+    Update bus GPS location (called from counselor app every 30 seconds)
+    """
+    try:
+        bus_number = request.bus_number
+        
+        # Store/update location in database
+        location_data = {
+            "bus_number": bus_number,
+            "latitude": request.latitude,
+            "longitude": request.longitude,
+            "accuracy": request.accuracy,
+            "speed": request.speed,
+            "heading": request.heading,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(timezone.utc)
+        }
+        
+        await db.bus_locations.update_one(
+            {"bus_number": bus_number},
+            {"$set": location_data},
+            upsert=True
+        )
+        
+        logging.debug(f"Updated location for {bus_number}: {request.latitude}, {request.longitude}")
+        
+        return {"success": True, "message": "Location updated"}
+        
+    except Exception as e:
+        logging.error(f"Error updating bus location: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/bus-tracking/location/{bus_number}")
+async def get_bus_location_tracking(bus_number: str):
+    """
+    Get current GPS location for a bus (for admin tracking popup)
+    """
+    try:
+        # URL decode the bus number
+        import urllib.parse
+        bus_number = urllib.parse.unquote(bus_number)
+        
+        location = await db.bus_locations.find_one(
+            {"bus_number": bus_number},
+            {"_id": 0}
+        )
+        
+        if not location:
+            return {
+                "success": False,
+                "message": "No location data available for this bus",
+                "bus_number": bus_number,
+                "tracking_active": False
+            }
+        
+        # Check if location is stale (older than 5 minutes)
+        updated_at = location.get("timestamp")
+        is_stale = False
+        if updated_at:
+            if isinstance(updated_at, str):
+                updated_at = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
+            age_seconds = (datetime.now(timezone.utc) - updated_at).total_seconds()
+            is_stale = age_seconds > 300  # 5 minutes
+        
+        return {
+            "success": True,
+            "bus_number": bus_number,
+            "latitude": location.get("latitude"),
+            "longitude": location.get("longitude"),
+            "accuracy": location.get("accuracy"),
+            "speed": location.get("speed"),
+            "heading": location.get("heading"),
+            "updated_at": location.get("updated_at"),
+            "tracking_active": not is_stale,
+            "is_stale": is_stale
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting bus location: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/bus-tracking/all-locations")
+async def get_all_bus_locations():
+    """
+    Get current GPS locations for all buses (for admin overview)
+    """
+    try:
+        locations_cursor = db.bus_locations.find({}, {"_id": 0})
+        locations = await locations_cursor.to_list(length=100)
+        
+        # Mark stale locations
+        now = datetime.now(timezone.utc)
+        for loc in locations:
+            updated_at = loc.get("timestamp")
+            if updated_at:
+                if isinstance(updated_at, str):
+                    updated_at = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
+                age_seconds = (now - updated_at).total_seconds()
+                loc["is_stale"] = age_seconds > 300
+                loc["tracking_active"] = age_seconds <= 300
+            else:
+                loc["is_stale"] = True
+                loc["tracking_active"] = False
+        
+        return {
+            "success": True,
+            "locations": locations,
+            "count": len(locations)
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting all bus locations: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/bus-tracking/attendance")
+async def update_attendance(request: AttendanceUpdate, bus_number: str):
+    """
+    Update attendance for a single camper
+    """
+    try:
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        
+        # Validate status
+        if request.status not in ["present", "absent"]:
+            raise HTTPException(status_code=400, detail="Status must be 'present' or 'absent'")
+        
+        # Update or create attendance record
+        existing = await db.bus_attendance.find_one({
+            "bus_number": bus_number,
+            "date": today
+        })
+        
+        if existing:
+            # Update existing record
+            records = existing.get("records", [])
+            # Remove existing record for this camper if any
+            records = [r for r in records if r["camper_id"] != request.camper_id]
+            # Add new record
+            records.append({
+                "camper_id": request.camper_id,
+                "status": request.status,
+                "marked_at": datetime.now(timezone.utc).isoformat()
+            })
+            
+            await db.bus_attendance.update_one(
+                {"_id": existing["_id"]},
+                {"$set": {"records": records, "updated_at": datetime.now(timezone.utc).isoformat()}}
+            )
+        else:
+            # Create new attendance document
+            await db.bus_attendance.insert_one({
+                "bus_number": bus_number,
+                "date": today,
+                "records": [{
+                    "camper_id": request.camper_id,
+                    "status": request.status,
+                    "marked_at": datetime.now(timezone.utc).isoformat()
+                }],
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            })
+        
+        logging.info(f"Attendance updated: {bus_number} - {request.camper_id} = {request.status}")
+        
+        return {"success": True, "message": "Attendance updated"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating attendance: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/bus-tracking/attendance/{bus_number}")
+async def get_attendance(bus_number: str, date: Optional[str] = None):
+    """
+    Get attendance for a bus on a specific date (defaults to today)
+    """
+    try:
+        import urllib.parse
+        bus_number = urllib.parse.unquote(bus_number)
+        
+        if not date:
+            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        
+        attendance_doc = await db.bus_attendance.find_one({
+            "bus_number": bus_number,
+            "date": date
+        })
+        
+        if not attendance_doc:
+            return {
+                "success": True,
+                "bus_number": bus_number,
+                "date": date,
+                "records": [],
+                "summary": {"present": 0, "absent": 0, "unmarked": 0}
+            }
+        
+        records = attendance_doc.get("records", [])
+        present_count = sum(1 for r in records if r["status"] == "present")
+        absent_count = sum(1 for r in records if r["status"] == "absent")
+        
+        return {
+            "success": True,
+            "bus_number": bus_number,
+            "date": date,
+            "records": records,
+            "summary": {
+                "present": present_count,
+                "absent": absent_count
+            }
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting attendance: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api_router.post("/campers/{camper_id}/pickup-dropoff")
 async def update_pickup_dropoff(camper_id: str, request: PickupDropoffRequest):
     """Update the pickup/dropoff status for a camper (Early Pickup, Late Drop Off, or both). Use 'CLEAR' to remove status."""
