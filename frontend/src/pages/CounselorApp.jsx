@@ -291,6 +291,7 @@ export default function CounselorApp() {
             </div>
           )}
           <div className="list-end-spacer" />
+          <div style={{textAlign: 'center', fontSize: 10, color: '#999', padding: 8}}>{APP_VERSION}</div>
         </div>
       </div>
     </>
