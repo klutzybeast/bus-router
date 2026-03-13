@@ -159,6 +159,8 @@ const BusRoutingMap = () => {
   const [trackingBus, setTrackingBus] = useState(null);
   const [trackingData, setTrackingData] = useState(null);
   const [trackingLoading, setTrackingLoading] = useState(false);
+  const [trackingStops, setTrackingStops] = useState([]); // Stops for tracked bus
+  const [nearestStop, setNearestStop] = useState(null); // Current nearest stop
   const trackingIntervalRef = useRef(null);
 
   // Fetch seasons
