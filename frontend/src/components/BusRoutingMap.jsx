@@ -3390,6 +3390,42 @@ const BusRoutingMap = () => {
                     </APIProvider>
                   </div>
 
+                  {/* Current Stop Info - Shows when bus is near a stop */}
+                  {nearestStop ? (
+                    <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <MapPin className="w-5 h-5 text-blue-600" />
+                        <span className="font-semibold text-blue-800">At Stop: {nearestStop.address}</span>
+                        <span className="text-xs text-blue-500 ml-auto">{Math.round(nearestStop.distance)}m away</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {nearestStop.campers.map((camper, idx) => (
+                          <div 
+                            key={idx}
+                            className="flex items-center gap-1 bg-white border-2 border-blue-400 rounded-full px-3 py-1 shadow-sm"
+                            style={{ borderColor: BUS_COLORS[trackingBus] || '#3b82f6' }}
+                          >
+                            <div 
+                              className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                              style={{ backgroundColor: BUS_COLORS[trackingBus] || '#3b82f6' }}
+                            >
+                              {camper.first_name?.[0]}{camper.last_name?.[0]}
+                            </div>
+                            <span className="text-sm font-medium text-gray-700">{camper.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-blue-600 mt-2">
+                        {nearestStop.campers.length} camper{nearestStop.campers.length !== 1 ? 's' : ''} at this stop
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center text-gray-500 text-sm">
+                      <MapPin className="w-4 h-4 inline mr-1" />
+                      Bus is in transit - not at a stop
+                    </div>
+                  )}
+
                   {/* Location Details */}
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
