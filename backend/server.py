@@ -4984,6 +4984,218 @@ async def get_attendance(bus_number: str, date: Optional[str] = None):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@api_router.get("/bus-tracking/attendance-report")
+async def get_attendance_report(date: Optional[str] = None):
+    """
+    Get attendance report for all buses on a specific date.
+    Returns HTML report suitable for printing.
+    """
+    try:
+        if not date:
+            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        
+        # Get all attendance records for the date
+        attendance_cursor = db.bus_attendance.find({"date": date})
+        attendance_docs = await attendance_cursor.to_list(length=100)
+        
+        # Get active season
+        season_id = await get_active_season_id()
+        
+        # Get all campers for name lookup
+        camper_cursor = db.campers.find(
+            {"season_id": season_id} if season_id else {},
+            {"_id": 1, "first_name": 1, "last_name": 1, "am_bus_number": 1}
+        )
+        campers = await camper_cursor.to_list(length=1000)
+        camper_map = {c["_id"]: c for c in campers}
+        
+        # Build report data
+        bus_reports = []
+        for doc in sorted(attendance_docs, key=lambda x: x.get("bus_number", "")):
+            bus_number = doc.get("bus_number", "Unknown")
+            records = doc.get("records", [])
+            
+            present = []
+            absent = []
+            
+            for record in records:
+                camper_id = record.get("camper_id")
+                camper = camper_map.get(camper_id, {})
+                name = f"{camper.get('first_name', '')} {camper.get('last_name', '')}".strip() or camper_id
+                
+                if record.get("status") == "present":
+                    present.append(name)
+                else:
+                    absent.append(name)
+            
+            bus_reports.append({
+                "bus_number": bus_number,
+                "present": sorted(present),
+                "absent": sorted(absent),
+                "present_count": len(present),
+                "absent_count": len(absent)
+            })
+        
+        # Generate HTML report
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Attendance Report - {date}</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {{ font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }}
+                h1 {{ color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 10px; }}
+                .bus-section {{ margin-bottom: 30px; page-break-inside: avoid; }}
+                .bus-header {{ background: #3b82f6; color: white; padding: 10px 15px; border-radius: 8px 8px 0 0; }}
+                .bus-header h2 {{ margin: 0; font-size: 1.2em; }}
+                .bus-content {{ border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 8px 8px; }}
+                .stats {{ display: flex; gap: 20px; margin-bottom: 15px; }}
+                .stat {{ padding: 10px 15px; border-radius: 6px; }}
+                .stat-present {{ background: #dcfce7; color: #166534; }}
+                .stat-absent {{ background: #fee2e2; color: #991b1b; }}
+                .list-section {{ margin-top: 15px; }}
+                .list-section h3 {{ font-size: 0.9em; color: #666; margin-bottom: 8px; }}
+                .name-list {{ display: flex; flex-wrap: wrap; gap: 8px; }}
+                .name-tag {{ background: #f3f4f6; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; }}
+                .name-tag.present {{ background: #dcfce7; }}
+                .name-tag.absent {{ background: #fee2e2; }}
+                .no-data {{ color: #999; font-style: italic; }}
+                .print-btn {{ background: #1e40af; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin-bottom: 20px; }}
+                @media print {{ .print-btn {{ display: none; }} }}
+            </style>
+        </head>
+        <body>
+            <button class="print-btn" onclick="window.print()">Print Report</button>
+            <h1>Bus Attendance Report</h1>
+            <p><strong>Date:</strong> {date}</p>
+        """
+        
+        if not bus_reports:
+            html += "<p class='no-data'>No attendance data recorded for this date.</p>"
+        else:
+            total_present = sum(b["present_count"] for b in bus_reports)
+            total_absent = sum(b["absent_count"] for b in bus_reports)
+            html += f"<p><strong>Total:</strong> {total_present} present, {total_absent} absent across {len(bus_reports)} buses</p>"
+            
+            for bus in bus_reports:
+                html += f"""
+                <div class="bus-section">
+                    <div class="bus-header">
+                        <h2>{bus['bus_number']}</h2>
+                    </div>
+                    <div class="bus-content">
+                        <div class="stats">
+                            <div class="stat stat-present">
+                                <strong>{bus['present_count']}</strong> Present
+                            </div>
+                            <div class="stat stat-absent">
+                                <strong>{bus['absent_count']}</strong> Absent
+                            </div>
+                        </div>
+                """
+                
+                if bus['present']:
+                    html += f"""
+                        <div class="list-section">
+                            <h3>Present ({bus['present_count']})</h3>
+                            <div class="name-list">
+                                {"".join(f'<span class="name-tag present">{name}</span>' for name in bus['present'])}
+                            </div>
+                        </div>
+                    """
+                
+                if bus['absent']:
+                    html += f"""
+                        <div class="list-section">
+                            <h3>Absent ({bus['absent_count']})</h3>
+                            <div class="name-list">
+                                {"".join(f'<span class="name-tag absent">{name}</span>' for name in bus['absent'])}
+                            </div>
+                        </div>
+                    """
+                
+                html += "</div></div>"
+        
+        html += "</body></html>"
+        
+        return HTMLResponse(content=html)
+        
+    except Exception as e:
+        logging.error(f"Error generating attendance report: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/bus-tracking/attendance-report/json")
+async def get_attendance_report_json(date: Optional[str] = None):
+    """
+    Get attendance report data as JSON for all buses on a specific date.
+    """
+    try:
+        if not date:
+            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        
+        # Get all attendance records for the date
+        attendance_cursor = db.bus_attendance.find({"date": date})
+        attendance_docs = await attendance_cursor.to_list(length=100)
+        
+        # Get active season
+        season_id = await get_active_season_id()
+        
+        # Get all campers for name lookup
+        camper_cursor = db.campers.find(
+            {"season_id": season_id} if season_id else {},
+            {"_id": 1, "first_name": 1, "last_name": 1, "am_bus_number": 1}
+        )
+        campers = await camper_cursor.to_list(length=1000)
+        camper_map = {c["_id"]: c for c in campers}
+        
+        # Build report data
+        bus_reports = []
+        for doc in sorted(attendance_docs, key=lambda x: x.get("bus_number", "")):
+            bus_number = doc.get("bus_number", "Unknown")
+            records = doc.get("records", [])
+            
+            detailed_records = []
+            for record in records:
+                camper_id = record.get("camper_id")
+                camper = camper_map.get(camper_id, {})
+                detailed_records.append({
+                    "camper_id": camper_id,
+                    "name": f"{camper.get('first_name', '')} {camper.get('last_name', '')}".strip(),
+                    "status": record.get("status"),
+                    "marked_at": record.get("marked_at")
+                })
+            
+            present_count = sum(1 for r in records if r.get("status") == "present")
+            absent_count = sum(1 for r in records if r.get("status") == "absent")
+            
+            bus_reports.append({
+                "bus_number": bus_number,
+                "records": detailed_records,
+                "summary": {
+                    "present": present_count,
+                    "absent": absent_count,
+                    "total": len(records)
+                }
+            })
+        
+        return {
+            "success": True,
+            "date": date,
+            "buses": bus_reports,
+            "totals": {
+                "buses_reporting": len(bus_reports),
+                "total_present": sum(b["summary"]["present"] for b in bus_reports),
+                "total_absent": sum(b["summary"]["absent"] for b in bus_reports)
+            }
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting attendance report JSON: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api_router.post("/campers/{camper_id}/pickup-dropoff")
 async def update_pickup_dropoff(camper_id: str, request: PickupDropoffRequest):
     """Update the pickup/dropoff status for a camper (Early Pickup, Late Drop Off, or both). Use 'CLEAR' to remove status."""
