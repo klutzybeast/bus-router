@@ -3281,28 +3281,29 @@ const BusRoutingMap = () => {
                     </span>
                   </div>
 
-                  {/* Map showing bus location */}
+                  {/* Map showing bus location - Auto-follows */}
                   <div className="h-64 rounded-lg overflow-hidden border">
                     <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
                       <Map
-                        defaultZoom={15}
-                        defaultCenter={{ lat: trackingData.latitude, lng: trackingData.longitude }}
+                        zoom={16}
+                        center={{ lat: trackingData.latitude, lng: trackingData.longitude }}
                         mapId="bus-tracking-map"
                         gestureHandling="cooperative"
+                        disableDefaultUI={true}
                       >
                         <AdvancedMarker
                           position={{ lat: trackingData.latitude, lng: trackingData.longitude }}
                         >
                           <div className="relative">
-                            <div className="w-10 h-10 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
-                              <span className="text-white font-bold text-xs">
+                            <div className="w-12 h-12 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center animate-pulse">
+                              <span className="text-white font-bold text-sm">
                                 {trackingBus?.replace('Bus #', '')}
                               </span>
                             </div>
                             {trackingData.heading && (
                               <div 
-                                className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-green-500"
-                                style={{ transform: `translateX(-50%) rotate(${trackingData.heading}deg)` }}
+                                className="absolute -top-2 left-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-green-600"
+                                style={{ transform: `translateX(-50%) rotate(${trackingData.heading}deg)`, transformOrigin: 'center bottom' }}
                               />
                             )}
                           </div>
