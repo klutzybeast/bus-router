@@ -3341,7 +3341,7 @@ const BusRoutingMap = () => {
                     Last updated: {trackingData.updated_at 
                       ? new Date(trackingData.updated_at).toLocaleTimeString() 
                       : 'Unknown'}
-                    <span className="ml-2 text-xs">(Auto-refreshes every 10s)</span>
+                    <span className="ml-2 text-xs">(Auto-follows every 5s)</span>
                   </div>
                 </div>
               ) : (
