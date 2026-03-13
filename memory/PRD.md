@@ -18,6 +18,30 @@ A web application that displays camper bus routes on a Google Map, using Google 
 
 ## What's Been Implemented
 
+### Phase 18: GPS Bus Tracking & Counselor App ✅ (March 2026)
+- **Counselor Mobile Web App** (`/counselor`):
+  - Login with bus number as PIN (e.g., "06" for Bus #06)
+  - View list of campers assigned to their bus
+  - Mark attendance (Present/Absent) for each camper
+  - Real-time GPS tracking sends location every 30 seconds
+  - Mobile-friendly UI optimized for phone screens
+- **Admin Live Tracking**:
+  - Green "Track" button (navigation icon) on each bus card
+  - Opens popup dialog showing live bus location on map
+  - Shows GPS status (Active/Inactive), speed, accuracy
+  - Auto-refreshes every 10 seconds
+  - Indicates stale data if no update in 5+ minutes
+- **Backend Endpoints**:
+  - `POST /api/bus-tracking/login` - Counselor login with bus PIN
+  - `POST /api/bus-tracking/location` - Update bus GPS location
+  - `GET /api/bus-tracking/location/{bus_number}` - Get current bus location
+  - `GET /api/bus-tracking/all-locations` - Get all bus locations
+  - `POST /api/bus-tracking/attendance` - Update camper attendance
+  - `GET /api/bus-tracking/attendance/{bus_number}` - Get attendance records
+- **Database Collections**:
+  - `bus_locations` - Current GPS coordinates per bus
+  - `bus_attendance` - Daily attendance records per bus
+
 ### Phase 17: Camper Card & Roster Enhancements ✅ (January 2026)
 - **Pickup/Dropoff Status**: Camper info card now includes dropdown for special pickup/dropoff arrangements:
   - Early Pickup
