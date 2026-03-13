@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { CheckCircle, XCircle, MapPin, Bus, Users, LogOut, Loader2, Navigation, Share } from 'lucide-react';
+import { CheckCircle, XCircle, MapPin, Bus, Users, LogOut, Loader2, Navigation, Share, AlertCircle } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -11,16 +11,19 @@ export default function CounselorApp() {
   const [busData, setBusData] = useState(null);
   const [attendance, setAttendance] = useState({});
   const [gpsStatus, setGpsStatus] = useState('idle'); // idle, tracking, error, requesting
+  const [gpsError, setGpsError] = useState('');
   const [lastGpsUpdate, setLastGpsUpdate] = useState(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [locationCount, setLocationCount] = useState(0);
+  
   const gpsIntervalRef = useRef(null);
   const watchIdRef = useRef(null);
+  const busNumberRef = useRef(null); // Store bus number in ref for callbacks
 
   // Check for saved session on mount
   useEffect(() => {
     const savedBus = localStorage.getItem('counselor_bus');
     if (savedBus) {
-      // Auto-login with saved bus
       handleAutoLogin(savedBus);
     }
   }, []);
@@ -41,10 +44,10 @@ export default function CounselorApp() {
         setBusData(data);
         setAttendance(data.attendance || {});
         setIsLoggedIn(true);
-        // Auto-start GPS immediately
-        requestGpsPermissionAndStart(data.bus_number);
+        busNumberRef.current = data.bus_number;
+        // Auto-start GPS
+        startGpsTracking();
       } else {
-        // Clear invalid saved session
         localStorage.removeItem('counselor_bus');
       }
     } catch (err) {
@@ -73,15 +76,14 @@ export default function CounselorApp() {
         throw new Error(data.detail || 'Invalid bus number');
       }
 
-      // Save bus number for auto-login
       localStorage.setItem('counselor_bus', pin);
-      
       setBusData(data);
       setAttendance(data.attendance || {});
       setIsLoggedIn(true);
+      busNumberRef.current = data.bus_number;
       
-      // Auto-start GPS immediately after login
-      requestGpsPermissionAndStart(data.bus_number);
+      // Auto-start GPS
+      startGpsTracking();
       
     } catch (err) {
       setError(err.message);
@@ -90,89 +92,121 @@ export default function CounselorApp() {
     }
   };
 
-  // Request GPS permission and start tracking
-  const requestGpsPermissionAndStart = useCallback((busNumber) => {
+  // Send location to server
+  const sendLocationUpdate = useCallback(async (position) => {
+    const busNumber = busNumberRef.current;
+    if (!busNumber) {
+      console.error('No bus number available');
+      return;
+    }
+
+    try {
+      const payload = {
+        bus_number: busNumber,
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+        speed: position.coords.speed,
+        heading: position.coords.heading
+      };
+      
+      console.log('Sending location:', payload);
+
+      const response = await fetch(`${API_URL}/api/bus-tracking/location`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        setLastGpsUpdate(new Date());
+        setGpsStatus('tracking');
+        setGpsError('');
+        setLocationCount(prev => prev + 1);
+        console.log('Location sent successfully');
+      } else {
+        const errData = await response.json();
+        console.error('Server error:', errData);
+        setGpsError('Server error');
+      }
+    } catch (err) {
+      console.error('Failed to send location:', err);
+      setGpsError('Network error');
+    }
+  }, []);
+
+  // Start GPS tracking
+  const startGpsTracking = useCallback(() => {
     if (!navigator.geolocation) {
       setGpsStatus('error');
+      setGpsError('GPS not supported on this device');
       return;
     }
 
     setGpsStatus('requesting');
+    setGpsError('');
 
-    // Request permission by getting current position first
+    // First get current position to trigger permission prompt
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // Permission granted, start continuous tracking
-        startGpsTracking(busNumber, position);
+        console.log('GPS permission granted, starting tracking');
+        setGpsStatus('tracking');
+        
+        // Send initial position
+        sendLocationUpdate(position);
+
+        // Watch position continuously
+        watchIdRef.current = navigator.geolocation.watchPosition(
+          (pos) => {
+            console.log('Position update:', pos.coords.latitude, pos.coords.longitude);
+            sendLocationUpdate(pos);
+          },
+          (err) => {
+            console.error('Watch position error:', err);
+            // Don't change status for minor errors
+          },
+          {
+            enableHighAccuracy: true,
+            maximumAge: 15000,
+            timeout: 30000
+          }
+        );
+
+        // Also poll every 30 seconds as backup
+        gpsIntervalRef.current = setInterval(() => {
+          navigator.geolocation.getCurrentPosition(
+            sendLocationUpdate,
+            (err) => console.error('Interval GPS error:', err),
+            { enableHighAccuracy: true, timeout: 20000 }
+          );
+        }, 30000);
       },
       (err) => {
-        console.error('GPS permission denied or error:', err);
+        console.error('GPS permission error:', err);
         setGpsStatus('error');
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            setGpsError('Location permission denied. Please enable in Settings.');
+            break;
+          case err.POSITION_UNAVAILABLE:
+            setGpsError('Location unavailable. Make sure GPS is enabled.');
+            break;
+          case err.TIMEOUT:
+            setGpsError('Location request timed out. Trying again...');
+            // Retry after timeout
+            setTimeout(() => startGpsTracking(), 3000);
+            break;
+          default:
+            setGpsError('Unknown GPS error');
+        }
       },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  }, []);
-
-  // Start continuous GPS tracking
-  const startGpsTracking = useCallback((busNumber, initialPosition) => {
-    setGpsStatus('tracking');
-
-    // Send initial position immediately
-    if (initialPosition) {
-      sendLocationUpdate(busNumber, initialPosition);
-    }
-
-    // Function to send location update
-    const sendLocation = (position) => {
-      sendLocationUpdate(busNumber, position);
-    };
-
-    // Watch position continuously
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      sendLocation,
-      (err) => {
-        console.error('GPS error:', err);
-        // Don't set error status for temporary issues
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 10000,
-        timeout: 30000
+      { 
+        enableHighAccuracy: true, 
+        timeout: 15000,
+        maximumAge: 0
       }
     );
-
-    // Also send updates every 30 seconds as backup
-    gpsIntervalRef.current = setInterval(() => {
-      navigator.geolocation.getCurrentPosition(
-        sendLocation,
-        (err) => console.error('GPS interval error:', err),
-        { enableHighAccuracy: true, timeout: 20000 }
-      );
-    }, 30000);
-
-  }, []);
-
-  // Send location to server
-  const sendLocationUpdate = async (busNumber, position) => {
-    try {
-      await fetch(`${API_URL}/api/bus-tracking/location`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bus_number: busNumber,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-          speed: position.coords.speed,
-          heading: position.coords.heading
-        })
-      });
-      setLastGpsUpdate(new Date());
-      setGpsStatus('tracking');
-    } catch (err) {
-      console.error('Failed to send location:', err);
-    }
-  };
+  }, [sendLocationUpdate]);
 
   // Stop GPS tracking
   const stopGpsTracking = useCallback(() => {
@@ -191,10 +225,12 @@ export default function CounselorApp() {
   const handleLogout = () => {
     stopGpsTracking();
     localStorage.removeItem('counselor_bus');
+    busNumberRef.current = null;
     setIsLoggedIn(false);
     setBusData(null);
     setAttendance({});
     setPin('');
+    setLocationCount(0);
   };
 
   // Cleanup on unmount
@@ -208,7 +244,6 @@ export default function CounselorApp() {
   const markAttendance = async (camperId, status) => {
     if (!busData) return;
 
-    // Optimistic update
     setAttendance(prev => ({ ...prev, [camperId]: status }));
 
     try {
@@ -222,7 +257,6 @@ export default function CounselorApp() {
       });
     } catch (err) {
       console.error('Failed to update attendance:', err);
-      // Revert on error
       setAttendance(prev => {
         const newState = { ...prev };
         delete newState[camperId];
@@ -231,14 +265,19 @@ export default function CounselorApp() {
     }
   };
 
+  // Retry GPS
+  const retryGps = () => {
+    stopGpsTracking();
+    setGpsError('');
+    startGpsTracking();
+  };
+
   // Check if can be installed as PWA
   useEffect(() => {
-    // Check if running in standalone mode (already installed)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
                          window.navigator.standalone === true;
     
     if (!isStandalone && !localStorage.getItem('pwa_prompt_dismissed')) {
-      // Show install prompt after 3 seconds
       const timer = setTimeout(() => {
         setShowInstallPrompt(true);
       }, 3000);
@@ -251,7 +290,7 @@ export default function CounselorApp() {
     localStorage.setItem('pwa_prompt_dismissed', 'true');
   };
 
-  // Loading screen (checking saved session)
+  // Loading screen
   if (loading && !isLoggedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
@@ -309,7 +348,6 @@ export default function CounselorApp() {
             </button>
           </form>
 
-          {/* Add to Home Screen hint */}
           <p className="text-center text-xs text-gray-400 mt-6">
             Tip: Add to Home Screen for quick access
           </p>
@@ -318,7 +356,7 @@ export default function CounselorApp() {
     );
   }
 
-  // Main Counselor Dashboard
+  // Main Dashboard
   const presentCount = Object.values(attendance).filter(s => s === 'present').length;
   const absentCount = Object.values(attendance).filter(s => s === 'absent').length;
   const unmarkedCount = (busData?.campers?.length || 0) - presentCount - absentCount;
@@ -361,22 +399,43 @@ export default function CounselorApp() {
           </button>
         </div>
 
-        {/* GPS Status Bar - Always visible */}
-        <div className="mt-3 flex items-center gap-2 text-sm">
-          <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full font-medium ${
-            gpsStatus === 'tracking' ? 'bg-green-500' :
-            gpsStatus === 'requesting' ? 'bg-yellow-500' :
-            gpsStatus === 'error' ? 'bg-red-500' : 'bg-gray-500'
-          }`}>
-            <Navigation className={`w-4 h-4 ${gpsStatus === 'tracking' ? 'animate-pulse' : ''}`} />
-            {gpsStatus === 'tracking' ? 'GPS Active' : 
-             gpsStatus === 'requesting' ? 'Requesting GPS...' :
-             gpsStatus === 'error' ? 'GPS Unavailable' : 'GPS Off'}
+        {/* GPS Status Bar */}
+        <div className="mt-3">
+          <div className="flex items-center gap-2">
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium text-sm ${
+              gpsStatus === 'tracking' ? 'bg-green-500' :
+              gpsStatus === 'requesting' ? 'bg-yellow-500' :
+              gpsStatus === 'error' ? 'bg-red-500' : 'bg-gray-500'
+            }`}>
+              <Navigation className={`w-4 h-4 ${gpsStatus === 'tracking' ? 'animate-pulse' : ''}`} />
+              {gpsStatus === 'tracking' ? `GPS Active (${locationCount})` : 
+               gpsStatus === 'requesting' ? 'Getting GPS...' :
+               gpsStatus === 'error' ? 'GPS Error' : 'GPS Off'}
+            </div>
+            
+            {gpsStatus === 'error' && (
+              <button
+                onClick={retryGps}
+                className="px-3 py-1.5 bg-white/20 rounded-full text-sm font-medium hover:bg-white/30 transition"
+              >
+                Retry
+              </button>
+            )}
           </div>
+          
+          {/* GPS Error Message */}
+          {gpsError && (
+            <div className="mt-2 flex items-center gap-2 text-yellow-200 text-sm">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{gpsError}</span>
+            </div>
+          )}
+          
+          {/* Last Update Time */}
           {lastGpsUpdate && gpsStatus === 'tracking' && (
-            <span className="text-blue-100 text-xs">
-              Updated {lastGpsUpdate.toLocaleTimeString()}
-            </span>
+            <p className="text-blue-100 text-xs mt-1">
+              Last sent: {lastGpsUpdate.toLocaleTimeString()}
+            </p>
           )}
         </div>
       </header>
@@ -431,7 +490,6 @@ export default function CounselorApp() {
                       )}
                     </div>
 
-                    {/* Attendance Buttons */}
                     <div className="flex gap-1.5 flex-shrink-0">
                       <button
                         onClick={() => markAttendance(camper.id, 'present')}
