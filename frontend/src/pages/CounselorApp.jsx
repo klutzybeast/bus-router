@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { CheckCircle, XCircle, Bus, Users, LogOut, Loader2, Navigation } from 'lucide-react';
+import { CheckCircle, XCircle, Bus, Users, LogOut, Loader2, Navigation, AlertTriangle } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
-const APP_VERSION = "v2.2";
+const APP_VERSION = "v2.3";
 
 export default function CounselorApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -14,10 +14,70 @@ export default function CounselorApp() {
   const [gpsStatus, setGpsStatus] = useState('idle');
   const [gpsMessage, setGpsMessage] = useState('');
   const [locationCount, setLocationCount] = useState(0);
+  const [wakeLockActive, setWakeLockActive] = useState(false);
+  const [isBackground, setIsBackground] = useState(false);
   
   const gpsIntervalRef = useRef(null);
   const watchIdRef = useRef(null);
   const busNumberRef = useRef(null);
+  const wakeLockRef = useRef(null);
+  const lastSentRef = useRef(null);
+
+  // Request Wake Lock to keep screen on and app running
+  const requestWakeLock = async () => {
+    if ('wakeLock' in navigator) {
+      try {
+        wakeLockRef.current = await navigator.wakeLock.request('screen');
+        setWakeLockActive(true);
+        console.log('Wake Lock activated');
+        
+        wakeLockRef.current.addEventListener('release', () => {
+          setWakeLockActive(false);
+          console.log('Wake Lock released');
+        });
+      } catch (err) {
+        console.log('Wake Lock error:', err);
+        setWakeLockActive(false);
+      }
+    }
+  };
+
+  // Re-acquire wake lock when page becomes visible again
+  const handleVisibilityChange = useCallback(() => {
+    if (document.visibilityState === 'visible') {
+      setIsBackground(false);
+      // Re-acquire wake lock
+      if (isLoggedIn && !wakeLockRef.current) {
+        requestWakeLock();
+      }
+      // Force a location update when coming back to foreground
+      if (busNumberRef.current && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => sendLocationUpdate(pos),
+          () => {},
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      }
+    } else {
+      setIsBackground(true);
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [handleVisibilityChange]);
+
+  // Cleanup wake lock on unmount
+  useEffect(() => {
+    return () => {
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const savedBus = localStorage.getItem('counselor_bus');
@@ -38,6 +98,7 @@ export default function CounselorApp() {
         setAttendance(data.attendance || {});
         setIsLoggedIn(true);
         busNumberRef.current = data.bus_number;
+        await requestWakeLock();
         startGpsTracking();
       } else {
         localStorage.removeItem('counselor_bus');
@@ -66,6 +127,7 @@ export default function CounselorApp() {
       setAttendance(data.attendance || {});
       setIsLoggedIn(true);
       busNumberRef.current = data.bus_number;
+      await requestWakeLock();
       startGpsTracking();
     } catch (err) {
       setError(err.message);
@@ -77,6 +139,14 @@ export default function CounselorApp() {
   const sendLocationUpdate = useCallback(async (position) => {
     const busNumber = busNumberRef.current;
     if (!busNumber) return;
+    
+    // Throttle updates to max once per 5 seconds
+    const now = Date.now();
+    if (lastSentRef.current && now - lastSentRef.current < 5000) {
+      return;
+    }
+    lastSentRef.current = now;
+    
     try {
       const response = await fetch(`${API_URL}/api/bus-tracking/location`, {
         method: 'POST',
@@ -95,7 +165,6 @@ export default function CounselorApp() {
         setGpsMessage(`Sent! ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
         setGpsStatus('tracking');
       } else {
-        const errText = await response.text();
         setGpsMessage(`Server error: ${response.status}`);
       }
     } catch (err) {
@@ -111,27 +180,67 @@ export default function CounselorApp() {
       setGpsMessage('GPS not supported');
       return;
     }
+    
+    // Get initial position
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setGpsStatus('tracking');
         setGpsMessage('');
         sendLocationUpdate(position);
-        watchIdRef.current = navigator.geolocation.watchPosition(sendLocationUpdate, () => {}, { enableHighAccuracy: true, maximumAge: 15000, timeout: 30000 });
+        
+        // Use watchPosition for continuous tracking - works better in background
+        watchIdRef.current = navigator.geolocation.watchPosition(
+          (pos) => sendLocationUpdate(pos),
+          (err) => {
+            console.log('Watch error:', err);
+            // Don't change status for minor errors, just log
+          },
+          { 
+            enableHighAccuracy: true, 
+            maximumAge: 10000,  // Accept positions up to 10s old
+            timeout: 30000,
+            // This helps with background tracking
+          }
+        );
+        
+        // Backup interval - some browsers stop watchPosition in background
+        // This interval will try to get position when app comes back to foreground
         gpsIntervalRef.current = setInterval(() => {
-          navigator.geolocation.getCurrentPosition(sendLocationUpdate, () => {}, { enableHighAccuracy: true, timeout: 20000 });
-        }, 30000);
+          navigator.geolocation.getCurrentPosition(
+            (pos) => sendLocationUpdate(pos),
+            () => {},
+            { enableHighAccuracy: true, timeout: 20000, maximumAge: 15000 }
+          );
+        }, 15000); // Every 15 seconds as backup
       },
       (err) => {
         setGpsStatus('error');
-        setGpsMessage(err.code === 1 ? 'Enable location in settings' : 'GPS unavailable');
+        if (err.code === 1) {
+          setGpsMessage('Location permission denied');
+        } else if (err.code === 2) {
+          setGpsMessage('GPS unavailable');
+        } else {
+          setGpsMessage('GPS timeout - retrying...');
+          setTimeout(startGpsTracking, 3000);
+        }
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }, [sendLocationUpdate]);
 
   const stopGpsTracking = useCallback(() => {
-    if (watchIdRef.current !== null) { navigator.geolocation.clearWatch(watchIdRef.current); watchIdRef.current = null; }
-    if (gpsIntervalRef.current) { clearInterval(gpsIntervalRef.current); gpsIntervalRef.current = null; }
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+    if (gpsIntervalRef.current) {
+      clearInterval(gpsIntervalRef.current);
+      gpsIntervalRef.current = null;
+    }
+    if (wakeLockRef.current) {
+      wakeLockRef.current.release();
+      wakeLockRef.current = null;
+    }
   }, []);
 
   const handleLogout = () => {
@@ -144,6 +253,7 @@ export default function CounselorApp() {
     setPin('');
     setLocationCount(0);
     setGpsStatus('idle');
+    setWakeLockActive(false);
   };
 
   useEffect(() => () => stopGpsTracking(), [stopGpsTracking]);
@@ -190,22 +300,42 @@ export default function CounselorApp() {
 
   return (
     <div style={{background: '#f3f4f6', minHeight: '100vh'}}>
+      {/* Background Warning Banner */}
+      {isBackground && (
+        <div style={{background: '#fbbf24', color: '#92400e', padding: 8, textAlign: 'center', fontSize: 12, fontWeight: 500}}>
+          ⚠️ App in background - tracking may be limited
+        </div>
+      )}
+      
       {/* Fixed Header */}
       <div style={{position: 'sticky', top: 0, zIndex: 100, background: '#2563eb', color: 'white', padding: 12}}>
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
           <h1 style={{margin: 0, fontSize: 18, fontWeight: 'bold'}}>{busData?.bus_number}</h1>
           <button onClick={handleLogout} style={{background: 'none', border: 'none', color: 'white', padding: 8}}><LogOut size={20} /></button>
         </div>
-        <div style={{marginTop: 8, display: 'flex', alignItems: 'center', gap: 8}}>
+        <div style={{marginTop: 8, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap'}}>
           <span style={{display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 500,
             background: gpsStatus === 'tracking' ? '#22c55e' : gpsStatus === 'error' ? '#ef4444' : '#eab308'}}>
             <Navigation size={12} />
             {gpsStatus === 'tracking' ? `GPS (${locationCount})` : gpsStatus === 'error' ? 'GPS Off' : 'Starting...'}
           </span>
+          {wakeLockActive && (
+            <span style={{display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 20, fontSize: 10, background: 'rgba(255,255,255,0.2)'}}>
+              🔒 Screen Lock
+            </span>
+          )}
           {gpsStatus === 'error' && <button onClick={startGpsTracking} style={{background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '4px 10px', borderRadius: 20, fontSize: 12}}>Retry</button>}
         </div>
         {gpsMessage && <p style={{margin: '4px 0 0', fontSize: 11, color: '#bfdbfe'}}>{gpsMessage}</p>}
       </div>
+
+      {/* Keep Screen On Notice */}
+      {!wakeLockActive && gpsStatus === 'tracking' && (
+        <div style={{background: '#fef3c7', borderBottom: '1px solid #fcd34d', padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8}}>
+          <AlertTriangle size={16} color="#d97706" />
+          <span style={{fontSize: 12, color: '#92400e'}}>Keep this screen open for best tracking</span>
+        </div>
+      )}
 
       {/* Stats */}
       <div style={{background: 'white', borderBottom: '1px solid #e5e7eb', padding: 8, display: 'flex', justifyContent: 'space-around'}}>
