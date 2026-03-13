@@ -4822,10 +4822,16 @@ async def get_bus_location_tracking(bus_number: str):
         updated_at = location.get("timestamp")
         is_stale = False
         if updated_at:
-            if isinstance(updated_at, str):
-                updated_at = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
-            age_seconds = (datetime.now(timezone.utc) - updated_at).total_seconds()
-            is_stale = age_seconds > 300  # 5 minutes
+            try:
+                if isinstance(updated_at, str):
+                    updated_at = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
+                # Make sure both datetimes are timezone-aware
+                if updated_at.tzinfo is None:
+                    updated_at = updated_at.replace(tzinfo=timezone.utc)
+                age_seconds = (datetime.now(timezone.utc) - updated_at).total_seconds()
+                is_stale = age_seconds > 300  # 5 minutes
+            except Exception:
+                is_stale = True
         
         return {
             "success": True,
