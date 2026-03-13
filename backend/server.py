@@ -4859,11 +4859,18 @@ async def get_all_bus_locations():
         for loc in locations:
             updated_at = loc.get("timestamp")
             if updated_at:
-                if isinstance(updated_at, str):
-                    updated_at = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
-                age_seconds = (now - updated_at).total_seconds()
-                loc["is_stale"] = age_seconds > 300
-                loc["tracking_active"] = age_seconds <= 300
+                try:
+                    if isinstance(updated_at, str):
+                        updated_at = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
+                    # Make sure both datetimes are timezone-aware
+                    if updated_at.tzinfo is None:
+                        updated_at = updated_at.replace(tzinfo=timezone.utc)
+                    age_seconds = (now - updated_at).total_seconds()
+                    loc["is_stale"] = age_seconds > 300
+                    loc["tracking_active"] = age_seconds <= 300
+                except Exception:
+                    loc["is_stale"] = True
+                    loc["tracking_active"] = False
             else:
                 loc["is_stale"] = True
                 loc["tracking_active"] = False
