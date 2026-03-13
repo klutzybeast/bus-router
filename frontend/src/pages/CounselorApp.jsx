@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { CheckCircle, XCircle, Bus, Users, LogOut, Loader2, Navigation } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
-const APP_VERSION = "v2.1"; // For debugging
+const APP_VERSION = "v2.2";
 
 export default function CounselorApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -97,11 +97,9 @@ export default function CounselorApp() {
       } else {
         const errText = await response.text();
         setGpsMessage(`Server error: ${response.status}`);
-        console.error('Location update failed:', response.status, errText);
       }
     } catch (err) {
       setGpsMessage(`Network error: ${err.message}`);
-      console.error('Location send error:', err);
     }
   }, []);
 
@@ -164,31 +162,24 @@ export default function CounselorApp() {
     }
   };
 
-  // Login Screen
   if (!isLoggedIn) {
     return (
-      <div className="login-screen">
-        <style>{`
-          .login-screen { min-height: 100vh; min-height: 100dvh; background: linear-gradient(135deg, #2563eb, #1e40af); display: flex; align-items: center; justify-content: center; padding: 16px; }
-          .login-card { background: white; border-radius: 16px; padding: 32px; width: 100%; max-width: 320px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
-          .login-icon { width: 80px; height: 80px; background: #dbeafe; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
-          .login-title { font-size: 24px; font-weight: bold; color: #1f2937; text-align: center; margin: 0; }
-          .login-subtitle { color: #6b7280; text-align: center; margin-top: 4px; }
-          .login-input { width: 100%; padding: 16px; font-size: 28px; text-align: center; font-weight: bold; border: 2px solid #e5e7eb; border-radius: 12px; outline: none; box-sizing: border-box; margin-top: 24px; }
-          .login-input:focus { border-color: #2563eb; }
-          .login-error { margin-top: 16px; padding: 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; color: #dc2626; font-size: 14px; text-align: center; }
-          .login-btn { width: 100%; padding: 16px; margin-top: 24px; background: #2563eb; color: white; font-size: 18px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; }
-          .login-btn:disabled { opacity: 0.5; }
-        `}</style>
-        <div className="login-card">
-          <div className="login-icon"><Bus size={40} color="#2563eb" /></div>
-          <h1 className="login-title">Bus Tracker</h1>
-          <p className="login-subtitle">Enter your bus number</p>
+      <div style={{minHeight: '100vh', background: 'linear-gradient(135deg, #2563eb, #1e40af)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16}}>
+        <div style={{background: 'white', borderRadius: 16, padding: 32, width: '100%', maxWidth: 320}}>
+          <div style={{textAlign: 'center', marginBottom: 24}}>
+            <div style={{width: 80, height: 80, background: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px'}}>
+              <Bus size={40} color="#2563eb" />
+            </div>
+            <h1 style={{fontSize: 24, fontWeight: 'bold', margin: 0}}>Bus Tracker</h1>
+            <p style={{color: '#6b7280', margin: '4px 0 0'}}>Enter your bus number</p>
+          </div>
           <form onSubmit={handleLogin}>
-            <input type="text" inputMode="numeric" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="Bus #" className="login-input" autoFocus />
-            {error && <div className="login-error">{error}</div>}
-            <button type="submit" disabled={loading || !pin} className="login-btn">{loading ? 'Loading...' : 'Go'}</button>
+            <input type="text" inputMode="numeric" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="Bus #" 
+              style={{width: '100%', padding: 16, fontSize: 28, textAlign: 'center', fontWeight: 'bold', border: '2px solid #e5e7eb', borderRadius: 12, boxSizing: 'border-box'}} autoFocus />
+            {error && <div style={{marginTop: 16, padding: 12, background: '#fef2f2', borderRadius: 8, color: '#dc2626', textAlign: 'center'}}>{error}</div>}
+            <button type="submit" disabled={loading || !pin} style={{width: '100%', padding: 16, marginTop: 16, background: '#2563eb', color: 'white', fontSize: 18, fontWeight: 600, border: 'none', borderRadius: 12, opacity: loading || !pin ? 0.5 : 1}}>{loading ? 'Loading...' : 'Go'}</button>
           </form>
+          <p style={{textAlign: 'center', fontSize: 10, color: '#999', marginTop: 16}}>{APP_VERSION}</p>
         </div>
       </div>
     );
@@ -196,104 +187,71 @@ export default function CounselorApp() {
 
   const presentCount = Object.values(attendance).filter(s => s === 'present').length;
   const absentCount = Object.values(attendance).filter(s => s === 'absent').length;
-  const unmarkedCount = (busData?.campers?.length || 0) - presentCount - absentCount;
 
-  // Main Dashboard with fixed header and scrollable body
   return (
-    <>
-      <style>{`
-        html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-        .app-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; background: #f3f4f6; }
-        .app-header { flex-shrink: 0; background: #2563eb; color: white; padding: 12px; }
-        .header-row { display: flex; justify-content: space-between; align-items: center; }
-        .header-title { margin: 0; font-size: 18px; font-weight: bold; }
-        .logout-btn { background: transparent; border: none; color: white; padding: 8px; cursor: pointer; }
-        .gps-row { margin-top: 8px; display: flex; align-items: center; gap: 8px; }
-        .gps-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-        .gps-tracking { background: #22c55e; }
-        .gps-error { background: #ef4444; }
-        .gps-requesting { background: #eab308; }
-        .retry-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; cursor: pointer; }
-        .gps-message { margin: 4px 0 0; font-size: 11px; color: #bfdbfe; }
-        .stats-bar { flex-shrink: 0; background: white; border-bottom: 1px solid #e5e7eb; padding: 8px; display: flex; justify-content: space-around; }
-        .stat { text-align: center; }
-        .stat-num { font-size: 20px; font-weight: bold; }
-        .stat-num-green { color: #22c55e; }
-        .stat-num-red { color: #ef4444; }
-        .stat-num-gray { color: #9ca3af; }
-        .stat-num-blue { color: #2563eb; }
-        .stat-label { font-size: 10px; color: #6b7280; }
-        .camper-list { flex: 1; overflow-y: scroll; -webkit-overflow-scrolling: touch; padding: 8px; }
-        .camper-card { background: white; border: 2px solid #e5e7eb; border-radius: 10px; padding: 10px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-        .camper-card-present { background: #f0fdf4; border-color: #86efac; }
-        .camper-card-absent { background: #fef2f2; border-color: #fca5a5; }
-        .camper-info { flex: 1; min-width: 0; }
-        .camper-name-row { display: flex; align-items: center; gap: 6px; }
-        .camper-num { color: #9ca3af; font-size: 12px; width: 24px; }
-        .camper-name { font-weight: 500; font-size: 14px; color: #1f2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .camper-btns { display: flex; gap: 6px; flex-shrink: 0; }
-        .att-btn { width: 44px; height: 44px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .att-btn-default { background: #f3f4f6; color: #9ca3af; }
-        .att-btn-present { background: #22c55e; color: white; }
-        .att-btn-absent { background: #ef4444; color: white; }
-        .empty-state { text-align: center; padding: 48px; color: #6b7280; }
-        .list-end-spacer { height: 20px; }
-      `}</style>
-      <div className="app-container">
-        <div className="app-header">
-          <div className="header-row">
-            <h1 className="header-title">{busData?.bus_number}</h1>
-            <button onClick={handleLogout} className="logout-btn"><LogOut size={20} /></button>
-          </div>
-          <div className="gps-row">
-            <span className={`gps-badge ${gpsStatus === 'tracking' ? 'gps-tracking' : gpsStatus === 'error' ? 'gps-error' : 'gps-requesting'}`}>
-              <Navigation size={12} />
-              {gpsStatus === 'tracking' ? `GPS (${locationCount})` : gpsStatus === 'error' ? 'GPS Off' : 'Starting...'}
-            </span>
-            {gpsStatus === 'error' && <button onClick={startGpsTracking} className="retry-btn">Retry</button>}
-          </div>
-          {gpsMessage && <p className="gps-message">{gpsMessage}</p>}
+    <div style={{background: '#f3f4f6', minHeight: '100vh'}}>
+      {/* Fixed Header */}
+      <div style={{position: 'sticky', top: 0, zIndex: 100, background: '#2563eb', color: 'white', padding: 12}}>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <h1 style={{margin: 0, fontSize: 18, fontWeight: 'bold'}}>{busData?.bus_number}</h1>
+          <button onClick={handleLogout} style={{background: 'none', border: 'none', color: 'white', padding: 8}}><LogOut size={20} /></button>
         </div>
-
-        <div className="stats-bar">
-          <div className="stat"><div className="stat-num stat-num-green">{presentCount}</div><div className="stat-label">Present</div></div>
-          <div className="stat"><div className="stat-num stat-num-red">{absentCount}</div><div className="stat-label">Absent</div></div>
-          <div className="stat"><div className="stat-num stat-num-gray">{unmarkedCount}</div><div className="stat-label">Unmarked</div></div>
-          <div className="stat"><div className="stat-num stat-num-blue">{busData?.campers?.length || 0}</div><div className="stat-label">Total</div></div>
+        <div style={{marginTop: 8, display: 'flex', alignItems: 'center', gap: 8}}>
+          <span style={{display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 500,
+            background: gpsStatus === 'tracking' ? '#22c55e' : gpsStatus === 'error' ? '#ef4444' : '#eab308'}}>
+            <Navigation size={12} />
+            {gpsStatus === 'tracking' ? `GPS (${locationCount})` : gpsStatus === 'error' ? 'GPS Off' : 'Starting...'}
+          </span>
+          {gpsStatus === 'error' && <button onClick={startGpsTracking} style={{background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '4px 10px', borderRadius: 20, fontSize: 12}}>Retry</button>}
         </div>
+        {gpsMessage && <p style={{margin: '4px 0 0', fontSize: 11, color: '#bfdbfe'}}>{gpsMessage}</p>}
+      </div>
 
-        <div className="camper-list">
-          {busData?.campers?.map((camper, index) => {
-            const status = attendance[camper.id];
-            return (
-              <div key={camper.id} className={`camper-card ${status === 'present' ? 'camper-card-present' : status === 'absent' ? 'camper-card-absent' : ''}`}>
-                <div className="camper-info">
-                  <div className="camper-name-row">
-                    <span className="camper-num">#{index + 1}</span>
-                    <span className="camper-name">{camper.first_name} {camper.last_name}</span>
-                  </div>
-                </div>
-                <div className="camper-btns">
-                  <button onClick={() => markAttendance(camper.id, 'present')} className={`att-btn ${status === 'present' ? 'att-btn-present' : 'att-btn-default'}`}>
-                    <CheckCircle size={24} />
-                  </button>
-                  <button onClick={() => markAttendance(camper.id, 'absent')} className={`att-btn ${status === 'absent' ? 'att-btn-absent' : 'att-btn-default'}`}>
-                    <XCircle size={24} />
-                  </button>
+      {/* Stats */}
+      <div style={{background: 'white', borderBottom: '1px solid #e5e7eb', padding: 8, display: 'flex', justifyContent: 'space-around'}}>
+        <div style={{textAlign: 'center'}}><div style={{fontSize: 20, fontWeight: 'bold', color: '#22c55e'}}>{presentCount}</div><div style={{fontSize: 10, color: '#6b7280'}}>Present</div></div>
+        <div style={{textAlign: 'center'}}><div style={{fontSize: 20, fontWeight: 'bold', color: '#ef4444'}}>{absentCount}</div><div style={{fontSize: 10, color: '#6b7280'}}>Absent</div></div>
+        <div style={{textAlign: 'center'}}><div style={{fontSize: 20, fontWeight: 'bold', color: '#9ca3af'}}>{(busData?.campers?.length || 0) - presentCount - absentCount}</div><div style={{fontSize: 10, color: '#6b7280'}}>Unmarked</div></div>
+        <div style={{textAlign: 'center'}}><div style={{fontSize: 20, fontWeight: 'bold', color: '#2563eb'}}>{busData?.campers?.length || 0}</div><div style={{fontSize: 10, color: '#6b7280'}}>Total</div></div>
+      </div>
+
+      {/* Camper List - Regular scrolling page */}
+      <div style={{padding: 8}}>
+        {busData?.campers?.map((camper, index) => {
+          const status = attendance[camper.id];
+          return (
+            <div key={camper.id} style={{
+              background: status === 'present' ? '#f0fdf4' : status === 'absent' ? '#fef2f2' : 'white',
+              border: `2px solid ${status === 'present' ? '#86efac' : status === 'absent' ? '#fca5a5' : '#e5e7eb'}`,
+              borderRadius: 10, padding: 10, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+            }}>
+              <div style={{flex: 1, minWidth: 0}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                  <span style={{color: '#9ca3af', fontSize: 12, width: 24}}>#{index + 1}</span>
+                  <span style={{fontWeight: 500, fontSize: 14, color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{camper.first_name} {camper.last_name}</span>
                 </div>
               </div>
-            );
-          })}
-          {(!busData?.campers || busData.campers.length === 0) && (
-            <div className="empty-state">
-              <Users size={48} style={{ opacity: 0.5, marginBottom: 12 }} />
-              <p>No campers on this bus</p>
+              <div style={{display: 'flex', gap: 6}}>
+                <button onClick={() => markAttendance(camper.id, 'present')} style={{width: 44, height: 44, borderRadius: 10, border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: status === 'present' ? '#22c55e' : '#f3f4f6', color: status === 'present' ? 'white' : '#9ca3af'}}>
+                  <CheckCircle size={24} />
+                </button>
+                <button onClick={() => markAttendance(camper.id, 'absent')} style={{width: 44, height: 44, borderRadius: 10, border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: status === 'absent' ? '#ef4444' : '#f3f4f6', color: status === 'absent' ? 'white' : '#9ca3af'}}>
+                  <XCircle size={24} />
+                </button>
+              </div>
             </div>
-          )}
-          <div className="list-end-spacer" />
-          <div style={{textAlign: 'center', fontSize: 10, color: '#999', padding: 8}}>{APP_VERSION}</div>
-        </div>
+          );
+        })}
+        {(!busData?.campers || busData.campers.length === 0) && (
+          <div style={{textAlign: 'center', padding: 48, color: '#6b7280'}}>
+            <Users size={48} style={{opacity: 0.5, marginBottom: 12}} />
+            <p>No campers on this bus</p>
+          </div>
+        )}
+        <p style={{textAlign: 'center', fontSize: 10, color: '#999', padding: 16}}>{APP_VERSION}</p>
       </div>
-    </>
+    </div>
   );
 }
