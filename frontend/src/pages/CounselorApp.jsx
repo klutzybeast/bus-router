@@ -91,10 +91,16 @@ export default function CounselorApp() {
       });
       if (response.ok) {
         setLocationCount(prev => prev + 1);
-        setGpsMessage('');
+        setGpsMessage(`Sent! ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
+        setGpsStatus('tracking');
+      } else {
+        const errText = await response.text();
+        setGpsMessage(`Server error: ${response.status}`);
+        console.error('Location update failed:', response.status, errText);
       }
-    } catch {
-      setGpsMessage('Network error');
+    } catch (err) {
+      setGpsMessage(`Network error: ${err.message}`);
+      console.error('Location send error:', err);
     }
   }, []);
 
