@@ -5079,6 +5079,148 @@ async def get_attendance(bus_number: str, date: Optional[str] = None):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@api_router.get("/bus-tracking/history/{bus_number}")
+async def get_bus_tracking_history(bus_number: str, date: Optional[str] = None, period: Optional[str] = None):
+    """
+    Get tracking history for a bus on a specific date.
+    Returns location points for drawing route on map.
+    
+    Args:
+        bus_number: The bus number
+        date: Date in YYYY-MM-DD format (defaults to today)
+        period: 'AM', 'PM', or None for both
+    """
+    try:
+        import urllib.parse
+        bus_number = urllib.parse.unquote(bus_number)
+        
+        if not date:
+            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        
+        query = {"bus_number": bus_number, "date": date}
+        if period and period.upper() in ['AM', 'PM']:
+            query["period"] = period.upper()
+        
+        # Get location history sorted by timestamp
+        history_cursor = db.bus_location_history.find(
+            query,
+            {"_id": 0, "latitude": 1, "longitude": 1, "timestamp": 1, "speed": 1, "is_stopped": 1, "period": 1}
+        ).sort("timestamp", 1)
+        
+        history = await history_cursor.to_list(length=10000)
+        
+        # Convert timestamps to ISO strings
+        for point in history:
+            if point.get("timestamp"):
+                if isinstance(point["timestamp"], datetime):
+                    point["timestamp"] = point["timestamp"].isoformat()
+        
+        # Get stops for this bus/date
+        stops_cursor = db.bus_stops_log.find(
+            {"bus_number": bus_number, "date": date},
+            {"_id": 0}
+        ).sort("stop_started_at", 1)
+        stops = await stops_cursor.to_list(length=100)
+        
+        for stop in stops:
+            if stop.get("stop_started_at"):
+                if isinstance(stop["stop_started_at"], datetime):
+                    stop["stop_started_at"] = stop["stop_started_at"].isoformat()
+            if stop.get("last_updated"):
+                if isinstance(stop["last_updated"], datetime):
+                    stop["last_updated"] = stop["last_updated"].isoformat()
+        
+        return {
+            "success": True,
+            "bus_number": bus_number,
+            "date": date,
+            "period": period,
+            "points": history,
+            "point_count": len(history),
+            "stops": stops,
+            "stop_count": len(stops)
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting tracking history: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/bus-tracking/history-dates/{bus_number}")
+async def get_bus_tracking_dates(bus_number: str):
+    """
+    Get list of dates that have tracking data for a bus.
+    """
+    try:
+        import urllib.parse
+        bus_number = urllib.parse.unquote(bus_number)
+        
+        # Get distinct dates with tracking data
+        dates = await db.bus_location_history.distinct("date", {"bus_number": bus_number})
+        dates.sort(reverse=True)  # Most recent first
+        
+        return {
+            "success": True,
+            "bus_number": bus_number,
+            "dates": dates,
+            "count": len(dates)
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting tracking dates: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/bus-tracking/stops/{bus_number}")
+async def get_bus_stops_log(bus_number: str, date: Optional[str] = None):
+    """
+    Get all stops made by a bus on a specific date with durations.
+    """
+    try:
+        import urllib.parse
+        bus_number = urllib.parse.unquote(bus_number)
+        
+        if not date:
+            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        
+        stops_cursor = db.bus_stops_log.find(
+            {"bus_number": bus_number, "date": date},
+            {"_id": 0}
+        ).sort("stop_started_at", 1)
+        
+        stops = await stops_cursor.to_list(length=100)
+        
+        # Format timestamps and durations
+        for stop in stops:
+            if stop.get("stop_started_at"):
+                if isinstance(stop["stop_started_at"], datetime):
+                    stop["stop_started_at"] = stop["stop_started_at"].isoformat()
+            if stop.get("last_updated"):
+                if isinstance(stop["last_updated"], datetime):
+                    stop["last_updated"] = stop["last_updated"].isoformat()
+            # Format duration nicely
+            duration = stop.get("duration_seconds", 0)
+            if duration >= 3600:
+                stop["duration_formatted"] = f"{int(duration // 3600)}h {int((duration % 3600) // 60)}m"
+            elif duration >= 60:
+                stop["duration_formatted"] = f"{int(duration // 60)}m {int(duration % 60)}s"
+            else:
+                stop["duration_formatted"] = f"{int(duration)}s"
+        
+        return {
+            "success": True,
+            "bus_number": bus_number,
+            "date": date,
+            "stops": stops,
+            "total_stops": len(stops),
+            "total_stop_time": sum(s.get("duration_seconds", 0) for s in stops)
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting bus stops: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api_router.get("/bus-tracking/attendance-report")
 async def get_attendance_report(date: Optional[str] = None):
     """
