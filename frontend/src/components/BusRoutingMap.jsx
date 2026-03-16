@@ -3369,6 +3369,23 @@ const BusRoutingMap = () => {
                 </div>
                 <p className="text-xs text-gray-500">Auto-refreshes daily at 6:00 AM</p>
                 <p className="text-xs text-gray-500">CampMinder sync: Every 15 min</p>
+                
+                {/* GPS Tracking History Button */}
+                <div className="mt-3 pt-3 border-t">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => {
+                      if (uniqueBuses.length > 0) {
+                        openHistoryDialog(uniqueBuses[0]);
+                      }
+                    }}
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    View Tracking History
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
