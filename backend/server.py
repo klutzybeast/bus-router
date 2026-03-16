@@ -4923,7 +4923,9 @@ async def get_bus_location_tracking(bus_number: str):
             "heading": location.get("heading"),
             "updated_at": location.get("updated_at"),
             "tracking_active": not is_stale,
-            "is_stale": is_stale
+            "is_stale": is_stale,
+            "is_stopped": location.get("is_stopped", False),
+            "stop_duration": location.get("stop_duration", 0)
         }
         
     except Exception as e:
