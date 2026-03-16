@@ -162,6 +162,15 @@ const BusRoutingMap = () => {
   const [trackingStops, setTrackingStops] = useState([]); // Stops for tracked bus
   const [nearestStop, setNearestStop] = useState(null); // Current nearest stop
   const trackingIntervalRef = useRef(null);
+  
+  // History State
+  const [showHistoryDialog, setShowHistoryDialog] = useState(false);
+  const [historyBus, setHistoryBus] = useState(null);
+  const [historyDate, setHistoryDate] = useState(new Date().toISOString().split('T')[0]);
+  const [historyPeriod, setHistoryPeriod] = useState(''); // '', 'AM', or 'PM'
+  const [historyData, setHistoryData] = useState(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [availableDates, setAvailableDates] = useState([]);
 
   // Fetch seasons
   const fetchSeasons = useCallback(async () => {
