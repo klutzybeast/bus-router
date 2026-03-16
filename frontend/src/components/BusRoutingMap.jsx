@@ -3579,8 +3579,21 @@ const BusRoutingMap = () => {
             </DialogHeader>
             
             <div className="py-4 space-y-4">
-              {/* Date and Period Selection */}
+              {/* Bus, Date and Period Selection */}
               <div className="flex flex-wrap gap-4 items-end">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Bus</label>
+                  <Select value={historyBus || ''} onValueChange={(val) => { setHistoryBus(val); openHistoryDialog(val); }}>
+                    <SelectTrigger className="w-36">
+                      <SelectValue placeholder="Select bus" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {uniqueBuses.map(bus => (
+                        <SelectItem key={bus} value={bus}>{bus}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
                   <Input
