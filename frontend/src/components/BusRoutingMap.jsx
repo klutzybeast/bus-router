@@ -3605,12 +3605,12 @@ const BusRoutingMap = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Period</label>
-                  <Select value={historyPeriod} onValueChange={setHistoryPeriod}>
+                  <Select value={historyPeriod || "all"} onValueChange={(val) => setHistoryPeriod(val === "all" ? "" : val)}>
                     <SelectTrigger className="w-32">
                       <SelectValue placeholder="All Day" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Day</SelectItem>
+                      <SelectItem value="all">All Day</SelectItem>
                       <SelectItem value="AM">AM Only</SelectItem>
                       <SelectItem value="PM">PM Only</SelectItem>
                     </SelectContent>
