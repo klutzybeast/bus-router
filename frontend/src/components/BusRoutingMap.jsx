@@ -2277,14 +2277,25 @@ const BusRoutingMap = () => {
                     <p className="text-sm text-blue-100 mt-0.5">33 Bus Routes</p>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="md:hidden text-white hover:bg-blue-700"
-                  onClick={() => setIsPanelOpen(false)}
-                >
-                  <X className="w-5 h-5" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white hover:bg-blue-700"
+                    onClick={() => openHistoryDialog(uniqueBuses[0] || 'Bus #01')}
+                    title="View Tracking History"
+                  >
+                    <Calendar className="w-5 h-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="md:hidden text-white hover:bg-blue-700"
+                    onClick={() => setIsPanelOpen(false)}
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
               
               {/* Season Selector */}
