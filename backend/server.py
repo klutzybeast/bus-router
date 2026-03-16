@@ -4763,12 +4763,44 @@ async def bus_tracking_login(request: BusLoginRequest):
 @api_router.post("/bus-tracking/location")
 async def update_bus_location(request: BusLocationUpdate):
     """
-    Update bus GPS location (called from counselor app every 30 seconds)
+    Update bus GPS location (called from counselor app).
+    Also stores location history and tracks stops.
     """
     try:
         bus_number = request.bus_number
+        now = datetime.now(timezone.utc)
+        today = now.strftime("%Y-%m-%d")
         
-        # Store/update location in database
+        # Get previous location to detect stops
+        prev_location = await db.bus_locations.find_one({"bus_number": bus_number})
+        
+        # Calculate if bus is stopped (moved less than 20 meters)
+        is_stopped = False
+        stop_duration = 0
+        
+        if prev_location and prev_location.get("latitude") and prev_location.get("longitude"):
+            # Calculate distance from previous location
+            from math import radians, sin, cos, sqrt, atan2
+            R = 6371000  # Earth's radius in meters
+            lat1, lon1 = radians(prev_location["latitude"]), radians(prev_location["longitude"])
+            lat2, lon2 = radians(request.latitude), radians(request.longitude)
+            dlat, dlon = lat2 - lat1, lon2 - lon1
+            a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+            distance = R * 2 * atan2(sqrt(a), sqrt(1-a))
+            
+            # If moved less than 20 meters, consider it stopped
+            if distance < 20:
+                is_stopped = True
+                # Calculate stop duration from when stop started
+                stop_started = prev_location.get("stop_started_at")
+                if stop_started:
+                    if isinstance(stop_started, str):
+                        stop_started = datetime.fromisoformat(stop_started.replace('Z', '+00:00'))
+                    if stop_started.tzinfo is None:
+                        stop_started = stop_started.replace(tzinfo=timezone.utc)
+                    stop_duration = (now - stop_started).total_seconds()
+        
+        # Store/update current location
         location_data = {
             "bus_number": bus_number,
             "latitude": request.latitude,
@@ -4776,9 +4808,20 @@ async def update_bus_location(request: BusLocationUpdate):
             "accuracy": request.accuracy,
             "speed": request.speed,
             "heading": request.heading,
-            "updated_at": datetime.now(timezone.utc).isoformat(),
-            "timestamp": datetime.now(timezone.utc)
+            "updated_at": now.isoformat(),
+            "timestamp": now,
+            "is_stopped": is_stopped,
+            "stop_duration": stop_duration if is_stopped else 0,
         }
+        
+        # Set stop_started_at if just started stopping, or keep previous value
+        if is_stopped:
+            if prev_location and prev_location.get("is_stopped"):
+                location_data["stop_started_at"] = prev_location.get("stop_started_at", now)
+            else:
+                location_data["stop_started_at"] = now
+        else:
+            location_data["stop_started_at"] = None
         
         await db.bus_locations.update_one(
             {"bus_number": bus_number},
@@ -4786,9 +4829,46 @@ async def update_bus_location(request: BusLocationUpdate):
             upsert=True
         )
         
-        logging.info(f"📍 GPS UPDATE: {bus_number} at {request.latitude}, {request.longitude}")
+        # Store in location history for this day
+        history_entry = {
+            "bus_number": bus_number,
+            "date": today,
+            "latitude": request.latitude,
+            "longitude": request.longitude,
+            "accuracy": request.accuracy,
+            "speed": request.speed,
+            "heading": request.heading,
+            "timestamp": now,
+            "is_stopped": is_stopped,
+            "period": "AM" if now.hour < 12 else "PM"
+        }
         
-        return {"success": True, "message": "Location updated"}
+        await db.bus_location_history.insert_one(history_entry)
+        
+        # Also track stops separately for easy querying
+        if is_stopped and stop_duration >= 30:  # Only track stops > 30 seconds
+            # Update or create stop record
+            await db.bus_stops_log.update_one(
+                {
+                    "bus_number": bus_number,
+                    "date": today,
+                    "stop_started_at": location_data["stop_started_at"],
+                },
+                {
+                    "$set": {
+                        "latitude": request.latitude,
+                        "longitude": request.longitude,
+                        "duration_seconds": stop_duration,
+                        "last_updated": now,
+                        "period": "AM" if now.hour < 12 else "PM"
+                    }
+                },
+                upsert=True
+            )
+        
+        logging.info(f"📍 GPS UPDATE: {bus_number} at {request.latitude}, {request.longitude} (stopped={is_stopped}, duration={stop_duration:.0f}s)")
+        
+        return {"success": True, "message": "Location updated", "is_stopped": is_stopped, "stop_duration": stop_duration}
         
     except Exception as e:
         logging.error(f"Error updating bus location: {str(e)}")
