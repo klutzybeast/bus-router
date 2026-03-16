@@ -1311,6 +1311,47 @@ const BusRoutingMap = () => {
     setNearestStop(null);
   };
 
+  // History Functions
+  const openHistoryDialog = async (busNumber) => {
+    setHistoryBus(busNumber);
+    setShowHistoryDialog(true);
+    setHistoryData(null);
+    setHistoryDate(new Date().toISOString().split('T')[0]);
+    setHistoryPeriod('');
+    
+    // Fetch available dates
+    try {
+      const response = await axios.get(`${API}/bus-tracking/history-dates/${encodeURIComponent(busNumber)}`);
+      setAvailableDates(response.data.dates || []);
+    } catch (error) {
+      console.error("Error fetching history dates:", error);
+      setAvailableDates([]);
+    }
+  };
+
+  const fetchHistoryData = async () => {
+    if (!historyBus || !historyDate) return;
+    
+    setHistoryLoading(true);
+    try {
+      const url = `${API}/bus-tracking/history/${encodeURIComponent(historyBus)}?date=${historyDate}${historyPeriod ? `&period=${historyPeriod}` : ''}`;
+      const response = await axios.get(url);
+      setHistoryData(response.data);
+    } catch (error) {
+      console.error("Error fetching history:", error);
+      setHistoryData({ success: false, message: "Failed to load history" });
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  // Fetch history when date or period changes
+  useEffect(() => {
+    if (showHistoryDialog && historyBus && historyDate) {
+      fetchHistoryData();
+    }
+  }, [historyDate, historyPeriod, historyBus, showHistoryDialog]);
+
   // Cleanup tracking interval on unmount
   useEffect(() => {
     return () => {
