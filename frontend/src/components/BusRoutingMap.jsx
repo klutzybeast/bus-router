@@ -3419,10 +3419,24 @@ const BusRoutingMap = () => {
                         {nearestStop.campers.length} camper{nearestStop.campers.length !== 1 ? 's' : ''} at this stop
                       </p>
                     </div>
+                  ) : trackingData.is_stopped ? (
+                    <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-3 text-center">
+                      <div className="flex items-center justify-center gap-2 text-yellow-700">
+                        <MapPin className="w-5 h-5" />
+                        <span className="font-medium">Bus is stopped</span>
+                      </div>
+                      <p className="text-2xl font-bold text-yellow-800 mt-1">
+                        {trackingData.stop_duration >= 60 
+                          ? `${Math.floor(trackingData.stop_duration / 60)}m ${Math.floor(trackingData.stop_duration % 60)}s`
+                          : `${Math.floor(trackingData.stop_duration)}s`
+                        }
+                      </p>
+                      <p className="text-xs text-yellow-600">at this location</p>
+                    </div>
                   ) : (
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center text-gray-500 text-sm">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center text-green-700 text-sm">
                       <MapPin className="w-4 h-4 inline mr-1" />
-                      Bus is in transit - not at a stop
+                      Bus is moving
                     </div>
                   )}
 
@@ -3472,7 +3486,11 @@ const BusRoutingMap = () => {
               )}
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="flex gap-2">
+              <Button variant="outline" onClick={() => { closeTracking(); setShowHistoryDialog(true); setHistoryBus(trackingBus); }}>
+                <Calendar className="w-4 h-4 mr-2" />
+                View History
+              </Button>
               <Button variant="outline" onClick={closeTracking}>
                 Close
               </Button>
