@@ -805,7 +805,7 @@ async def api_force_sync():
         return {"status": "error", "error": str(e)}
 
 @api_router.get("/campers")
-async def get_campers(season_id: Optional[str] = None):
+async def get_campers(season_id: Optional[str] = None, include_ungeocoded: bool = False):
     global db_connected
     try:
         # Get active season if no season_id provided
@@ -816,12 +816,15 @@ async def get_campers(season_id: Optional[str] = None):
         
         # Build query - filter by season if we have one
         query = {
-            "location.latitude": {"$ne": 0.0},
             "$or": [
                 {"am_bus_number": {"$regex": "^Bus"}},
                 {"pm_bus_number": {"$regex": "^Bus"}}
             ]
         }
+        # By default, hide campers with failed geocoding (lat=0) from the map.
+        # Pass ?include_ungeocoded=true to include them (e.g., for reports/lists).
+        if not include_ungeocoded:
+            query["location.latitude"] = {"$ne": 0.0}
         
         if season_id:
             query["season_id"] = season_id
@@ -1464,8 +1467,10 @@ async def sync_from_campminder_api():
             )
             
             if not location or location.latitude == 0:
-                skipped_count += 1
-                continue
+                # Create placeholder so camper is saved (visible in missing-addresses report)
+                # instead of silently skipping — matches auto-sync behavior
+                effective_address = f"{camper['address']} {camper.get('town', '')} {camper.get('zip_code', '')}".strip()
+                location = GeoLocation(latitude=0.0, longitude=0.0, address=f"GEOCODING FAILED: {effective_address}")
             
             # Generate camper ID
             camper_id = f"{camper['last_name']}_{camper['first_name']}_{camper.get('zip_code', 'NOZIP')}".replace(' ', '_')
@@ -4548,7 +4553,10 @@ async def get_missing_addresses_report():
     try:
         missing = await db.campers.find({
             "location.latitude": 0.0,
-            "bus_number": {"$exists": True, "$ne": "NONE"}
+            "$or": [
+                {"am_bus_number": {"$exists": True, "$ne": "NONE"}},
+                {"pm_bus_number": {"$exists": True, "$ne": "NONE"}}
+            ]
         }).to_list(None)
         
         report = []
@@ -4556,7 +4564,8 @@ async def get_missing_addresses_report():
             report.append({
                 "first_name": camper.get('first_name'),
                 "last_name": camper.get('last_name'),
-                "bus_number": camper.get('bus_number'),
+                "am_bus_number": camper.get('am_bus_number', ''),
+                "pm_bus_number": camper.get('pm_bus_number', ''),
                 "session": camper.get('session'),
                 "town": camper.get('town'),
                 "zip_code": camper.get('zip_code')
