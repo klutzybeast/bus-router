@@ -18,6 +18,21 @@ A web application that displays camper bus routes on a Google Map, using Google 
 
 ## What's Been Implemented
 
+### Phase 20: Authentication Layer (April 2026)
+- **Passcode Gate**: Full-screen login blocking all admin content before any API calls
+  - Rolling River Day Camp SVG logo with branded dark blue background
+  - SHA-256 validated passcode ("Camp1993")
+  - Custom masked input: each character briefly appears in black, then masks as bullet
+  - 2-second delay on wrong passcode
+  - 5 failed attempts → 60-second lockout with countdown timer
+- **Session Management**:
+  - Auth token stored in `sessionStorage` (clears on tab/browser close)
+  - Auto-lock after 45 minutes of inactivity
+  - Warning toast at 40 minutes: "Session will lock in 5 minutes"
+  - Lock button (top-right) for manual session lock
+- **Counselor App excluded**: `/counselor` route loads without passcode gate
+- **Files**: `PasscodeGate.jsx`, `ProtectedApp.jsx`, updated `App.js`
+
 ### Phase 19: Codebase Refactoring (April 2026)
 - **Backend Refactoring (P1 - COMPLETE)**:
   - `server.py` reduced from **7,391 lines to 629 lines** (91% reduction)
