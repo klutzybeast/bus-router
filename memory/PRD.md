@@ -18,364 +18,160 @@ A web application that displays camper bus routes on a Google Map, using Google 
 
 ## What's Been Implemented
 
-### Phase 18: GPS Bus Tracking & Counselor App ✅ (March 2026)
+### Phase 19: Codebase Refactoring (April 2026)
+- **Backend Refactoring (P1 - COMPLETE)**:
+  - `server.py` reduced from **7,391 lines to 629 lines** (91% reduction)
+  - 12 modular router files created under `/backend/routers/`
+  - Shared services extracted to `/backend/services/` (database, geocoding, helpers, bus_utils)
+  - Pydantic models consolidated in `/backend/models/schemas.py`
+  - 88 API routes verified working after refactoring
+  - Auto-sync and lifecycle functions remain in server.py
+- **Router Modules**:
+  - `config.py` - Health, status, config endpoints
+  - `seasons.py` - Season management CRUD
+  - `campers.py` - Camper management
+  - `tracking.py` - GPS tracking, attendance, history
+  - `shadows.py` - Shadow staff management
+  - `zones.py` - Bus zone management
+  - `buses.py` - Bus info endpoints
+  - `audit.py` - Audit endpoints
+  - `staff.py` - Bus staff, assigned staff, staff addresses
+  - `sheets.py` - Google Sheets integration
+  - `roster.py` - Route sheets and roster printing
+  - `sync.py` - CampMinder sync operations
+- **Counselor App Scrolling Fix**:
+  - Added `WebkitOverflowScrolling: 'touch'` for iOS momentum scrolling
+  - Added `overscrollBehavior: 'contain'` to prevent pull-to-refresh interference
+  - Added `position: 'static'` to prevent scroll lock from any parent elements
+
+### Phase 18: GPS Bus Tracking & Counselor App (March 2026)
 - **Counselor Mobile Web App** (`/counselor`):
-  - Login with bus number as PIN (e.g., "06" for Bus #06)
-  - View list of campers assigned to their bus
+  - Login with bus number as PIN
+  - View list of campers assigned to bus
   - Mark attendance (Present/Absent) for each camper
   - Real-time GPS tracking sends location every 30 seconds
-  - Mobile-friendly UI optimized for phone screens
+  - Wake Lock API for background tracking
 - **Admin Live Tracking**:
-  - Green "Track" button (navigation icon) on each bus card
-  - Opens popup dialog showing live bus location on map
-  - Shows GPS status (Active/Inactive), speed, accuracy
-  - Auto-refreshes every 10 seconds
-  - Indicates stale data if no update in 5+ minutes
-- **Backend Endpoints**:
-  - `POST /api/bus-tracking/login` - Counselor login with bus PIN
-  - `POST /api/bus-tracking/location` - Update bus GPS location
-  - `GET /api/bus-tracking/location/{bus_number}` - Get current bus location
-  - `GET /api/bus-tracking/all-locations` - Get all bus locations
-  - `POST /api/bus-tracking/attendance` - Update camper attendance
-  - `GET /api/bus-tracking/attendance/{bus_number}` - Get attendance records
-- **Database Collections**:
-  - `bus_locations` - Current GPS coordinates per bus
-  - `bus_attendance` - Daily attendance records per bus
+  - Green "Track" button on each bus card
+  - Live bus location on map with auto-refresh
+  - Stop detection with camper pickup bubbles (100m radius)
+  - Tracking history viewer with date picker
+  - Stop duration logging
+- **Attendance Reports**: HTML and JSON endpoints
 
-### Phase 17: Camper Card & Roster Enhancements ✅ (January 2026)
-- **Pickup/Dropoff Status**: Camper info card now includes dropdown for special pickup/dropoff arrangements:
-  - Early Pickup
-  - Late Drop Off
-  - Early Pickup and Late Drop Off
-  - Clear Status (to remove existing status)
-- **Status saves to database** and persists between sessions
-- **Status shown in camper card** with "Current: [status]" indicator
-- **Full Bus Roster** (opens in separate popup window):
-  - **Bus Info Header**: Bus number, driver name, counselor name, camper count/capacity
-  - **Camper Table**: Full street addresses, AM/PM route badges, pickup/dropoff status
-  - **Parent Phone Numbers**: ✅ WORKING - Shows parent names and phone numbers from CampMinder family relationships
-  - **Staff & Shadows Section**: Shows staff and shadows assigned to each bus at the bottom
-  - Print-friendly styling with page breaks per bus
-- **Backend Endpoints**:
-  - `POST /api/campers/{camper_id}/pickup-dropoff` - Set or clear pickup/dropoff status
-  - `GET /api/full-roster/print?bus=all|Bus%20%23XX` - Generate printable roster HTML
-  - `POST /api/clear-guardian-cache` - Clear cached parent data (admin use)
-- **CampMinder Integration**: ✅ COMPLETED
-  - `get_parent_contacts_for_campers()` - Fetches parent contacts using family relationships
-  - `get_all_family_mappings()` - Gets person-to-family ID mappings  
-  - **PersonType filtering**: Only includes actual parents/guardians (PersonType=2), NOT siblings
-  - 24-hour MongoDB caching in `campminder_relatives_cache` collection
-  - Shows up to 2 parents per camper with phone numbers
-  - Auto-clears stale cache when detecting old data format
+### Phase 17: Camper Card & Roster Enhancements (January 2026)
+- Pickup/Dropoff Status dropdown
+- Roster updated to show only primary parents (IsPrincipal=True)
+- Guardian phone number display on route sheets
 
-### Phase 16: Staff Zone Lookup ✅ (January 2026)
-- **Staff with Addresses**: Add counselors/staff with their home addresses
-- **Geocoding**: Automatically geocodes addresses using Google Maps API (PositionStack backup)
-- **Zone Detection**: Shows which bus zone a staff member falls into
-- **Nearby Buses**: Calculates and displays nearby buses based on camper locations
-- **Manual Bus Assignment**: Staff can be manually assigned to any bus
-- **Triangle Markers**: Staff appear as triangles on the main map (different from camper circles)
-- **Seat Tracking**: Staff take seats on buses, reflected in:
-  - Bus card seat availability
-  - Seat availability reports (Excel download)
-  - Google Sheet sync
-  - Notes column in reports
-- **CSV Upload**: Bulk import staff via CSV with Name and Address columns
-- **UI**: Pop-out dialog with map showing zones (no campers) + staff list with pin cards
-- **Backend Endpoints**:
-  - `GET /api/staff-addresses` - Get all staff with addresses
-  - `POST /api/staff-addresses` - Create staff (geocodes address, calculates nearby buses)
-  - `PUT /api/staff-addresses/{id}` - Update staff (bus assignment)
-  - `DELETE /api/staff-addresses/{id}` - Delete staff
-  - `POST /api/staff-addresses/upload-csv` - Bulk CSV import
-- **Test Case**: Brian Stein, 4288 New York Avenue, Island Park, NY - nearby Bus #15, Bus #31
-
-### Phase 15: Multi-Season Support ✅ (January 2026)
-- **Season Management**: Each year's data (campers, shadows, bus zones, staff) is now scoped to a specific season
-- **Season Selector**: Dropdown in sidebar to switch between seasons (shows season name and camper count)
-- **Create New Season**: "+" button opens dialog to create a new season (e.g., 2027, 2028...)
-- **Copy Data Feature**: When creating a new season, optionally copy all data from a previous season
-- **Season-Aware Endpoints**: All CRUD operations filter by active season_id
-- **Auto-Migration**: Backend automatically migrates existing data to the active season on startup
-- **Archive Support**: Seasons can be archived (data preserved but hidden)
-- **Backend Endpoints**:
-  - `GET /api/seasons` - List all seasons
-  - `GET /api/seasons/active` - Get active season with camper count
-  - `POST /api/seasons` - Create new season (with optional data copy)
-  - `PUT /api/seasons/{id}/activate` - Switch active season
-  - `PUT /api/seasons/{id}/archive` - Archive a season
-
-### Phase 1: Core Map Display ✅
-- Google Map with camper pins
-- Color-coded pins by bus number (33 unique colors)
-- Search functionality by name, address, town
-- Click on pin to see camper details
-
-### Phase 2: Data Sync ✅
-- Auto-sync from Google Sheet every 15 minutes
-- Manual refresh button
-- Two-way sync: Changes in app write back to Google Sheet via webhook
-
-### Phase 3: Route Management ✅
-- Separate AM and PM bus assignments
-- Different AM/PM addresses for campers who need them
-- Campers correctly appear ONLY on their assigned bus routes
-- PM-only campers (car drop-off AM) supported
-
-### Phase 4: Route Sheets ✅
-- Printable HTML route sheets
-- Turn-by-turn directions via Google Directions API
-- Separate AM and PM routes with correct campers
-- Distance and time estimates
-- Route logic:
-  - AM Route: Driver Home → Camper Pickups → Camp
-  - PM Route: Camp → Camper Drop-offs → Driver Home
-
-### Phase 5: UI Features ✅
-- Add Camper Manually dialog
-- "Needs Address" section showing campers without addresses
-- Filter by session type
-- Download bus assignments CSV
-
-### Phase 12: Geocoding Cache + PositionStack Backup ✅ (January 2025)
-- **MongoDB geocoding cache** - addresses geocoded once, never re-geocoded
-- **Eliminated $547/3-day billing issue** - cache prevents repeated API calls
-- **PositionStack as backup** - free tier (100/month) for new addresses when Google fails
-- **Cache stats endpoint**: `/api/geocode-cache-stats`
-- **Current cache**: 367+ addresses stored
-- **Memory + DB cache** - fast lookups with persistence
-- Scrollable bus list in sidebar
-
-### Phase 6: Change Detection System ✅ (December 2024)
-- `/api/detect-changes` endpoint implemented
-- Detects AM/PM bus additions, removals, and changes
-- Automatically syncs detected changes to Google Sheet
-- Categorizes changes by type (AM_ADDED, PM_ADDED, AM_CHANGED, PM_CHANGED, etc.)
-
-### Phase 7: Bus Staff Configuration ✅ (January 2025)
-- Full CRUD operations for bus staff (drivers, counselors)
-- Backend endpoints: GET/POST/DELETE `/api/bus-staff`
-- Configure driver name, counselor name, home address, location name, capacity per bus
-- Staff info displayed in map InfoWindow pop-ups when clicking camper markers
-- Staff info included in Seat Availability CSV downloads
-- Geocoding of driver home addresses for route start/end points
-- UI: "Configure Bus Staff" dialog with form and configured buses list
-
-### Phase 8: Download Buttons Fix ✅ (January 2025)
-- Fixed download buttons to work on both desktop AND mobile devices
-- Uses direct link approach with `target="_blank"` for better mobile compatibility
-- Backend endpoints return proper headers for CSV downloads:
-  - `Content-Type: text/csv; charset=utf-8`
-  - `Content-Disposition: attachment; filename="..."`
-  - `Access-Control-Expose-Headers: Content-Disposition`
-- Toast notifications show download status
-- Fallback to opening in new tab if primary method fails
-
-### Phase 10: Dynamic Bus Zones ✅ (January 2025)
-- **USER-DEFINED ZONES** - replaced auto-calculated convex hull zones
-- Users can now create custom polygon zones for each bus:
-  - Click on map to place polygon vertices
-  - Drag vertices to adjust zone shape
-  - Right-click vertices to delete them
-  - Zones saved to database and persist between sessions
-- **Zone Management Panel**:
-  - "+ Zone" button to create new zone for a bus
-  - Edit button (✎) to modify existing zones
-  - Delete button (×) to remove zones
-  - Visual indicators showing which buses have zones
-- One zone per bus (user-controlled, not auto-generated)
-- Color-coded zones matching bus colors
-- Toggle to show/hide all zones
-
-### Phase 11: Seat Availability in Bus List ✅ (January 2025)
-- Each bus in the sidebar now shows:
-  - **H1** (Half Season 1) seats remaining
-  - **H2** (Half Season 2) seats remaining
-  - **Cap** (Capacity) of the bus
-- Color-coded availability: green (available), orange (≤3 left), red (overbooked)
-- Dynamically calculated based on camper session types
-- Bus info fetched from `/api/buses` endpoint including capacity data
-
-### Phase 13: Enhanced Seat Availability Excel Report ✅ (January 2025)
-- Downloadable Excel report now includes **detailed availability columns**:
-  - Half 1 AM, **H1 AM Avail**, Half 1 PM, **H1 PM Avail**
-  - Half 2 AM, **H2 AM Avail**, Half 2 PM, **H2 PM Avail**
-- **Conditional color formatting** on availability columns:
-  - 🟢 Green: >10 seats available
-  - 🟠 Orange: 5-10 seats available  
-  - 🔴 Red: <5 seats available (includes overbooked buses)
-- Summary section at bottom with totals by half session
-- Professional formatting with headers, alternating row colors, frozen header row
-- **Separate webhook** for Seat Availability Google Sheet updates (`SEAT_AVAILABILITY_WEBHOOK_URL`)
-
-### Phase 14: Shadow Staff Feature ✅ (January 2025)
-- **Shadow = 1:1 staff member** assigned to accompany a specific camper
-- Shadows take a bus seat and are counted in seat availability
-- Shadow inherits the bus number and session from their linked camper
-- **UI**: "Add Shadow" button in camper InfoWindow popup
-  - Click to expand input form for shadow name
-  - Saved shadow shows in purple background with delete (X) button
-- **Backend CRUD endpoints**:
-  - `GET /api/shadows` - Get all shadows
-  - `GET /api/shadows/by-bus/{bus_number}` - Get shadows on a specific bus
-  - `GET /api/shadows/by-camper/{camper_id}` - Get shadow for a specific camper
-  - `POST /api/shadows` - Create shadow (requires shadow_name and camper_id)
-  - `DELETE /api/shadows/{shadow_id}` - Delete shadow
-- Shadows stored in MongoDB `shadows` collection
-
-### Phase 9: Code Refactoring (Foundation Ready)
-- Created modular structure in `/app/backend/`:
-  - `models/` - Pydantic schemas
-  - `services/` - Database, geocoding, bus utilities
-  - `routers/` - Route handlers for campers, sync, routes, audit
-- Original `server.py` remains entry point for stability
+### Earlier Phases (Complete)
+- Multi-season support with data copy
+- CampMinder API integration with guardian contacts
+- Google Maps routing with turn-by-turn directions
+- Bus zone management with polygon drawing
+- Shadow staff tracking
+- Staff address CSV upload
+- Seat availability tracking
+- Auto-sync from Google Sheets (15-min interval)
+- Geocoding with caching (Google Maps + PositionStack fallback)
+- Editable route sheets
+- PWA manifest for counselor "Add to Home Screen"
 
 ---
 
-## Current Stats (as of January 2026)
-- **528 campers** on map
-- **34 buses** configured
-- **33 active buses** with campers
-- **1 shadow staff** assigned
-- **1 staff with address** (Brian Stein on Bus #15)
+## Code Architecture
+
+```
+/app/backend/
+  server.py                    # 629 lines - App setup, lifecycle, auto-sync
+  routers/
+    config.py                  # Health, status, config
+    seasons.py                 # Season CRUD
+    campers.py                 # Camper management
+    tracking.py                # GPS tracking, attendance, history
+    shadows.py                 # Shadow staff
+    zones.py                   # Bus zones
+    buses.py                   # Bus info
+    audit.py                   # Audit endpoints
+    staff.py                   # Staff management
+    sheets.py                  # Google Sheets integration
+    roster.py                  # Route sheets, roster printing
+    sync.py                    # CampMinder sync
+  services/
+    database.py                # MongoDB connection, shared instances
+    geocoding.py               # Geocoding with caching
+    helpers.py                 # Shared helpers (get_active_season_id, etc.)
+    bus_utils.py               # Bus colors, utilities
+  models/
+    schemas.py                 # All Pydantic models
+
+/app/frontend/src/
+  App.js                       # Routes: /, /staff-lookup, /counselor
+  App.css                      # Global styles (no overflow restrictions)
+  pages/
+    CounselorApp.jsx           # Counselor PWA with GPS + attendance
+    StaffZoneLookupPage.jsx    # Staff zone lookup
+  components/
+    BusRoutingMap.jsx           # 3789 lines - Main admin dashboard (TODO: refactor)
+```
 
 ---
 
-## Key Files
-| File | Purpose |
-|------|---------|
-| `/app/backend/server.py` | Main FastAPI application (~5600 lines) |
-| `/app/backend/route_printer.py` | Route sheet generation |
-| `/app/backend/bus_config.py` | Bus info and home locations |
-| `/app/backend/sibling_offset.py` | Pin offset for siblings |
-| `/app/backend/cover_sheet_generator.py` | Seat availability reports (Excel/Google Sheets) |
-| `/app/frontend/src/components/BusRoutingMap.jsx` | Main React map component |
-| `/app/frontend/src/components/StaffZoneLookup.jsx` | Staff zone lookup dialog with map |
-| `/app/frontend/src/components/EditableBusZone.jsx` | User-editable bus zone component |
-| `/app/frontend/src/components/ZoneCreator.jsx` | Zone drawing/creation component |
-| `/app/backend/models/schemas.py` | Pydantic models |
-| `/app/backend/routers/*.py` | Modular route handlers |
+## Key API Endpoints
+- `POST /api/bus-tracking/login` - Counselor login
+- `POST /api/bus-tracking/location` - GPS update
+- `GET /api/bus-tracking/location/{bus_number}` - Live bus location
+- `GET /api/bus-tracking/history/{bus_number}` - Route history
+- `GET /api/bus-tracking/attendance-report` - HTML attendance report
+- `GET /api/seasons/active` - Active season
+- `GET /api/campers` - All campers
+- `GET /api/buses` - All buses
+- `GET /api/route-sheet/{bus_number}` - Route sheet with directions
 
 ---
 
-## API Endpoints
-
-### Core Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/campers` | GET | Get all campers with valid locations |
-| `/api/campers/needs-address` | GET | Get campers needing addresses |
-| `/api/campers/add` | POST | Manually add a camper |
-| `/api/campers/{id}` | DELETE | Delete a camper |
-| `/api/campers/{id}/change-bus` | POST | Change camper's bus assignment |
-| `/api/campers/{id}/pickup-dropoff` | POST | Set/clear pickup/dropoff status |
-
-### Roster Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/full-roster/print?bus=all` | GET | Printable full roster for all buses |
-| `/api/full-roster/print?bus=Bus%20%23XX` | GET | Printable roster for specific bus |
-
-### Sync Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/trigger-sync` | POST | Manual sync from Google Sheet |
-| `/api/sync-to-google-sheet` | POST | Sync all assignments to sheet |
-| `/api/detect-changes` | POST | Detect and sync bus assignment changes |
-
-### Season Management Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/seasons` | GET | Get all seasons with camper counts |
-| `/api/seasons/active` | GET | Get active season with camper count |
-| `/api/seasons` | POST | Create new season (optional copy_from_season_id) |
-| `/api/seasons/{id}/activate` | PUT | Switch to a different season |
-| `/api/seasons/{id}/archive` | PUT | Archive a season (keeps data) |
-
-### Route Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/buses` | GET | Get all buses with info |
-| `/api/buses/{number}` | GET | Get specific bus details |
-| `/api/route-sheet/{bus}/print` | GET | Printable route sheet HTML |
-| `/api/download/bus-assignments` | GET | Download CSV |
-| `/api/download/seat-availability` | GET | Download seat availability CSV |
-
-### Bus Staff Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/bus-staff` | GET | Get all configured bus staff |
-| `/api/bus-staff` | POST | Create/update bus staff config |
-| `/api/bus-staff/{bus_number}` | GET | Get staff for specific bus |
-| `/api/bus-staff/{bus_number}` | DELETE | Delete staff configuration |
-
-### Shadow Staff Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/shadows` | GET | Get all shadow staff |
-| `/api/shadows` | POST | Create shadow (requires shadow_name, camper_id) |
-| `/api/shadows/{shadow_id}` | DELETE | Delete shadow |
-| `/api/shadows/by-bus/{bus_number}` | GET | Get shadows on specific bus |
-| `/api/shadows/by-camper/{camper_id}` | GET | Get shadow for specific camper |
-
-### Staff with Addresses Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/staff-addresses` | GET | Get all staff with addresses |
-| `/api/staff-addresses` | POST | Create staff (geocodes address) |
-| `/api/staff-addresses/{id}` | PUT | Update staff (assign bus) |
-| `/api/staff-addresses/{id}` | DELETE | Delete staff |
-| `/api/staff-addresses/upload-csv` | POST | Bulk CSV import |
-
-### Audit Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/audit/campers` | GET | Full camper audit vs Google Sheet |
-| `/api/audit/bus/{number}` | GET | Audit single bus |
+## Database Collections
+- `campers` - Camper records with bus assignments
+- `seasons` - Season management
+- `bus_locations` - Current GPS coordinates per bus
+- `bus_location_history` - GPS tracking history
+- `bus_stops_log` - Stop duration records
+- `bus_attendance` - Daily attendance records
+- `bus_staff` - Bus staff configurations
+- `bus_assigned_staff` - Staff bus assignments
+- `bus_zones` - Bus zone polygons
+- `shadows` - Shadow staff records
+- `geocode_cache` - Cached geocoding results
+- `sync_status` - Auto-sync status
+- `campminder_relatives_cache` - Guardian contact cache
 
 ---
 
-## Backlog
+## Prioritized Backlog
 
-### P1 - High Priority
-- [ ] Complete migration to modular routers (reduces `server.py` from ~5600 lines)
-- [ ] Refactor `BusRoutingMap.jsx` - extract UI panels into separate components (~3000 lines)
-- [ ] Resolve CampMinder API access (requires user action with provider)
+### P1 (Next)
+- **Frontend Refactoring**: Split `BusRoutingMap.jsx` (3789 lines) into smaller components
+  - Extract `TrackingDialog.jsx` - Live tracking popup
+  - Extract `HistoryDialog.jsx` - Tracking history viewer
+  - Extract custom hooks (`useTracking`, `useSeasons`, `useBusData`)
 
-### P2 - Medium Priority  
-- [ ] Bus capacity dashboard for admins
-- [ ] Historical route tracking
+### P2
+- **Parent Bus Tracking**: Let parents track their child's bus
+- **PM Attendance Tracking**: Expand AM-only tracking to include PM
+- **Parent Notifications**: Notifications when children board/exit
 
-### P3 - Low Priority
-- [ ] Deprecate Google Sheet sync once CampMinder API works
-- [ ] Mobile app version
+### P3
+- **Multi-Tenant SaaS Version**: Support multiple camps
+- **Deprecate Google Sheet Sync**: Move entirely to CampMinder API
 
 ---
 
 ## Known Limitations
-1. CampMinder API custom field access blocked by subscription level
-2. Campers without addresses cannot be shown on map
-3. Google Sheets data entry inconsistencies require manual cleanup
+- **iOS Background Tracking**: Wake Lock API added but iOS Safari suspends JS after ~15s in background. Counselors must keep app visible.
+- **BusRoutingMap.jsx**: Still 3789 lines - needs frontend refactoring (P1)
 
----
-
-## Environment Variables
-```
-# Backend (.env)
-MONGO_URL=<mongodb connection>
-DB_NAME=<database name>
-GOOGLE_MAPS_API_KEY=<google maps key>
-CAMPMINDER_SHEET_ID=1QX0BSUuG889BjOYsTji8kYwT3VomSRE1j2_ZtxLd65k
-GOOGLE_SHEETS_WEBHOOK_URL=<webhook url>
-AUTO_SYNC_ENABLED=true
-SYNC_INTERVAL_MINUTES=15
-
-# Frontend (.env)
-REACT_APP_BACKEND_URL=<backend url>
-REACT_APP_GOOGLE_MAPS_API_KEY=<google maps key>
-```
-
----
-
-## Last Updated
-January 2026 - Multi-Season Support: Full season management (create, switch, archive), all data scoped to seasons, auto-migration on startup
+## 3rd Party Integrations
+- CampMinder API (User API Key)
+- Google Maps API (User API Key)
+- PositionStack API (User API Key)
+- Google Sheets API (User API Key)
