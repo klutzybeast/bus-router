@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/popover";
 import EditableBusZone from "./EditableBusZone";
 import ZoneCreator from "./ZoneCreator";
+import { TrackingDialog } from "./TrackingDialog";
+import { HistoryDialog } from "./HistoryDialog";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 const API = `${BACKEND_URL}/api`;
@@ -166,11 +168,6 @@ const BusRoutingMap = () => {
   // History State
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
   const [historyBus, setHistoryBus] = useState(null);
-  const [historyDate, setHistoryDate] = useState(new Date().toISOString().split('T')[0]);
-  const [historyPeriod, setHistoryPeriod] = useState(''); // '', 'AM', or 'PM'
-  const [historyData, setHistoryData] = useState(null);
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [availableDates, setAvailableDates] = useState([]);
 
   // Fetch seasons
   const fetchSeasons = useCallback(async () => {
@@ -1315,42 +1312,7 @@ const BusRoutingMap = () => {
   const openHistoryDialog = async (busNumber) => {
     setHistoryBus(busNumber);
     setShowHistoryDialog(true);
-    setHistoryData(null);
-    setHistoryDate(new Date().toISOString().split('T')[0]);
-    setHistoryPeriod('');
-    
-    // Fetch available dates
-    try {
-      const response = await axios.get(`${API}/bus-tracking/history-dates/${encodeURIComponent(busNumber)}`);
-      setAvailableDates(response.data.dates || []);
-    } catch (error) {
-      console.error("Error fetching history dates:", error);
-      setAvailableDates([]);
-    }
   };
-
-  const fetchHistoryData = async () => {
-    if (!historyBus || !historyDate) return;
-    
-    setHistoryLoading(true);
-    try {
-      const url = `${API}/bus-tracking/history/${encodeURIComponent(historyBus)}?date=${historyDate}${historyPeriod ? `&period=${historyPeriod}` : ''}`;
-      const response = await axios.get(url);
-      setHistoryData(response.data);
-    } catch (error) {
-      console.error("Error fetching history:", error);
-      setHistoryData({ success: false, message: "Failed to load history" });
-    } finally {
-      setHistoryLoading(false);
-    }
-  };
-
-  // Fetch history when date or period changes
-  useEffect(() => {
-    if (showHistoryDialog && historyBus && historyDate) {
-      fetchHistoryData();
-    }
-  }, [historyDate, historyPeriod, historyBus, showHistoryDialog]);
 
   // Cleanup tracking interval on unmount
   useEffect(() => {
@@ -3403,377 +3365,24 @@ const BusRoutingMap = () => {
         </Card>
 
         {/* GPS Bus Tracking Dialog */}
-        <Dialog open={trackingBus !== null} onOpenChange={(open) => !open && closeTracking()}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Navigation className="w-5 h-5 text-green-600" />
-                Live Tracking: {trackingBus}
-              </DialogTitle>
-              <DialogDescription>
-                Real-time GPS location from the counselor's phone
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="py-4">
-              {trackingLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
-                  <span className="ml-2">Loading location...</span>
-                </div>
-              ) : trackingData?.success ? (
-                <div className="space-y-4">
-                  {/* Status Banner */}
-                  <div className={`p-3 rounded-lg flex items-center gap-2 ${
-                    trackingData.tracking_active 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    <Radio className={`w-4 h-4 ${trackingData.tracking_active ? 'animate-pulse' : ''}`} />
-                    <span className="font-medium">
-                      {trackingData.tracking_active 
-                        ? 'GPS Active - Tracking in real-time' 
-                        : 'GPS Inactive - Last known location'}
-                    </span>
-                  </div>
-
-                  {/* Map showing bus location - Auto-follows */}
-                  <div className="h-64 rounded-lg overflow-hidden border">
-                    <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-                      <Map
-                        zoom={16}
-                        center={{ lat: trackingData.latitude, lng: trackingData.longitude }}
-                        mapId="bus-tracking-map"
-                        gestureHandling="cooperative"
-                        disableDefaultUI={true}
-                      >
-                        <AdvancedMarker
-                          position={{ lat: trackingData.latitude, lng: trackingData.longitude }}
-                        >
-                          <div className="relative">
-                            <div className="w-12 h-12 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center animate-pulse">
-                              <span className="text-white font-bold text-sm">
-                                {trackingBus?.replace('Bus #', '')}
-                              </span>
-                            </div>
-                            {trackingData.heading && (
-                              <div 
-                                className="absolute -top-2 left-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-green-600"
-                                style={{ transform: `translateX(-50%) rotate(${trackingData.heading}deg)`, transformOrigin: 'center bottom' }}
-                              />
-                            )}
-                          </div>
-                        </AdvancedMarker>
-                      </Map>
-                    </APIProvider>
-                  </div>
-
-                  {/* Current Stop Info - Shows when bus is near a stop */}
-                  {nearestStop ? (
-                    <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <MapPin className="w-5 h-5 text-blue-600" />
-                        <span className="font-semibold text-blue-800">At Stop: {nearestStop.address}</span>
-                        <span className="text-xs text-blue-500 ml-auto">{Math.round(nearestStop.distance)}m away</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {nearestStop.campers.map((camper, idx) => (
-                          <div 
-                            key={idx}
-                            className="flex items-center gap-1 bg-white border-2 border-blue-400 rounded-full px-3 py-1 shadow-sm"
-                            style={{ borderColor: BUS_COLORS[trackingBus] || '#3b82f6' }}
-                          >
-                            <div 
-                              className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                              style={{ backgroundColor: BUS_COLORS[trackingBus] || '#3b82f6' }}
-                            >
-                              {camper.first_name?.[0]}{camper.last_name?.[0]}
-                            </div>
-                            <span className="text-sm font-medium text-gray-700">{camper.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <p className="text-xs text-blue-600 mt-2">
-                        {nearestStop.campers.length} camper{nearestStop.campers.length !== 1 ? 's' : ''} at this stop
-                      </p>
-                    </div>
-                  ) : trackingData.is_stopped ? (
-                    <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-3 text-center">
-                      <div className="flex items-center justify-center gap-2 text-yellow-700">
-                        <MapPin className="w-5 h-5" />
-                        <span className="font-medium">Bus is stopped</span>
-                      </div>
-                      <p className="text-2xl font-bold text-yellow-800 mt-1">
-                        {trackingData.stop_duration >= 60 
-                          ? `${Math.floor(trackingData.stop_duration / 60)}m ${Math.floor(trackingData.stop_duration % 60)}s`
-                          : `${Math.floor(trackingData.stop_duration)}s`
-                        }
-                      </p>
-                      <p className="text-xs text-yellow-600">at this location</p>
-                    </div>
-                  ) : (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center text-green-700 text-sm">
-                      <MapPin className="w-4 h-4 inline mr-1" />
-                      Bus is moving
-                    </div>
-                  )}
-
-                  {/* Location Details */}
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-500">Latitude:</span>
-                      <span className="ml-2 font-mono">{trackingData.latitude?.toFixed(6)}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Longitude:</span>
-                      <span className="ml-2 font-mono">{trackingData.longitude?.toFixed(6)}</span>
-                    </div>
-                    {trackingData.speed !== null && trackingData.speed !== undefined && (
-                      <div>
-                        <span className="text-gray-500">Speed:</span>
-                        <span className="ml-2">{(trackingData.speed * 2.237).toFixed(1)} mph</span>
-                      </div>
-                    )}
-                    {trackingData.accuracy && (
-                      <div>
-                        <span className="text-gray-500">Accuracy:</span>
-                        <span className="ml-2">±{trackingData.accuracy?.toFixed(0)}m</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Last Update */}
-                  <div className="text-center text-sm text-gray-500 border-t pt-3">
-                    Last updated: {trackingData.updated_at 
-                      ? new Date(trackingData.updated_at).toLocaleTimeString() 
-                      : 'Unknown'}
-                    <span className="ml-2 text-xs">(Auto-follows every 5s)</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Navigation className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                  <p className="text-gray-500 font-medium">No location data available</p>
-                  <p className="text-sm text-gray-400 mt-1">
-                    The counselor app must be open and GPS enabled on the bus
-                  </p>
-                  <p className="text-xs text-blue-500 mt-3">
-                    Counselor app URL: <code className="bg-gray-100 px-2 py-1 rounded">/counselor</code>
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <DialogFooter className="flex gap-2">
-              <Button variant="outline" onClick={() => { closeTracking(); openHistoryDialog(trackingBus); }}>
-                <Calendar className="w-4 h-4 mr-2" />
-                View History
-              </Button>
-              <Button variant="outline" onClick={closeTracking}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <TrackingDialog
+          trackingBus={trackingBus}
+          trackingData={trackingData}
+          trackingLoading={trackingLoading}
+          nearestStop={nearestStop}
+          busColors={BUS_COLORS}
+          onClose={closeTracking}
+          onViewHistory={openHistoryDialog}
+        />
 
         {/* History Dialog */}
-        <Dialog open={showHistoryDialog} onOpenChange={(open) => !open && setShowHistoryDialog(false)}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-blue-600" />
-                Tracking History: {historyBus}
-              </DialogTitle>
-              <DialogDescription>
-                View historical route and stop data
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="py-4 space-y-4">
-              {/* Bus, Date and Period Selection */}
-              <div className="flex flex-wrap gap-4 items-end">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Bus</label>
-                  <Select value={historyBus || ''} onValueChange={(val) => { setHistoryBus(val); openHistoryDialog(val); }}>
-                    <SelectTrigger className="w-36">
-                      <SelectValue placeholder="Select bus" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {uniqueBuses.map(bus => (
-                        <SelectItem key={bus} value={bus}>{bus}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                  <Input
-                    type="date"
-                    value={historyDate}
-                    onChange={(e) => setHistoryDate(e.target.value)}
-                    className="w-40"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Period</label>
-                  <Select value={historyPeriod || "all"} onValueChange={(val) => setHistoryPeriod(val === "all" ? "" : val)}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="All Day" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Day</SelectItem>
-                      <SelectItem value="AM">AM Only</SelectItem>
-                      <SelectItem value="PM">PM Only</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {availableDates.length > 0 && (
-                  <div className="text-xs text-gray-500">
-                    {availableDates.length} days with data
-                  </div>
-                )}
-              </div>
-
-              {historyLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
-                  <span className="ml-2">Loading history...</span>
-                </div>
-              ) : historyData?.success ? (
-                <div className="space-y-4">
-                  {/* Summary Stats */}
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-blue-50 rounded-lg p-3 text-center">
-                      <div className="text-2xl font-bold text-blue-600">{historyData.point_count}</div>
-                      <div className="text-xs text-blue-500">Location Points</div>
-                    </div>
-                    <div className="bg-yellow-50 rounded-lg p-3 text-center">
-                      <div className="text-2xl font-bold text-yellow-600">{historyData.stop_count}</div>
-                      <div className="text-xs text-yellow-500">Stops Made</div>
-                    </div>
-                    <div className="bg-green-50 rounded-lg p-3 text-center">
-                      <div className="text-2xl font-bold text-green-600">
-                        {historyData.points?.length > 0 
-                          ? `${new Date(historyData.points[0].timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${new Date(historyData.points[historyData.points.length-1].timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`
-                          : 'N/A'
-                        }
-                      </div>
-                      <div className="text-xs text-green-500">Time Range</div>
-                    </div>
-                  </div>
-
-                  {/* Map with Route */}
-                  {historyData.points?.length > 0 && (
-                    <div className="h-64 rounded-lg overflow-hidden border">
-                      <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-                        <Map
-                          defaultZoom={13}
-                          defaultCenter={{ 
-                            lat: historyData.points[Math.floor(historyData.points.length / 2)]?.latitude || 40.7,
-                            lng: historyData.points[Math.floor(historyData.points.length / 2)]?.longitude || -73.9
-                          }}
-                          mapId="history-map"
-                        >
-                          {/* Route Polyline - show every 5th point for performance */}
-                          {historyData.points.filter((_, i) => i % 5 === 0).map((point, idx, arr) => {
-                            if (idx === 0) return null;
-                            const prev = arr[idx - 1];
-                            return (
-                              <AdvancedMarker
-                                key={idx}
-                                position={{ lat: point.latitude, lng: point.longitude }}
-                              >
-                                <div className="w-2 h-2 bg-blue-500 rounded-full opacity-60" />
-                              </AdvancedMarker>
-                            );
-                          })}
-                          {/* Start marker */}
-                          <AdvancedMarker position={{ lat: historyData.points[0].latitude, lng: historyData.points[0].longitude }}>
-                            <div className="w-6 h-6 bg-green-500 rounded-full border-2 border-white shadow flex items-center justify-center text-white text-xs font-bold">S</div>
-                          </AdvancedMarker>
-                          {/* End marker */}
-                          <AdvancedMarker position={{ lat: historyData.points[historyData.points.length-1].latitude, lng: historyData.points[historyData.points.length-1].longitude }}>
-                            <div className="w-6 h-6 bg-red-500 rounded-full border-2 border-white shadow flex items-center justify-center text-white text-xs font-bold">E</div>
-                          </AdvancedMarker>
-                          {/* Stop markers */}
-                          {historyData.stops?.map((stop, idx) => (
-                            <AdvancedMarker key={`stop-${idx}`} position={{ lat: stop.latitude, lng: stop.longitude }}>
-                              <div className="w-5 h-5 bg-yellow-500 rounded-full border-2 border-white shadow flex items-center justify-center text-white text-[10px] font-bold">{idx + 1}</div>
-                            </AdvancedMarker>
-                          ))}
-                        </Map>
-                      </APIProvider>
-                    </div>
-                  )}
-
-                  {/* Stops List */}
-                  {historyData.stops?.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        Stops ({historyData.stops.length})
-                      </h3>
-                      <div className="max-h-48 overflow-y-auto border rounded-lg">
-                        <table className="w-full text-sm">
-                          <thead className="bg-gray-50 sticky top-0">
-                            <tr>
-                              <th className="px-3 py-2 text-left">#</th>
-                              <th className="px-3 py-2 text-left">Time</th>
-                              <th className="px-3 py-2 text-left">Duration</th>
-                              <th className="px-3 py-2 text-left">Period</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {historyData.stops.map((stop, idx) => (
-                              <tr key={idx} className="border-t hover:bg-gray-50">
-                                <td className="px-3 py-2 font-medium">{idx + 1}</td>
-                                <td className="px-3 py-2">
-                                  {stop.stop_started_at 
-                                    ? new Date(stop.stop_started_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-                                    : 'N/A'
-                                  }
-                                </td>
-                                <td className="px-3 py-2 font-mono">
-                                  {stop.duration_formatted || `${Math.round(stop.duration_seconds)}s`}
-                                </td>
-                                <td className="px-3 py-2">
-                                  <span className={`px-2 py-0.5 rounded text-xs ${stop.period === 'AM' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
-                                    {stop.period}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-
-                  {historyData.points?.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p>No tracking data for this date</p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>Select a date to view tracking history</p>
-                  {availableDates.length > 0 && (
-                    <p className="text-sm mt-2">Available dates: {availableDates.slice(0, 5).join(', ')}{availableDates.length > 5 ? '...' : ''}</p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowHistoryDialog(false)}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <HistoryDialog
+          open={showHistoryDialog}
+          busNumber={historyBus}
+          uniqueBuses={uniqueBuses}
+          onClose={() => setShowHistoryDialog(false)}
+          onChangeBus={(val) => { setHistoryBus(val); }}
+        />
 
         {/* Overlay for mobile when panel is open */}
         {isPanelOpen && (
