@@ -39,7 +39,10 @@ A web application that displays camper bus routes on a Google Map, using Google 
   - `sheets.py` - Google Sheets integration
   - `roster.py` - Route sheets and roster printing
   - `sync.py` - CampMinder sync operations
-- **Counselor App Scrolling Fix**:
+- **Frontend Refactoring**:
+  - `BusRoutingMap.jsx` reduced from **3,789 lines to 3,398 lines** (~390 lines extracted)
+  - `TrackingDialog.jsx` extracted (203 lines) - Live GPS tracking popup with map, stop detection, camper bubbles
+  - `HistoryDialog.jsx` extracted (276 lines) - Self-contained tracking history viewer with date picker, route map, stops table
   - Added `WebkitOverflowScrolling: 'touch'` for iOS momentum scrolling
   - Added `overscrollBehavior: 'contain'` to prevent pull-to-refresh interference
   - Added `position: 'static'` to prevent scroll lock from any parent elements
@@ -112,7 +115,9 @@ A web application that displays camper bus routes on a Google Map, using Google 
     CounselorApp.jsx           # Counselor PWA with GPS + attendance
     StaffZoneLookupPage.jsx    # Staff zone lookup
   components/
-    BusRoutingMap.jsx           # 3789 lines - Main admin dashboard (TODO: refactor)
+    BusRoutingMap.jsx           # 3398 lines - Main admin dashboard (partially refactored)
+    TrackingDialog.jsx          # 203 lines - Live GPS tracking popup (extracted)
+    HistoryDialog.jsx           # 276 lines - Tracking history viewer (extracted)
 ```
 
 ---
@@ -150,10 +155,12 @@ A web application that displays camper bus routes on a Google Map, using Google 
 ## Prioritized Backlog
 
 ### P1 (Next)
-- **Frontend Refactoring**: Split `BusRoutingMap.jsx` (3789 lines) into smaller components
-  - Extract `TrackingDialog.jsx` - Live tracking popup
-  - Extract `HistoryDialog.jsx` - Tracking history viewer
-  - Extract custom hooks (`useTracking`, `useSeasons`, `useBusData`)
+- **Continue Frontend Refactoring**: Further split `BusRoutingMap.jsx` (3,398 lines)
+  - Extract `StaffConfigDialog.jsx` - Staff configuration modal
+  - Extract `ShadowDialog.jsx` - Shadow management modal
+  - Extract `AddCamperDialog.jsx` - Camper add form
+  - Extract `BusSidebar.jsx` - Bus filter sidebar panel
+  - Extract custom hooks (`useSeasons`, `useBusData`, `useTracking`)
 
 ### P2
 - **Parent Bus Tracking**: Let parents track their child's bus
@@ -168,7 +175,7 @@ A web application that displays camper bus routes on a Google Map, using Google 
 
 ## Known Limitations
 - **iOS Background Tracking**: Wake Lock API added but iOS Safari suspends JS after ~15s in background. Counselors must keep app visible.
-- **BusRoutingMap.jsx**: Still 3789 lines - needs frontend refactoring (P1)
+- **BusRoutingMap.jsx**: Still 3,398 lines - further frontend refactoring ongoing (P1)
 
 ## 3rd Party Integrations
 - CampMinder API (User API Key)
