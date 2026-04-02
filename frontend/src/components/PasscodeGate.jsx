@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Lock, Eye, EyeOff, ShieldAlert } from "lucide-react";
+import { Lock, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
 const PASSCODE_HASH = "b7065804da716830f45517bd6fcb311b75edabc58375df300cb584063cc0bc81";
@@ -17,69 +17,52 @@ async function sha256(message) {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-function CampLogo() {
-  return (
-    <div className="flex flex-col items-center" data-testid="camp-logo">
-      <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="60" cy="60" r="58" fill="#1e3a5f" stroke="#f0c040" strokeWidth="3" />
-        <path d="M25 78 Q40 55 60 70 Q80 85 95 60" stroke="#4da6e8" strokeWidth="4" fill="none" strokeLinecap="round" />
-        <path d="M20 82 Q38 62 60 74 Q82 86 100 65" stroke="#3b82f6" strokeWidth="3" fill="none" opacity="0.5" strokeLinecap="round" />
-        <polygon points="45,52 50,38 55,52" fill="#2d6a4f" />
-        <polygon points="50,55 55,35 60,55" fill="#40916c" />
-        <polygon points="62,50 67,32 72,50" fill="#2d6a4f" />
-        <polygon points="67,53 72,36 77,53" fill="#40916c" />
-        <rect x="49" y="52" width="2" height="6" fill="#6b4423" />
-        <rect x="54" y="55" width="2" height="5" fill="#6b4423" />
-        <rect x="66" y="50" width="2" height="6" fill="#6b4423" />
-        <rect x="71" y="53" width="2" height="5" fill="#6b4423" />
-        <circle cx="85" cy="30" r="10" fill="#f0c040" opacity="0.9" />
-      </svg>
-    </div>
-  );
-}
-
 function MaskedPasscodeInput({ value, onChange, onSubmit, disabled }) {
-  const [displayValue, setDisplayValue] = useState("");
+  const [displayChars, setDisplayChars] = useState([]);
+  const hiddenInputRef = useRef(null);
   const timerRef = useRef(null);
-  const inputRef = useRef(null);
-  const realValueRef = useRef(value);
-
-  useEffect(() => {
-    realValueRef.current = value;
-  }, [value]);
 
   useEffect(() => {
     if (value.length === 0) {
-      setDisplayValue("");
+      setDisplayChars([]);
     }
   }, [value]);
 
-  const handleKeyDown = (e) => {
-    if (disabled) return;
-    if (e.key === "Enter") {
-      e.preventDefault();
-      onSubmit();
-      return;
+  const focusInput = () => {
+    if (hiddenInputRef.current && !disabled) {
+      hiddenInputRef.current.focus();
     }
-    if (e.key === "Backspace") {
-      e.preventDefault();
-      const newVal = realValueRef.current.slice(0, -1);
-      onChange(newVal);
-      setDisplayValue("\u2022".repeat(newVal.length));
-      return;
-    }
-    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
-      e.preventDefault();
-      const newVal = realValueRef.current + e.key;
-      onChange(newVal);
+  };
 
-      const masked = "\u2022".repeat(Math.max(0, newVal.length - 1));
-      setDisplayValue(masked + e.key);
+  useEffect(() => {
+    focusInput();
+  }, [disabled]);
+
+  const handleInput = (e) => {
+    if (disabled) return;
+    const newVal = e.target.value;
+
+    if (newVal.length > value.length) {
+      const newChar = newVal[newVal.length - 1];
+      const newChars = Array(Math.max(0, newVal.length - 1)).fill("\u2022");
+      newChars.push(newChar);
+      setDisplayChars(newChars);
 
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
-        setDisplayValue("\u2022".repeat(newVal.length));
+        setDisplayChars(Array(newVal.length).fill("\u2022"));
       }, 500);
+    } else {
+      setDisplayChars(Array(newVal.length).fill("\u2022"));
+    }
+
+    onChange(newVal);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !disabled) {
+      e.preventDefault();
+      onSubmit();
     }
   };
 
@@ -89,30 +72,38 @@ function MaskedPasscodeInput({ value, onChange, onSubmit, disabled }) {
     };
   }, []);
 
-  useEffect(() => {
-    if (!disabled && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [disabled]);
+  const displayText = displayChars.join("");
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" onClick={focusInput}>
+      {/* Hidden real input that triggers mobile keyboard */}
       <input
-        ref={inputRef}
+        ref={hiddenInputRef}
         type="text"
-        value={displayValue}
-        readOnly
+        inputMode="text"
+        value={value}
+        onChange={handleInput}
         onKeyDown={handleKeyDown}
         disabled={disabled}
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck="false"
-        placeholder="Enter passcode"
-        className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-lg tracking-widest text-center disabled:opacity-50 disabled:cursor-not-allowed"
-        style={{ color: "#000", fontFamily: "monospace", fontSize: "1.25rem", letterSpacing: "0.3em", caretColor: "transparent" }}
+        className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-text"
+        style={{ fontSize: "16px" }}
         data-testid="passcode-input"
       />
+      {/* Visible display */}
+      <div
+        className={`w-full px-4 py-3 rounded-lg border-2 bg-white text-lg text-center min-h-[52px] flex items-center justify-center ${
+          disabled
+            ? "border-gray-300 opacity-50 cursor-not-allowed"
+            : "border-[#2b579a] cursor-text"
+        }`}
+        style={{ fontFamily: "monospace", fontSize: "1.25rem", letterSpacing: "0.3em", color: "#000" }}
+      >
+        {displayText || <span className="text-gray-400" style={{ letterSpacing: "0.1em" }}>Enter passcode</span>}
+      </div>
     </div>
   );
 }
@@ -138,8 +129,15 @@ export function useAuth() {
     return false;
   }, []);
 
+  const lock = useCallback(() => {
+    sessionStorage.removeItem(AUTH_TOKEN_KEY);
+    sessionStorage.removeItem(AUTH_TIMESTAMP_KEY);
+    setIsAuthenticated(false);
+    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+    if (activityTimerRef.current) clearTimeout(activityTimerRef.current);
+  }, []);
+
   const resetActivityTimer = useCallback(() => {
-    if (!isAuthenticated) return;
     warningShownRef.current = false;
     sessionStorage.setItem(AUTH_TIMESTAMP_KEY, String(Date.now()));
 
@@ -147,7 +145,7 @@ export function useAuth() {
     if (activityTimerRef.current) clearTimeout(activityTimerRef.current);
 
     warningTimerRef.current = setTimeout(() => {
-      if (isAuthenticated && !warningShownRef.current) {
+      if (!warningShownRef.current) {
         warningShownRef.current = true;
         toast.warning("Session will lock in 5 minutes due to inactivity", { duration: 10000 });
       }
@@ -157,21 +155,13 @@ export function useAuth() {
       lock();
       toast.error("Session locked due to inactivity");
     }, INACTIVITY_TIMEOUT_MS);
-  }, [isAuthenticated]);
+  }, [lock]);
 
   const authenticate = useCallback(() => {
     const token = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
     sessionStorage.setItem(AUTH_TOKEN_KEY, token);
     sessionStorage.setItem(AUTH_TIMESTAMP_KEY, String(Date.now()));
     setIsAuthenticated(true);
-  }, []);
-
-  const lock = useCallback(() => {
-    sessionStorage.removeItem(AUTH_TOKEN_KEY);
-    sessionStorage.removeItem(AUTH_TIMESTAMP_KEY);
-    setIsAuthenticated(false);
-    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-    if (activityTimerRef.current) clearTimeout(activityTimerRef.current);
   }, []);
 
   useEffect(() => {
@@ -271,24 +261,23 @@ export default function PasscodeGate({ onAuthenticated }) {
   return (
     <div
       className="fixed inset-0 z-[10000] flex items-center justify-center"
-      style={{
-        background: "linear-gradient(145deg, #0f2742 0%, #1a3a5c 40%, #1e4d6e 70%, #0d2137 100%)",
-      }}
+      style={{ background: "#ffffff" }}
       data-testid="passcode-gate"
     >
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 w-72 h-72 bg-blue-400/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-yellow-400/5 rounded-full blur-3xl" />
-      </div>
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ background: "linear-gradient(180deg, #f0f4fa 0%, #ffffff 50%, #f0f4fa 100%)" }} />
 
       <div className="relative w-full max-w-sm mx-4">
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-8 shadow-2xl">
-          <div className="flex flex-col items-center mb-8">
-            <CampLogo />
-            <h1 className="text-xl font-bold text-white mt-4 text-center tracking-wide">
-              Rolling River Day Camp
-            </h1>
-            <p className="text-blue-200/70 text-sm mt-1 text-center">
+        <div className="bg-white rounded-2xl border-2 border-[#2b579a]/20 p-8 shadow-xl">
+          {/* Camp Logo */}
+          <div className="flex flex-col items-center mb-6">
+            <img
+              src="/camp-logo.png"
+              alt="Rolling River Day Camp"
+              className="w-32 h-32 object-contain"
+              data-testid="camp-logo"
+            />
+            <p className="text-[#2b579a]/60 text-sm mt-3 text-center font-medium">
               Authorized Access Only
             </p>
           </div>
@@ -302,17 +291,17 @@ export default function PasscodeGate({ onAuthenticated }) {
             />
 
             {error && (
-              <div className="flex items-center gap-2 bg-red-500/20 border border-red-400/30 rounded-lg px-3 py-2" data-testid="passcode-error">
-                <ShieldAlert className="w-4 h-4 text-red-300 flex-shrink-0" />
-                <span className="text-red-200 text-sm">{error}</span>
+              <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2" data-testid="passcode-error">
+                <ShieldAlert className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <span className="text-red-600 text-sm">{error}</span>
               </div>
             )}
 
             {locked && lockCountdown > 0 && (
               <div className="text-center" data-testid="lockout-timer">
-                <div className="inline-flex items-center gap-2 bg-orange-500/20 border border-orange-400/30 rounded-lg px-4 py-2">
-                  <Lock className="w-4 h-4 text-orange-300" />
-                  <span className="text-orange-200 text-sm font-mono">
+                <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-lg px-4 py-2">
+                  <Lock className="w-4 h-4 text-orange-500" />
+                  <span className="text-orange-600 text-sm font-mono">
                     Retry in {lockCountdown}s
                   </span>
                 </div>
@@ -325,11 +314,11 @@ export default function PasscodeGate({ onAuthenticated }) {
               className="w-full py-3 rounded-lg font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
                 background: locked || checking || !passcode.trim()
-                  ? "rgba(255,255,255,0.1)"
-                  : "linear-gradient(135deg, #3b82f6, #2563eb)",
+                  ? "#b0bec5"
+                  : "#2b579a",
                 boxShadow: locked || checking || !passcode.trim()
                   ? "none"
-                  : "0 4px 15px rgba(59,130,246,0.4)",
+                  : "0 4px 12px rgba(43,87,154,0.3)",
               }}
               data-testid="passcode-submit-btn"
             >
@@ -347,7 +336,7 @@ export default function PasscodeGate({ onAuthenticated }) {
           </div>
         </div>
 
-        <p className="text-center text-blue-300/30 text-xs mt-6">
+        <p className="text-center text-[#2b579a]/30 text-xs mt-6">
           Bus Route Management System
         </p>
       </div>
