@@ -1,143 +1,152 @@
 <analysis>**original_problem_statement:**
-The user's initial goal was to build a web application to manage camper bus routes. The scope expanded to include shadow staff, advanced search, multi-season architecture, central stops, staff-as-passengers, reporting enhancements, drag-and-drop route editing, and address search.
+The user requested fixes for the camper bus roster to ensure only actual primary parents (not siblings) are shown. Additionally, the user requested an extensive new feature: a live GPS tracking application for bus counselors. This required building a mobile web app () for counselors to take AM attendance and auto-transmit GPS locations, alongside an admin map to track buses, detect when they are at stops, and view historical stop durations and full tracking history.
 
-The current set of tasks revolves around enhancing the camper management and bus roster features:
-1.  **Camper Card Enhancement**: Add a dropdown to the camper info card to set a status for Early Pickup, Late Drop Off, or Early Pickup and Late Drop Off.
-2.  **Bus Roster Enhancement**: Create a new printable full bus roster with the following specific requirements:
-    *   It must open in a separate browser window.
-    *   The header must include the bus number, driver's name, and counselor's name.
-    *   It must show the camper's full street address, using the correct AM address for the AM bus and PM address for the PM bus.
-    *   It must indicate if a camper is an AM-only, PM-only, or both-way rider on that specific bus.
-    *   It must list the actual parent/guardian phone numbers for **every single camper**, pulled from the CampMinder API.
-    *   A section at the bottom must list any staff or shadows assigned to that bus.
+**PRODUCT REQUIREMENTS:**
+- Correct Roster output to pull primary parents only using .
+- Counselor PWA () logging in with Bus PIN.
+- Auto-tracking GPS with Wake Lock (background support).
+- AM Attendance tracking (Present/Absent).
+- Admin tracking modal with 5s map auto-refresh and camper pickup bubble detection (within 100m of stop).
+- Tracking History Viewer and Attendance Reports.
 
 **User's preferred language**: English
+*(INSTRUCTION TO NEXT AGENT: You MUST respond in English only)*
 
-**what currently exists?**
-A full-stack bus routing application with a FastAPI backend, React frontend, and MongoDB database. A printable bus roster has been implemented and the logic to fetch parent phone numbers from the CampMinder API is complete and functional within the agent's preview environment.
-
-However, the feature is **not working** in the user's deployed production environment. The root cause was identified as a combination of a data type mismatch (string vs. integer s) and stale, empty results being stored in the production database cache. A fix has been implemented to correct the type mismatch and to automatically clear bad cache entries on roster load.
+**what currently exists?** 
+A full-stack bus routing application with a FastAPI backend, React frontend, and MongoDB database. A newly added PWA for counselors () handles live GPS tracking and attendance. An admin dashboard () tracks buses in real-time, displays camper bubbles at stops, and has a full tracking history viewer. The backend integrates with the CampMinder API to fetch camper and guardian records.
 
 **Last working item**:
-- **Last item agent was working:** Resolving a persistent bug where parent names and phone numbers appear correctly in the agent's preview environment but are missing in the user's deployed production application. The agent implemented a fix to automatically purge bad cache entries from the database, which is believed to be the cause of the issue in the production environment.
+- **Last item agent was working:** Fixing a critical global scrolling bug. The user was unable to scroll the attendance list on their phone/tablet/PC. After multiple attempts to fix the layout in , the agent discovered that  had a global  applied to , , and . The agent removed this and added a proper scrolling container class to the counselor app.
 - **Status:** USER VERIFICATION PENDING
 - **Agent Testing Done:** Y
-- **Which testing method agent to use?** The fix can only be verified by the user on their deployed production environment. The agent cannot access the user's production database. If the issue persists after the user redeploys, the next step would be to use the  to add more extensive logging to the cache-clearing and data-fetching logic in  to diagnose the issue in the production environment.
+- **Which testing method agent to use?** Frontend testing agent or manual screenshot/mobile emulation to ensure scrolling is restored on .
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: Parent phone numbers not showing on the roster in the deployed production app (P0)**
-- **Issue 2: Refactor large  and  files (P1)**
-
-**Issues Detail:**
-- **Issue 1: Parent phone numbers not showing on the roster in the deployed production app**
-    - **Attempted fixes:**
-        1.  **Incorrect API  endpoint:** The user provided documentation for a  endpoint which was discovered to be non-existent.
-        2.  **New API Strategy:** A reliable method was developed using existing  and  endpoints.
-        3.  **Type Mismatch:** A critical bug was found and fixed where  was being compared as a string against an integer key, causing lookups to fail.
-        4.  **Bad Caching:** The initial implementation cached empty results, causing persistent failures if the API failed even once. This was fixed to only cache successful results.
-        5.  **Manual Cache Clearing:** An API endpoint () was added, but the user was unable to use it.
-        6.  **Automatic Cache Cleaning:** The final fix was to update the code to automatically detect and delete invalid (empty) cache entries from the database every time the roster is loaded. This is intended to self-heal the production environment.
-    - **Next debug checklist:**
-        1.  Await user confirmation after they redeploy the latest changes containing the automatic cache-cleaning logic.
-        2.  If it still fails, the problem lies within the production environment's state, which the agent cannot directly inspect.
-        3.  Ask the user for any backend logs from their deployed application.
-        4.  If no logs are available, add more detailed logging to the  function in  to trace the number of cache entries deleted, campers processed, and contacts found in the production environment.
-    - **Why fix this issue and what will be achieved with the fix?** This is the user's highest priority and the final step to completing the bus roster feature. The user is blocked and frustrated by this issue.
+- **Issue 1: Verify global scrolling fix in Counselor App (P0)**
+    - **Attempted fixes:** Tried , absolute positioning, and removing flexboxes in . Failed because  had  globally.
+    - **Next debug checklist:** Await user verification after redeployment. If still failing, check  or  for any remaining scroll locks.
+    - **Why fix this issue and what will be achieved with the fix?** Counselors cannot mark attendance for campers lower on the list if they cannot scroll.
     - **Status:** USER VERIFICATION PENDING
     - **Is recurring issue?** Y
-    - **Should Test frontend/backend/both after fix?** backend
-    - **Blocked on other issue:** None. This is the main blocker.
-
-- **Issue 2: Refactor  and **
-    - **Attempted fixes:** None.
-    - **Next debug checklist:** After unblocking the primary issue, propose a plan to break down  into a  directory and decompose the  component.
-    - **Why fix this issue and what will be achieved with the fix?** These files are over 5,500 and 3,000 lines, respectively, making them extremely difficult to maintain. Refactoring is critical for long-term stability.
+    - **Should Test frontend/backend/both after fix?** frontend
+    - **Blocked on other issue:** None.
+    
+- **Issue 2: Refactor large  and  files (P1)**
+    - **Attempted fixes:** None. Files have only grown larger with the new GPS features.
+    - **Next debug checklist:** Break down  into a  directory (e.g., , ). Break down  into smaller components (e.g., , ).
+    - **Why fix this issue and what will be achieved with the fix?**  is over 7,200 lines and  is over 3,700 lines. The technical debt is critical.
     - **Status:** NOT STARTED
-    - **Is recurring issue?** Y
+    - **Is recurring issue?** N
     - **Should Test frontend/backend/both after fix?** both
-    - **Blocked on other issue:** Issue 1
+    - **Blocked on other issue:** Issue 1.
 
 **In progress Task List**:
-- **Task 1: Finalize Bus Roster Parent Phone Number feature (P0)**
-    - **Where to resume:** Await user feedback after they redeploy the application with the latest fix.
-    - **What will be achieved with this?** A fully functional and accurate bus roster in the user's production environment.
-    - **Status:** BLOCKED
-    - **Should Test frontend/backend/both after fix?** backend
-    - **Blocked on something:** Waiting for the user to redeploy and verify the fix.
+- None currently. Waiting on user verification for the latest scrolling and history features.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-    - **Refactor  and  (P1):** Address critical technical debt after the roster feature is fully resolved.
+    - **Refactor Codebase (P1):** Modularize backend and frontend immediately after current user verifications pass.
 - **Future Tasks:**
-    - **Build Multi-Tenant SaaS Version (P2)**
-    - **Deprecate Google Sheet Sync (P2)**
+    - **Parent visibility (P2):** Let parents track their child's bus.
+    - **PM attendance tracking (P2):** Expand current AM-only tracking to include PM.
+    - **Parent notifications (P2):** Notifications when children board/exit.
+    - **Build Multi-Tenant SaaS Version (P3)**
+    - **Deprecate Google Sheet Sync (P3)**
 
 **Completed work in this session**
-- **Implemented Reliable Parent Contact Fetching:** Developed a robust, multi-step process to get parent phone numbers from the CampMinder API by combining data from the  and  endpoints.
-- **Fixed Critical Type Mismatch Bug:** Resolved an issue where camper  lookups failed due to a string vs. integer type mismatch.
-- **Implemented Defensive Caching:**
-    - Modified caching logic in  to prevent storing empty results from failed API calls.
-    - Added logic to automatically find and delete stale, empty cache entries from the  collection on roster load to self-heal the production environment.
-- **Added a Manual Cache Clearing Endpoint:** Created  for administrative purposes.
-- **Updated PRD:** Marked the bus roster feature as In Progress with notes on the production bug.
+- Roster Guardian Fix: Filtered CampMinder API family members using  to exclude siblings (DONE)
+- Counselor Tracking PWA: Created  with Wake Lock background tracking and AM attendance (DONE)
+- MongoDB Timezone Fix: Resolved naive vs. aware datetime offset bug during GPS POST requests (DONE)
+- Admin Live Tracking: Auto-following map with camper stop detection bubbles (DONE)
+- Stop Duration & Tracking History: Added history dialog (calendar icon) and stop duration logs (DONE)
+- Attendance Reports: Created  endpoints (DONE)
+- Global Scroll Bug Fix: Removed  from  (DONE)
+
+**Earlier issues found/mentioned but not fixed**
+- **Issue 1: Background tracking limitations on iOS**
+    - **Debug checklist:** Ensure counselors are informed to keep the app visible if their phone pauses background tasks. Wake Lock API was added, but iOS Safari forcefully suspends JS after ~15s in the background.
+    - **Why to solve this issue and what will be achieved with this?** Prevents stale GPS data.
+    - **Should Test frontend/backend/both after fix:** frontend
+    - **Is recurring issue?** Y
+
+**Known issue recurrence from previous fork**
+- **Issue recurrence in previous fork:** Production vs Preview environment data divergence.
+- **Recurrence count:** 1
+- **Status:** RESOLVED (User learned they need to consistently redeploy to see backend/frontend updates on their live site).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Production vs. Preview Divergence:** The primary challenge was a feature working in the preview environment but failing in production. This was traced to differences in the state of the MongoDB cache between the two environments.
-- **Defensive Caching & Self-Healing:** The solution evolved to not just prevent bad data from being cached, but to also actively purge bad data from the cache on application startup, making the system more resilient to transient API failures.
-- **Third-Party API Archaeology:** The agent had to discard incorrect user-provided documentation and reverse-engineer a reliable data-fetching strategy by exploring the behavior of existing, known-working API endpoints (,  with  parameter).
-- **Type Safety in Python:** A critical bug was caused by a subtle type mismatch between string and integer dictionary keys during data lookup, highlighting the importance of ensuring type consistency.
+React frontend, FastAPI backend, MongoDB, Geolocation API (), Wake Lock API (), Progressive Web Apps (PWA), Timezone-aware python datetimes, CampMinder API ().
 
 **key DB schema**
-- ****: MongoDB collection used to cache guardian information. A bad state in this collection (cached empty  arrays) was the likely cause of the production issue.
-    - Schema: 
+- : 
+- : 
+- : 
+
+**changes in tech stack**
+- Added PWA Manifest and standard mobile meta tags to support Add to Home Screen functionality for counselors.
 
 **All files of reference**
-- : Heavily modified to implement robust caching logic within  and to add the  endpoint.
-- : Completely refactored to use a new, reliable strategy for fetching parent contacts. The critical type-mismatch fix () was applied here.
-- : Updated with the status of the roster feature.
+- : Updated logic to ignore siblings and strictly fetch  parents.
+- : CREATED. Mobile web app for counselors to log GPS and take attendance.
+- : UPDATED. Added models/endpoints for tracking, history, and attendance. Fixed naive datetime bug.
+- : UPDATED. Added live tracking modal, stop detection UI, history modal.
+- : UPDATED. Removed global  blocking scrolls.
+- : UPDATED.
 
 **Areas that need refactoring**:
-- **/app/backend/server.py**: Now over 5,800 lines. Must be broken into  modules.
-- **/app/frontend/src/components/BusRoutingMap.jsx**: Still over 3,000 lines and needs to be decomposed into smaller components.
+- : Must be split using .
+- : Component is completely bloated with modals and state.
 
 **key api endpoints**
-- : **(USER VERIFICATION PENDING)** Generates the roster. The underlying data fetching is believed to be fixed, but requires user verification in production.
-- : **(Working)** A new endpoint created to manually clear the production cache as a debugging measure.
+- : Initiates session for counselor.
+- : Receives GPS data from counselor phone.
+- : Used by Admin map to poll live data.
+- : Fetches route mapping history.
+- : Prints HTML report of AM attendance.
 
 **Critical Info for New Agent**
-- **The primary issue is environmental, not logical.** The core code for fetching parent data has been verified and works. The problem is stale, invalid data in the user's production database cache.
-- **Do not re-implement the data fetching logic.** The current strategy in  is correct.
-- **Your first action is to confirm if the user has redeployed the latest code.** The last change, which automatically cleans the cache, is the most likely solution.
-- **The user is frustrated and not technical.** Do not ask them to run  or use browser consoles. The solution must work automatically within the code.
-- If the issue persists after redeployment, focus all debugging efforts on the  function in . The goal is to understand why the cache-clearing logic is not working as expected in the user's environment.
+- **User's deployment pipeline requires manual action**: The user tests primarily on their *deployed live site*, not the preview environment. Always remind the user to redeploy when you finalize code changes.
+- **Global CSS bug resolved**: A frustrating loop occurred because the agent tried changing local component CSS for scrolling, missing that  was enforcing  on the  globally. This was just fixed in the very last message. Wait for user confirmation.
+- **Date/Timezones**: MongoDB often stores naive datetimes in this app; ensure all comparisons use  to prevent 500 errors.
+
+**documents and test reports created in this job**
+- 
 
 **Last 10 User Messages and any pending HUMAN messages**
-- The user is extremely frustrated because the feature works in preview but not on their live site, despite multiple redeploys.
-- They have confirmed the issue affects all campers on the roster.
-- They do not know how to perform technical debugging steps like clearing a cache via .
-- They are at the point of suggesting a fresh database, indicating they believe the problem is with persistent data.
-- The latest message expresses extreme frustration and provides a screenshot of the bug on the live site.
+- (Latest) User stated: when i try to scroll the attendance on the counselor app it does not scroll -> *Agent resolved global CSS bug.*
+- User asked to simplify scrolling on phone/tablet/PC.
+- User could not find the tracking history button -> *Agent moved it to header.*
+- User asked for stop duration tracking and a history viewer for the summer.
+- User wanted background tracking support.
+- User wanted camper bubble UI when the bus arrives at a stop.
+- User wanted auto-follow on the map.
+- User stated Bus #02 tracking was failing (identified as cached old app version).
+- User stated Bus #01 showed no live tracking (identified as datetime timezone bug in backend, fixed).
+- User stated Allow GPS prompt didn't appear and scrolling didn't work.
 
 **Project Health Check:**
-- **Broken:** The primary feature (parent phone numbers on the roster) is non-functional in the user's production environment. This is a critical blocker.
-- **Working:** All other application features, and the roster feature within the agent's preview environment.
-- **Mocked:** None.
+- **Broken**: The codebase structure ( and ) is critically overgrown.
+- **Mocked**: None.
 
 **3rd Party Integrations**
-- **CampMinder API**: The integration is the source of the current issue. The interaction with its rate limits and the subsequent caching strategy is the core of the problem.
-- **Google Maps API**: In use.
-- **Google Sheets API**: In use.
-- **PositionStack API**: In use.
+- CampMinder API — requires User API Key
+- Google Maps API — requires User API Key
+- PositionStack API — requires User API Key
+- Google Sheets API — requires User API Key
 
 **Testing status**
-- **Testing agent used after significant changes:** NO
-- **Troubleshoot agent used after agent stuck in loop:** NO
-- **Test files created:** None.
-- **Known regressions:** The parent phone number feature is not working in production.
+- Testing agent used after significant changes: NO (Relied heavily on self-test via logs and screenshots)
+- Troubleshoot agent used after agent stuck in loop: NO
+- Test files created: None
+- Known regressions: None currently.
+
+**Credentials to test flow:**
+Use  and  found in existing  files.
 
 **What agent forgot to execute**
-The agent initially did not account for the possibility of the production and preview environments having divergent database states (specifically, the cache). It took several failed attempts before focusing on a solution that would heal the production environment's bad data state instead of just working correctly in the clean preview environment.</analysis>
+- The agent forgot to check global/root styles ( and ) early on when debugging the mobile scroll issue, leading to multiple unnecessary refactors of the  layout.
+- Did not call  after massive changes to  and tracking feature implementation. Ensure comprehensive testing is scheduled.</analysis>

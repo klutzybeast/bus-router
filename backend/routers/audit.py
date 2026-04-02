@@ -1,11 +1,13 @@
-"""Audit operations router."""
+"""Audit endpoints for verifying bus assignments."""
 
-import logging
+import os
 import csv
+import logging
 from io import StringIO
+from typing import Optional
 
-from fastapi import APIRouter, HTTPException
 import httpx
+from fastapi import APIRouter, HTTPException
 
 from services.database import db, CAMPMINDER_SHEET_ID
 
@@ -13,27 +15,36 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Audit"])
 
-
 @router.get("/audit/campers")
 async def audit_all_campers():
     """
     Comprehensive audit of ALL campers to verify bus assignments are correct.
     Compares database values against Google Sheet source data.
+    
+    Distinguishes between:
+    - TRUE ERRORS: Database has different bus than Sheet (Sheet has valid bus)
+    - AUTO-ASSIGNMENTS: Database has bus, Sheet has NONE (system auto-assigned)
     """
+    import httpx
+    import csv
+    from io import StringIO
+    
     logger.info("=== STARTING COMPREHENSIVE CAMPER AUDIT ===")
     
     results = {
         "status": "success",
         "total_checked": 0,
-        "true_errors": [],
-        "auto_assignments": [],
+        "true_errors": [],         # DB differs from valid sheet bus
+        "auto_assignments": [],     # DB has bus, sheet has NONE
         "summary": {}
     }
     
     try:
+        # Step 1: Load all campers from database
         db_campers = await db.campers.find({}).to_list(None)
         logger.info(f"Loaded {len(db_campers)} campers from database")
         
+        # Step 2: Load Google Sheet data for comparison
         sheet_id = CAMPMINDER_SHEET_ID
         csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
         
@@ -41,6 +52,7 @@ async def audit_all_campers():
             response = await client.get(csv_url)
             csv_content = response.text
         
+        # Parse Google Sheet data
         if csv_content.startswith('\ufeff'):
             csv_content = csv_content[1:]
         
@@ -63,6 +75,7 @@ async def audit_all_campers():
         
         logger.info(f"Loaded {len(sheet_data)} campers from Google Sheet")
         
+        # Step 3: Audit each camper
         seen_campers = set()
         
         for camper in db_campers:
@@ -72,9 +85,11 @@ async def audit_all_campers():
             db_am_bus = camper.get('am_bus_number', '')
             db_pm_bus = camper.get('pm_bus_number', '')
             
+            # Skip PM-specific entries
             if camper_id.endswith('_PM'):
                 continue
             
+            # Skip if already checked
             full_name = f"{first_name} {last_name}"
             if full_name in seen_campers:
                 continue
@@ -82,6 +97,7 @@ async def audit_all_campers():
             
             results["total_checked"] += 1
             
+            # Find in sheet data
             key = f"{last_name}_{first_name}".lower()
             sheet_camper = sheet_data.get(key)
             
@@ -91,6 +107,7 @@ async def audit_all_campers():
             sheet_am = sheet_camper['sheet_am_bus']
             sheet_pm = sheet_camper['sheet_pm_bus']
             
+            # Determine if sheet value is valid bus
             def is_valid_sheet_bus(val):
                 if not val:
                     return False
@@ -104,6 +121,7 @@ async def audit_all_campers():
             # Check AM
             if db_am_bus and db_am_bus != 'NONE' and db_am_bus.startswith('Bus'):
                 if is_valid_sheet_bus(sheet_am):
+                    # Both have valid buses - check if they match
                     db_norm = db_am_bus.replace(' ', '')
                     sheet_norm = sheet_am.replace(' ', '')
                     if db_norm != sheet_norm:
@@ -115,6 +133,7 @@ async def audit_all_campers():
                             "issue": "TRUE ERROR: AM bus mismatch"
                         })
                 else:
+                    # DB has bus, sheet has NONE - auto-assignment
                     results["auto_assignments"].append({
                         "camper": full_name,
                         "type": "AM",
@@ -125,6 +144,7 @@ async def audit_all_campers():
             # Check PM
             if db_pm_bus and db_pm_bus != 'NONE' and db_pm_bus.startswith('Bus'):
                 if is_valid_sheet_bus(sheet_pm):
+                    # Both have valid buses - check if they match
                     db_norm = db_pm_bus.replace(' ', '')
                     sheet_norm = sheet_pm.replace(' ', '')
                     if db_norm != sheet_norm:
@@ -136,6 +156,7 @@ async def audit_all_campers():
                             "issue": "TRUE ERROR: PM bus mismatch"
                         })
                 else:
+                    # DB has bus, sheet has NONE - auto-assignment
                     results["auto_assignments"].append({
                         "camper": full_name,
                         "type": "PM",
@@ -143,6 +164,7 @@ async def audit_all_campers():
                         "sheet_value": sheet_pm or "NONE"
                     })
         
+        # Step 4: Generate summary
         results["summary"] = {
             "total_campers_checked": results["total_checked"],
             "true_errors_count": len(results["true_errors"]),
@@ -168,8 +190,9 @@ async def audit_all_campers():
 
 @router.get("/audit/bus/{bus_number}")
 async def audit_single_bus(bus_number: str):
-    """Audit all campers on a specific bus."""
+    """Audit all campers on a specific bus"""
     
+    # Get all campers assigned to this bus
     campers = await db.campers.find({
         "$or": [
             {"am_bus_number": bus_number},
@@ -192,6 +215,7 @@ async def audit_single_bus(bus_number: str):
         name = f"{camper['first_name']} {camper['last_name']}"
         camper_id = camper.get('_id', '')
         
+        # Check AM assignment
         if camper.get('am_bus_number') == bus_number and name not in seen_am:
             if not camper_id.endswith('_PM'):
                 results["am_campers"].append({
@@ -202,6 +226,7 @@ async def audit_single_bus(bus_number: str):
                 })
                 seen_am.add(name)
         
+        # Check PM assignment
         if camper.get('pm_bus_number') == bus_number and name not in seen_pm:
             results["pm_campers"].append({
                 "name": name,

@@ -1,1 +1,1 @@
-"""Routers package."""
+"""Router modules for the Bus Routing API."""

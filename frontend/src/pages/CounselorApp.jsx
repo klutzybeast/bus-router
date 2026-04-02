@@ -22,28 +22,32 @@ export default function CounselorApp() {
   const wakeLockRef = useRef(null);
   const lastSentRef = useRef(null);
 
-  // Enable scrolling when component mounts
+  // Enable scrolling when component mounts - critical for mobile devices
   useEffect(() => {
-    // Override the overflow:hidden from App.css
     document.body.style.overflow = 'auto';
     document.body.style.height = 'auto';
+    document.body.style.position = 'static';
+    document.body.style.WebkitOverflowScrolling = 'touch';
     document.documentElement.style.overflow = 'auto';
     document.documentElement.style.height = 'auto';
     const appDiv = document.querySelector('.App');
     if (appDiv) {
       appDiv.style.overflow = 'auto';
       appDiv.style.height = 'auto';
+      appDiv.style.position = 'static';
     }
     
     return () => {
-      // Restore when leaving
       document.body.style.overflow = '';
       document.body.style.height = '';
+      document.body.style.position = '';
+      document.body.style.WebkitOverflowScrolling = '';
       document.documentElement.style.overflow = '';
       document.documentElement.style.height = '';
       if (appDiv) {
         appDiv.style.overflow = '';
         appDiv.style.height = '';
+        appDiv.style.position = '';
       }
     };
   }, []);
@@ -205,7 +209,7 @@ export default function CounselorApp() {
   const campers = busData?.campers || [];
 
   return (
-    <div style={{minHeight:'100vh',background:'#f3f4f6',paddingBottom:20}}>
+    <div style={{minHeight:'100vh',background:'#f3f4f6',paddingBottom:20,WebkitOverflowScrolling:'touch',overscrollBehavior:'contain'}}>
       {/* Sticky Header */}
       <div style={{
         position: 'sticky', 
