@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { CheckCircle, XCircle, Bus, Users, LogOut, Loader2, Navigation } from 'lucide-react';
+import { CheckCircle, XCircle, Bus, Users, LogOut, Navigation } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
-const APP_VERSION = "v2.4";
+const APP_VERSION = "v2.5";
 
 export default function CounselorApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -21,6 +21,32 @@ export default function CounselorApp() {
   const busNumberRef = useRef(null);
   const wakeLockRef = useRef(null);
   const lastSentRef = useRef(null);
+
+  // Enable scrolling when component mounts
+  useEffect(() => {
+    // Override the overflow:hidden from App.css
+    document.body.style.overflow = 'auto';
+    document.body.style.height = 'auto';
+    document.documentElement.style.overflow = 'auto';
+    document.documentElement.style.height = 'auto';
+    const appDiv = document.querySelector('.App');
+    if (appDiv) {
+      appDiv.style.overflow = 'auto';
+      appDiv.style.height = 'auto';
+    }
+    
+    return () => {
+      // Restore when leaving
+      document.body.style.overflow = '';
+      document.body.style.height = '';
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.height = '';
+      if (appDiv) {
+        appDiv.style.overflow = '';
+        appDiv.style.height = '';
+      }
+    };
+  }, []);
 
   const requestWakeLock = async () => {
     if ('wakeLock' in navigator) {
@@ -178,15 +204,8 @@ export default function CounselorApp() {
   const absentCount = Object.values(attendance).filter(s => s === 'absent').length;
   const campers = busData?.campers || [];
 
-  // Main app - completely unstyled scrolling, just a normal webpage
   return (
-    <>
-      <style>{`
-        * { box-sizing: border-box; }
-        html, body, #root { margin: 0; padding: 0; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: #f3f4f6; }
-      `}</style>
-      
+    <div style={{minHeight:'100vh',background:'#f3f4f6',paddingBottom:20}}>
       {/* Sticky Header */}
       <div style={{
         position: 'sticky', 
@@ -220,7 +239,7 @@ export default function CounselorApp() {
         <div style={{textAlign:'center'}}><div style={{fontSize:20,fontWeight:'bold',color:'#2563eb'}}>{campers.length}</div><div style={{fontSize:10,color:'#6b7280'}}>Total</div></div>
       </div>
 
-      {/* Camper List - just regular divs, page scrolls naturally */}
+      {/* Camper List */}
       <div style={{padding:8}}>
         {campers.map((camper, index) => {
           const status = attendance[camper.id];
@@ -257,6 +276,6 @@ export default function CounselorApp() {
         )}
         <p style={{textAlign:'center',fontSize:10,color:'#999',padding:16}}>{APP_VERSION}</p>
       </div>
-    </>
+    </div>
   );
 }
