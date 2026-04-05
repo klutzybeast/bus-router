@@ -49,7 +49,7 @@ print(f"  - Without addresses: {sum(1 for c in expected_campers if not c['has_ad
 
 # Get actual campers from database (including those with lat=0)
 # We need to query MongoDB directly or use a different endpoint
-base_url = "https://camper-location.preview.emergentagent.com/api"
+base_url = "https://counselor-scroll-fix.preview.emergentagent.com/api"
 
 # Try to get all campers including those without locations
 # The /api/campers endpoint filters out lat=0, so let's check the sync response

@@ -16,9 +16,10 @@ body, html {
   min-height: 100%;
 }
 
-/* Allow scrolling on counselor page */
+/* Allow scrolling on counselor page - iOS safe */
 .counselor-page {
-  overflow: auto !important;
+  overflow: visible !important;
   height: auto !important;
   min-height: 100vh;
+  -webkit-overflow-scrolling: touch;
 }

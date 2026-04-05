@@ -22,33 +22,26 @@ export default function CounselorApp() {
   const wakeLockRef = useRef(null);
   const lastSentRef = useRef(null);
 
-  // Enable scrolling when component mounts - critical for mobile devices
+  // Ensure scrolling works on mobile - remove any overflow restrictions from parents
   useEffect(() => {
-    document.body.style.overflow = 'auto';
-    document.body.style.height = 'auto';
-    document.body.style.position = 'static';
-    document.body.style.WebkitOverflowScrolling = 'touch';
-    document.documentElement.style.overflow = 'auto';
-    document.documentElement.style.height = 'auto';
-    const appDiv = document.querySelector('.App');
-    if (appDiv) {
-      appDiv.style.overflow = 'auto';
-      appDiv.style.height = 'auto';
-      appDiv.style.position = 'static';
-    }
-    
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.height = '';
-      document.body.style.position = '';
-      document.body.style.WebkitOverflowScrolling = '';
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.height = '';
-      if (appDiv) {
-        appDiv.style.overflow = '';
-        appDiv.style.height = '';
-        appDiv.style.position = '';
+    const rootEl = document.getElementById('root');
+    const appEl = document.querySelector('.App');
+    // Remove any fixed/overflow constraints that could trap scrolling
+    [document.body, document.documentElement, rootEl, appEl].forEach(el => {
+      if (el) {
+        el.style.overflow = 'visible';
+        el.style.height = 'auto';
+        el.style.position = 'static';
       }
+    });
+    return () => {
+      [document.body, document.documentElement, rootEl, appEl].forEach(el => {
+        if (el) {
+          el.style.overflow = '';
+          el.style.height = '';
+          el.style.position = '';
+        }
+      });
     };
   }, []);
 
@@ -185,7 +178,7 @@ export default function CounselorApp() {
   // Login screen
   if (!isLoggedIn) {
     return (
-      <div style={{minHeight:'100vh',background:'linear-gradient(135deg,#2563eb,#1e40af)',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
+      <div data-testid="counselor-login" style={{minHeight:'100vh',background:'linear-gradient(135deg,#2563eb,#1e40af)',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
         <div style={{background:'white',borderRadius:16,padding:32,width:'100%',maxWidth:320}}>
           <div style={{textAlign:'center',marginBottom:24}}>
             <div style={{width:80,height:80,background:'#dbeafe',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}><Bus size={40} color="#2563eb" /></div>
@@ -193,10 +186,10 @@ export default function CounselorApp() {
             <p style={{color:'#6b7280',margin:'4px 0 0'}}>Enter your bus number</p>
           </div>
           <form onSubmit={handleLogin}>
-            <input type="text" inputMode="numeric" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="Bus #" 
+            <input data-testid="bus-pin-input" type="text" inputMode="numeric" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="Bus #" 
               style={{width:'100%',padding:16,fontSize:28,textAlign:'center',fontWeight:'bold',border:'2px solid #e5e7eb',borderRadius:12,boxSizing:'border-box'}} autoFocus />
-            {error && <div style={{marginTop:16,padding:12,background:'#fef2f2',borderRadius:8,color:'#dc2626',textAlign:'center'}}>{error}</div>}
-            <button type="submit" disabled={loading||!pin} style={{width:'100%',padding:16,marginTop:16,background:'#2563eb',color:'white',fontSize:18,fontWeight:600,border:'none',borderRadius:12,opacity:loading||!pin?0.5:1}}>{loading?'Loading...':'Go'}</button>
+            {error && <div data-testid="login-error" style={{marginTop:16,padding:12,background:'#fef2f2',borderRadius:8,color:'#dc2626',textAlign:'center'}}>{error}</div>}
+            <button data-testid="login-submit-btn" type="submit" disabled={loading||!pin} style={{width:'100%',padding:16,marginTop:16,background:'#2563eb',color:'white',fontSize:18,fontWeight:600,border:'none',borderRadius:12,opacity:loading||!pin?0.5:1}}>{loading?'Loading...':'Go'}</button>
           </form>
           <p style={{textAlign:'center',fontSize:10,color:'#999',marginTop:16}}>{APP_VERSION}</p>
         </div>
@@ -209,9 +202,13 @@ export default function CounselorApp() {
   const campers = busData?.campers || [];
 
   return (
-    <div style={{minHeight:'100vh',background:'#f3f4f6',paddingBottom:20,WebkitOverflowScrolling:'touch',overscrollBehavior:'contain'}}>
+    <div data-testid="counselor-main" className="counselor-page" style={{
+      minHeight:'100vh',
+      background:'#f3f4f6',
+      paddingBottom:20
+    }}>
       {/* Sticky Header */}
-      <div style={{
+      <div data-testid="counselor-header" style={{
         position: 'sticky', 
         top: 0, 
         zIndex: 100, 
@@ -221,35 +218,35 @@ export default function CounselorApp() {
         paddingTop: 'max(env(safe-area-inset-top, 12px), 40px)'
       }}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <h1 style={{margin:0,fontSize:18,fontWeight:'bold'}}>{busData?.bus_number}</h1>
-          <button onClick={handleLogout} style={{background:'none',border:'none',color:'white',padding:8,cursor:'pointer'}}><LogOut size={20} /></button>
+          <h1 data-testid="bus-number-title" style={{margin:0,fontSize:18,fontWeight:'bold'}}>{busData?.bus_number}</h1>
+          <button data-testid="logout-btn" onClick={handleLogout} style={{background:'none',border:'none',color:'white',padding:8,cursor:'pointer'}}><LogOut size={20} /></button>
         </div>
         <div style={{marginTop:8,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
-          <span style={{display:'inline-flex',alignItems:'center',gap:4,padding:'4px 10px',borderRadius:20,fontSize:12,fontWeight:500,
+          <span data-testid="gps-status" style={{display:'inline-flex',alignItems:'center',gap:4,padding:'4px 10px',borderRadius:20,fontSize:12,fontWeight:500,
             background:gpsStatus==='tracking'?'#22c55e':gpsStatus==='error'?'#ef4444':'#eab308'}}>
             <Navigation size={12} />
             {gpsStatus==='tracking'?`GPS (${locationCount})`:gpsStatus==='error'?'GPS Off':'Starting...'}
           </span>
           {wakeLockActive && <span style={{fontSize:10,background:'rgba(255,255,255,0.2)',padding:'4px 8px',borderRadius:20}}>🔒</span>}
-          {gpsStatus==='error' && <button onClick={startGpsTracking} style={{background:'rgba(255,255,255,0.2)',border:'none',color:'white',padding:'4px 10px',borderRadius:20,fontSize:12,cursor:'pointer'}}>Retry</button>}
+          {gpsStatus==='error' && <button data-testid="gps-retry-btn" onClick={startGpsTracking} style={{background:'rgba(255,255,255,0.2)',border:'none',color:'white',padding:'4px 10px',borderRadius:20,fontSize:12,cursor:'pointer'}}>Retry</button>}
         </div>
-        {gpsMessage && <p style={{margin:'4px 0 0',fontSize:11,color:'#bfdbfe'}}>{gpsMessage}</p>}
+        {gpsMessage && <p data-testid="gps-message" style={{margin:'4px 0 0',fontSize:11,color:'#bfdbfe'}}>{gpsMessage}</p>}
       </div>
 
       {/* Stats Bar */}
-      <div style={{background:'white',borderBottom:'1px solid #e5e7eb',padding:8,display:'flex',justifyContent:'space-around'}}>
-        <div style={{textAlign:'center'}}><div style={{fontSize:20,fontWeight:'bold',color:'#22c55e'}}>{presentCount}</div><div style={{fontSize:10,color:'#6b7280'}}>Present</div></div>
-        <div style={{textAlign:'center'}}><div style={{fontSize:20,fontWeight:'bold',color:'#ef4444'}}>{absentCount}</div><div style={{fontSize:10,color:'#6b7280'}}>Absent</div></div>
-        <div style={{textAlign:'center'}}><div style={{fontSize:20,fontWeight:'bold',color:'#9ca3af'}}>{campers.length-presentCount-absentCount}</div><div style={{fontSize:10,color:'#6b7280'}}>Unmarked</div></div>
-        <div style={{textAlign:'center'}}><div style={{fontSize:20,fontWeight:'bold',color:'#2563eb'}}>{campers.length}</div><div style={{fontSize:10,color:'#6b7280'}}>Total</div></div>
+      <div data-testid="stats-bar" style={{background:'white',borderBottom:'1px solid #e5e7eb',padding:8,display:'flex',justifyContent:'space-around'}}>
+        <div style={{textAlign:'center'}}><div data-testid="present-count" style={{fontSize:20,fontWeight:'bold',color:'#22c55e'}}>{presentCount}</div><div style={{fontSize:10,color:'#6b7280'}}>Present</div></div>
+        <div style={{textAlign:'center'}}><div data-testid="absent-count" style={{fontSize:20,fontWeight:'bold',color:'#ef4444'}}>{absentCount}</div><div style={{fontSize:10,color:'#6b7280'}}>Absent</div></div>
+        <div style={{textAlign:'center'}}><div data-testid="unmarked-count" style={{fontSize:20,fontWeight:'bold',color:'#9ca3af'}}>{campers.length-presentCount-absentCount}</div><div style={{fontSize:10,color:'#6b7280'}}>Unmarked</div></div>
+        <div style={{textAlign:'center'}}><div data-testid="total-count" style={{fontSize:20,fontWeight:'bold',color:'#2563eb'}}>{campers.length}</div><div style={{fontSize:10,color:'#6b7280'}}>Total</div></div>
       </div>
 
       {/* Camper List */}
-      <div style={{padding:8}}>
+      <div data-testid="camper-list" style={{padding:8}}>
         {campers.map((camper, index) => {
           const status = attendance[camper.id];
           return (
-            <div key={camper.id} style={{
+            <div key={camper.id} data-testid={`camper-row-${index}`} style={{
               background:status==='present'?'#f0fdf4':status==='absent'?'#fef2f2':'white',
               border:`2px solid ${status==='present'?'#86efac':status==='absent'?'#fca5a5':'#e5e7eb'}`,
               borderRadius:10,padding:10,marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between'
@@ -257,15 +254,15 @@ export default function CounselorApp() {
               <div style={{flex:1,minWidth:0}}>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
                   <span style={{color:'#9ca3af',fontSize:12,width:24}}>#{index+1}</span>
-                  <span style={{fontWeight:500,fontSize:14,color:'#1f2937',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{camper.first_name} {camper.last_name}</span>
+                  <span data-testid={`camper-name-${index}`} style={{fontWeight:500,fontSize:14,color:'#1f2937',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{camper.first_name} {camper.last_name}</span>
                 </div>
               </div>
               <div style={{display:'flex',gap:6,flexShrink:0}}>
-                <button onClick={()=>markAttendance(camper.id,'present')} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',
+                <button data-testid={`mark-present-${index}`} onClick={()=>markAttendance(camper.id,'present')} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',
                   background:status==='present'?'#22c55e':'#f3f4f6',color:status==='present'?'white':'#9ca3af'}}>
                   <CheckCircle size={24} />
                 </button>
-                <button onClick={()=>markAttendance(camper.id,'absent')} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',
+                <button data-testid={`mark-absent-${index}`} onClick={()=>markAttendance(camper.id,'absent')} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',
                   background:status==='absent'?'#ef4444':'#f3f4f6',color:status==='absent'?'white':'#9ca3af'}}>
                   <XCircle size={24} />
                 </button>
