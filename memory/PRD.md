@@ -188,6 +188,14 @@ A web application that displays camper bus routes on a Google Map, using Google 
 
 ---
 
+### Phase 21: Counselor App Scroll & GPS Fix (February 2026)
+- **iOS Scroll Fix**: Removed CSS properties trapping touch scrolling (`overscrollBehavior`, `touchAction: pan-y`, `position: relative`, `overflowY: auto`)
+- Applied `.counselor-page` CSS class with `overflow: visible !important` for natural body-level scrolling
+- Simplified parent element style overrides via useEffect (set `overflow: visible` on body/html/root/App)
+- Added `data-testid` attributes to all interactive elements for testing reliability
+- **GPS**: Status display verified working (shows error state with Retry button when permissions denied, tracks when granted)
+- **Files Modified**: `CounselorApp.jsx`, `App.css`
+
 ## Known Limitations
 - **iOS Background Tracking**: Wake Lock API added but iOS Safari suspends JS after ~15s in background. Counselors must keep app visible.
 - **BusRoutingMap.jsx**: Still 3,398 lines - further frontend refactoring ongoing (P1)
