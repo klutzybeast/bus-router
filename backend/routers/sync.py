@@ -18,6 +18,7 @@ from services.database import (
 )
 from services.helpers import get_active_season_id
 from services.geocoding import geocode_address_cached
+from services.sync_engine import auto_sync_campminder
 from services.bus_utils import get_bus_color
 from models.schemas import GeoLocation, CamperPin
 from sibling_offset import apply_sibling_offset
