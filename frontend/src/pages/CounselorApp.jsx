@@ -217,7 +217,8 @@ export default function CounselorApp() {
         zIndex: 100, 
         background: '#2563eb', 
         color: 'white', 
-        padding: 12
+        padding: '12px 12px 12px 12px',
+        paddingTop: 'max(env(safe-area-inset-top, 12px), 40px)'
       }}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <h1 style={{margin:0,fontSize:18,fontWeight:'bold'}}>{busData?.bus_number}</h1>
