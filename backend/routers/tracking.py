@@ -3,8 +3,9 @@
 import logging
 import urllib.parse
 from math import radians, sin, cos, sqrt, atan2
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
@@ -18,6 +19,18 @@ from models.schemas import (
 from bus_config import get_bus_driver, get_bus_counselor
 
 logger = logging.getLogger(__name__)
+
+EASTERN = ZoneInfo("America/New_York")
+
+
+def today_eastern():
+    """Get today's date string in Eastern Time."""
+    return datetime.now(EASTERN).strftime("%Y-%m-%d")
+
+
+def period_eastern():
+    """Get AM/PM based on Eastern Time."""
+    return "AM" if datetime.now(EASTERN).hour < 12 else "PM"
 
 router = APIRouter(tags=["Bus Tracking"])
 
@@ -64,7 +77,7 @@ async def bus_tracking_login(request: BusLoginRequest):
                 "pm_bus": c.get("pm_bus_number", "")
             })
 
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        today = today_eastern()
         attendance_doc = await db.bus_attendance.find_one({
             "bus_number": bus_number,
             "date": today
@@ -100,7 +113,7 @@ async def update_bus_location(request: BusLocationUpdate):
     try:
         bus_number = request.bus_number
         now = datetime.now(timezone.utc)
-        today = now.strftime("%Y-%m-%d")
+        today = today_eastern()
 
         prev_location = await db.bus_locations.find_one({"bus_number": bus_number})
 
@@ -162,7 +175,7 @@ async def update_bus_location(request: BusLocationUpdate):
             "heading": request.heading,
             "timestamp": now,
             "is_stopped": is_stopped,
-            "period": "AM" if now.hour < 12 else "PM"
+            "period": period_eastern()
         }
 
         await db.bus_location_history.insert_one(history_entry)
@@ -180,7 +193,7 @@ async def update_bus_location(request: BusLocationUpdate):
                         "longitude": request.longitude,
                         "duration_seconds": stop_duration,
                         "last_updated": now,
-                        "period": "AM" if now.hour < 12 else "PM"
+                        "period": period_eastern()
                     }
                 },
                 upsert=True
@@ -286,7 +299,7 @@ async def get_all_bus_locations():
 async def update_attendance(request: AttendanceUpdate, bus_number: str):
     """Update attendance for a single camper."""
     try:
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        today = today_eastern()
 
         if request.status not in ["present", "absent"]:
             raise HTTPException(status_code=400, detail="Status must be 'present' or 'absent'")
@@ -339,7 +352,7 @@ async def get_attendance(bus_number: str, date: Optional[str] = None):
         bus_number = urllib.parse.unquote(bus_number)
 
         if not date:
-            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            date = today_eastern()
 
         attendance_doc = await db.bus_attendance.find_one({
             "bus_number": bus_number,
@@ -382,7 +395,7 @@ async def get_bus_tracking_history(bus_number: str, date: Optional[str] = None, 
         bus_number = urllib.parse.unquote(bus_number)
 
         if not date:
-            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            date = today_eastern()
 
         query = {"bus_number": bus_number, "date": date}
         if period and period.upper() in ['AM', 'PM']:
@@ -458,7 +471,7 @@ async def get_bus_stops_log(bus_number: str, date: Optional[str] = None):
         bus_number = urllib.parse.unquote(bus_number)
 
         if not date:
-            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            date = today_eastern()
 
         stops_cursor = db.bus_stops_log.find(
             {"bus_number": bus_number, "date": date},
@@ -501,7 +514,7 @@ async def get_attendance_report(date: Optional[str] = None):
     """Get attendance report for all buses - returns HTML for printing."""
     try:
         if not date:
-            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            date = today_eastern()
 
         attendance_cursor = db.bus_attendance.find({"date": date})
         attendance_docs = await attendance_cursor.to_list(length=100)
@@ -612,7 +625,7 @@ async def get_attendance_report_json(date: Optional[str] = None):
     """Get attendance report data as JSON."""
     try:
         if not date:
-            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            date = today_eastern()
 
         attendance_cursor = db.bus_attendance.find({"date": date})
         attendance_docs = await attendance_cursor.to_list(length=100)
