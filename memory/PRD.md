@@ -143,6 +143,11 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - `GET /api/bus-tracking/location/{bus_number}` - Live bus location
 - `GET /api/bus-tracking/history/{bus_number}` - Route history
 - `GET /api/bus-tracking/attendance-report` - HTML attendance report
+- `GET /api/bus-tracking/attendance-report/json` - JSON attendance report
+- `GET /api/bus-roster` - Full AM roster with live attendance (for external apps)
+- `GET /api/bus-roster/{bus_number}` - Single bus roster with attendance
+- `PUT /api/bus-roster/mark` - Push single camper attendance from external app
+- `PUT /api/bus-roster/bulk` - Push bulk camper attendance from external app
 - `GET /api/seasons/active` - Active season
 - `GET /api/campers` - All campers
 - `GET /api/buses` - All buses
@@ -197,6 +202,15 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - **Files Modified**: `CounselorApp.jsx`, `App.css`
 
 ## Known Limitations
+- **iOS Background Tracking**: Wake Lock API added but iOS Safari suspends JS after ~15s in background. Counselors must keep app visible.
+- **BusRoutingMap.jsx**: Still 3,398 lines - further frontend refactoring ongoing (P1)
+
+## 3rd Party Integrations
+- CampMinder API (User API Key)
+- Google Maps API (User API Key)
+- PositionStack API (User API Key)
+- Google Sheets API (User API Key)
+
 - **iOS Background Tracking**: Wake Lock API added but iOS Safari suspends JS after ~15s in background. Counselors must keep app visible.
 - **BusRoutingMap.jsx**: Still 3,398 lines - further frontend refactoring ongoing (P1)
 

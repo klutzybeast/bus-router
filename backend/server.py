@@ -41,6 +41,7 @@ from routers import (
     sheets as sheets_router,
     roster as roster_router,
     sync as sync_router,
+    bus_roster as bus_roster_router,
 )
 
 logger = logging.getLogger(__name__)
@@ -188,6 +189,7 @@ api_router.include_router(buses_router.router)
 api_router.include_router(audit_router.router)
 api_router.include_router(roster_router.router)
 api_router.include_router(tracking_router.router)
+api_router.include_router(bus_roster_router.router)
 
 app.include_router(api_router)
 
