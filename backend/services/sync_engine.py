@@ -328,7 +328,7 @@ async def auto_sync_campminder():
                     "town": pm_final_town,
                     "zip_code": pm_final_zip,
                     "pickup_type": "PM Drop-off Only",
-                    "am_bus_number": final_am_bus,
+                    "am_bus_number": "NONE",
                     "pm_bus_number": final_pm_bus,
                     "bus_color": get_bus_color(final_pm_bus),
                     "season_id": sync_season_id,
