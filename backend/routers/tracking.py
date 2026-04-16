@@ -1,6 +1,7 @@
 """GPS bus tracking, attendance, and history endpoints."""
 
 import logging
+import asyncio
 import urllib.parse
 from math import radians, sin, cos, sqrt, atan2
 from datetime import datetime, timezone, timedelta
@@ -12,6 +13,7 @@ from fastapi.responses import HTMLResponse
 
 from services.database import db
 from services.helpers import get_active_season_id
+from services.snapshot_sync import push_attendance_to_snapshot
 from models.schemas import (
     BusLocationUpdate, BusLoginRequest, AttendanceUpdate,
     BulkAttendanceUpdate, PickupDropoffRequest
@@ -336,6 +338,10 @@ async def update_attendance(request: AttendanceUpdate, bus_number: str):
             })
 
         logging.info(f"Attendance updated: {bus_number} - {request.camper_id} = {request.status}")
+
+        # Fire-and-forget push to CamperSnapshot
+        asyncio.create_task(push_attendance_to_snapshot(request.camper_id, request.status, today))
+
         return {"success": True, "message": "Attendance updated"}
 
     except HTTPException:
