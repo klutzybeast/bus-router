@@ -12,6 +12,7 @@ from services.database import (
 )
 from services.geocoding import geocode_address_cached
 from services.bus_utils import get_bus_color
+from services.snapshot_sync import assign_person_id
 from models.schemas import GeoLocation
 from sibling_offset import apply_sibling_offset
 
@@ -272,6 +273,8 @@ async def auto_sync_campminder():
                 result = await db.campers.replace_one({"_id": camper_id}, camper_doc, upsert=True)
                 if result.upserted_id:
                     new_count += 1
+                    # Auto-assign person_id for new campers
+                    await assign_person_id(camper_id, first_name, last_name)
                 elif result.modified_count > 0:
                     updated_count += 1
             else:
@@ -309,6 +312,7 @@ async def auto_sync_campminder():
                 result = await db.campers.replace_one({"_id": camper_id}, camper_doc, upsert=True)
                 if result.upserted_id:
                     new_count += 1
+                    await assign_person_id(camper_id, first_name, last_name)
 
             has_different_pm_address = pm_final_address.strip() and pm_final_address != am_address
             if has_different_pm_address and am_needs_bus and pm_needs_bus:
