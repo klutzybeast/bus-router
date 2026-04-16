@@ -9,6 +9,7 @@ Flow:
 import os
 import logging
 import asyncio
+import urllib.parse
 import httpx
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
@@ -143,26 +144,47 @@ async def assign_person_id(camper_id: str, first_name: str, last_name: str):
 
 
 async def push_attendance_to_snapshot(camper_id: str, status: str, date: str):
-    """Push a single attendance mark to CamperSnapshot using the camper's person_id."""
+    """Push attendance to CamperSnapshot using its UUID (not person_id).
+    Looks up CamperSnapshot UUID by matching camper name from the roster.
+    """
     try:
-        camper = await db.campers.find_one({"_id": camper_id}, {"person_id": 1})
-        if not camper or not camper.get("person_id"):
+        camper = await db.campers.find_one(
+            {"_id": camper_id},
+            {"first_name": 1, "last_name": 1, "am_bus_number": 1, "snapshot_id": 1}
+        )
+        if not camper:
             return
 
-        person_id = camper["person_id"]
+        snapshot_id = camper.get("snapshot_id")
+
+        # If no cached snapshot_id, look it up from CamperSnapshot roster
+        if not snapshot_id:
+            bus = camper.get("am_bus_number", "")
+            name = f"{camper.get('first_name', '')} {camper.get('last_name', '')}".strip().lower()
+            roster = await fetch_snapshot_roster(date=date, bus_number=bus)
+
+            # Search in am_riders or campers
+            riders = roster.get("am_riders", roster.get("campers", []))
+            for r in riders:
+                if r.get("name", "").strip().lower() == name:
+                    snapshot_id = r.get("id")
+                    break
+
+            if snapshot_id:
+                await db.campers.update_one({"_id": camper_id}, {"$set": {"snapshot_id": snapshot_id}})
+            else:
+                print(f"[SNAP] Could not find UUID for {camper_id} ({name}) on {bus}")
+                return
 
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.put(
                 f"{CAMPERSNAPSHOT_URL}/api/bus-roster/mark",
-                json={"camper_id": person_id, "status": status, "date": date},
+                json={"camper_id": snapshot_id, "status": status, "date": date},
             )
-            if response.status_code == 200:
-                logger.info(f"Snapshot push OK: {camper_id} (pid={person_id}) -> {status}")
-            else:
-                logger.warning(f"Snapshot push failed: {response.status_code} - {response.text[:200]}")
+            print(f"[SNAP] {camper_id} -> {snapshot_id} {status} {date}: {response.status_code}")
 
     except Exception as e:
-        logger.warning(f"CamperSnapshot push error for {camper_id}: {str(e)}")
+        print(f"[SNAP] Error: {e}")
 
 
 async def fetch_snapshot_roster(date: str = None, bus_number: str = None) -> dict:
@@ -172,7 +194,8 @@ async def fetch_snapshot_roster(date: str = None, bus_number: str = None) -> dic
             date = datetime.now(EASTERN).strftime("%Y-%m-%d")
 
         if bus_number:
-            url = f"{CAMPERSNAPSHOT_URL}/api/bus-roster/{bus_number}"
+            encoded = urllib.parse.quote(bus_number, safe="")
+            url = f"{CAMPERSNAPSHOT_URL}/api/bus-roster/{encoded}"
         else:
             url = f"{CAMPERSNAPSHOT_URL}/api/bus-roster"
 
@@ -182,9 +205,9 @@ async def fetch_snapshot_roster(date: str = None, bus_number: str = None) -> dic
         if response.status_code == 200:
             return response.json()
         else:
-            logger.warning(f"CamperSnapshot roster fetch failed: {response.status_code}")
+            print(f"[SNAP] Roster fetch failed: {response.status_code} {response.text[:200]}")
             return {"error": f"CamperSnapshot returned {response.status_code}", "fallback": True}
 
     except Exception as e:
-        logger.warning(f"CamperSnapshot roster fetch error: {e}")
+        print(f"[SNAP] Roster fetch error: {e}")
         return {"error": str(e), "fallback": True}

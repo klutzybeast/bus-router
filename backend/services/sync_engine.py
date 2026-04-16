@@ -265,10 +265,13 @@ async def auto_sync_campminder():
                     "created_at": datetime.now(timezone.utc)
                 }
 
-                # Preserve person_id from CamperSnapshot sync
-                existing = await db.campers.find_one({"_id": camper_id}, {"person_id": 1})
-                if existing and existing.get("person_id"):
-                    camper_doc["person_id"] = existing["person_id"]
+                # Preserve person_id and snapshot_id from CamperSnapshot sync
+                existing = await db.campers.find_one({"_id": camper_id}, {"person_id": 1, "snapshot_id": 1})
+                if existing:
+                    if existing.get("person_id"):
+                        camper_doc["person_id"] = existing["person_id"]
+                    if existing.get("snapshot_id"):
+                        camper_doc["snapshot_id"] = existing["snapshot_id"]
 
                 result = await db.campers.replace_one({"_id": camper_id}, camper_doc, upsert=True)
                 if result.upserted_id:
@@ -304,10 +307,13 @@ async def auto_sync_campminder():
                     "created_at": datetime.now(timezone.utc)
                 }
 
-                # Preserve person_id from CamperSnapshot sync
-                existing = await db.campers.find_one({"_id": camper_id}, {"person_id": 1})
-                if existing and existing.get("person_id"):
-                    camper_doc["person_id"] = existing["person_id"]
+                # Preserve person_id and snapshot_id from CamperSnapshot sync
+                existing = await db.campers.find_one({"_id": camper_id}, {"person_id": 1, "snapshot_id": 1})
+                if existing:
+                    if existing.get("person_id"):
+                        camper_doc["person_id"] = existing["person_id"]
+                    if existing.get("snapshot_id"):
+                        camper_doc["snapshot_id"] = existing["snapshot_id"]
 
                 result = await db.campers.replace_one({"_id": camper_id}, camper_doc, upsert=True)
                 if result.upserted_id:
