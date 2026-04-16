@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { CheckCircle, XCircle, Bus, Users, LogOut, Navigation } from 'lucide-react';
+import { CheckCircle, XCircle, Bus, Users, LogOut, Navigation, Calendar } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
-const APP_VERSION = "v2.5";
+const APP_VERSION = "v2.6";
+
+function getTodayEST() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+}
 
 export default function CounselorApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -11,6 +15,7 @@ export default function CounselorApp() {
   const [error, setError] = useState('');
   const [busData, setBusData] = useState(null);
   const [attendance, setAttendance] = useState({});
+  const [selectedDate, setSelectedDate] = useState(getTodayEST());
   const [gpsStatus, setGpsStatus] = useState('idle');
   const [gpsMessage, setGpsMessage] = useState('');
   const [locationCount, setLocationCount] = useState(0);
@@ -160,15 +165,40 @@ export default function CounselorApp() {
   const handleLogout = () => {
     stopGpsTracking(); localStorage.removeItem('counselor_bus'); busNumberRef.current = null;
     setIsLoggedIn(false); setBusData(null); setAttendance({}); setPin(''); setLocationCount(0); setGpsStatus('idle'); setWakeLockActive(false);
+    setSelectedDate(getTodayEST());
   };
 
   useEffect(() => () => stopGpsTracking(), [stopGpsTracking]);
+
+  // Fetch attendance when date changes
+  const fetchAttendanceForDate = useCallback(async (date) => {
+    if (!busData?.bus_number) return;
+    try {
+      const res = await fetch(`${API_URL}/api/bus-tracking/attendance/${encodeURIComponent(busData.bus_number)}?date=${date}`);
+      const data = await res.json();
+      if (res.ok) {
+        const attMap = {};
+        (data.records || []).forEach(r => { attMap[r.camper_id] = r.status; });
+        setAttendance(attMap);
+      } else {
+        setAttendance({});
+      }
+    } catch {
+      setAttendance({});
+    }
+  }, [busData?.bus_number]);
+
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+    setAttendance({});
+    fetchAttendanceForDate(newDate);
+  };
 
   const markAttendance = async (camperId, status) => {
     if (!busData) return;
     setAttendance(prev => ({ ...prev, [camperId]: status }));
     try {
-      await fetch(`${API_URL}/api/bus-tracking/attendance?bus_number=${encodeURIComponent(busData.bus_number)}`, {
+      await fetch(`${API_URL}/api/bus-tracking/attendance?bus_number=${encodeURIComponent(busData.bus_number)}&date=${selectedDate}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ camper_id: camperId, status })
       });
@@ -231,6 +261,41 @@ export default function CounselorApp() {
           {gpsStatus==='error' && <button data-testid="gps-retry-btn" onClick={startGpsTracking} style={{background:'rgba(255,255,255,0.2)',border:'none',color:'white',padding:'4px 10px',borderRadius:20,fontSize:12,cursor:'pointer'}}>Retry</button>}
         </div>
         {gpsMessage && <p data-testid="gps-message" style={{margin:'4px 0 0',fontSize:11,color:'#bfdbfe'}}>{gpsMessage}</p>}
+        {/* Date Selector */}
+        <div data-testid="date-selector" style={{marginTop:8,display:'flex',alignItems:'center',gap:8}}>
+          <Calendar size={14} />
+          <input
+            data-testid="date-input"
+            type="date"
+            value={selectedDate}
+            onChange={(e) => handleDateChange(e.target.value)}
+            style={{
+              background:'rgba(255,255,255,0.15)',
+              border:'1px solid rgba(255,255,255,0.3)',
+              borderRadius:8,
+              color:'white',
+              padding:'4px 8px',
+              fontSize:13,
+              fontWeight:500,
+              flex:1,
+              colorScheme:'dark'
+            }}
+          />
+          {selectedDate !== getTodayEST() && (
+            <button
+              data-testid="date-today-btn"
+              onClick={() => handleDateChange(getTodayEST())}
+              style={{background:'rgba(255,255,255,0.2)',border:'none',color:'white',padding:'4px 10px',borderRadius:8,fontSize:11,cursor:'pointer',whiteSpace:'nowrap'}}
+            >
+              Today
+            </button>
+          )}
+        </div>
+        {selectedDate !== getTodayEST() && (
+          <div style={{marginTop:4,padding:'3px 8px',background:'#f59e0b',borderRadius:6,fontSize:11,fontWeight:600,color:'#000',textAlign:'center'}}>
+            Testing: {new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'})}
+          </div>
+        )}
       </div>
 
       {/* Stats Bar */}

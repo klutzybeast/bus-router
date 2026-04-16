@@ -298,17 +298,17 @@ async def get_all_bus_locations():
 
 
 @router.post("/bus-tracking/attendance")
-async def update_attendance(request: AttendanceUpdate, bus_number: str):
-    """Update attendance for a single camper."""
+async def update_attendance(request: AttendanceUpdate, bus_number: str, date: Optional[str] = None):
+    """Update attendance for a single camper. Date defaults to today EST if not provided."""
     try:
-        today = today_eastern()
+        effective_date = date or today_eastern()
 
         if request.status not in ["present", "absent"]:
             raise HTTPException(status_code=400, detail="Status must be 'present' or 'absent'")
 
         existing = await db.bus_attendance.find_one({
             "bus_number": bus_number,
-            "date": today
+            "date": effective_date
         })
 
         if existing:
@@ -327,7 +327,7 @@ async def update_attendance(request: AttendanceUpdate, bus_number: str):
         else:
             await db.bus_attendance.insert_one({
                 "bus_number": bus_number,
-                "date": today,
+                "date": effective_date,
                 "records": [{
                     "camper_id": request.camper_id,
                     "status": request.status,
@@ -337,10 +337,10 @@ async def update_attendance(request: AttendanceUpdate, bus_number: str):
                 "updated_at": datetime.now(timezone.utc).isoformat()
             })
 
-        logging.info(f"Attendance updated: {bus_number} - {request.camper_id} = {request.status}")
+        logging.info(f"Attendance updated: {bus_number} - {request.camper_id} = {request.status} (date={effective_date})")
 
         # Fire-and-forget push to CamperSnapshot
-        asyncio.create_task(push_attendance_to_snapshot(request.camper_id, request.status, today))
+        asyncio.create_task(push_attendance_to_snapshot(request.camper_id, request.status, effective_date))
 
         return {"success": True, "message": "Attendance updated"}
 
