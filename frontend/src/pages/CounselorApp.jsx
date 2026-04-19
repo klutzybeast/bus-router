@@ -274,12 +274,16 @@ export default function CounselorApp() {
     const generateDates = () => {
       const dates = [];
       const start = new Date('2026-06-29T12:00:00');
-      for (let i = 0; i < 42; i++) {
-        const d = new Date(start);
-        d.setDate(d.getDate() + i);
-        if (d.getDay() !== 0) { // skip Sundays
-          dates.push(d.toISOString().split('T')[0]);
+      const end = new Date('2026-08-20T12:00:00');
+      const excluded = ['2026-07-03'];
+      const d = new Date(start);
+      while (d <= end) {
+        const day = d.getDay();
+        const iso = d.toISOString().split('T')[0];
+        if (day >= 1 && day <= 5 && !excluded.includes(iso)) {
+          dates.push(iso);
         }
+        d.setDate(d.getDate() + 1);
       }
       return dates;
     };
