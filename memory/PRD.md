@@ -201,21 +201,28 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - **GPS**: Status display verified working (shows error state with Retry button when permissions denied, tracks when granted)
 - **Files Modified**: `CounselorApp.jsx`, `App.css`
 
+### Phase 22: Admin Clear Attendance (February 2026)
+- **Admin Panel** in Counselor App (`/counselor`): Enter `admin` as PIN to access
+- Batch clear attendance records for selected camp dates
+- Optional bus number filter (leave empty for ALL buses)
+- Quick-select: Today, All Camp Days, Clear Selection
+- Custom date picker for adding individual dates
+- Camp days grid (42 days from Jun 29, skips Sundays)
+- Confirmation dialog before destructive clear
+- Success/failure result messages
+- **Backend**: `POST /api/bus-tracking/clear-attendance` accepts JSON dates array + optional `bus_number` query param
+- **Tested**: 6 pytest + 11 Playwright tests, 100% pass rate
+- **Note**: Endpoint has no server-side auth (client-side PIN gate only) — acceptable for internal admin tool
+- **Files Modified**: `CounselorApp.jsx`, `routers/tracking.py`
+
 ## Known Limitations
 - **iOS Background Tracking**: Wake Lock API added but iOS Safari suspends JS after ~15s in background. Counselors must keep app visible.
 - **BusRoutingMap.jsx**: Still 3,398 lines - further frontend refactoring ongoing (P1)
+- **Clear Attendance Endpoint**: No server-side auth — fine for internal use, should be secured if exposed publicly
 
 ## 3rd Party Integrations
 - CampMinder API (User API Key)
 - Google Maps API (User API Key)
 - PositionStack API (User API Key)
 - Google Sheets API (User API Key)
-
-- **iOS Background Tracking**: Wake Lock API added but iOS Safari suspends JS after ~15s in background. Counselors must keep app visible.
-- **BusRoutingMap.jsx**: Still 3,398 lines - further frontend refactoring ongoing (P1)
-
-## 3rd Party Integrations
-- CampMinder API (User API Key)
-- Google Maps API (User API Key)
-- PositionStack API (User API Key)
-- Google Sheets API (User API Key)
+- CamperSnapshot API (External Custom App)
