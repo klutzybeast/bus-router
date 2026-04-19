@@ -217,9 +217,9 @@ export default function CounselorApp() {
     setAdminLoading(true); setAdminResult(null);
     try {
       const busParam = adminBus.trim() || null;
-      const url = new URL(`${API_URL}/api/bus-tracking/clear-attendance`);
-      if (busParam) url.searchParams.set('bus_number', busParam);
-      const res = await fetch(url, {
+      let endpoint = `${API_URL}/api/bus-tracking/clear-attendance`;
+      if (busParam) endpoint += `?bus_number=${encodeURIComponent(busParam)}`;
+      const res = await fetch(endpoint, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(adminDates)
       });
