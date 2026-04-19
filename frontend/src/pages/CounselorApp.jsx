@@ -27,6 +27,7 @@ export default function CounselorApp() {
   const [adminBus, setAdminBus] = useState('');
   const [adminResult, setAdminResult] = useState(null);
   const [adminLoading, setAdminLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   
   const gpsIntervalRef = useRef(null);
   const watchIdRef = useRef(null);
@@ -177,7 +178,7 @@ export default function CounselorApp() {
   const handleLogout = () => {
     stopGpsTracking(); localStorage.removeItem('counselor_bus'); busNumberRef.current = null;
     setIsLoggedIn(false); setIsAdmin(false); setBusData(null); setAttendance({}); setPin(''); setLocationCount(0); setGpsStatus('idle'); setWakeLockActive(false);
-    setSelectedDate(getTodayEST()); setAdminDates([]); setAdminBus(''); setAdminResult(null);
+    setSelectedDate(getTodayEST()); setAdminDates([]); setAdminBus(''); setAdminResult(null); setShowConfirm(false);
   };
 
   useEffect(() => () => stopGpsTracking(), [stopGpsTracking]);
@@ -212,12 +213,10 @@ export default function CounselorApp() {
 
   const clearAttendance = async () => {
     if (adminDates.length === 0) return;
-    const busParam = adminBus.trim() || null;
-    const label = busParam ? `${busParam} for ${adminDates.length} date(s)` : `ALL buses for ${adminDates.length} date(s)`;
-    if (!window.confirm(`Clear attendance for ${label}?\n\nDates: ${adminDates.join(', ')}\n\nThis cannot be undone.`)) return;
-
+    setShowConfirm(false);
     setAdminLoading(true); setAdminResult(null);
     try {
+      const busParam = adminBus.trim() || null;
       const url = new URL(`${API_URL}/api/bus-tracking/clear-attendance`);
       if (busParam) url.searchParams.set('bus_number', busParam);
       const res = await fetch(url, {
@@ -274,7 +273,7 @@ export default function CounselorApp() {
   if (isAdmin) {
     const generateDates = () => {
       const dates = [];
-      const start = new Date('2026-06-29');
+      const start = new Date('2026-06-29T12:00:00');
       for (let i = 0; i < 42; i++) {
         const d = new Date(start);
         d.setDate(d.getDate() + i);
@@ -369,10 +368,30 @@ export default function CounselorApp() {
             </div>
           )}
 
+          {/* Confirmation dialog */}
+          {showConfirm && (
+            <div data-testid="admin-confirm-dialog" style={{marginBottom:12,padding:16,background:'#450a0a',border:'2px solid #dc2626',borderRadius:12}}>
+              <p style={{color:'#fca5a5',fontSize:14,fontWeight:600,margin:'0 0 8px'}}>
+                Clear attendance for {adminBus.trim() || 'ALL buses'} on {adminDates.length} date(s)?
+              </p>
+              <p style={{color:'#9ca3af',fontSize:12,margin:'0 0 12px'}}>This cannot be undone.</p>
+              <div style={{display:'flex',gap:8}}>
+                <button data-testid="admin-confirm-yes" onClick={clearAttendance}
+                  style={{flex:1,padding:12,background:'#dc2626',color:'white',fontWeight:700,border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>
+                  Yes, Clear
+                </button>
+                <button data-testid="admin-confirm-no" onClick={() => setShowConfirm(false)}
+                  style={{flex:1,padding:12,background:'#374151',color:'white',fontWeight:600,border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Clear button */}
           <button
             data-testid="admin-clear-btn"
-            onClick={clearAttendance}
+            onClick={() => setShowConfirm(true)}
             disabled={adminDates.length === 0 || adminLoading}
             style={{
               width:'100%',padding:16,background:adminDates.length === 0?'#374151':'#dc2626',
