@@ -259,7 +259,7 @@ export default function CounselorApp() {
             <p style={{color:'#6b7280',margin:'4px 0 0'}}>Enter your bus number</p>
           </div>
           <form onSubmit={handleLogin}>
-            <input data-testid="bus-pin-input" type="text" inputMode="numeric" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="Bus #" 
+            <input data-testid="bus-pin-input" type="text" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="Bus # or admin" 
               style={{width:'100%',padding:16,fontSize:28,textAlign:'center',fontWeight:'bold',border:'2px solid #e5e7eb',borderRadius:12,boxSizing:'border-box'}} autoFocus />
             {error && <div data-testid="login-error" style={{marginTop:16,padding:12,background:'#fef2f2',borderRadius:8,color:'#dc2626',textAlign:'center'}}>{error}</div>}
             <button data-testid="login-submit-btn" type="submit" disabled={loading||!pin} style={{width:'100%',padding:16,marginTop:16,background:'#2563eb',color:'white',fontSize:18,fontWeight:600,border:'none',borderRadius:12,opacity:loading||!pin?0.5:1}}>{loading?'Loading...':'Go'}</button>
