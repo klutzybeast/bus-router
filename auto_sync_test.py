@@ -1,7 +1,7 @@
 import requests
 import time
 
-base_url = "https://counselor-scroll-fix.preview.emergentagent.com/api"
+base_url = "https://counselor-admin-test.preview.emergentagent.com/api"
 
 print("="*60)
 print("AUTO-SYNC DETAILED TEST")

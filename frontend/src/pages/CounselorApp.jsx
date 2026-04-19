@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { CheckCircle, XCircle, Bus, Users, LogOut, Navigation, Calendar } from 'lucide-react';
+import { CheckCircle, XCircle, Bus, Users, LogOut, Navigation, Calendar, Trash2, ArrowLeft, Shield } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
-const APP_VERSION = "v2.6";
+const APP_VERSION = "v2.7";
+const ADMIN_PIN = "admin";
 
 function getTodayEST() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
@@ -10,6 +11,7 @@ function getTodayEST() {
 
 export default function CounselorApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,6 +22,11 @@ export default function CounselorApp() {
   const [gpsMessage, setGpsMessage] = useState('');
   const [locationCount, setLocationCount] = useState(0);
   const [wakeLockActive, setWakeLockActive] = useState(false);
+  // Admin state
+  const [adminDates, setAdminDates] = useState([]);
+  const [adminBus, setAdminBus] = useState('');
+  const [adminResult, setAdminResult] = useState(null);
+  const [adminLoading, setAdminLoading] = useState(false);
   
   const gpsIntervalRef = useRef(null);
   const watchIdRef = useRef(null);
@@ -103,6 +110,11 @@ export default function CounselorApp() {
 
   const handleLogin = async (e) => {
     e.preventDefault(); setLoading(true); setError('');
+    // Admin mode
+    if (pin.toLowerCase() === ADMIN_PIN) {
+      setIsAdmin(true); setIsLoggedIn(true); setLoading(false);
+      return;
+    }
     try {
       const response = await fetch(`${API_URL}/api/bus-tracking/login`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -164,8 +176,8 @@ export default function CounselorApp() {
 
   const handleLogout = () => {
     stopGpsTracking(); localStorage.removeItem('counselor_bus'); busNumberRef.current = null;
-    setIsLoggedIn(false); setBusData(null); setAttendance({}); setPin(''); setLocationCount(0); setGpsStatus('idle'); setWakeLockActive(false);
-    setSelectedDate(getTodayEST());
+    setIsLoggedIn(false); setIsAdmin(false); setBusData(null); setAttendance({}); setPin(''); setLocationCount(0); setGpsStatus('idle'); setWakeLockActive(false);
+    setSelectedDate(getTodayEST()); setAdminDates([]); setAdminBus(''); setAdminResult(null);
   };
 
   useEffect(() => () => stopGpsTracking(), [stopGpsTracking]);
@@ -192,6 +204,37 @@ export default function CounselorApp() {
     setSelectedDate(newDate);
     setAttendance({});
     fetchAttendanceForDate(newDate);
+  };
+
+  const toggleAdminDate = (date) => {
+    setAdminDates(prev => prev.includes(date) ? prev.filter(d => d !== date) : [...prev, date]);
+  };
+
+  const clearAttendance = async () => {
+    if (adminDates.length === 0) return;
+    const busParam = adminBus.trim() || null;
+    const label = busParam ? `${busParam} for ${adminDates.length} date(s)` : `ALL buses for ${adminDates.length} date(s)`;
+    if (!window.confirm(`Clear attendance for ${label}?\n\nDates: ${adminDates.join(', ')}\n\nThis cannot be undone.`)) return;
+
+    setAdminLoading(true); setAdminResult(null);
+    try {
+      const url = new URL(`${API_URL}/api/bus-tracking/clear-attendance`);
+      if (busParam) url.searchParams.set('bus_number', busParam);
+      const res = await fetch(url, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(adminDates)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAdminResult({ success: true, message: `Cleared ${data.deleted} record(s) for ${data.bus_number}` });
+        setAdminDates([]);
+      } else {
+        setAdminResult({ success: false, message: data.detail || 'Failed' });
+      }
+    } catch (err) {
+      setAdminResult({ success: false, message: err.message });
+    }
+    setAdminLoading(false);
   };
 
   const markAttendance = async (camperId, status) => {
@@ -222,6 +265,125 @@ export default function CounselorApp() {
             <button data-testid="login-submit-btn" type="submit" disabled={loading||!pin} style={{width:'100%',padding:16,marginTop:16,background:'#2563eb',color:'white',fontSize:18,fontWeight:600,border:'none',borderRadius:12,opacity:loading||!pin?0.5:1}}>{loading?'Loading...':'Go'}</button>
           </form>
           <p style={{textAlign:'center',fontSize:10,color:'#999',marginTop:16}}>{APP_VERSION}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Admin panel
+  if (isAdmin) {
+    const generateDates = () => {
+      const dates = [];
+      const start = new Date('2026-06-29');
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(start);
+        d.setDate(d.getDate() + i);
+        if (d.getDay() !== 0) { // skip Sundays
+          dates.push(d.toISOString().split('T')[0]);
+        }
+      }
+      return dates;
+    };
+    const campDates = generateDates();
+    const today = getTodayEST();
+
+    return (
+      <div data-testid="admin-panel" className="counselor-page" style={{minHeight:'100vh',background:'#111827',paddingBottom:20}}>
+        <div style={{position:'sticky',top:0,zIndex:100,background:'#dc2626',color:'white',padding:'12px',paddingTop:'max(env(safe-area-inset-top, 12px), 40px)'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <Shield size={20} />
+              <h1 style={{margin:0,fontSize:18,fontWeight:'bold'}}>Admin: Clear Attendance</h1>
+            </div>
+            <button data-testid="admin-logout-btn" onClick={handleLogout} style={{background:'none',border:'none',color:'white',padding:8,cursor:'pointer'}}><LogOut size={20} /></button>
+          </div>
+        </div>
+
+        <div style={{padding:12}}>
+          {/* Bus filter */}
+          <div style={{marginBottom:12}}>
+            <label style={{color:'#9ca3af',fontSize:12,fontWeight:600,display:'block',marginBottom:4}}>BUS (leave empty for ALL buses)</label>
+            <input
+              data-testid="admin-bus-input"
+              type="text"
+              value={adminBus}
+              onChange={(e) => setAdminBus(e.target.value)}
+              placeholder="e.g. Bus #14"
+              style={{width:'100%',padding:10,background:'#1f2937',border:'1px solid #374151',borderRadius:8,color:'white',fontSize:14,boxSizing:'border-box'}}
+            />
+          </div>
+
+          {/* Quick select */}
+          <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+            <button data-testid="admin-select-today" onClick={() => setAdminDates([today])}
+              style={{padding:'6px 12px',background:'#374151',border:'none',borderRadius:6,color:'white',fontSize:12,cursor:'pointer'}}>Today</button>
+            <button data-testid="admin-select-all" onClick={() => setAdminDates([...campDates])}
+              style={{padding:'6px 12px',background:'#374151',border:'none',borderRadius:6,color:'white',fontSize:12,cursor:'pointer'}}>All Camp Days</button>
+            <button data-testid="admin-select-none" onClick={() => setAdminDates([])}
+              style={{padding:'6px 12px',background:'#374151',border:'none',borderRadius:6,color:'white',fontSize:12,cursor:'pointer'}}>Clear Selection</button>
+          </div>
+
+          {/* Custom date */}
+          <div style={{marginBottom:12,display:'flex',gap:8}}>
+            <input
+              data-testid="admin-custom-date"
+              type="date"
+              style={{flex:1,padding:8,background:'#1f2937',border:'1px solid #374151',borderRadius:8,color:'white',fontSize:13,colorScheme:'dark'}}
+              onChange={(e) => { if (e.target.value && !adminDates.includes(e.target.value)) setAdminDates(prev => [...prev, e.target.value]); }}
+            />
+          </div>
+
+          {/* Date grid */}
+          <label style={{color:'#9ca3af',fontSize:12,fontWeight:600,display:'block',marginBottom:8}}>
+            CAMP DAYS ({adminDates.length} selected)
+          </label>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(105px, 1fr))',gap:6,marginBottom:16}}>
+            {campDates.map(date => {
+              const selected = adminDates.includes(date);
+              const d = new Date(date + 'T12:00:00');
+              const label = d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+              return (
+                <button key={date} data-testid={`admin-date-${date}`} onClick={() => toggleAdminDate(date)}
+                  style={{
+                    padding:'8px 4px',fontSize:11,fontWeight:selected?700:400,
+                    background:selected?'#dc2626':'#1f2937',
+                    color:selected?'white':'#9ca3af',
+                    border:selected?'2px solid #f87171':'1px solid #374151',
+                    borderRadius:8,cursor:'pointer',textAlign:'center'
+                  }}>
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Result message */}
+          {adminResult && (
+            <div data-testid="admin-result" style={{
+              marginBottom:12,padding:12,borderRadius:8,
+              background:adminResult.success?'#052e16':'#450a0a',
+              color:adminResult.success?'#4ade80':'#f87171',
+              fontSize:14,fontWeight:500
+            }}>
+              {adminResult.message}
+            </div>
+          )}
+
+          {/* Clear button */}
+          <button
+            data-testid="admin-clear-btn"
+            onClick={clearAttendance}
+            disabled={adminDates.length === 0 || adminLoading}
+            style={{
+              width:'100%',padding:16,background:adminDates.length === 0?'#374151':'#dc2626',
+              color:'white',fontSize:16,fontWeight:700,border:'none',borderRadius:12,
+              cursor:adminDates.length===0?'not-allowed':'pointer',
+              opacity:adminLoading?0.5:1,
+              display:'flex',alignItems:'center',justifyContent:'center',gap:8
+            }}>
+            <Trash2 size={20} />
+            {adminLoading ? 'Clearing...' : `Clear ${adminDates.length} Date(s)`}
+          </button>
         </div>
       </div>
     );

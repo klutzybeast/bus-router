@@ -1,4 +1,4 @@
-const API_URL = 'https://counselor-scroll-fix.preview.emergentagent.com/api/sheets/seat-availability';
+const API_URL = 'https://counselor-admin-test.preview.emergentagent.com/api/sheets/seat-availability';
 
 function updateSeatAvailability() {
   try {

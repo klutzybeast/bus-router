@@ -1,39 +1,41 @@
 <analysis>**original_problem_statement:**
-The user requested fixing a persistent global scrolling bug on the counselor tracking/attendance app. After executing a massive P1 code refactoring for the backend () and frontend (), the user requested a robust Passcode Authentication Gate () to protect the main admin app, while leaving the counselor PWA accessible. Subsequent requests included adjusting API access for a third-party domain (), fixing a CSV manual sync bug caused by the refactoring, modifying the attendance date rollover to midnight Eastern Time (EST) instead of UTC, fixing mobile safe-area paddings (notch overlap), and finally, fixing an issue where the counselor app gets stuck (cannot scroll) and GPS location fails to show.
+The user requested fixing a persistent global scrolling bug on the counselor app. Subsequent requests included building new public bus roster APIs, fixing a duplicate PM camper sync bug, integrating real-time attendance push to an external CamperSnapshot app (using internal UUIDs), adding a date selector for testing, and finally, adding an admin feature to clear attendance for selectable dates directly from the counselor app.
 
 **PRODUCT REQUIREMENTS:**
-- Modularized backend ( split into routers) and frontend ( split into dialogs).
-- Full-screen passcode gate on the main app with custom logo and colors, SHA-256 hashed passcode, sessionStorage persistence, and 45-min inactivity auto-lock.
-- Counselor app bypassing passcode gate.
-- Fix broken manual Refresh from CSV Now button.
-- Attendance dates must roll over at midnight EST.
-- Mobile counselor app must not be blocked by the iOS status bar (time/battery).
-- Counselor app must be fully scrollable and successfully fetch/display GPS location.
+- Modularized backend and frontend.
+- Counselor app bypassing passcode gate but having scrollable camper lists and working GPS.
+- Bus Mapping App exposes pollable endpoints () to share live attendance.
+- Attendance synced real-time with CamperSnapshot via  using  (UUID).
+-  camper ghost records stripped of AM bus numbers to prevent duplicates.
+- Date selector on the Counselor App to allow testing any past/future dates independently.
+- Admin feature on  using a specific PIN to batch clear attendance for selected dates.
 
 **User's preferred language**: English
 *(INSTRUCT next agent to respond in English only)*
 
 **what currently exists?** 
-A full-stack React/FastAPI bus routing and attendance application. The main dashboard is protected by a Passcode Gate requiring Camp1993. The backend is highly modularized with 12 router files and separated service layers. The Counselor PWA () allows staff to take AM attendance and transmit live GPS coordinates. The application records attendance and bus locations utilizing Eastern Time (EST) to determine the current operational date. 
+A full-stack React/FastAPI bus routing and attendance app. The main dashboard is protected by a Passcode Gate. The Counselor PWA allows staff to take AM attendance and transmit live GPS coordinates. It now features a real-time integration with CamperSnapshot, proxying session-aware rosters and pushing attendance updates instantly via  matching. An admin Clear Attendance UI was just added to the Counselor App but needs testing.
 
 **Last working item**:
-- **Last item agent was working:** Fixing a critical bug where the Counselor App () was completely stuck (unscrollable) and the GPS location was not showing. The agent applied a  CSS/layout fix to remove touch-trapping  and correct the container's overflow settings, but the session ended before testing.
-- **Status:** IN PROGRESS
+- **Last item agent was working:** Adding an Admin Clear Attendance feature in the Counselor App (). The agent created the backend endpoint  and updated  to intercept an admin PIN login, display an admin panel, and clear attendance dates.
+- **Status:** IN PROGRESS / TESTING PENDING
 - **Agent Testing Done:** N
-- **Which testing method agent to use?** Frontend testing agent/ screenshot tool / manual testing (to verify scroll functionality and mock GPS initialization).
+- **Which testing method agent to use?** Frontend testing agent/ screenshot tool / curl
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-  - **Issue 1: Counselor app scrolling stuck and GPS not showing (P0)**
-     - **Attempted fixes:** Agent just removed  and adjusted internal container heights/overflow in  in the very last step.
+  - **Issue 1: Test and Verify Admin Clear Attendance Feature (P0)**
+     - **Attempted fixes:** Agent implemented the code in  and  but the session ended before any tests were run or screenshots taken.
      - **Next debug checklist:** 
-       - Test  route using screenshot tool. Check if the camper list is scrollable.
-       - Verify why GPS isn't showing. Ensure  permissions are being requested correctly and UI state () isn't getting blocked.
-       - File: 
-     - **Why fix this issue and what will be achieved with the fix?** Counselors cannot use the app to mark attendance or track buses if the screen is frozen and GPS fails.
-     - **Status:** IN PROGRESS
-     - **Is recurring issue?** Y (iOS touch/scrolling issues have recurred multiple times).
-     - **Should Test frontend/backend/both after fix?** Frontend.
+       - Check  to identify the hardcoded admin PIN.
+       - Use screenshot tool to log in to  using the admin PIN and verify the UI renders correctly.
+       - Create a test attendance record for a specific date, then use the Admin panel to clear it.
+       - Verify  via  to ensure MongoDB records are deleted.
+       - **Update ** with the new Admin PIN used for clearing attendance.
+     - **Why fix this issue and what will be achieved with the fix?** User requested an easy way to reset test data across dates. 
+     - **Status:** TESTING PENDING
+     - **Is recurring issue?** N
+     - **Should Test frontend/backend/both after fix?** Both (Screenshot for UI, curl for API).
      - **Blocked on other issue:** None.
 
 **In progress Task List**:
@@ -45,106 +47,108 @@ None.
     - PM attendance tracking (P2)
     - Parent notifications (P2)
     - Multi-tenant SaaS version (P3)
-    - Deprecate Google Sheet sync (P3)
+    - Extract  and  from  (Refactoring - P1)
 
 **Completed work in this session**
-- Full backend refactoring:  reduced from 7,391 to 629 lines. Split into 12 routers and 4 services (DONE)
-- Full frontend refactoring: Extracted  and  from  (DONE)
-- Passcode Authentication Gate: Full-screen login gate using SHA-256 on main app with custom logo and mobile keyboard trigger fix (DONE)
-- CSV Sync Bug Fix: Resolved circular import with  logic (DONE)
-- Timezone Update: Shifted all tracking and attendance rollover logic to Eastern Time instead of UTC (DONE)
-- Mobile Header Padding: Added safe-area padding to counselor app header to avoid iOS status bar overlap (DONE)
+- Counselor App scroll and GPS freezing fix (Verified via Testing Agent) (DONE)
+- Created Public Bus Roster APIs () (DONE)
+- Fixed sync engine duplicate ghost records ( campers) by assigning  (DONE)
+- Created real-time attendance push to CamperSnapshot via  (DONE)
+- Fixed UUID lookup issue; push uses  caching to correctly interface with CamperSnapshot (DONE)
+- Configured  to proxy directly from CamperSnapshot for session-aware dynamic daily rosters (DONE)
+- Added Date Selector to Counselor App header for uninhibited past/future testing (DONE)
 
 **Earlier issues found/mentioned but not fixed**
-- Background tracking limitations on iOS (Wake Lock API added, but iOS Safari aggressively suspends JS).
+- None. Background tracking limitations on iOS persist but are environmental.
 
 **Known issue recurrence from previous fork**
   - **Issue recurrence in previous fork:** Production vs Preview environment divergence.
   - **Recurrence count:** 2
-  - **Status:** RESOLVED (User needs constant reminders to Redeploy to see changes on their live site).
+  - **Status:** RESOLVED (Agent effectively reminds user to redeploy for changes to take effect on live domain).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-React frontend, FastAPI backend, MongoDB, PWA Geolocation API (), Eastern Timezone () conversions, SHA-256 client-side hashing (), iOS Safe Area Insets ().
+React, FastAPI, MongoDB, Background Tasks (Asyncio), 3rd-party proxying (fetching/pushing to CamperSnapshot API),  (UUID) caching.
 
 **key DB schema**
-  - : 
+  - : Added  (CampMinder ID) and  (CamperSnapshot UUID) for external syncing.
   - : 
 
 **changes in tech stack**
-- Refactored monolith FastAPI into an  based modular pattern.
+- The backend now acts as a proxy client to  for bus rosters and pushes live attendance webhooks.
 
 **All files of reference**
--  (Currently broken/stuck scrolling, focus here)
--  (All backend logic migrated here)
--  (Moved auto-sync logic here to fix CSV refresh)
--  (New Auth logic)
--  (App.js handles routing and protected component wrapper)
--  (Contains the new hash/auth passcode)
+-  (Contains untested Admin Clear Attendance UI)
+-  (Contains untested  endpoint)
+-  (Handles UUID lookups and pushing marks)
+-  
+-  
 
 **Areas that need refactoring**:
-- BusRoutingMap.jsx was partially refactored but still contains  and  that could be extracted later.
+-  still contains dialogs that should be separated out.
 
 **key api endpoints**
-- : Triggers manual CampMinder CSV sheet sync
-- : Tracks counselor coordinates 
-- : Date param is now evaluated against Eastern Time
+- : Proxies to CamperSnapshot.
+- : Saves locally and fires async task to push to CamperSnapshot.
+- : Background task to sync external IDs.
+- : (NEW, Untested) Clears daily attendance records.
 
 **Critical Info for New Agent**
-- **Date/Timezones**: All dates are now generated using **Eastern Time** logic for the backend attendance endpoints.
-- **Preview vs Production**: The user tests via their live deployed domain ( and ). Do not provide preview environment URLs to the user, and remind them to redeploy via the platform to see the fixes you implement.
-- **Passcode Auth**: Passcode is  (stored as SHA256).
+- **UUIDs over Person IDs:** CamperSnapshot requires its internal UUID for matching.  pulls the roster to find this UUID and caches it in  as .
+- **Do not rewrite  indiscriminately**: Extensive logic was added to preserve  and  during MongoDB  operations.
+- **Preview vs Production**: Inform user to deploy to production.
+- **Admin PIN**: Check what PIN the previous agent hardcoded in  (around line 230-270) to access the new Admin panel. Update  immediately with this PIN.
 
 **documents and test reports created in this job**
-  - /app/memory/PRD.md
-  - /app/memory/test_credentials.md
-  - /app/test_reports/iteration_6.json
-  - /app/test_reports/iteration_7.json
-  - /app/test_reports/iteration_8.json
+  - 
+  - 
+  - 
 
 **Last 10 User Messages and any pending HUMAN messages** 
- 1. the gps isnt showing my location anf i can not move or scroll it is stuck (Pending Verification)
- 2. i cant access the back button or see the bus number on mobile it is to high... (Fixed safe-area)
- 3. ok so every morning if they open it at 7:30 am lets say it will be blank... (Confirmed EST date behavior)
- 4. it needs to be midnight est (Fixed backend timezone logic)
- 5. when does attendance reset (Explained DB dates)
- 6. it is not allowing me to refresh from csv (Fixed sync circular import bug)
- 7. they are calling from rrdcattendance.com (Provided CORS validation and endpoints)
- 8. i need all of you call to api get endpoints for my attendance app...
- 9. No keyboard comes up and why isn’t it my logo and colors (Fixed custom logo and input Mode)
- 10. Add a secure authentication layer to this app with the following requirements... (Fixed PasscodeGate)
+ 1. testing bus mapping with lily stein lets see 
+ 2. why is angelina ryan showing up on 2 times on bus 31 attendance... (Fixed duplicate PM ghost records)
+ 3. Yes it’s to push the bus attendance to snapshot instantly... 
+ 4. (User provides CampMinder Persons API docs)
+ 5. I just tested Sophia videos for 6/29 and it’s not marking her present (Fixed UUID requirement for CamperSnapshot push)
+ 6. So now if we enroll a new camper on a bus you will have the id from snapshot...
+ 7. Perfect
+ 8. I need a way to clear attendance in counsoler apps for testing purposes. Selectable days so I can clear like a admin login in /counsoler (Pending test/verification)
 
 **Project Health Check:**
-- Broken: Counselor app scrolling and GPS logic currently stuck.
+- Broken: None definitively, but Admin Clear Attendance is completely untested.
 - Mocked: None
 
 **3rd Party Integrations** 
   - CampMinder API — requires User API Key
   - Google Maps API — requires User API Key
-  - PositionStack API — requires User API Key
-  - Google Sheets API — requires User API Key
+  - CamperSnapshot API (External Custom App integration)
 
 **Testing status**
-  - Testing agent used after significant changes: YES
+  - Testing agent used after significant changes: YES (iteration 9)
   - Troubleshoot agent used after agent stuck in loop: NO
   - Test files created: None
-  - Known regressions: CounselorApp touch-scrolling became trapped/frozen.
+  - Known regressions: None
 
 **Credentials to test flow:**
-Use  and  found in existing  files.
-App passcode is . (Check  for specifics).
+Use  from .
+Counselor app test: Enter  as pin to view Bus #01. 
+**Missing Credential**: Find the Admin PIN in  and add it to .
 
 **What agent forgot to execute**
-The agent applied a  fix to  to resolve the frozen screen/GPS issue in the very last step, but the session ended before they could capture a screenshot or run any tests to verify if the scroll container is functioning or if GPS  successfully initializes.
+The agent modified  and  to add the Clear Attendance admin feature but the session ended immediately after writing the code. No manual testing (screenshot/curl) or testing agent was used to verify it works, nor was  updated with the admin PIN.
 
 **Debugging checklist for current issue**
-    Issue: Counselor app scrolling stuck and GPS location not showing
+    Issue: Verify Admin Clear Attendance Feature
     
     Frontend files to check: 
-    - 
-      - Verify container CSS , , and touch behaviors.
-      - Check  function. Ensure  isn't failing silently or blocking UI renders.
-    -  or 
-      - Ensure global  on  or  isn't inadvertently fighting the CounselorApp's scroll setup.</analysis>
+    -  (Check  for the admin PIN, verify the  state rendering).
+    
+    Backend files to check:
+    -  (Verify  clears the local  collection for the given dates).
+    
+    Database to check:
+    -  collection.
+    
+    The preview environment is not responding. It may be starting up.</analysis>

@@ -14,4 +14,4 @@
 
 ## API Testing
 - Use REACT_APP_BACKEND_URL from frontend/.env
-- Current: https://counselor-scroll-fix.preview.emergentagent.com
+- Current: https://counselor-admin-test.preview.emergentagent.com

@@ -11,7 +11,7 @@
  */
 
 // ⚙️ CONFIGURATION
-const API_URL = 'https://counselor-scroll-fix.preview.emergentagent.com/api/sheets/seat-availability';
+const API_URL = 'https://counselor-admin-test.preview.emergentagent.com/api/sheets/seat-availability';
 
 /**
  * Main function to update the sheet with seat availability

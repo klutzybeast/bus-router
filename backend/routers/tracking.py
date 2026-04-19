@@ -724,3 +724,23 @@ async def update_pickup_dropoff(camper_id: str, request: PickupDropoffRequest):
     except Exception as e:
         logging.error(f"Error updating pickup/dropoff: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/bus-tracking/clear-attendance")
+async def clear_attendance(dates: list[str], bus_number: Optional[str] = None):
+    """Clear attendance records for selected dates. If bus_number provided, only that bus."""
+    try:
+        query = {"date": {"$in": dates}}
+        if bus_number:
+            query["bus_number"] = bus_number
+
+        result = await db.bus_attendance.delete_many(query)
+
+        return {
+            "success": True,
+            "deleted": result.deleted_count,
+            "dates": dates,
+            "bus_number": bus_number or "ALL"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
