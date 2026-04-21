@@ -9,6 +9,12 @@ function getTodayEST() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 }
 
+function isAttendanceClosed() {
+  const now = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit' });
+  const [h, m] = now.split(':').map(Number);
+  return h > 9 || (h === 9 && m >= 30);
+}
+
 export default function CounselorApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -22,6 +28,7 @@ export default function CounselorApp() {
   const [gpsMessage, setGpsMessage] = useState('');
   const [locationCount, setLocationCount] = useState(0);
   const [wakeLockActive, setWakeLockActive] = useState(false);
+  const [attendanceClosed, setAttendanceClosed] = useState(isAttendanceClosed());
   // Admin state
   const [adminDates, setAdminDates] = useState([]);
   const [adminBus, setAdminBus] = useState('');
@@ -56,6 +63,12 @@ export default function CounselorApp() {
         }
       });
     };
+  }, []);
+
+  // Check attendance cutoff every 30s
+  useEffect(() => {
+    const timer = setInterval(() => setAttendanceClosed(isAttendanceClosed()), 30000);
+    return () => clearInterval(timer);
   }, []);
 
   const requestWakeLock = async () => {
@@ -483,6 +496,13 @@ export default function CounselorApp() {
         )}
       </div>
 
+      {/* Attendance Closed Banner */}
+      {attendanceClosed && (
+        <div data-testid="attendance-closed-banner" style={{background:'#dc2626',color:'white',padding:'8px 12px',textAlign:'center',fontSize:13,fontWeight:600}}>
+          Attendance closed at 9:30 AM
+        </div>
+      )}
+
       {/* Stats Bar */}
       <div data-testid="stats-bar" style={{background:'white',borderBottom:'1px solid #e5e7eb',padding:8,display:'flex',justifyContent:'space-around'}}>
         <div style={{textAlign:'center'}}><div data-testid="present-count" style={{fontSize:20,fontWeight:'bold',color:'#22c55e'}}>{presentCount}</div><div style={{fontSize:10,color:'#6b7280'}}>Present</div></div>
@@ -508,12 +528,12 @@ export default function CounselorApp() {
                 </div>
               </div>
               <div style={{display:'flex',gap:6,flexShrink:0}}>
-                <button data-testid={`mark-present-${index}`} onClick={()=>markAttendance(camper.id,'present')} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',
-                  background:status==='present'?'#22c55e':'#f3f4f6',color:status==='present'?'white':'#9ca3af'}}>
+                <button data-testid={`mark-present-${index}`} onClick={()=>!attendanceClosed && markAttendance(camper.id,'present')} disabled={attendanceClosed} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:attendanceClosed?'not-allowed':'pointer',
+                  background:status==='present'?'#22c55e':'#f3f4f6',color:status==='present'?'white':'#9ca3af',opacity:attendanceClosed?0.4:1}}>
                   <CheckCircle size={24} />
                 </button>
-                <button data-testid={`mark-absent-${index}`} onClick={()=>markAttendance(camper.id,'absent')} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',
-                  background:status==='absent'?'#ef4444':'#f3f4f6',color:status==='absent'?'white':'#9ca3af'}}>
+                <button data-testid={`mark-absent-${index}`} onClick={()=>!attendanceClosed && markAttendance(camper.id,'absent')} disabled={attendanceClosed} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:attendanceClosed?'not-allowed':'pointer',
+                  background:status==='absent'?'#ef4444':'#f3f4f6',color:status==='absent'?'white':'#9ca3af',opacity:attendanceClosed?0.4:1}}>
                   <XCircle size={24} />
                 </button>
               </div>
