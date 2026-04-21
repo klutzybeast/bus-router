@@ -29,6 +29,7 @@ export default function CounselorApp() {
   const [locationCount, setLocationCount] = useState(0);
   const [wakeLockActive, setWakeLockActive] = useState(false);
   const [attendanceClosed, setAttendanceClosed] = useState(isAttendanceClosed());
+  const [attendanceUnlocked, setAttendanceUnlocked] = useState(() => localStorage.getItem('attendance_unlocked') === 'true');
   // Admin state
   const [adminDates, setAdminDates] = useState([]);
   const [adminBus, setAdminBus] = useState('');
@@ -224,6 +225,12 @@ export default function CounselorApp() {
     setAdminDates(prev => prev.includes(date) ? prev.filter(d => d !== date) : [...prev, date]);
   };
 
+  const toggleAttendanceLock = () => {
+    const newVal = !attendanceUnlocked;
+    setAttendanceUnlocked(newVal);
+    localStorage.setItem('attendance_unlocked', newVal ? 'true' : 'false');
+  };
+
   const clearAttendance = async () => {
     if (adminDates.length === 0) return;
     setShowConfirm(false);
@@ -316,6 +323,33 @@ export default function CounselorApp() {
         </div>
 
         <div style={{padding:12}}>
+          {/* Attendance Lock Toggle */}
+          <div data-testid="admin-lock-toggle" style={{
+            marginBottom:12,padding:12,borderRadius:10,
+            background:attendanceUnlocked?'#422006':'#1f2937',
+            border:attendanceUnlocked?'2px solid #f59e0b':'1px solid #374151',
+            display:'flex',alignItems:'center',justifyContent:'space-between'
+          }}>
+            <div>
+              <div style={{color:'white',fontSize:14,fontWeight:600}}>
+                {attendanceUnlocked ? 'Attendance Unlocked' : 'Attendance Locked (after 9:30)'}
+              </div>
+              <div style={{color:'#9ca3af',fontSize:11,marginTop:2}}>
+                {attendanceUnlocked ? 'Counselors can mark attendance' : 'Counselors cannot mark attendance'}
+              </div>
+            </div>
+            <button
+              data-testid="admin-toggle-lock-btn"
+              onClick={toggleAttendanceLock}
+              style={{
+                padding:'8px 16px',borderRadius:8,border:'none',fontWeight:700,fontSize:13,cursor:'pointer',
+                background:attendanceUnlocked?'#dc2626':'#f59e0b',
+                color:attendanceUnlocked?'white':'#000'
+              }}>
+              {attendanceUnlocked ? 'Re-Lock' : 'Unlock'}
+            </button>
+          </div>
+
           {/* Bus filter */}
           <div style={{marginBottom:12}}>
             <label style={{color:'#9ca3af',fontSize:12,fontWeight:600,display:'block',marginBottom:4}}>BUS (leave empty for ALL buses)</label>
@@ -497,9 +531,14 @@ export default function CounselorApp() {
       </div>
 
       {/* Attendance Closed Banner */}
-      {attendanceClosed && (
+      {attendanceClosed && !attendanceUnlocked && (
         <div data-testid="attendance-closed-banner" style={{background:'#dc2626',color:'white',padding:'8px 12px',textAlign:'center',fontSize:13,fontWeight:600}}>
           Attendance closed at 9:30 AM
+        </div>
+      )}
+      {attendanceClosed && attendanceUnlocked && (
+        <div data-testid="attendance-unlocked-banner" style={{background:'#f59e0b',color:'#000',padding:'8px 12px',textAlign:'center',fontSize:13,fontWeight:600}}>
+          Attendance unlocked by admin
         </div>
       )}
 
@@ -528,14 +567,16 @@ export default function CounselorApp() {
                 </div>
               </div>
               <div style={{display:'flex',gap:6,flexShrink:0}}>
-                <button data-testid={`mark-present-${index}`} onClick={()=>!attendanceClosed && markAttendance(camper.id,'present')} disabled={attendanceClosed} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:attendanceClosed?'not-allowed':'pointer',
-                  background:status==='present'?'#22c55e':'#f3f4f6',color:status==='present'?'white':'#9ca3af',opacity:attendanceClosed?0.4:1}}>
+                {(() => { const locked = attendanceClosed && !attendanceUnlocked; return (<>
+                <button data-testid={`mark-present-${index}`} onClick={()=>!locked && markAttendance(camper.id,'present')} disabled={locked} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:locked?'not-allowed':'pointer',
+                  background:status==='present'?'#22c55e':'#f3f4f6',color:status==='present'?'white':'#9ca3af',opacity:locked?0.4:1}}>
                   <CheckCircle size={24} />
                 </button>
-                <button data-testid={`mark-absent-${index}`} onClick={()=>!attendanceClosed && markAttendance(camper.id,'absent')} disabled={attendanceClosed} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:attendanceClosed?'not-allowed':'pointer',
-                  background:status==='absent'?'#ef4444':'#f3f4f6',color:status==='absent'?'white':'#9ca3af',opacity:attendanceClosed?0.4:1}}>
+                <button data-testid={`mark-absent-${index}`} onClick={()=>!locked && markAttendance(camper.id,'absent')} disabled={locked} style={{width:44,height:44,borderRadius:10,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:locked?'not-allowed':'pointer',
+                  background:status==='absent'?'#ef4444':'#f3f4f6',color:status==='absent'?'white':'#9ca3af',opacity:locked?0.4:1}}>
                   <XCircle size={24} />
                 </button>
+                </>); })()}
               </div>
             </div>
           );
