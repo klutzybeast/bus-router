@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { CheckCircle, XCircle, Bus, Users, LogOut, Navigation, Calendar, Trash2, ArrowLeft, Shield } from 'lucide-react';
+import { CheckCircle, XCircle, Bus, Users, LogOut, Navigation, Calendar, Trash2, ArrowLeft, Shield, Lock, Map } from 'lucide-react';
+import AdminRouteHistory from './AdminRouteHistory';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
-const APP_VERSION = "v2.7";
+const APP_VERSION = "v2.8";
 const ADMIN_PIN = "admin";
+const ADMIN_PASSWORD = "Camp1993";
 
 function getTodayEST() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
@@ -36,6 +38,10 @@ export default function CounselorApp() {
   const [adminResult, setAdminResult] = useState(null);
   const [adminLoading, setAdminLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  const [adminPasswordError, setAdminPasswordError] = useState('');
+  const [adminAuthenticated, setAdminAuthenticated] = useState(false);
+  const [adminTab, setAdminTab] = useState('routes'); // 'routes' or 'clear'
   
   const gpsIntervalRef = useRef(null);
   const watchIdRef = useRef(null);
@@ -125,9 +131,9 @@ export default function CounselorApp() {
 
   const handleLogin = async (e) => {
     e.preventDefault(); setLoading(true); setError('');
-    // Admin mode
+    // Admin mode - show password prompt
     if (pin.toLowerCase() === ADMIN_PIN) {
-      setIsAdmin(true); setIsLoggedIn(true); setLoading(false);
+      setIsAdmin(true); setIsLoggedIn(true); setAdminAuthenticated(false); setLoading(false);
       return;
     }
     try {
@@ -193,6 +199,7 @@ export default function CounselorApp() {
     stopGpsTracking(); localStorage.removeItem('counselor_bus'); busNumberRef.current = null;
     setIsLoggedIn(false); setIsAdmin(false); setBusData(null); setAttendance({}); setPin(''); setLocationCount(0); setGpsStatus('idle'); setWakeLockActive(false);
     setSelectedDate(getTodayEST()); setAdminDates([]); setAdminBus(''); setAdminResult(null); setShowConfirm(false);
+    setAdminPasswordInput(''); setAdminPasswordError(''); setAdminAuthenticated(false); setAdminTab('routes');
   };
 
   useEffect(() => () => stopGpsTracking(), [stopGpsTracking]);
@@ -291,6 +298,51 @@ export default function CounselorApp() {
 
   // Admin panel
   if (isAdmin) {
+    // Password gate
+    if (!adminAuthenticated) {
+      return (
+        <div data-testid="admin-password-gate" style={{minHeight:'100vh',background:'#111827',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
+          <div style={{background:'#1f2937',borderRadius:16,padding:32,width:'100%',maxWidth:320,border:'1px solid #374151'}}>
+            <div style={{textAlign:'center',marginBottom:24}}>
+              <div style={{width:64,height:64,background:'#dc2626',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}>
+                <Lock size={28} color="white" />
+              </div>
+              <h2 style={{color:'white',fontSize:20,fontWeight:700,margin:0}}>Admin Access</h2>
+              <p style={{color:'#9ca3af',fontSize:13,margin:'4px 0 0'}}>Enter admin password</p>
+            </div>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (adminPasswordInput === ADMIN_PASSWORD) {
+                setAdminAuthenticated(true);
+                setAdminPasswordError('');
+              } else {
+                setAdminPasswordError('Wrong password');
+              }
+            }}>
+              <input
+                data-testid="admin-password-input"
+                type="password"
+                value={adminPasswordInput}
+                onChange={(e) => setAdminPasswordInput(e.target.value)}
+                placeholder="Password"
+                style={{width:'100%',padding:14,fontSize:16,textAlign:'center',border:'2px solid #374151',borderRadius:10,background:'#111827',color:'white',boxSizing:'border-box'}}
+                autoFocus
+              />
+              {adminPasswordError && <div data-testid="admin-password-error" style={{marginTop:12,padding:8,background:'#450a0a',borderRadius:6,color:'#f87171',textAlign:'center',fontSize:13}}>{adminPasswordError}</div>}
+              <button data-testid="admin-password-submit" type="submit" disabled={!adminPasswordInput}
+                style={{width:'100%',padding:14,marginTop:16,background:'#dc2626',color:'white',fontSize:16,fontWeight:600,border:'none',borderRadius:10,cursor:'pointer',opacity:!adminPasswordInput?0.5:1}}>
+                Enter
+              </button>
+            </form>
+            <button data-testid="admin-password-back" onClick={handleLogout}
+              style={{width:'100%',padding:10,marginTop:12,background:'none',border:'1px solid #374151',color:'#9ca3af',fontSize:13,borderRadius:8,cursor:'pointer'}}>
+              Back to Login
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     const generateDates = () => {
       const dates = [];
       const start = new Date('2026-06-29T12:00:00');
@@ -316,144 +368,165 @@ export default function CounselorApp() {
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <Shield size={20} />
-              <h1 style={{margin:0,fontSize:18,fontWeight:'bold'}}>Admin: Clear Attendance</h1>
+              <h1 style={{margin:0,fontSize:18,fontWeight:'bold'}}>Admin</h1>
             </div>
             <button data-testid="admin-logout-btn" onClick={handleLogout} style={{background:'none',border:'none',color:'white',padding:8,cursor:'pointer'}}><LogOut size={20} /></button>
+          </div>
+          {/* Tabs */}
+          <div style={{display:'flex',gap:4,marginTop:10}}>
+            <button data-testid="admin-tab-routes" onClick={() => setAdminTab('routes')}
+              style={{flex:1,padding:'8px 0',borderRadius:6,border:'none',fontSize:13,fontWeight:600,cursor:'pointer',
+                background:adminTab==='routes'?'white':'rgba(255,255,255,0.15)',
+                color:adminTab==='routes'?'#dc2626':'white'}}>
+              <Map size={14} style={{marginRight:4,verticalAlign:'middle'}} /> Routes
+            </button>
+            <button data-testid="admin-tab-clear" onClick={() => setAdminTab('clear')}
+              style={{flex:1,padding:'8px 0',borderRadius:6,border:'none',fontSize:13,fontWeight:600,cursor:'pointer',
+                background:adminTab==='clear'?'white':'rgba(255,255,255,0.15)',
+                color:adminTab==='clear'?'#dc2626':'white'}}>
+              <Trash2 size={14} style={{marginRight:4,verticalAlign:'middle'}} /> Clear Data
+            </button>
           </div>
         </div>
 
         <div style={{padding:12}}>
-          {/* Attendance Lock Toggle */}
-          <div data-testid="admin-lock-toggle" style={{
-            marginBottom:12,padding:12,borderRadius:10,
-            background:attendanceUnlocked?'#422006':'#1f2937',
-            border:attendanceUnlocked?'2px solid #f59e0b':'1px solid #374151',
-            display:'flex',alignItems:'center',justifyContent:'space-between'
-          }}>
-            <div>
-              <div style={{color:'white',fontSize:14,fontWeight:600}}>
-                {attendanceUnlocked ? 'Attendance Unlocked' : 'Attendance Locked (after 9:30)'}
-              </div>
-              <div style={{color:'#9ca3af',fontSize:11,marginTop:2}}>
-                {attendanceUnlocked ? 'Counselors can mark attendance' : 'Counselors cannot mark attendance'}
-              </div>
-            </div>
-            <button
-              data-testid="admin-toggle-lock-btn"
-              onClick={toggleAttendanceLock}
-              style={{
-                padding:'8px 16px',borderRadius:8,border:'none',fontWeight:700,fontSize:13,cursor:'pointer',
-                background:attendanceUnlocked?'#dc2626':'#f59e0b',
-                color:attendanceUnlocked?'white':'#000'
+          {adminTab === 'routes' ? (
+            <AdminRouteHistory />
+          ) : (
+            <>
+              {/* Attendance Lock Toggle */}
+              <div data-testid="admin-lock-toggle" style={{
+                marginBottom:12,padding:12,borderRadius:10,
+                background:attendanceUnlocked?'#422006':'#1f2937',
+                border:attendanceUnlocked?'2px solid #f59e0b':'1px solid #374151',
+                display:'flex',alignItems:'center',justifyContent:'space-between'
               }}>
-              {attendanceUnlocked ? 'Re-Lock' : 'Unlock'}
-            </button>
-          </div>
-
-          {/* Bus filter */}
-          <div style={{marginBottom:12}}>
-            <label style={{color:'#9ca3af',fontSize:12,fontWeight:600,display:'block',marginBottom:4}}>BUS (leave empty for ALL buses)</label>
-            <input
-              data-testid="admin-bus-input"
-              type="text"
-              value={adminBus}
-              onChange={(e) => setAdminBus(e.target.value)}
-              placeholder="e.g. Bus #14"
-              style={{width:'100%',padding:10,background:'#1f2937',border:'1px solid #374151',borderRadius:8,color:'white',fontSize:14,boxSizing:'border-box'}}
-            />
-          </div>
-
-          {/* Quick select */}
-          <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
-            <button data-testid="admin-select-today" onClick={() => setAdminDates([today])}
-              style={{padding:'6px 12px',background:'#374151',border:'none',borderRadius:6,color:'white',fontSize:12,cursor:'pointer'}}>Today</button>
-            <button data-testid="admin-select-all" onClick={() => setAdminDates([...campDates])}
-              style={{padding:'6px 12px',background:'#374151',border:'none',borderRadius:6,color:'white',fontSize:12,cursor:'pointer'}}>All Camp Days</button>
-            <button data-testid="admin-select-none" onClick={() => setAdminDates([])}
-              style={{padding:'6px 12px',background:'#374151',border:'none',borderRadius:6,color:'white',fontSize:12,cursor:'pointer'}}>Clear Selection</button>
-          </div>
-
-          {/* Custom date */}
-          <div style={{marginBottom:12,display:'flex',gap:8}}>
-            <input
-              data-testid="admin-custom-date"
-              type="date"
-              style={{flex:1,padding:8,background:'#1f2937',border:'1px solid #374151',borderRadius:8,color:'white',fontSize:13,colorScheme:'dark'}}
-              onChange={(e) => { if (e.target.value && !adminDates.includes(e.target.value)) setAdminDates(prev => [...prev, e.target.value]); }}
-            />
-          </div>
-
-          {/* Date grid */}
-          <label style={{color:'#9ca3af',fontSize:12,fontWeight:600,display:'block',marginBottom:8}}>
-            CAMP DAYS ({adminDates.length} selected)
-          </label>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(105px, 1fr))',gap:6,marginBottom:16}}>
-            {campDates.map(date => {
-              const selected = adminDates.includes(date);
-              const d = new Date(date + 'T12:00:00');
-              const label = d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
-              return (
-                <button key={date} data-testid={`admin-date-${date}`} onClick={() => toggleAdminDate(date)}
+                <div>
+                  <div style={{color:'white',fontSize:14,fontWeight:600}}>
+                    {attendanceUnlocked ? 'Attendance Unlocked' : 'Attendance Locked (after 9:30)'}
+                  </div>
+                  <div style={{color:'#9ca3af',fontSize:11,marginTop:2}}>
+                    {attendanceUnlocked ? 'Counselors can mark attendance' : 'Counselors cannot mark attendance'}
+                  </div>
+                </div>
+                <button
+                  data-testid="admin-toggle-lock-btn"
+                  onClick={toggleAttendanceLock}
                   style={{
-                    padding:'8px 4px',fontSize:11,fontWeight:selected?700:400,
-                    background:selected?'#dc2626':'#1f2937',
-                    color:selected?'white':'#9ca3af',
-                    border:selected?'2px solid #f87171':'1px solid #374151',
-                    borderRadius:8,cursor:'pointer',textAlign:'center'
+                    padding:'8px 16px',borderRadius:8,border:'none',fontWeight:700,fontSize:13,cursor:'pointer',
+                    background:attendanceUnlocked?'#dc2626':'#f59e0b',
+                    color:attendanceUnlocked?'white':'#000'
                   }}>
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Result message */}
-          {adminResult && (
-            <div data-testid="admin-result" style={{
-              marginBottom:12,padding:12,borderRadius:8,
-              background:adminResult.success?'#052e16':'#450a0a',
-              color:adminResult.success?'#4ade80':'#f87171',
-              fontSize:14,fontWeight:500
-            }}>
-              {adminResult.message}
-            </div>
-          )}
-
-          {/* Confirmation dialog */}
-          {showConfirm && (
-            <div data-testid="admin-confirm-dialog" style={{marginBottom:12,padding:16,background:'#450a0a',border:'2px solid #dc2626',borderRadius:12}}>
-              <p style={{color:'#fca5a5',fontSize:14,fontWeight:600,margin:'0 0 8px'}}>
-                Clear attendance for {adminBus.trim() || 'ALL buses'} on {adminDates.length} date(s)?
-              </p>
-              <p style={{color:'#9ca3af',fontSize:12,margin:'0 0 12px'}}>This cannot be undone.</p>
-              <div style={{display:'flex',gap:8}}>
-                <button data-testid="admin-confirm-yes" onClick={clearAttendance}
-                  style={{flex:1,padding:12,background:'#dc2626',color:'white',fontWeight:700,border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>
-                  Yes, Clear
-                </button>
-                <button data-testid="admin-confirm-no" onClick={() => setShowConfirm(false)}
-                  style={{flex:1,padding:12,background:'#374151',color:'white',fontWeight:600,border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>
-                  Cancel
+                  {attendanceUnlocked ? 'Re-Lock' : 'Unlock'}
                 </button>
               </div>
-            </div>
-          )}
 
-          {/* Clear button */}
-          <button
-            data-testid="admin-clear-btn"
-            onClick={() => setShowConfirm(true)}
-            disabled={adminDates.length === 0 || adminLoading}
-            style={{
-              width:'100%',padding:16,background:adminDates.length === 0?'#374151':'#dc2626',
-              color:'white',fontSize:16,fontWeight:700,border:'none',borderRadius:12,
-              cursor:adminDates.length===0?'not-allowed':'pointer',
-              opacity:adminLoading?0.5:1,
-              display:'flex',alignItems:'center',justifyContent:'center',gap:8
-            }}>
-            <Trash2 size={20} />
-            {adminLoading ? 'Clearing...' : `Clear ${adminDates.length} Date(s)`}
-          </button>
+              {/* Bus filter */}
+              <div style={{marginBottom:12}}>
+                <label style={{color:'#9ca3af',fontSize:12,fontWeight:600,display:'block',marginBottom:4}}>BUS (leave empty for ALL buses)</label>
+                <input
+                  data-testid="admin-bus-input"
+                  type="text"
+                  value={adminBus}
+                  onChange={(e) => setAdminBus(e.target.value)}
+                  placeholder="e.g. Bus #14"
+                  style={{width:'100%',padding:10,background:'#1f2937',border:'1px solid #374151',borderRadius:8,color:'white',fontSize:14,boxSizing:'border-box'}}
+                />
+              </div>
+
+              {/* Quick select */}
+              <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+                <button data-testid="admin-select-today" onClick={() => setAdminDates([today])}
+                  style={{padding:'6px 12px',background:'#374151',border:'none',borderRadius:6,color:'white',fontSize:12,cursor:'pointer'}}>Today</button>
+                <button data-testid="admin-select-all" onClick={() => setAdminDates([...campDates])}
+                  style={{padding:'6px 12px',background:'#374151',border:'none',borderRadius:6,color:'white',fontSize:12,cursor:'pointer'}}>All Camp Days</button>
+                <button data-testid="admin-select-none" onClick={() => setAdminDates([])}
+                  style={{padding:'6px 12px',background:'#374151',border:'none',borderRadius:6,color:'white',fontSize:12,cursor:'pointer'}}>Clear Selection</button>
+              </div>
+
+              {/* Custom date */}
+              <div style={{marginBottom:12,display:'flex',gap:8}}>
+                <input
+                  data-testid="admin-custom-date"
+                  type="date"
+                  style={{flex:1,padding:8,background:'#1f2937',border:'1px solid #374151',borderRadius:8,color:'white',fontSize:13,colorScheme:'dark'}}
+                  onChange={(e) => { if (e.target.value && !adminDates.includes(e.target.value)) setAdminDates(prev => [...prev, e.target.value]); }}
+                />
+              </div>
+
+              {/* Date grid */}
+              <label style={{color:'#9ca3af',fontSize:12,fontWeight:600,display:'block',marginBottom:8}}>
+                CAMP DAYS ({adminDates.length} selected)
+              </label>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(105px, 1fr))',gap:6,marginBottom:16}}>
+                {campDates.map(date => {
+                  const selected = adminDates.includes(date);
+                  const d = new Date(date + 'T12:00:00');
+                  const label = d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+                  return (
+                    <button key={date} data-testid={`admin-date-${date}`} onClick={() => toggleAdminDate(date)}
+                      style={{
+                        padding:'8px 4px',fontSize:11,fontWeight:selected?700:400,
+                        background:selected?'#dc2626':'#1f2937',
+                        color:selected?'white':'#9ca3af',
+                        border:selected?'2px solid #f87171':'1px solid #374151',
+                        borderRadius:8,cursor:'pointer',textAlign:'center'
+                      }}>
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Result message */}
+              {adminResult && (
+                <div data-testid="admin-result" style={{
+                  marginBottom:12,padding:12,borderRadius:8,
+                  background:adminResult.success?'#052e16':'#450a0a',
+                  color:adminResult.success?'#4ade80':'#f87171',
+                  fontSize:14,fontWeight:500
+                }}>
+                  {adminResult.message}
+                </div>
+              )}
+
+              {/* Confirmation dialog */}
+              {showConfirm && (
+                <div data-testid="admin-confirm-dialog" style={{marginBottom:12,padding:16,background:'#450a0a',border:'2px solid #dc2626',borderRadius:12}}>
+                  <p style={{color:'#fca5a5',fontSize:14,fontWeight:600,margin:'0 0 8px'}}>
+                    Clear attendance for {adminBus.trim() || 'ALL buses'} on {adminDates.length} date(s)?
+                  </p>
+                  <p style={{color:'#9ca3af',fontSize:12,margin:'0 0 12px'}}>This cannot be undone.</p>
+                  <div style={{display:'flex',gap:8}}>
+                    <button data-testid="admin-confirm-yes" onClick={clearAttendance}
+                      style={{flex:1,padding:12,background:'#dc2626',color:'white',fontWeight:700,border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>
+                      Yes, Clear
+                    </button>
+                    <button data-testid="admin-confirm-no" onClick={() => setShowConfirm(false)}
+                      style={{flex:1,padding:12,background:'#374151',color:'white',fontWeight:600,border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Clear button */}
+              <button
+                data-testid="admin-clear-btn"
+                onClick={() => setShowConfirm(true)}
+                disabled={adminDates.length === 0 || adminLoading}
+                style={{
+                  width:'100%',padding:16,background:adminDates.length === 0?'#374151':'#dc2626',
+                  color:'white',fontSize:16,fontWeight:700,border:'none',borderRadius:12,
+                  cursor:adminDates.length===0?'not-allowed':'pointer',
+                  opacity:adminLoading?0.5:1,
+                  display:'flex',alignItems:'center',justifyContent:'center',gap:8
+                }}>
+                <Trash2 size={20} />
+                {adminLoading ? 'Clearing...' : `Clear ${adminDates.length} Date(s)`}
+              </button>
+            </>
+          )}
         </div>
       </div>
     );

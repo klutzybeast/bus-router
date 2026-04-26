@@ -177,7 +177,8 @@ async def update_bus_location(request: BusLocationUpdate):
             "heading": request.heading,
             "timestamp": now,
             "is_stopped": is_stopped,
-            "period": period_eastern()
+            "period": period_eastern(),
+            "season_id": await get_active_season_id()
         }
 
         await db.bus_location_history.insert_one(history_entry)
@@ -743,4 +744,111 @@ async def clear_attendance(dates: list[str], bus_number: Optional[str] = None):
             "bus_number": bus_number or "ALL"
         }
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/bus-tracking/daily-summary")
+async def get_daily_tracking_summary(date: Optional[str] = None, season_id: Optional[str] = None):
+    """Get summary of all buses that tracked on a given date."""
+    try:
+        if not date:
+            date = today_eastern()
+
+        query = {"date": date}
+        if season_id:
+            query["season_id"] = season_id
+
+        pipeline = [
+            {"$match": query},
+            {"$group": {
+                "_id": "$bus_number",
+                "point_count": {"$sum": 1},
+                "first_point": {"$min": "$timestamp"},
+                "last_point": {"$max": "$timestamp"},
+                "stop_count": {"$sum": {"$cond": [{"$eq": ["$is_stopped", True]}, 1, 0]}}
+            }},
+            {"$sort": {"_id": 1}}
+        ]
+
+        results = await db.bus_location_history.aggregate(pipeline).to_list(length=100)
+
+        buses = []
+        for r in results:
+            first = r.get("first_point")
+            last = r.get("last_point")
+            if isinstance(first, datetime):
+                first = first.isoformat()
+            if isinstance(last, datetime):
+                last = last.isoformat()
+            buses.append({
+                "bus_number": r["_id"],
+                "point_count": r["point_count"],
+                "stop_count": r["stop_count"],
+                "first_point": first,
+                "last_point": last
+            })
+
+        return {
+            "success": True,
+            "date": date,
+            "buses": buses,
+            "bus_count": len(buses)
+        }
+
+    except Exception as e:
+        logging.error(f"Error getting daily tracking summary: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/bus-tracking/route/{bus_number}")
+async def get_bus_route_with_stops(bus_number: str, date: Optional[str] = None):
+    """Get full route (points + stops) for a bus on a date - for map rendering."""
+    try:
+        bus_number = urllib.parse.unquote(bus_number)
+        if not date:
+            date = today_eastern()
+
+        # Get route points
+        points_cursor = db.bus_location_history.find(
+            {"bus_number": bus_number, "date": date},
+            {"_id": 0, "latitude": 1, "longitude": 1, "timestamp": 1, "speed": 1, "is_stopped": 1}
+        ).sort("timestamp", 1)
+        points = await points_cursor.to_list(length=10000)
+
+        for p in points:
+            if isinstance(p.get("timestamp"), datetime):
+                p["timestamp"] = p["timestamp"].isoformat()
+
+        # Get stops
+        stops_cursor = db.bus_stops_log.find(
+            {"bus_number": bus_number, "date": date},
+            {"_id": 0}
+        ).sort("stop_started_at", 1)
+        stops = await stops_cursor.to_list(length=100)
+
+        for stop in stops:
+            if isinstance(stop.get("stop_started_at"), datetime):
+                stop["stop_started_at"] = stop["stop_started_at"].isoformat()
+            if isinstance(stop.get("last_updated"), datetime):
+                stop["last_updated"] = stop["last_updated"].isoformat()
+            duration = stop.get("duration_seconds", 0)
+            if duration >= 3600:
+                stop["duration_formatted"] = f"{int(duration // 3600)}h {int((duration % 3600) // 60)}m"
+            elif duration >= 60:
+                stop["duration_formatted"] = f"{int(duration // 60)}m {int(duration % 60)}s"
+            else:
+                stop["duration_formatted"] = f"{int(duration)}s"
+
+        return {
+            "success": True,
+            "bus_number": bus_number,
+            "date": date,
+            "route": points,
+            "point_count": len(points),
+            "stops": stops,
+            "stop_count": len(stops)
+        }
+
+    except Exception as e:
+        logging.error(f"Error getting bus route: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -202,18 +202,29 @@ A web application that displays camper bus routes on a Google Map, using Google 
 - **Files Modified**: `CounselorApp.jsx`, `App.css`
 
 ### Phase 22: Admin Clear Attendance (February 2026)
-- **Admin Panel** in Counselor App (`/counselor`): Enter `admin` as PIN to access
+- **Admin Panel** in Counselor App (`/counselor`): Enter `admin` as PIN → password `Camp1993`
+- **Password gate** prevents accidental counselor access
+- **Tabbed interface**: Routes tab (default) and Clear Data tab
 - Batch clear attendance records for selected camp dates
 - Optional bus number filter (leave empty for ALL buses)
 - Quick-select: Today, All Camp Days, Clear Selection
-- Custom date picker for adding individual dates
-- Camp days grid (42 days from Jun 29, skips Sundays)
-- Confirmation dialog before destructive clear
-- Success/failure result messages
+- Camp days grid (weekdays 6/29 - 8/20, excluding 7/3)
+- Attendance lock toggle (unlock/relock for testing after 9:30 AM cutoff)
 - **Backend**: `POST /api/bus-tracking/clear-attendance` accepts JSON dates array + optional `bus_number` query param
-- **Tested**: 6 pytest + 11 Playwright tests, 100% pass rate
-- **Note**: Endpoint has no server-side auth (client-side PIN gate only) — acceptable for internal admin tool
 - **Files Modified**: `CounselorApp.jsx`, `routers/tracking.py`
+
+### Phase 23: GPS Route History Viewer (February 2026)
+- **Route History** in Admin Panel (Routes tab)
+- Date picker → shows all buses that tracked on that date as clickable cards
+- Bus cards show point count, stop count, and time range
+- Click bus → Google Map with route line (blue), start (green), end (yellow), stops (red dots)
+- Stop list below map with stop number, coordinates, time, and duration
+- GPS data tagged with `season_id` for archival across seasons
+- **9:30 AM attendance cutoff**: Buttons disabled after 9:30 AM ET, admin can unlock/relock via toggle
+- **Backend APIs**:
+  - `GET /api/bus-tracking/daily-summary?date=YYYY-MM-DD` — all buses tracked on a date
+  - `GET /api/bus-tracking/route/{bus_number}?date=YYYY-MM-DD` — full route + stops for map
+- **Files**: `AdminRouteHistory.jsx` (new), `CounselorApp.jsx`, `routers/tracking.py`
 
 ## Known Limitations
 - **iOS Background Tracking**: Wake Lock API added but iOS Safari suspends JS after ~15s in background. Counselors must keep app visible.

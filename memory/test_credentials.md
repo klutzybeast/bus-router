@@ -11,7 +11,7 @@
 - No passcode required - direct access
 - **Login PIN**: Any valid bus number (1-34)
 - **Test Bus**: Enter `1` to login as Bus #01 (15 campers)
-- **Admin PIN**: `admin` — logs into Admin Clear Attendance panel (no bus login, goes straight to admin UI)
+- **Admin Access**: Enter `admin` as PIN → then enter password `Camp1993` → opens admin panel with Routes & Clear Data tabs
 
 ## API Testing
 - Use REACT_APP_BACKEND_URL from frontend/.env
