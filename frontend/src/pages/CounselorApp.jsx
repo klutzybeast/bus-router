@@ -390,36 +390,37 @@ export default function CounselorApp() {
         </div>
 
         <div style={{padding:12}}>
+          {/* Attendance Lock Toggle - always visible */}
+          <div data-testid="admin-lock-toggle" style={{
+            marginBottom:12,padding:12,borderRadius:10,
+            background:attendanceUnlocked?'#422006':'#1f2937',
+            border:attendanceUnlocked?'2px solid #f59e0b':'1px solid #374151',
+            display:'flex',alignItems:'center',justifyContent:'space-between'
+          }}>
+            <div>
+              <div style={{color:'white',fontSize:14,fontWeight:600}}>
+                {attendanceUnlocked ? 'Attendance Unlocked' : 'Attendance Locked (after 9:30)'}
+              </div>
+              <div style={{color:'#9ca3af',fontSize:11,marginTop:2}}>
+                {attendanceUnlocked ? 'Counselors can mark attendance' : 'Counselors cannot mark attendance'}
+              </div>
+            </div>
+            <button
+              data-testid="admin-toggle-lock-btn"
+              onClick={toggleAttendanceLock}
+              style={{
+                padding:'8px 16px',borderRadius:8,border:'none',fontWeight:700,fontSize:13,cursor:'pointer',
+                background:attendanceUnlocked?'#dc2626':'#f59e0b',
+                color:attendanceUnlocked?'white':'#000'
+              }}>
+              {attendanceUnlocked ? 'Re-Lock' : 'Unlock'}
+            </button>
+          </div>
+
           {adminTab === 'routes' ? (
             <AdminRouteHistory />
           ) : (
             <>
-              {/* Attendance Lock Toggle */}
-              <div data-testid="admin-lock-toggle" style={{
-                marginBottom:12,padding:12,borderRadius:10,
-                background:attendanceUnlocked?'#422006':'#1f2937',
-                border:attendanceUnlocked?'2px solid #f59e0b':'1px solid #374151',
-                display:'flex',alignItems:'center',justifyContent:'space-between'
-              }}>
-                <div>
-                  <div style={{color:'white',fontSize:14,fontWeight:600}}>
-                    {attendanceUnlocked ? 'Attendance Unlocked' : 'Attendance Locked (after 9:30)'}
-                  </div>
-                  <div style={{color:'#9ca3af',fontSize:11,marginTop:2}}>
-                    {attendanceUnlocked ? 'Counselors can mark attendance' : 'Counselors cannot mark attendance'}
-                  </div>
-                </div>
-                <button
-                  data-testid="admin-toggle-lock-btn"
-                  onClick={toggleAttendanceLock}
-                  style={{
-                    padding:'8px 16px',borderRadius:8,border:'none',fontWeight:700,fontSize:13,cursor:'pointer',
-                    background:attendanceUnlocked?'#dc2626':'#f59e0b',
-                    color:attendanceUnlocked?'white':'#000'
-                  }}>
-                  {attendanceUnlocked ? 'Re-Lock' : 'Unlock'}
-                </button>
-              </div>
 
               {/* Bus filter */}
               <div style={{marginBottom:12}}>
