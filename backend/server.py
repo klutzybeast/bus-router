@@ -120,24 +120,35 @@ async def lifespan(app: FastAPI):
         active_season = await db.seasons.find_one({"is_active": True})
 
         if not active_season:
-            current_year = datetime.now().year
-            new_season = {
-                "_id": str(uuid.uuid4()),
-                "name": f"{current_year} Bus Route Management",
-                "year": current_year,
-                "is_active": True,
-                "created_at": datetime.now(timezone.utc).isoformat(),
-                "archived_at": None
-            }
-            await db.seasons.insert_one(new_season)
-            active_season = new_season
-            logger.info(f"Created default season: {new_season['name']}")
+            # Check if ANY season exists (might have lost is_active flag)
+            any_season = await db.seasons.find_one({}, sort=[("created_at", -1)])
+            if any_season:
+                # Re-activate the most recent season instead of creating a new one
+                await db.seasons.update_one({"_id": any_season["_id"]}, {"$set": {"is_active": True}})
+                active_season = any_season
+                active_season["is_active"] = True
+                logger.info(f"Re-activated existing season: {any_season.get('name')}")
+            else:
+                current_year = datetime.now().year
+                new_season = {
+                    "_id": str(uuid.uuid4()),
+                    "name": f"{current_year} Bus Route Management",
+                    "year": current_year,
+                    "is_active": True,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "archived_at": None
+                }
+                await db.seasons.insert_one(new_season)
+                active_season = new_season
+                logger.info(f"Created default season: {new_season['name']}")
 
         season_id = active_season["_id"]
 
+        # Migrate records with no season_id AND recover orphaned records from old seasons
         collections_to_migrate = ['campers', 'shadows', 'bus_zones', 'bus_staff', 'bus_assigned_staff']
         for collection_name in collections_to_migrate:
             collection = db[collection_name]
+            # Migrate records without season_id
             result = await collection.update_many(
                 {"$or": [
                     {"season_id": {"$exists": False}},
@@ -147,6 +158,16 @@ async def lifespan(app: FastAPI):
             )
             if result.modified_count > 0:
                 logger.info(f"Migrated {result.modified_count} {collection_name} to season {str(season_id)[:8]}...")
+
+            # Also recover records from non-existent seasons (orphaned by bad deploys)
+            all_season_ids = [s["_id"] for s in await db.seasons.find({}, {"_id": 1}).to_list(None)]
+            if all_season_ids:
+                orphan_result = await collection.update_many(
+                    {"season_id": {"$nin": all_season_ids}},
+                    {"$set": {"season_id": season_id}}
+                )
+                if orphan_result.modified_count > 0:
+                    logger.info(f"Recovered {orphan_result.modified_count} orphaned {collection_name} to active season")
 
         logger.info("Season data migration complete")
     except Exception as e:
