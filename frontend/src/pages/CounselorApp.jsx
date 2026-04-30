@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { CheckCircle, XCircle, Bus, Users, LogOut, Navigation, Calendar, Trash2, ArrowLeft, Shield, Lock, Map } from 'lucide-react';
+import { CheckCircle, XCircle, Bus, Users, LogOut, Navigation, Calendar, Trash2, ArrowLeft, Shield, Lock, Map, HelpCircle } from 'lucide-react';
 import AdminRouteHistory from './AdminRouteHistory';
+import CounselorHelp from './CounselorHelp';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const APP_VERSION = "v2.8";
@@ -19,6 +20,7 @@ function isAttendanceClosed() {
 
 export default function CounselorApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
@@ -277,7 +279,12 @@ export default function CounselorApp() {
   // Login screen
   if (!isLoggedIn) {
     return (
-      <div data-testid="counselor-login" style={{minHeight:'100vh',background:'linear-gradient(135deg,#2563eb,#1e40af)',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
+      <div data-testid="counselor-login" style={{minHeight:'100vh',background:'linear-gradient(135deg,#2563eb,#1e40af)',display:'flex',alignItems:'center',justifyContent:'center',padding:16,position:'relative'}}>
+        {showHelp && <CounselorHelp onClose={() => setShowHelp(false)} />}
+        <button data-testid="help-btn-login" onClick={() => setShowHelp(true)}
+          style={{position:'absolute',top:'max(env(safe-area-inset-top, 12px), 40px)',right:16,background:'rgba(255,255,255,0.2)',border:'none',color:'white',padding:'8px 14px',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',gap:6}}>
+          <HelpCircle size={16} /> Help
+        </button>
         <div style={{background:'white',borderRadius:16,padding:32,width:'100%',maxWidth:320}}>
           <div style={{textAlign:'center',marginBottom:24}}>
             <div style={{width:80,height:80,background:'#dbeafe',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}><Bus size={40} color="#2563eb" /></div>
@@ -534,6 +541,7 @@ export default function CounselorApp() {
       background:'#f3f4f6',
       paddingBottom:20
     }}>
+      {showHelp && <CounselorHelp onClose={() => setShowHelp(false)} />}
       {/* Sticky Header */}
       <div data-testid="counselor-header" style={{
         position: 'sticky', 
@@ -546,7 +554,12 @@ export default function CounselorApp() {
       }}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <h1 data-testid="bus-number-title" style={{margin:0,fontSize:18,fontWeight:'bold'}}>{busData?.bus_number}</h1>
-          <button data-testid="logout-btn" onClick={handleLogout} style={{background:'none',border:'none',color:'white',padding:8,cursor:'pointer'}}><LogOut size={20} /></button>
+          <div style={{display:'flex',alignItems:'center',gap:4}}>
+            <button data-testid="help-btn" onClick={() => setShowHelp(true)} style={{background:'rgba(255,255,255,0.2)',border:'none',color:'white',padding:'6px 10px',borderRadius:6,fontSize:12,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>
+              <HelpCircle size={14} /> Help
+            </button>
+            <button data-testid="logout-btn" onClick={handleLogout} style={{background:'none',border:'none',color:'white',padding:8,cursor:'pointer'}}><LogOut size={20} /></button>
+          </div>
         </div>
         <div style={{marginTop:8,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
           <span data-testid="gps-status" style={{display:'inline-flex',alignItems:'center',gap:4,padding:'4px 10px',borderRadius:20,fontSize:12,fontWeight:500,
