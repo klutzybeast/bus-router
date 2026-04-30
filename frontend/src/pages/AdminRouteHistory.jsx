@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { MapPin, Clock, ArrowLeft, Bus, Navigation } from 'lucide-react';
+import { MapPin, Clock, ArrowLeft, Bus, Navigation, Printer } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const MAPS_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -147,12 +147,66 @@ export default function AdminRouteHistory() {
       return d.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', hour12: true });
     };
 
+    const printRoute = () => {
+      const dateLabel = new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+      const stops = routeData.stops || [];
+      const totalStopTime = stops.reduce((sum, s) => sum + (s.duration_seconds || 0), 0);
+      const totalFormatted = totalStopTime >= 3600 ? `${Math.floor(totalStopTime/3600)}h ${Math.floor((totalStopTime%3600)/60)}m` : totalStopTime >= 60 ? `${Math.floor(totalStopTime/60)}m ${Math.floor(totalStopTime%60)}s` : `${totalStopTime}s`;
+
+      const stopsHtml = stops.length > 0 ? stops.map((stop, i) => `
+        <tr>
+          <td style="padding:8px;border-bottom:1px solid #ddd;text-align:center;font-weight:600">${i+1}</td>
+          <td style="padding:8px;border-bottom:1px solid #ddd">${stop.latitude?.toFixed(5)}, ${stop.longitude?.toFixed(5)}</td>
+          <td style="padding:8px;border-bottom:1px solid #ddd">${formatTime(stop.stop_started_at)}</td>
+          <td style="padding:8px;border-bottom:1px solid #ddd;font-weight:600">${stop.duration_formatted || '—'}</td>
+        </tr>
+      `).join('') : '<tr><td colspan="4" style="padding:20px;text-align:center;color:#666">No stops recorded</td></tr>';
+
+      const html = `<!DOCTYPE html><html><head><title>Route Report - ${selectedBus} - ${dateLabel}</title>
+        <style>
+          body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:20px}
+          h1{color:#1e40af;margin-bottom:4px}
+          .meta{color:#666;margin-bottom:20px}
+          table{width:100%;border-collapse:collapse;margin-top:16px}
+          th{background:#1e40af;color:white;padding:10px 8px;text-align:left}
+          .summary{display:flex;gap:20px;margin:16px 0;flex-wrap:wrap}
+          .stat{background:#f3f4f6;padding:12px 16px;border-radius:8px}
+          .stat-label{font-size:12px;color:#666}
+          .stat-value{font-size:18px;font-weight:700;color:#1e40af}
+          @media print{button{display:none}}
+        </style></head><body>
+        <button onclick="window.print()" style="background:#1e40af;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;margin-bottom:16px">Print</button>
+        <h1>${selectedBus} — Route Report</h1>
+        <div class="meta">${dateLabel}</div>
+        <div class="summary">
+          <div class="stat"><div class="stat-label">GPS Points</div><div class="stat-value">${routeData.point_count}</div></div>
+          <div class="stat"><div class="stat-label">Stops</div><div class="stat-value">${stops.length}</div></div>
+          <div class="stat"><div class="stat-label">Total Stop Time</div><div class="stat-value">${totalFormatted}</div></div>
+          <div class="stat"><div class="stat-label">First Signal</div><div class="stat-value">${formatTime(routeData.route?.[0]?.timestamp)}</div></div>
+          <div class="stat"><div class="stat-label">Last Signal</div><div class="stat-value">${formatTime(routeData.route?.[routeData.route.length-1]?.timestamp)}</div></div>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Location</th><th>Time</th><th>Duration</th></tr></thead>
+          <tbody>${stopsHtml}</tbody>
+        </table>
+        </body></html>`;
+
+      const w = window.open('', '_blank');
+      if (w) { w.document.write(html); w.document.close(); }
+    };
+
     return (
       <div data-testid="route-detail-view">
-        <button data-testid="route-back-btn" onClick={() => { setSelectedBus(null); setRouteData(null); mapInstanceRef.current = null; }}
-          style={{ display:'flex',alignItems:'center',gap:6,background:'none',border:'none',color:'#9ca3af',fontSize:13,padding:'8px 0',cursor:'pointer',marginBottom:8 }}>
-          <ArrowLeft size={16} /> Back to all buses
-        </button>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+          <button data-testid="route-back-btn" onClick={() => { setSelectedBus(null); setRouteData(null); mapInstanceRef.current = null; }}
+            style={{ display:'flex',alignItems:'center',gap:6,background:'none',border:'none',color:'#9ca3af',fontSize:13,padding:'8px 0',cursor:'pointer' }}>
+            <ArrowLeft size={16} /> Back to all buses
+          </button>
+          <button data-testid="route-print-btn" onClick={printRoute}
+            style={{ display:'flex',alignItems:'center',gap:6,background:'#2563eb',border:'none',color:'white',fontSize:13,fontWeight:600,padding:'8px 14px',borderRadius:8,cursor:'pointer' }}>
+            <Printer size={14} /> Print
+          </button>
+        </div>
 
         <div style={{ background:'#1f2937',borderRadius:10,padding:12,marginBottom:12 }}>
           <div style={{ display:'flex',alignItems:'center',gap:8,marginBottom:4 }}>
