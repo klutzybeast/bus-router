@@ -174,6 +174,7 @@ async def delete_bus_zone(bus_number: str):
 
 
 @router.post("/bus-zones/recover")
+@router.get("/recover-zones")
 async def recover_orphaned_zones():
     """Recover zones that lost their season_id during redeployment."""
     try:
