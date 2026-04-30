@@ -171,3 +171,52 @@ async def delete_bus_zone(bus_number: str):
     except Exception as e:
         logging.error(f"Error deleting bus zone: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/bus-zones/recover")
+async def recover_orphaned_zones():
+    """Recover zones that lost their season_id during redeployment."""
+    try:
+        season_id = await get_active_season_id()
+        if not season_id:
+            raise HTTPException(status_code=400, detail="No active season found")
+
+        # Find zones with wrong or missing season_id
+        active_count = await db.bus_zones.count_documents({"season_id": season_id})
+        total_count = await db.bus_zones.count_documents({})
+        orphaned = total_count - active_count
+
+        if orphaned > 0:
+            # Get all unique season_ids in zones
+            all_zones = await db.bus_zones.find({}, {"season_id": 1, "bus_number": 1}).to_list(None)
+            orphan_ids = set()
+            for z in all_zones:
+                sid = z.get("season_id")
+                if sid and sid != season_id:
+                    orphan_ids.add(sid)
+
+            # Migrate orphaned zones to active season
+            result = await db.bus_zones.update_many(
+                {"season_id": {"$ne": season_id}},
+                {"$set": {"season_id": season_id}}
+            )
+
+            return {
+                "success": True,
+                "message": f"Recovered {result.modified_count} zones to active season",
+                "active_season": season_id,
+                "previous_season_ids": list(orphan_ids),
+                "total_zones_now": await db.bus_zones.count_documents({"season_id": season_id})
+            }
+        else:
+            return {
+                "success": True,
+                "message": "No orphaned zones found",
+                "active_zones": active_count,
+                "total_zones": total_count
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error recovering zones: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
