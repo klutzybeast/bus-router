@@ -74,7 +74,7 @@ export default function CounselorHelp({ onClose }) {
           </p>
           <div style={{background:'#1c1917',border:'1px solid #f59e0b',borderRadius:8,padding:12,marginTop:12}}>
             <div style={{color:'#f59e0b',fontSize:12,fontWeight:700,marginBottom:4}}>NON-NEGOTIABLE</div>
-            <div style={{color:'#fcd34d',fontSize:13}}>You must have this app open on <strong>both</strong> the morning pickup route (marking attendance) and the afternoon drop-off (GPS tracking only). Every single day.</div>
+            <div style={{color:'#fcd34d',fontSize:13}}>You are the only bus counselor on your bus. You use your own phone. You must have this app open on <strong>both</strong> the morning pickup route (marking attendance) and the afternoon drop-off (GPS tracking only). Every single day.</div>
           </div>
         </div>
 
@@ -93,7 +93,6 @@ export default function CounselorHelp({ onClose }) {
             <ul style={{color:'#fca5a5',fontSize:13,margin:0,paddingLeft:16,lineHeight:1.8}}>
               <li>Tap "Block" or "Don't Allow" on the location popup</li>
               <li>Type the wrong bus number — if names look wrong, log out and re-enter</li>
-              <li>Share one phone between two bus counselors</li>
             </ul>
           </div>
         </div>
@@ -184,7 +183,7 @@ export default function CounselorHelp({ onClose }) {
             At 9:30 AM, the system pulls your bus data and syncs it with Camper Snapshot and the Attendance App. If you haven't marked everyone by then, those campers show as "Unmarked" which creates conflicts the supervisor has to deal with before 9:35.
           </p>
           <p style={{color:'#9ca3af',fontSize:13,margin:'12px 0 0'}}>
-            If you have an emergency and miss the deadline, contact the main office immediately. An admin can temporarily unlock attendance from the admin panel.
+            If the app locks because you didn't finish in time, you <strong style={{color:'#f87171'}}>must notify Brian Stein immediately</strong>. An admin can temporarily unlock attendance from the admin panel.
           </p>
         </div>
 
@@ -212,9 +211,9 @@ export default function CounselorHelp({ onClose }) {
             <strong style={{color:'white'}}>Why GPS matters:</strong> Admin uses your location to see where all buses are on the map in real time. If a parent calls asking where Bus 31 is, admin can answer instantly. If there's an emergency, we need to know exactly where the bus is.
           </p>
           <div style={{background:'#450a0a',border:'1px solid #dc2626',borderRadius:8,padding:12,marginBottom:16}}>
-            <div style={{color:'#f87171',fontSize:12,fontWeight:700,marginBottom:6}}>DO NOT EXIT THE APP UNTIL YOU REACH CAMP</div>
+            <div style={{color:'#f87171',fontSize:12,fontWeight:700,marginBottom:6}}>DO NOT EXIT THE APP UNTIL YOU ARRIVE AT THE DROP-OFF LINE AT CAMP</div>
             <div style={{color:'#fca5a5',fontSize:13,lineHeight:1.6}}>
-              Do not close the tab. Do not switch apps. Do not lock your phone. The app must stay open on your screen the entire bus ride. If you close it, GPS stops and admin loses the bus.
+              Do not close the tab. Do not switch apps. Do not lock your phone. Even after you've marked the last camper, <strong style={{color:'white'}}>keep the app open</strong> until your bus pulls into the drop-off line. If you close it, GPS stops and admin loses the bus.
             </div>
           </div>
           <h3 style={{color:'white',fontSize:14,fontWeight:600,margin:'16px 0 8px'}}>How to fix GPS if you blocked it:</h3>
@@ -280,7 +279,7 @@ export default function CounselorHelp({ onClose }) {
               { q: "A camper's name is missing", a: "They may have been reassigned to a different bus. Tell the front desk when you arrive." },
               { q: "Buttons not responding", a: "Pull down to refresh on mobile, or hard-refresh (Ctrl+Shift+R). If still broken, contact Brian Stein." },
               { q: "GPS badge is red", a: "Tap the Retry button. If that doesn't work, check your phone settings (see GPS section above)." },
-              { q: "I missed the 9:30 deadline", a: "Contact the main office immediately. An admin can temporarily unlock attendance." },
+              { q: "I missed the 9:30 deadline", a: "Notify Brian Stein immediately. An admin can temporarily unlock attendance." },
             ].map((item, i) => (
               <div key={i} style={{background:'#1f2937',borderRadius:8,padding:12,border:'1px solid #374151'}}>
                 <div style={{color:'white',fontSize:13,fontWeight:600,marginBottom:4}}>{item.q}</div>
