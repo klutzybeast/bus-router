@@ -74,7 +74,7 @@ export default function CounselorHelp({ onClose }) {
           </p>
           <div style={{background:'#1c1917',border:'1px solid #f59e0b',borderRadius:8,padding:12,marginTop:12}}>
             <div style={{color:'#f59e0b',fontSize:12,fontWeight:700,marginBottom:4}}>NON-NEGOTIABLE</div>
-            <div style={{color:'#fcd34d',fontSize:13}}>You are the only bus counselor on your bus. You use your own phone. You must have this app open on <strong>both</strong> the morning pickup route (marking attendance) and the afternoon drop-off (GPS tracking only). Every single day.</div>
+            <div style={{color:'#fcd34d',fontSize:13}}>This app must be open on your phone for <strong>both</strong> the morning pickup route (marking attendance) and the afternoon drop-off (GPS tracking only). Every single day.</div>
           </div>
         </div>
 
