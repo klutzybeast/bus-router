@@ -20,6 +20,13 @@ logger = logging.getLogger(__name__)
 
 EASTERN = ZoneInfo("America/New_York")
 CAMPERSNAPSHOT_URL = os.environ.get("CAMPERSNAPSHOT_URL", "https://campersnapshot.com")
+CAMPERSNAPSHOT_SHARED_SECRET = os.environ.get("CAMPERSNAPSHOT_SHARED_SECRET", "")
+
+
+def _snapshot_headers() -> dict:
+    if CAMPERSNAPSHOT_SHARED_SECRET:
+        return {"X-Shared-Secret": CAMPERSNAPSHOT_SHARED_SECRET}
+    return {}
 
 
 async def sync_person_ids() -> dict:
@@ -180,6 +187,7 @@ async def push_attendance_to_snapshot(camper_id: str, status: str, date: str):
             response = await client.put(
                 f"{CAMPERSNAPSHOT_URL}/api/bus-roster/mark",
                 json={"camper_id": snapshot_id, "status": status, "date": date},
+                headers=_snapshot_headers(),
             )
             print(f"[SNAP] {camper_id} -> {snapshot_id} {status} {date}: {response.status_code}")
 
@@ -200,7 +208,7 @@ async def fetch_snapshot_roster(date: str = None, bus_number: str = None) -> dic
             url = f"{CAMPERSNAPSHOT_URL}/api/bus-roster"
 
         async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(url, params={"date": date})
+            response = await client.get(url, params={"date": date}, headers=_snapshot_headers())
 
         if response.status_code == 200:
             return response.json()
