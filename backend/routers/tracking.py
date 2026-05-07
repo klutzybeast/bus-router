@@ -81,26 +81,40 @@ async def bus_tracking_login(request: BusLoginRequest):
                 "snapshot_id": c.get("snapshot_id", "")
             })
 
-        # Fetch group_code from CamperSnapshot roster
+        # Fetch enriched data from CamperSnapshot roster
         try:
             from services.snapshot_sync import fetch_snapshot_roster
             roster_data = await fetch_snapshot_roster(date=today_eastern(), bus_number=bus_number)
-            riders = roster_data.get("am_riders", [])
-            # Build name→group lookup
-            group_lookup = {}
+            riders = roster_data.get("am_riders", roster_data.get("campers", []))
+            # Build lookup by name and snapshot_id
+            snap_lookup = {}
             for r in riders:
-                group_lookup[r.get("name", "").strip().lower()] = r.get("group_code", "")
-                # Also map by snapshot_id
+                snap_lookup[r.get("name", "").strip().lower()] = r
                 if r.get("id"):
-                    group_lookup[r["id"]] = r.get("group_code", "")
-            # Merge group_code into campers
+                    snap_lookup[r["id"]] = r
+            # Merge CamperSnapshot fields into campers
             for camper in campers:
                 name_key = f"{camper['first_name']} {camper['last_name']}".strip().lower()
-                camper["group"] = group_lookup.get(camper.get("snapshot_id", ""), "") or group_lookup.get(name_key, "")
+                snap = snap_lookup.get(camper.get("snapshot_id", "")) or snap_lookup.get(name_key) or {}
+                camper["group"] = snap.get("group_code", "")
+                camper["age"] = snap.get("age")
+                sessions = snap.get("sessions", [])
+                if sessions:
+                    camper["session"] = sessions[0].get("name", camper.get("session", ""))
+                camper["is_flex"] = snap.get("is_flex", False)
+                camper["flex_days"] = snap.get("flex_days", [])
+                camper["early_swim_lesson"] = snap.get("early_swim_lesson", False)
+                camper["todays_swim_lesson"] = snap.get("todays_swim_lesson", "")
+                camper["session_changeover"] = snap.get("session_changeover")
         except Exception as e:
-            logging.warning(f"Could not fetch group from CamperSnapshot: {e}")
+            logging.warning(f"Could not fetch data from CamperSnapshot: {e}")
             for camper in campers:
                 camper["group"] = ""
+                camper["age"] = None
+                camper["is_flex"] = False
+                camper["early_swim_lesson"] = False
+                camper["todays_swim_lesson"] = ""
+                camper["session_changeover"] = None
 
         today = today_eastern()
         attendance_doc = await db.bus_attendance.find_one({

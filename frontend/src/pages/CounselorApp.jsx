@@ -643,10 +643,20 @@ export default function CounselorApp() {
                   <span style={{color:'#9ca3af',fontSize:12,width:24}}>#{index+1}</span>
                   <span data-testid={`camper-name-${index}`} style={{fontWeight:500,fontSize:14,color:'#1f2937',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{camper.first_name} {camper.last_name}</span>
                 </div>
-                {(camper.group || camper.session) && (
-                  <div style={{display:'flex',gap:6,marginTop:3,marginLeft:30}}>
-                    {camper.group && <span style={{fontSize:11,fontWeight:600,color:'#2563eb',background:'#dbeafe',padding:'1px 6px',borderRadius:4}}>{camper.group}</span>}
-                    {camper.session && <span style={{fontSize:11,color:'#6b7280',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{camper.session}</span>}
+                <div style={{display:'flex',gap:5,marginTop:3,marginLeft:30,flexWrap:'wrap',alignItems:'center'}}>
+                  {camper.group && <span style={{fontSize:11,fontWeight:600,color:'#2563eb',background:'#dbeafe',padding:'1px 6px',borderRadius:4}}>{camper.group}</span>}
+                  {camper.age != null && <span style={{fontSize:11,color:'#6b7280'}}>age {Math.floor(camper.age)}</span>}
+                  {camper.session && <span style={{fontSize:11,color:'#6b7280'}}>{camper.session}</span>}
+                  {camper.is_flex && <span style={{fontSize:10,fontWeight:600,color:'#7c3aed',background:'#ede9fe',padding:'1px 5px',borderRadius:4}}>Flex</span>}
+                </div>
+                {camper.early_swim_lesson && (
+                  <div style={{marginTop:3,marginLeft:30,fontSize:11,fontWeight:600,color:'#0891b2',background:'#ecfeff',padding:'2px 8px',borderRadius:4,display:'inline-block'}}>
+                    {camper.todays_swim_lesson ? `${camper.todays_swim_lesson} swim` : 'Early swim'} — not on AM bus
+                  </div>
+                )}
+                {camper.session_changeover?.this_week && (
+                  <div style={{marginTop:3,marginLeft:30,fontSize:11,fontWeight:600,color:'#92400e',background:'#fef3c7',padding:'2px 8px',borderRadius:4,display:'inline-block'}}>
+                    {camper.session_changeover.events?.map(e => `${e.name} ${e.type}s ${e.weekday}`).join(' · ')}
                   </div>
                 )}
               </div>
