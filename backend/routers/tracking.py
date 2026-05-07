@@ -65,7 +65,7 @@ async def bus_tracking_login(request: BusLoginRequest):
 
         campers_cursor = db.campers.find(
             {"am_bus_number": bus_number, "season_id": season_id} if season_id else {"am_bus_number": bus_number},
-            {"_id": 1, "first_name": 1, "last_name": 1, "location.address": 1, "am_bus_number": 1, "pm_bus_number": 1}
+            {"_id": 1, "first_name": 1, "last_name": 1, "location.address": 1, "am_bus_number": 1, "pm_bus_number": 1, "session": 1, "snapshot_id": 1}
         ).sort([("last_name", 1), ("first_name", 1)])
 
         campers = []
@@ -76,8 +76,31 @@ async def bus_tracking_login(request: BusLoginRequest):
                 "last_name": c.get("last_name", ""),
                 "address": c.get("location", {}).get("address", ""),
                 "am_bus": c.get("am_bus_number", ""),
-                "pm_bus": c.get("pm_bus_number", "")
+                "pm_bus": c.get("pm_bus_number", ""),
+                "session": c.get("session", ""),
+                "snapshot_id": c.get("snapshot_id", "")
             })
+
+        # Fetch group_code from CamperSnapshot roster
+        try:
+            from services.snapshot_sync import fetch_snapshot_roster
+            roster_data = await fetch_snapshot_roster(date=today_eastern(), bus_number=bus_number)
+            riders = roster_data.get("am_riders", [])
+            # Build name→group lookup
+            group_lookup = {}
+            for r in riders:
+                group_lookup[r.get("name", "").strip().lower()] = r.get("group_code", "")
+                # Also map by snapshot_id
+                if r.get("id"):
+                    group_lookup[r["id"]] = r.get("group_code", "")
+            # Merge group_code into campers
+            for camper in campers:
+                name_key = f"{camper['first_name']} {camper['last_name']}".strip().lower()
+                camper["group"] = group_lookup.get(camper.get("snapshot_id", ""), "") or group_lookup.get(name_key, "")
+        except Exception as e:
+            logging.warning(f"Could not fetch group from CamperSnapshot: {e}")
+            for camper in campers:
+                camper["group"] = ""
 
         today = today_eastern()
         attendance_doc = await db.bus_attendance.find_one({

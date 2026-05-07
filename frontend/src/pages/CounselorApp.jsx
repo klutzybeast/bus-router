@@ -643,6 +643,12 @@ export default function CounselorApp() {
                   <span style={{color:'#9ca3af',fontSize:12,width:24}}>#{index+1}</span>
                   <span data-testid={`camper-name-${index}`} style={{fontWeight:500,fontSize:14,color:'#1f2937',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{camper.first_name} {camper.last_name}</span>
                 </div>
+                {(camper.group || camper.session) && (
+                  <div style={{display:'flex',gap:6,marginTop:3,marginLeft:30}}>
+                    {camper.group && <span style={{fontSize:11,fontWeight:600,color:'#2563eb',background:'#dbeafe',padding:'1px 6px',borderRadius:4}}>{camper.group}</span>}
+                    {camper.session && <span style={{fontSize:11,color:'#6b7280',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{camper.session}</span>}
+                  </div>
+                )}
               </div>
               <div style={{display:'flex',gap:6,flexShrink:0}}>
                 {(() => { const locked = attendanceClosed && !attendanceUnlocked; return (<>
