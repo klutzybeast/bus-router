@@ -628,6 +628,38 @@ export default function CounselorApp() {
         <div style={{textAlign:'center'}}><div data-testid="total-count" style={{fontSize:20,fontWeight:'bold',color:'#2563eb'}}>{campers.length}</div><div style={{fontSize:10,color:'#6b7280'}}>Total</div></div>
       </div>
 
+      {/* AM Swim Lessons */}
+      {busData?.swim_am?.length > 0 && (
+        <div data-testid="swim-am-section" style={{margin:8,marginBottom:0,background:'#ecfeff',border:'2px solid #06b6d4',borderRadius:10,padding:10}}>
+          <div style={{fontSize:12,fontWeight:700,color:'#0891b2',marginBottom:6}}>AM SWIM LESSONS — NOT ON BUS</div>
+          {busData.swim_am.map((s, i) => (
+            <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0',borderBottom:i<busData.swim_am.length-1?'1px solid #cffafe':'none'}}>
+              <span style={{fontSize:13,fontWeight:500,color:'#164e63'}}>{s.name}</span>
+              <div style={{display:'flex',gap:6,alignItems:'center'}}>
+                {s.group && <span style={{fontSize:10,fontWeight:600,color:'#0891b2',background:'#cffafe',padding:'1px 5px',borderRadius:3}}>{s.group}</span>}
+                <span style={{fontSize:11,color:'#0e7490',fontWeight:600}}>{s.time}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* PM Swim Lessons */}
+      {busData?.swim_pm?.length > 0 && (
+        <div data-testid="swim-pm-section" style={{margin:8,marginBottom:0,background:'#fef3c7',border:'2px solid #f59e0b',borderRadius:10,padding:10}}>
+          <div style={{fontSize:12,fontWeight:700,color:'#92400e',marginBottom:6}}>PM SWIM LESSONS — NOT ON PM BUS</div>
+          {busData.swim_pm.map((s, i) => (
+            <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0',borderBottom:i<busData.swim_pm.length-1?'1px solid #fde68a':'none'}}>
+              <span style={{fontSize:13,fontWeight:500,color:'#78350f'}}>{s.name}</span>
+              <div style={{display:'flex',gap:6,alignItems:'center'}}>
+                {s.group && <span style={{fontSize:10,fontWeight:600,color:'#92400e',background:'#fde68a',padding:'1px 5px',borderRadius:3}}>{s.group}</span>}
+                <span style={{fontSize:11,color:'#92400e',fontWeight:600}}>{s.time}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Camper List */}
       <div data-testid="camper-list" style={{padding:8}}>
         {campers.map((camper, index) => {
