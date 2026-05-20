@@ -5,6 +5,7 @@ const sections = [
   { id: 'what', title: 'What Is This App?' },
   { id: 'login', title: 'How to Log In' },
   { id: 'attendance', title: 'Marking Attendance' },
+  { id: 'swim', title: 'Swim Lesson Banners' },
   { id: 'absent-rule', title: 'The Absent Rule (READ THIS)' },
   { id: 'deadline', title: 'The 9:30 AM Deadline' },
   { id: 'gps', title: 'GPS Tracking' },
@@ -125,9 +126,39 @@ export default function CounselorHelp({ onClose }) {
           <p style={{color:'#9ca3af',fontSize:13,marginTop:12}}>Every tap saves automatically. There is no "Submit" button.</p>
         </div>
 
-        {/* Section 4: THE ABSENT RULE */}
+        {/* Section 4: Swim Lesson Banners */}
+        <div id="help-swim" style={{marginBottom:32}}>
+          <h2 style={{color:'white',fontSize:18,fontWeight:700,margin:'0 0 12px',borderLeft:'4px solid #06b6d4',paddingLeft:12}}>4. Swim Lesson Banners</h2>
+          <p style={{color:'#d1d5db',fontSize:14,lineHeight:1.7,margin:'0 0 16px'}}>
+            Some campers have swim lessons that conflict with the bus schedule. When this happens, you'll see colored banners at the top of your camper list — above the attendance rows.
+          </p>
+
+          <div style={{background:'#083344',border:'2px solid #06b6d4',borderRadius:10,padding:14,marginBottom:16}}>
+            <div style={{color:'#22d3ee',fontSize:13,fontWeight:700,marginBottom:8}}>AM SWIM LESSONS — NOT ON BUS</div>
+            <p style={{color:'#a5f3fc',fontSize:13,lineHeight:1.6,margin:0}}>
+              This cyan banner lists campers who have an <strong style={{color:'white'}}>early morning swim lesson</strong> (usually 8:30 AM). They go directly to the pool instead of riding the bus. They are <strong style={{color:'white'}}>not on your bus this morning</strong> — do not expect them at their stop. They are already removed from your attendance list.
+            </p>
+          </div>
+
+          <div style={{background:'#451a03',border:'2px solid #f59e0b',borderRadius:10,padding:14,marginBottom:16}}>
+            <div style={{color:'#fcd34d',fontSize:13,fontWeight:700,marginBottom:8}}>PM SWIM LESSONS — NOT ON PM BUS</div>
+            <p style={{color:'#fde68a',fontSize:13,lineHeight:1.6,margin:0}}>
+              This amber banner lists campers who have a <strong style={{color:'white'}}>4:00 PM or 4:30 PM swim lesson</strong>. They will still be at camp but will <strong style={{color:'white'}}>not be on the PM bus home</strong> — they get picked up separately after their lesson. This is for your awareness so you don't wait for them at dismissal.
+            </p>
+          </div>
+
+          <div style={{background:'#1f2937',borderRadius:8,padding:12,border:'1px solid #374151'}}>
+            <div style={{color:'white',fontSize:13,fontWeight:600,marginBottom:6}}>What you need to do:</div>
+            <ul style={{color:'#d1d5db',fontSize:13,margin:0,paddingLeft:16,lineHeight:1.8}}>
+              <li><strong style={{color:'#22d3ee'}}>AM swim kids</strong> — Nothing. They're already off your list. The banner is just so you know why they're missing.</li>
+              <li><strong style={{color:'#fcd34d'}}>PM swim kids</strong> — Don't look for them when loading the bus for the afternoon run. They're being picked up after swim.</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Section 5: THE ABSENT RULE */}
         <div id="help-absent-rule" style={{marginBottom:32}}>
-          <h2 style={{color:'white',fontSize:18,fontWeight:700,margin:'0 0 12px',borderLeft:'4px solid #dc2626',paddingLeft:12}}>4. The Absent Rule (READ THIS)</h2>
+          <h2 style={{color:'white',fontSize:18,fontWeight:700,margin:'0 0 12px',borderLeft:'4px solid #dc2626',paddingLeft:12}}>5. The Absent Rule (READ THIS)</h2>
           <div style={{background:'#450a0a',border:'2px solid #dc2626',borderRadius:10,padding:16,marginBottom:16}}>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
               <AlertTriangle size={20} color="#f87171" />
@@ -172,7 +203,7 @@ export default function CounselorHelp({ onClose }) {
 
         {/* Section 5: 9:30 AM Deadline */}
         <div id="help-deadline" style={{marginBottom:32}}>
-          <h2 style={{color:'white',fontSize:18,fontWeight:700,margin:'0 0 12px',borderLeft:'4px solid #f59e0b',paddingLeft:12}}>5. The 9:30 AM Deadline</h2>
+          <h2 style={{color:'white',fontSize:18,fontWeight:700,margin:'0 0 12px',borderLeft:'4px solid #f59e0b',paddingLeft:12}}>6. The 9:30 AM Deadline</h2>
           <div style={{background:'#422006',border:'1px solid #f59e0b',borderRadius:8,padding:14}}>
             <div style={{color:'#fcd34d',fontSize:14,fontWeight:700,marginBottom:6}}>Bus attendance locks at 9:30 AM.</div>
             <p style={{color:'#fed7aa',fontSize:13,lineHeight:1.7,margin:0}}>
@@ -189,7 +220,7 @@ export default function CounselorHelp({ onClose }) {
 
         {/* Section 6: GPS */}
         <div id="help-gps" style={{marginBottom:32}}>
-          <h2 style={{color:'white',fontSize:18,fontWeight:700,margin:'0 0 12px',borderLeft:'4px solid #22c55e',paddingLeft:12}}>6. GPS Tracking</h2>
+          <h2 style={{color:'white',fontSize:18,fontWeight:700,margin:'0 0 12px',borderLeft:'4px solid #22c55e',paddingLeft:12}}>7. GPS Tracking</h2>
           <div style={{display:'flex',gap:12,marginBottom:16}}>
             <div style={{flex:1,background:'#052e16',border:'1px solid #22c55e',borderRadius:8,padding:10,textAlign:'center'}}>
               <MapPin size={20} color="#4ade80" />
@@ -229,7 +260,7 @@ export default function CounselorHelp({ onClose }) {
 
         {/* Section 7: CamperSnapshot Sync */}
         <div id="help-snapshot" style={{marginBottom:32}}>
-          <h2 style={{color:'white',fontSize:18,fontWeight:700,margin:'0 0 12px',borderLeft:'4px solid #a855f7',paddingLeft:12}}>7. How CamperSnapshot Sync Works</h2>
+          <h2 style={{color:'white',fontSize:18,fontWeight:700,margin:'0 0 12px',borderLeft:'4px solid #a855f7',paddingLeft:12}}>8. How CamperSnapshot Sync Works</h2>
           <p style={{color:'#d1d5db',fontSize:14,lineHeight:1.7,margin:'0 0 16px'}}>
             Every time you tap Present or Absent, your mark is <strong style={{color:'white'}}>instantly pushed</strong> to Camper Snapshot — the central system all staff use.
           </p>
@@ -271,7 +302,7 @@ export default function CounselorHelp({ onClose }) {
 
         {/* Section 8: Troubleshooting */}
         <div id="help-fix" style={{marginBottom:32}}>
-          <h2 style={{color:'white',fontSize:18,fontWeight:700,margin:'0 0 12px',borderLeft:'4px solid #6b7280',paddingLeft:12}}>8. Something Not Working?</h2>
+          <h2 style={{color:'white',fontSize:18,fontWeight:700,margin:'0 0 12px',borderLeft:'4px solid #6b7280',paddingLeft:12}}>9. Something Not Working?</h2>
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
             {[
               { q: "Page won't load", a: "Check your phone's WiFi or cell data. Try refreshing the page." },
