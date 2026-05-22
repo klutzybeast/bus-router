@@ -32,6 +32,10 @@ export default function CounselorApp() {
   const [gpsMessage, setGpsMessage] = useState('');
   const [locationCount, setLocationCount] = useState(0);
   const [wakeLockActive, setWakeLockActive] = useState(false);
+  const [activePeriod, setActivePeriod] = useState(() => {
+    const h = parseInt(new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit' }));
+    return h < 12 ? 'am' : 'pm';
+  });
   const [attendanceClosed, setAttendanceClosed] = useState(isAttendanceClosed());
   const [attendanceUnlocked, setAttendanceUnlocked] = useState(() => localStorage.getItem('attendance_unlocked') === 'true');
   // Admin state
@@ -201,24 +205,18 @@ export default function CounselorApp() {
   }, []);
 
   // Roster polling — fetch live roster from CamperSnapshot every 30s
-  const getPeriod = useCallback(() => {
-    const now = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit' });
-    return parseInt(now) < 12 ? 'am' : 'pm';
-  }, []);
-
   const pollRoster = useCallback(async () => {
     const bus = busNumberRef.current;
     if (!bus) return;
     try {
-      const period = getPeriod();
-      const res = await fetch(`${API_URL}/api/bus-tracking/live-roster/${encodeURIComponent(bus)}?period=${period}&date=${selectedDate}`);
+      const res = await fetch(`${API_URL}/api/bus-tracking/live-roster/${encodeURIComponent(bus)}?period=${activePeriod}&date=${selectedDate}`);
       const data = await res.json();
       if (data.success) {
         setLiveRoster(data);
         setLastPollTime(new Date());
       }
     } catch { /* silent — next poll will retry */ }
-  }, [selectedDate, getPeriod]);
+  }, [selectedDate, activePeriod]);
 
   const startRosterPolling = useCallback(() => {
     if (rosterPollRef.current) clearInterval(rosterPollRef.current);
@@ -587,7 +585,6 @@ export default function CounselorApp() {
 
   const presentCount = Object.values(attendance).filter(s => s === 'present').length;
   const absentCount = Object.values(attendance).filter(s => s === 'absent').length;
-  const period = getPeriod();
   const baseCampers = busData?.campers || [];
 
   // Merge live roster data into campers
@@ -618,8 +615,8 @@ export default function CounselorApp() {
   });
 
   // Split: active riders vs excepted riders for current period
-  const activeRiders = campers.filter(c => period === 'am' ? c.rides_am && !c.am_excepted_today : c.rides_pm && !c.pm_excepted_today);
-  const exceptedRiders = campers.filter(c => period === 'am' ? (c.am_excepted_today || !c.rides_am) : (c.pm_excepted_today || !c.rides_pm));
+  const activeRiders = campers.filter(c => activePeriod === 'am' ? c.rides_am && !c.am_excepted_today : c.rides_pm && !c.pm_excepted_today);
+  const exceptedRiders = campers.filter(c => activePeriod === 'am' ? (c.am_excepted_today || !c.rides_am) : (c.pm_excepted_today || !c.rides_pm));
   const swimAm = liveRoster?.swim_am || busData?.swim_am || [];
   const swimPm = liveRoster?.swim_pm || busData?.swim_pm || [];
 
@@ -708,15 +705,28 @@ export default function CounselorApp() {
         </div>
       )}
 
-      {/* Period indicator + refresh */}
-      <div style={{background:'white',borderBottom:'1px solid #e5e7eb',padding:'6px 12px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <div style={{display:'flex',alignItems:'center',gap:6}}>
-          <span style={{fontSize:12,fontWeight:700,color:period==='am'?'#2563eb':'#7c3aed',background:period==='am'?'#dbeafe':'#ede9fe',padding:'2px 8px',borderRadius:4}}>{period.toUpperCase()}</span>
-          {lastPollTime && <span style={{fontSize:10,color:'#9ca3af'}}>Updated {lastPollTime.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true})}</span>}
+      {/* AM / PM Toggle + Refresh */}
+      <div style={{background:'white',borderBottom:'1px solid #e5e7eb',padding:'8px 12px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div style={{display:'flex',gap:4}}>
+          <button data-testid="period-am-btn" onClick={() => { setActivePeriod('am'); setLiveRoster(null); }}
+            style={{padding:'6px 16px',borderRadius:6,border:'none',fontSize:13,fontWeight:700,cursor:'pointer',
+              background:activePeriod==='am'?'#2563eb':'#f3f4f6',
+              color:activePeriod==='am'?'white':'#6b7280'}}>
+            AM
+          </button>
+          <button data-testid="period-pm-btn" onClick={() => { setActivePeriod('pm'); setLiveRoster(null); }}
+            style={{padding:'6px 16px',borderRadius:6,border:'none',fontSize:13,fontWeight:700,cursor:'pointer',
+              background:activePeriod==='pm'?'#7c3aed':'#f3f4f6',
+              color:activePeriod==='pm'?'white':'#6b7280'}}>
+            PM
+          </button>
         </div>
-        <button data-testid="refresh-roster-btn" onClick={pollRoster} style={{background:'#f3f4f6',border:'none',borderRadius:6,padding:'4px 10px',fontSize:11,fontWeight:600,color:'#2563eb',cursor:'pointer'}}>
-          Refresh
-        </button>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          {lastPollTime && <span style={{fontSize:10,color:'#9ca3af'}}>{lastPollTime.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true})}</span>}
+          <button data-testid="refresh-roster-btn" onClick={pollRoster} style={{background:'#f3f4f6',border:'none',borderRadius:6,padding:'4px 10px',fontSize:11,fontWeight:600,color:'#2563eb',cursor:'pointer'}}>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Stats Bar */}
@@ -731,7 +741,7 @@ export default function CounselorApp() {
       {exceptedRiders.length > 0 && (
         <div data-testid="excepted-section" style={{margin:8,marginBottom:0,background:'#fef2f2',border:'2px solid #fca5a5',borderRadius:10,padding:10}}>
           <div style={{fontSize:12,fontWeight:700,color:'#dc2626',marginBottom:6}}>
-            {period === 'am' ? 'NOT ON AM BUS TODAY' : 'NOT ON PM BUS TODAY'} ({exceptedRiders.length})
+            {activePeriod === 'am' ? 'NOT ON AM BUS TODAY' : 'NOT ON PM BUS TODAY'} ({exceptedRiders.length})
           </div>
           {exceptedRiders.map((c, i) => (
             <div key={c.id || i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0',borderBottom:i<exceptedRiders.length-1?'1px solid #fecaca':'none'}}>
