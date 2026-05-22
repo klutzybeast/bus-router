@@ -221,6 +221,9 @@ async def get_live_roster(bus_number: str, period: Optional[str] = None, date: O
             if swim_time and ("4:00" in swim_time or "4:30" in swim_time):
                 swim_pm.append({"name": r.get("name", ""), "time": swim_time, "group": r.get("group_code", "")})
 
+        # Pass through removed_today directly from CamperSnapshot
+        removed_today = data.get("removed_today", [])
+
         return {
             "success": True,
             "bus_number": bus_number,
@@ -229,7 +232,8 @@ async def get_live_roster(bus_number: str, period: Optional[str] = None, date: O
             "campers": result,
             "count": len(result),
             "swim_am": swim_am,
-            "swim_pm": swim_pm
+            "swim_pm": swim_pm,
+            "removed_today": removed_today
         }
 
     except Exception as e:

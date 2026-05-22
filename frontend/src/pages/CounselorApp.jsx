@@ -614,9 +614,10 @@ export default function CounselorApp() {
     };
   });
 
-  // Split: active riders vs excepted riders for current period
-  const activeRiders = campers.filter(c => activePeriod === 'am' ? c.rides_am && !c.am_excepted_today : c.rides_pm && !c.pm_excepted_today);
-  const exceptedRiders = campers.filter(c => activePeriod === 'am' ? (c.am_excepted_today || !c.rides_am) : (c.pm_excepted_today || !c.rides_pm));
+  // removed_today comes directly from CamperSnapshot — these kids are NOT in the campers array
+  const removedToday = liveRoster?.removed_today || [];
+  // All campers from local DB are active riders (CamperSnapshot already filtered the roster)
+  const activeRiders = campers;
   const swimAm = liveRoster?.swim_am || busData?.swim_am || [];
   const swimPm = liveRoster?.swim_pm || busData?.swim_pm || [];
 
@@ -733,19 +734,17 @@ export default function CounselorApp() {
         <div style={{textAlign:'center'}}><div data-testid="total-count" style={{fontSize:20,fontWeight:'bold',color:'#2563eb'}}>{activeRiders.length}</div><div style={{fontSize:10,color:'#6b7280'}}>Total</div></div>
       </div>
 
-      {/* Excepted campers banner */}
-      {exceptedRiders.length > 0 && (
-        <div data-testid="excepted-section" style={{margin:8,marginBottom:0,background:'#fef2f2',border:'2px solid #fca5a5',borderRadius:10,padding:10}}>
+      {/* Removed today — from CamperSnapshot removed_today array */}
+      {removedToday.length > 0 && (
+        <div data-testid="removed-today-section" style={{margin:8,marginBottom:0,background:'#fef2f2',border:'2px solid #fca5a5',borderRadius:10,padding:10}}>
           <div style={{fontSize:12,fontWeight:700,color:'#dc2626',marginBottom:6}}>
-            {activePeriod === 'am' ? 'NOT ON AM BUS TODAY' : 'NOT ON PM BUS TODAY'} ({exceptedRiders.length})
+            NOT ON {activePeriod.toUpperCase()} BUS TODAY ({removedToday.length})
           </div>
-          {exceptedRiders.map((c, i) => (
-            <div key={c.id || i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0',borderBottom:i<exceptedRiders.length-1?'1px solid #fecaca':'none'}}>
-              <span style={{fontSize:13,fontWeight:500,color:'#991b1b'}}>{c.first_name} {c.last_name}</span>
-              <span style={{fontSize:10,fontWeight:600,color:'white',padding:'2px 6px',borderRadius:4,
-                background: c.am_excepted_today ? '#dc2626' : c.early_swim_lesson ? '#0891b2' : c.pm_excepted_today ? '#d97706' : '#6b7280'
-              }}>
-                {c.am_exception_location || c.pm_exception_location || (c.early_swim_lesson ? 'Early Swim' : 'Excepted')}
+          {removedToday.map((c, i) => (
+            <div key={c.id || i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0',borderBottom:i<removedToday.length-1?'1px solid #fecaca':'none'}}>
+              <span style={{fontSize:13,fontWeight:500,color:'#991b1b'}}>{c.name}</span>
+              <span style={{fontSize:10,fontWeight:600,color:'white',padding:'2px 6px',borderRadius:4,background:'#dc2626'}}>
+                {c.reason || 'Removed'}
               </span>
             </div>
           ))}
