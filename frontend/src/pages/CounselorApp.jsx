@@ -238,18 +238,16 @@ export default function CounselorApp() {
     return () => stopRosterPolling();
   }, [isLoggedIn, isAdmin, startRosterPolling, stopRosterPolling]);
 
-  // Pause/resume polling on tab visibility
+  // Pause/resume polling on tab visibility — re-poll immediately on return
   useEffect(() => {
     const handleVis = () => {
       if (document.visibilityState === 'visible' && isLoggedIn && !isAdmin) {
-        startRosterPolling();
-      } else {
-        stopRosterPolling();
+        pollRoster(); // immediate refresh when coming back
       }
     };
     document.addEventListener('visibilitychange', handleVis);
     return () => document.removeEventListener('visibilitychange', handleVis);
-  }, [isLoggedIn, isAdmin, startRosterPolling, stopRosterPolling]);
+  }, [isLoggedIn, isAdmin, pollRoster]);
 
   const handleLogout = () => {
     stopGpsTracking(); stopRosterPolling(); localStorage.removeItem('counselor_bus'); busNumberRef.current = null;
