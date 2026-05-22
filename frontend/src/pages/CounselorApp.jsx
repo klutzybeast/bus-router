@@ -691,6 +691,26 @@ export default function CounselorApp() {
             Testing: {new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'})}
           </div>
         )}
+        {/* AM / PM Toggle — always visible in sticky header */}
+        <div style={{marginTop:8,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{display:'flex',gap:0,borderRadius:8,overflow:'hidden',border:'2px solid rgba(255,255,255,0.3)'}}>
+            <button data-testid="period-am-btn" onClick={() => { setActivePeriod('am'); setLiveRoster(null); }}
+              style={{padding:'8px 20px',border:'none',fontSize:14,fontWeight:700,cursor:'pointer',
+                background:activePeriod==='am'?'white':'transparent',
+                color:activePeriod==='am'?'#2563eb':'rgba(255,255,255,0.7)'}}>
+              AM Pickup
+            </button>
+            <button data-testid="period-pm-btn" onClick={() => { setActivePeriod('pm'); setLiveRoster(null); }}
+              style={{padding:'8px 20px',border:'none',fontSize:14,fontWeight:700,cursor:'pointer',
+                background:activePeriod==='pm'?'white':'transparent',
+                color:activePeriod==='pm'?'#7c3aed':'rgba(255,255,255,0.7)'}}>
+              PM Dropoff
+            </button>
+          </div>
+          <button data-testid="refresh-roster-btn" onClick={pollRoster} style={{background:'rgba(255,255,255,0.2)',border:'none',borderRadius:6,padding:'6px 10px',fontSize:11,fontWeight:600,color:'white',cursor:'pointer'}}>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Attendance Closed Banner */}
@@ -704,30 +724,6 @@ export default function CounselorApp() {
           Attendance unlocked by admin
         </div>
       )}
-
-      {/* AM / PM Toggle + Refresh */}
-      <div style={{background:'white',borderBottom:'1px solid #e5e7eb',padding:'8px 12px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <div style={{display:'flex',gap:4}}>
-          <button data-testid="period-am-btn" onClick={() => { setActivePeriod('am'); setLiveRoster(null); }}
-            style={{padding:'6px 16px',borderRadius:6,border:'none',fontSize:13,fontWeight:700,cursor:'pointer',
-              background:activePeriod==='am'?'#2563eb':'#f3f4f6',
-              color:activePeriod==='am'?'white':'#6b7280'}}>
-            AM
-          </button>
-          <button data-testid="period-pm-btn" onClick={() => { setActivePeriod('pm'); setLiveRoster(null); }}
-            style={{padding:'6px 16px',borderRadius:6,border:'none',fontSize:13,fontWeight:700,cursor:'pointer',
-              background:activePeriod==='pm'?'#7c3aed':'#f3f4f6',
-              color:activePeriod==='pm'?'white':'#6b7280'}}>
-            PM
-          </button>
-        </div>
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
-          {lastPollTime && <span style={{fontSize:10,color:'#9ca3af'}}>{lastPollTime.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true})}</span>}
-          <button data-testid="refresh-roster-btn" onClick={pollRoster} style={{background:'#f3f4f6',border:'none',borderRadius:6,padding:'4px 10px',fontSize:11,fontWeight:600,color:'#2563eb',cursor:'pointer'}}>
-            Refresh
-          </button>
-        </div>
-      </div>
 
       {/* Stats Bar */}
       <div data-testid="stats-bar" style={{background:'white',borderBottom:'1px solid #e5e7eb',padding:8,display:'flex',justifyContent:'space-around'}}>
