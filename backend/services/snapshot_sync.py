@@ -195,7 +195,7 @@ async def push_attendance_to_snapshot(camper_id: str, status: str, date: str):
         print(f"[SNAP] Error: {e}")
 
 
-async def fetch_snapshot_roster(date: str = None, bus_number: str = None) -> dict:
+async def fetch_snapshot_roster(date: str = None, bus_number: str = None, period: str = None) -> dict:
     """Pull daily roster from CamperSnapshot (session-aware, bus riders only)."""
     try:
         if not date:
@@ -207,8 +207,12 @@ async def fetch_snapshot_roster(date: str = None, bus_number: str = None) -> dic
         else:
             url = f"{CAMPERSNAPSHOT_URL}/api/bus-roster"
 
+        params = {"date": date}
+        if period and period in ("am", "pm"):
+            params["period"] = period
+
         async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(url, params={"date": date}, headers=_snapshot_headers())
+            response = await client.get(url, params=params, headers=_snapshot_headers())
 
         if response.status_code == 200:
             return response.json()

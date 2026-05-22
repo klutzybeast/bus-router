@@ -50,6 +50,9 @@ export default function CounselorApp() {
   const busNumberRef = useRef(null);
   const wakeLockRef = useRef(null);
   const lastSentRef = useRef(null);
+  const rosterPollRef = useRef(null);
+  const [liveRoster, setLiveRoster] = useState(null);
+  const [lastPollTime, setLastPollTime] = useState(null);
 
   // Ensure scrolling works on mobile - remove any overflow restrictions from parents
   useEffect(() => {
@@ -197,11 +200,63 @@ export default function CounselorApp() {
     if (wakeLockRef.current) { wakeLockRef.current.release(); wakeLockRef.current = null; }
   }, []);
 
+  // Roster polling — fetch live roster from CamperSnapshot every 30s
+  const getPeriod = useCallback(() => {
+    const now = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit' });
+    return parseInt(now) < 12 ? 'am' : 'pm';
+  }, []);
+
+  const pollRoster = useCallback(async () => {
+    const bus = busNumberRef.current;
+    if (!bus) return;
+    try {
+      const period = getPeriod();
+      const res = await fetch(`${API_URL}/api/bus-tracking/live-roster/${encodeURIComponent(bus)}?period=${period}&date=${selectedDate}`);
+      const data = await res.json();
+      if (data.success) {
+        setLiveRoster(data);
+        setLastPollTime(new Date());
+      }
+    } catch { /* silent — next poll will retry */ }
+  }, [selectedDate, getPeriod]);
+
+  const startRosterPolling = useCallback(() => {
+    if (rosterPollRef.current) clearInterval(rosterPollRef.current);
+    pollRoster(); // immediate first fetch
+    rosterPollRef.current = setInterval(pollRoster, 30000);
+  }, [pollRoster]);
+
+  const stopRosterPolling = useCallback(() => {
+    if (rosterPollRef.current) { clearInterval(rosterPollRef.current); rosterPollRef.current = null; }
+  }, []);
+
+  // Start/stop polling on login/logout and visibility change
+  useEffect(() => {
+    if (isLoggedIn && !isAdmin && busNumberRef.current) {
+      startRosterPolling();
+    }
+    return () => stopRosterPolling();
+  }, [isLoggedIn, isAdmin, startRosterPolling, stopRosterPolling]);
+
+  // Pause/resume polling on tab visibility
+  useEffect(() => {
+    const handleVis = () => {
+      if (document.visibilityState === 'visible' && isLoggedIn && !isAdmin) {
+        startRosterPolling();
+      } else {
+        stopRosterPolling();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVis);
+    return () => document.removeEventListener('visibilitychange', handleVis);
+  }, [isLoggedIn, isAdmin, startRosterPolling, stopRosterPolling]);
+
   const handleLogout = () => {
-    stopGpsTracking(); localStorage.removeItem('counselor_bus'); busNumberRef.current = null;
+    stopGpsTracking(); stopRosterPolling(); localStorage.removeItem('counselor_bus'); busNumberRef.current = null;
     setIsLoggedIn(false); setIsAdmin(false); setBusData(null); setAttendance({}); setPin(''); setLocationCount(0); setGpsStatus('idle'); setWakeLockActive(false);
     setSelectedDate(getTodayEST()); setAdminDates([]); setAdminBus(''); setAdminResult(null); setShowConfirm(false);
     setAdminPasswordInput(''); setAdminPasswordError(''); setAdminAuthenticated(false); setAdminTab('routes');
+    setLiveRoster(null); setLastPollTime(null);
   };
 
   useEffect(() => () => stopGpsTracking(), [stopGpsTracking]);
@@ -228,6 +283,7 @@ export default function CounselorApp() {
     setSelectedDate(newDate);
     setAttendance({});
     fetchAttendanceForDate(newDate);
+    setLiveRoster(null); // clear stale roster, next poll will fetch for new date
   };
 
   const toggleAdminDate = (date) => {
@@ -533,7 +589,41 @@ export default function CounselorApp() {
 
   const presentCount = Object.values(attendance).filter(s => s === 'present').length;
   const absentCount = Object.values(attendance).filter(s => s === 'absent').length;
-  const campers = busData?.campers || [];
+  const period = getPeriod();
+  const baseCampers = busData?.campers || [];
+
+  // Merge live roster data into campers
+  const liveMap = {};
+  if (liveRoster?.campers) {
+    for (const r of liveRoster.campers) {
+      liveMap[r.name?.toLowerCase()] = r;
+      if (r.snapshot_id) liveMap[r.snapshot_id] = r;
+    }
+  }
+
+  const campers = baseCampers.map(c => {
+    const nameKey = `${c.first_name} ${c.last_name}`.toLowerCase();
+    const live = liveMap[c.snapshot_id] || liveMap[nameKey] || {};
+    return {
+      ...c,
+      rides_am: live.rides_am ?? c.rides_am ?? true,
+      rides_pm: live.rides_pm ?? c.rides_pm ?? true,
+      am_excepted_today: live.am_excepted_today ?? false,
+      am_exception_location: live.am_exception_location ?? null,
+      pm_excepted_today: live.pm_excepted_today ?? false,
+      pm_exception_location: live.pm_exception_location ?? null,
+      early_swim_lesson: live.early_swim_lesson ?? c.early_swim_lesson ?? false,
+      todays_swim_lesson: live.todays_swim_lesson ?? c.todays_swim_lesson ?? '',
+      group: live.group || c.group || '',
+      age: live.age ?? c.age,
+    };
+  });
+
+  // Split: active riders vs excepted riders for current period
+  const activeRiders = campers.filter(c => period === 'am' ? c.rides_am && !c.am_excepted_today : c.rides_pm && !c.pm_excepted_today);
+  const exceptedRiders = campers.filter(c => period === 'am' ? (c.am_excepted_today || !c.rides_am) : (c.pm_excepted_today || !c.rides_pm));
+  const swimAm = liveRoster?.swim_am || busData?.swim_am || [];
+  const swimPm = liveRoster?.swim_pm || busData?.swim_pm || [];
 
   return (
     <div data-testid="counselor-main" className="counselor-page" style={{
@@ -620,20 +710,50 @@ export default function CounselorApp() {
         </div>
       )}
 
+      {/* Period indicator + refresh */}
+      <div style={{background:'white',borderBottom:'1px solid #e5e7eb',padding:'6px 12px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div style={{display:'flex',alignItems:'center',gap:6}}>
+          <span style={{fontSize:12,fontWeight:700,color:period==='am'?'#2563eb':'#7c3aed',background:period==='am'?'#dbeafe':'#ede9fe',padding:'2px 8px',borderRadius:4}}>{period.toUpperCase()}</span>
+          {lastPollTime && <span style={{fontSize:10,color:'#9ca3af'}}>Updated {lastPollTime.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true})}</span>}
+        </div>
+        <button data-testid="refresh-roster-btn" onClick={pollRoster} style={{background:'#f3f4f6',border:'none',borderRadius:6,padding:'4px 10px',fontSize:11,fontWeight:600,color:'#2563eb',cursor:'pointer'}}>
+          Refresh
+        </button>
+      </div>
+
       {/* Stats Bar */}
       <div data-testid="stats-bar" style={{background:'white',borderBottom:'1px solid #e5e7eb',padding:8,display:'flex',justifyContent:'space-around'}}>
         <div style={{textAlign:'center'}}><div data-testid="present-count" style={{fontSize:20,fontWeight:'bold',color:'#22c55e'}}>{presentCount}</div><div style={{fontSize:10,color:'#6b7280'}}>Present</div></div>
         <div style={{textAlign:'center'}}><div data-testid="absent-count" style={{fontSize:20,fontWeight:'bold',color:'#ef4444'}}>{absentCount}</div><div style={{fontSize:10,color:'#6b7280'}}>Absent</div></div>
-        <div style={{textAlign:'center'}}><div data-testid="unmarked-count" style={{fontSize:20,fontWeight:'bold',color:'#9ca3af'}}>{campers.length-presentCount-absentCount}</div><div style={{fontSize:10,color:'#6b7280'}}>Unmarked</div></div>
-        <div style={{textAlign:'center'}}><div data-testid="total-count" style={{fontSize:20,fontWeight:'bold',color:'#2563eb'}}>{campers.length}</div><div style={{fontSize:10,color:'#6b7280'}}>Total</div></div>
+        <div style={{textAlign:'center'}}><div data-testid="unmarked-count" style={{fontSize:20,fontWeight:'bold',color:'#9ca3af'}}>{activeRiders.length-presentCount-absentCount}</div><div style={{fontSize:10,color:'#6b7280'}}>Unmarked</div></div>
+        <div style={{textAlign:'center'}}><div data-testid="total-count" style={{fontSize:20,fontWeight:'bold',color:'#2563eb'}}>{activeRiders.length}</div><div style={{fontSize:10,color:'#6b7280'}}>Total</div></div>
       </div>
 
+      {/* Excepted campers banner */}
+      {exceptedRiders.length > 0 && (
+        <div data-testid="excepted-section" style={{margin:8,marginBottom:0,background:'#fef2f2',border:'2px solid #fca5a5',borderRadius:10,padding:10}}>
+          <div style={{fontSize:12,fontWeight:700,color:'#dc2626',marginBottom:6}}>
+            {period === 'am' ? 'NOT ON AM BUS TODAY' : 'NOT ON PM BUS TODAY'} ({exceptedRiders.length})
+          </div>
+          {exceptedRiders.map((c, i) => (
+            <div key={c.id || i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0',borderBottom:i<exceptedRiders.length-1?'1px solid #fecaca':'none'}}>
+              <span style={{fontSize:13,fontWeight:500,color:'#991b1b'}}>{c.first_name} {c.last_name}</span>
+              <span style={{fontSize:10,fontWeight:600,color:'white',padding:'2px 6px',borderRadius:4,
+                background: c.am_excepted_today ? '#dc2626' : c.early_swim_lesson ? '#0891b2' : c.pm_excepted_today ? '#d97706' : '#6b7280'
+              }}>
+                {c.am_exception_location || c.pm_exception_location || (c.early_swim_lesson ? 'Early Swim' : 'Excepted')}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* AM Swim Lessons */}
-      {busData?.swim_am?.length > 0 && (
+      {swimAm.length > 0 && (
         <div data-testid="swim-am-section" style={{margin:8,marginBottom:0,background:'#ecfeff',border:'2px solid #06b6d4',borderRadius:10,padding:10}}>
           <div style={{fontSize:12,fontWeight:700,color:'#0891b2',marginBottom:6}}>AM SWIM LESSONS — NOT ON BUS</div>
-          {busData.swim_am.map((s, i) => (
-            <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0',borderBottom:i<busData.swim_am.length-1?'1px solid #cffafe':'none'}}>
+          {swimAm.map((s, i) => (
+            <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0',borderBottom:i<swimAm.length-1?'1px solid #cffafe':'none'}}>
               <span style={{fontSize:13,fontWeight:500,color:'#164e63'}}>{s.name}</span>
               <div style={{display:'flex',gap:6,alignItems:'center'}}>
                 {s.group && <span style={{fontSize:10,fontWeight:600,color:'#0891b2',background:'#cffafe',padding:'1px 5px',borderRadius:3}}>{s.group}</span>}
@@ -645,11 +765,11 @@ export default function CounselorApp() {
       )}
 
       {/* PM Swim Lessons */}
-      {busData?.swim_pm?.length > 0 && (
+      {swimPm.length > 0 && (
         <div data-testid="swim-pm-section" style={{margin:8,marginBottom:0,background:'#fef3c7',border:'2px solid #f59e0b',borderRadius:10,padding:10}}>
           <div style={{fontSize:12,fontWeight:700,color:'#92400e',marginBottom:6}}>PM SWIM LESSONS — NOT ON PM BUS</div>
-          {busData.swim_pm.map((s, i) => (
-            <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0',borderBottom:i<busData.swim_pm.length-1?'1px solid #fde68a':'none'}}>
+          {swimPm.map((s, i) => (
+            <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0',borderBottom:i<swimPm.length-1?'1px solid #fde68a':'none'}}>
               <span style={{fontSize:13,fontWeight:500,color:'#78350f'}}>{s.name}</span>
               <div style={{display:'flex',gap:6,alignItems:'center'}}>
                 {s.group && <span style={{fontSize:10,fontWeight:600,color:'#92400e',background:'#fde68a',padding:'1px 5px',borderRadius:3}}>{s.group}</span>}
@@ -660,9 +780,9 @@ export default function CounselorApp() {
         </div>
       )}
 
-      {/* Camper List */}
+      {/* Camper List — active riders only */}
       <div data-testid="camper-list" style={{padding:8}}>
-        {campers.map((camper, index) => {
+        {activeRiders.map((camper, index) => {
           const status = attendance[camper.id];
           return (
             <div key={camper.id} data-testid={`camper-row-${index}`} style={{
@@ -681,11 +801,6 @@ export default function CounselorApp() {
                   {camper.session && <span style={{fontSize:11,color:'#6b7280'}}>{camper.session}</span>}
                   {camper.is_flex && <span style={{fontSize:10,fontWeight:600,color:'#7c3aed',background:'#ede9fe',padding:'1px 5px',borderRadius:4}}>Flex</span>}
                 </div>
-                {camper.early_swim_lesson && (
-                  <div style={{marginTop:3,marginLeft:30,fontSize:11,fontWeight:600,color:'#0891b2',background:'#ecfeff',padding:'2px 8px',borderRadius:4,display:'inline-block'}}>
-                    {camper.todays_swim_lesson ? `${camper.todays_swim_lesson} swim` : 'Early swim'} — not on AM bus
-                  </div>
-                )}
                 {camper.session_changeover?.this_week && (
                   <div style={{marginTop:3,marginLeft:30,fontSize:11,fontWeight:600,color:'#92400e',background:'#fef3c7',padding:'2px 8px',borderRadius:4,display:'inline-block'}}>
                     {camper.session_changeover.events?.map(e => `${e.name} ${e.type}s ${e.weekday}`).join(' · ')}
@@ -707,7 +822,7 @@ export default function CounselorApp() {
             </div>
           );
         })}
-        {campers.length===0 && (
+        {activeRiders.length===0 && (
           <div style={{textAlign:'center',padding:48,color:'#6b7280'}}>
             <Users size={48} style={{opacity:0.5,marginBottom:12}} />
             <p>No campers on this bus</p>

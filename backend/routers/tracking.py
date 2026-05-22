@@ -174,6 +174,70 @@ async def bus_tracking_login(request: BusLoginRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/bus-tracking/live-roster/{bus_number}")
+async def get_live_roster(bus_number: str, period: Optional[str] = None, date: Optional[str] = None):
+    """Poll CamperSnapshot for live roster updates (exceptions, swim lessons).
+    Called every 30s by the counselor app to pick up real-time changes.
+    """
+    try:
+        bus_number = urllib.parse.unquote(bus_number)
+        effective_date = date or today_eastern()
+
+        from services.snapshot_sync import fetch_snapshot_roster
+        data = await fetch_snapshot_roster(date=effective_date, bus_number=bus_number, period=period)
+
+        if data.get("fallback") or data.get("error"):
+            return {"success": False, "error": data.get("error", "CamperSnapshot unavailable")}
+
+        campers = data.get("campers", data.get("am_riders", []))
+        result = []
+        swim_am = []
+        swim_pm = []
+
+        for r in campers:
+            result.append({
+                "snapshot_id": r.get("id", ""),
+                "name": r.get("name", ""),
+                "group": r.get("group_code", ""),
+                "age": r.get("age"),
+                "sessions": r.get("sessions", []),
+                "rides_am": r.get("rides_am", True),
+                "rides_pm": r.get("rides_pm", True),
+                "am_excepted_today": r.get("am_excepted_today", False),
+                "am_exception_location": r.get("am_exception_location"),
+                "pm_excepted_today": r.get("pm_excepted_today", False),
+                "pm_exception_location": r.get("pm_exception_location"),
+                "early_swim_lesson": r.get("early_swim_lesson", False),
+                "todays_swim_lesson": r.get("todays_swim_lesson", ""),
+                "is_flex": r.get("is_flex", False),
+                "session_changeover": r.get("session_changeover"),
+                "attendance": r.get("attendance", "unmarked"),
+            })
+
+            # Collect swim info
+            swim_time = r.get("todays_swim_lesson", "")
+            if r.get("early_swim_lesson") or (swim_time and "am" in swim_time.lower()):
+                swim_am.append({"name": r.get("name", ""), "time": swim_time, "group": r.get("group_code", "")})
+            if swim_time and ("4:00" in swim_time or "4:30" in swim_time):
+                swim_pm.append({"name": r.get("name", ""), "time": swim_time, "group": r.get("group_code", "")})
+
+        return {
+            "success": True,
+            "bus_number": bus_number,
+            "date": effective_date,
+            "period": period,
+            "campers": result,
+            "count": len(result),
+            "swim_am": swim_am,
+            "swim_pm": swim_pm
+        }
+
+    except Exception as e:
+        logging.error(f"Error fetching live roster: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
+
 @router.post("/bus-tracking/location")
 async def update_bus_location(request: BusLocationUpdate):
     """Update bus GPS location (called from counselor app)."""
