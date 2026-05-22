@@ -614,10 +614,14 @@ export default function CounselorApp() {
     };
   });
 
-  // removed_today comes directly from CamperSnapshot — these kids are NOT in the campers array
+  // removed_today comes directly from CamperSnapshot — these kids are NOT on the bus this period
   const removedToday = liveRoster?.removed_today || [];
-  // All campers from local DB are active riders (CamperSnapshot already filtered the roster)
-  const activeRiders = campers;
+  // Filter out removed kids from the attendance list by matching names
+  const removedNames = new Set(removedToday.map(r => r.name?.toLowerCase()));
+  const activeRiders = campers.filter(c => {
+    const name = `${c.first_name} ${c.last_name}`.toLowerCase();
+    return !removedNames.has(name);
+  });
   const swimAm = liveRoster?.swim_am || busData?.swim_am || [];
   const swimPm = liveRoster?.swim_pm || busData?.swim_pm || [];
 
