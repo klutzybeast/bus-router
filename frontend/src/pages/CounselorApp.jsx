@@ -150,13 +150,16 @@ export default function CounselorApp() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin })
       });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.detail || 'Login failed. Try again.');
+      }
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || 'Invalid bus number');
       localStorage.setItem('counselor_bus', pin);
       setBusData(data); setAttendance(data.attendance || {}); setIsLoggedIn(true);
       busNumberRef.current = data.bus_number;
       await requestWakeLock(); startGpsTracking();
-    } catch (err) { setError(err.message); }
+    } catch (err) { setError(err.message === 'Failed to fetch' ? 'Connection error. Check your internet and try again.' : err.message); }
     finally { setLoading(false); }
   };
 

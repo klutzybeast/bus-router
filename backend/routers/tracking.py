@@ -82,11 +82,15 @@ async def bus_tracking_login(request: BusLoginRequest):
             })
 
         # Fetch enriched data from CamperSnapshot roster (multi-bus for AM/PM split)
+        # This is OPTIONAL — login must succeed even if CamperSnapshot is unavailable
         swim_am = []
         swim_pm = []
         try:
             from services.snapshot_sync import fetch_snapshot_roster
             all_roster = await fetch_snapshot_roster(date=today_eastern())
+            if not all_roster or all_roster.get("error") or all_roster.get("fallback"):
+                raise Exception(all_roster.get("error", "CamperSnapshot unavailable"))
+
             bus_data_snap = None
             for b in all_roster.get("buses", []):
                 if b.get("bus") == bus_number:
@@ -118,7 +122,6 @@ async def bus_tracking_login(request: BusLoginRequest):
                 camper["todays_swim_lesson"] = snap.get("todays_swim_lesson", "")
                 camper["session_changeover"] = snap.get("session_changeover")
 
-            # AM swim: kids in pm_riders but not in am_riders (early swim filtered out)
             am_names = {r.get("name", "").strip().lower() for r in am_riders}
             for r in pm_riders:
                 name_lower = r.get("name", "").strip().lower()
@@ -126,21 +129,13 @@ async def bus_tracking_login(request: BusLoginRequest):
                 if r.get("early_swim_lesson") or (name_lower not in am_names and swim_time and "am" in swim_time.lower()):
                     swim_am.append({"name": r.get("name", ""), "time": swim_time, "group": r.get("group_code", "")})
 
-            # PM swim: kids with 4:00pm/4:30pm swim lessons
             for r in pm_riders:
                 swim_time = r.get("todays_swim_lesson", "")
                 if swim_time and ("4:00" in swim_time or "4:30" in swim_time):
                     swim_pm.append({"name": r.get("name", ""), "time": swim_time, "group": r.get("group_code", "")})
 
         except Exception as e:
-            logging.warning(f"Could not fetch data from CamperSnapshot: {e}")
-            for camper in campers:
-                camper["group"] = ""
-                camper["age"] = None
-                camper["is_flex"] = False
-                camper["early_swim_lesson"] = False
-                camper["todays_swim_lesson"] = ""
-                camper["session_changeover"] = None
+            logging.warning(f"CamperSnapshot enrichment skipped: {e}")
 
         today = today_eastern()
         attendance_doc = await db.bus_attendance.find_one({
